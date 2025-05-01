@@ -72,7 +72,6 @@ const Map<String, String> _rdfNamespaceMappings = {
 /// // Access a namespace URI by prefix
 /// final exUri = customMappings['ex']; // http://example.org/
 /// ```
-@deprecated
 class RdfNamespaceMappings {
   final Map<String, String> _mappings;
 

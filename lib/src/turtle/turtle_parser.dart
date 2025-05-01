@@ -65,18 +65,18 @@ class TurtleParser {
     try {
       _currentToken = _tokenizer.nextToken();
       final triples = <Triple>[];
-      _log.info('Starting parse with token: $_currentToken');
+      // _log.finest('Starting parse with token: $_currentToken');
 
       while (_currentToken.type != TokenType.eof) {
-        _log.info('Processing token: $_currentToken');
+        // _log.finest('Processing token: $_currentToken');
         if (_currentToken.type == TokenType.prefix) {
-          _log.info('Found prefix declaration');
+          // _log.finest('Found prefix declaration');
           _parsePrefix();
         } else if (_currentToken.type == TokenType.base) {
-          _log.info('Found base declaration');
+          // _log.finest('Found base declaration');
           _parseBase();
         } else if (_currentToken.type == TokenType.openBracket) {
-          _log.info('Found blank node');
+          // _log.finest('Found blank node');
           final subject = _parseBlankNode();
 
           // After parsing a blank node that is used as a subject,
@@ -95,22 +95,22 @@ class TurtleParser {
             _currentToken = _tokenizer.nextToken();
           }
         } else {
-          _log.info('Parsing subject');
+          // _log.finest('Parsing subject');
           final subject = _parseSubject();
-          _log.info('Subject parsed: $subject');
-          _log.info('Current token after subject: $_currentToken');
+          // _log.finest('Subject parsed: $subject');
+          // _log.finest('Current token after subject: $_currentToken');
 
           final predicateObjectList = _parsePredicateObjectList();
-          _log.info('Predicate-object list parsed: $predicateObjectList');
-          _log.info(
-            'Current token after predicate-object list: $_currentToken',
-          );
+          // _log.finest('Predicate-object list parsed: $predicateObjectList');
+          // _log.finest(
+          //  'Current token after predicate-object list: $_currentToken',
+          //);
 
           for (final po in predicateObjectList) {
             triples.add(Triple(subject, po.predicate, po.object));
           }
 
-          _log.info('Expecting dot, current token: $_currentToken');
+          // _log.finest('Expecting dot, current token: $_currentToken');
           _expect(TokenType.dot);
           _currentToken = _tokenizer.nextToken();
         }
@@ -153,26 +153,26 @@ class TurtleParser {
   ///
   /// The base URI is stored in the [_baseUri] field and used for resolving relative IRIs.
   void _parseBase() {
-    _log.info('Parsing base declaration');
+    // _log.finest('Parsing base declaration');
     _expect(TokenType.base);
     _currentToken = _tokenizer.nextToken();
-    _log.info('After @base: $_currentToken');
+    // _log.finest('After @base: $_currentToken');
 
     _expect(TokenType.iri);
     final iriToken = _currentToken.value;
     // Extract IRI value from <...>
     final iri = _extractIriValue(iriToken);
-    _log.info('Found base IRI: $iri');
+    // _log.finest('Found base IRI: $iri');
 
     _baseUri = iri;
-    _log.info('Set base URI to: "$iri"');
+    // _log.finest('Set base URI to: "$iri"');
 
     _currentToken = _tokenizer.nextToken();
-    _log.info('After IRI: $_currentToken');
+    // _log.finest('After IRI: $_currentToken');
 
     _expect(TokenType.dot);
     _currentToken = _tokenizer.nextToken();
-    _log.info('After dot: $_currentToken');
+    // _log.finest('After dot: $_currentToken');
   }
 
   /// Parses a prefix declaration.
@@ -188,10 +188,10 @@ class TurtleParser {
   /// Throws [RdfSyntaxException] if the prefix declaration is malformed,
   /// such as when the colon is missing after the prefix.
   void _parsePrefix() {
-    _log.info('Parsing prefix declaration');
+    // _log.finest('Parsing prefix declaration');
     _expect(TokenType.prefix);
     _currentToken = _tokenizer.nextToken();
-    _log.info('After @prefix: $_currentToken');
+    // _log.finest('After @prefix: $_currentToken');
 
     // Check that the next token is a prefixed name (which must contain a colon)
     if (_currentToken.type != TokenType.prefixedName) {
@@ -220,33 +220,33 @@ class TurtleParser {
       );
     }
 
-    _log.info('Found prefixed name: $prefixedName');
+    // _log.finest('Found prefixed name: $prefixedName');
 
     // Handle empty prefix case
     final prefix =
         prefixedName == ':'
             ? ''
             : prefixedName.substring(0, prefixedName.length - 1);
-    _log.info('Extracted prefix: "$prefix"');
+    // _log.finest('Extracted prefix: "$prefix"');
 
     _currentToken = _tokenizer.nextToken();
-    _log.info('After prefixed name: $_currentToken');
+    // _log.finest('After prefixed name: $_currentToken');
 
     _expect(TokenType.iri);
     final iriToken = _currentToken.value;
     // Extract IRI value from <...>
     final iri = _extractIriValue(iriToken);
-    _log.info('Found IRI: $iri');
+    // _log.finest('Found IRI: $iri');
 
     _prefixes[prefix] = iri;
-    _log.info('Stored prefix mapping: "$prefix" -> "$iri"');
+    // _log.finest('Stored prefix mapping: "$prefix" -> "$iri"');
 
     _currentToken = _tokenizer.nextToken();
-    _log.info('After IRI: $_currentToken');
+    // _log.finest('After IRI: $_currentToken');
 
     _expect(TokenType.dot);
     _currentToken = _tokenizer.nextToken();
-    _log.info('After dot: $_currentToken');
+    // _log.finest('After dot: $_currentToken');
   }
 
   /// Parses a subject in a triple.
@@ -259,29 +259,29 @@ class TurtleParser {
   ///
   /// Returns an RdfTerm representing the subject (either IriTerm or BlankNodeTerm)
   RdfSubject _parseSubject() {
-    _log.info('Parsing subject, current token: $_currentToken');
+    // _log.finest('Parsing subject, current token: $_currentToken');
     if (_currentToken.type == TokenType.iri) {
       final iriValue = _extractIriValue(_currentToken.value);
       final resolvedIri = _resolveIri(iriValue);
       final subject = IriTerm(resolvedIri);
       _currentToken = _tokenizer.nextToken();
-      _log.info('Parsed IRI subject: $subject');
+      // _log.finest('Parsed IRI subject: $subject');
       return subject;
     } else if (_currentToken.type == TokenType.prefixedName) {
       final expandedIri = _expandPrefixedName(_currentToken.value);
       final subject = IriTerm(expandedIri);
       _currentToken = _tokenizer.nextToken();
-      _log.info('Parsed prefixed name subject: $subject');
+      // _log.finest('Parsed prefixed name subject: $subject');
       return subject;
     } else if (_currentToken.type == TokenType.blankNode) {
       final label = _currentToken.value;
       final subject = _blankNodesByLabels[label] ?? BlankNodeTerm();
       _blankNodesByLabels[label] = subject;
       _currentToken = _tokenizer.nextToken();
-      _log.info('Parsed blank node subject: $subject');
+      // _log.finest('Parsed blank node subject: $subject');
       return subject;
     } else if (_currentToken.type == TokenType.openBracket) {
-      _log.info('Found blank node expression for subject');
+      // _log.finest('Found blank node expression for subject');
       return _parseBlankNode();
     } else if (_currentToken.type == TokenType.a) {
       // Handle the case where 'a' is used as a subject (which is invalid)
@@ -326,46 +326,46 @@ class TurtleParser {
   ///
   /// Returns a list of (predicate, object) pairs that share the same subject.
   List<({IriTerm predicate, RdfObject object})> _parsePredicateObjectList() {
-    _log.info('Parsing predicate-object list');
+    // _log.finest('Parsing predicate-object list');
     final result = <({IriTerm predicate, RdfObject object})>[];
     var predicate = _parsePredicate();
-    _log.info('Parsed predicate: $predicate');
+    // _log.finest('Parsed predicate: $predicate');
 
     // Parse first object
     var object = _parseObject();
-    _log.info('Parsed object: $object');
+    // _log.finest('Parsed object: $object');
     result.add((predicate: predicate, object: object));
 
     // Parse additional objects for the same predicate
     while (_currentToken.type == TokenType.comma) {
-      _log.info('Found comma, parsing next object');
+      // _log.finest('Found comma, parsing next object');
       _currentToken = _tokenizer.nextToken();
       object = _parseObject();
-      _log.info('Parsed next object: $object');
+      // _log.finest('Parsed next object: $object');
       result.add((predicate: predicate, object: object));
     }
 
     // Parse additional predicate-object pairs
     while (_currentToken.type == TokenType.semicolon) {
-      _log.info('Found semicolon, parsing next predicate-object pair');
+      // _log.finest('Found semicolon, parsing next predicate-object pair');
       _currentToken = _tokenizer.nextToken();
       if (_currentToken.type == TokenType.dot ||
           _currentToken.type == TokenType.closeBracket) {
-        _log.info('End of predicate-object list reached');
+        // _log.finest('End of predicate-object list reached');
         break;
       }
       predicate = _parsePredicate();
-      _log.info('Parsed next predicate: $predicate');
+      // _log.finest('Parsed next predicate: $predicate');
       object = _parseObject();
-      _log.info('Parsed next object: $object');
+      // _log.finest('Parsed next object: $object');
       result.add((predicate: predicate, object: object));
 
       // Parse additional objects for this predicate
       while (_currentToken.type == TokenType.comma) {
-        _log.info('Found comma, parsing next object');
+        // _log.finest('Found comma, parsing next object');
         _currentToken = _tokenizer.nextToken();
         object = _parseObject();
-        _log.info('Parsed next object: $object');
+        // _log.finest('Parsed next object: $object');
         result.add((predicate: predicate, object: object));
       }
     }
@@ -385,7 +385,7 @@ class TurtleParser {
       );
     }
 
-    _log.info('Predicate-object list complete: $result');
+    // _log.finer('Predicate-object list complete: $result');
     return result;
   }
 
@@ -398,23 +398,23 @@ class TurtleParser {
   ///
   /// Returns an IriTerm representing the predicate.
   IriTerm _parsePredicate() {
-    _log.info('Parsing predicate, current token: $_currentToken');
+    // _log.finest('Parsing predicate, current token: $_currentToken');
     if (_currentToken.type == TokenType.a) {
       _currentToken = _tokenizer.nextToken();
-      _log.info('Found "a" keyword, expanded to rdf:type');
+      // _log.finest('Found "a" keyword, expanded to rdf:type');
       return RdfPredicates.type;
     } else if (_currentToken.type == TokenType.iri) {
       final iriValue = _extractIriValue(_currentToken.value);
       final resolvedIri = _resolveIri(iriValue);
       final predicate = IriTerm(resolvedIri);
       _currentToken = _tokenizer.nextToken();
-      _log.info('Parsed IRI predicate: $predicate');
+      // _log.finest('Parsed IRI predicate: $predicate');
       return predicate;
     } else if (_currentToken.type == TokenType.prefixedName) {
       final expandedIri = _expandPrefixedName(_currentToken.value);
       final predicate = IriTerm(expandedIri);
       _currentToken = _tokenizer.nextToken();
-      _log.info('Parsed prefixed name predicate: $predicate');
+      // _log.finest('Parsed prefixed name predicate: $predicate');
       return predicate;
     } else {
       _log.severe('Unexpected token type for predicate: ${_currentToken.type}');
@@ -441,34 +441,34 @@ class TurtleParser {
   ///
   /// Returns an RdfTerm representing the object (IriTerm, BlankNodeTerm, or LiteralTerm).
   RdfObject _parseObject() {
-    _log.info('Parsing object, current token: $_currentToken');
+    // _log.finest('Parsing object, current token: $_currentToken');
     if (_currentToken.type == TokenType.iri) {
       final iriValue = _extractIriValue(_currentToken.value);
       final resolvedIri = _resolveIri(iriValue);
       final object = IriTerm(resolvedIri);
       _currentToken = _tokenizer.nextToken();
-      _log.info('Parsed IRI object: $object');
+      // _log.finest('Parsed IRI object: $object');
       return object;
     } else if (_currentToken.type == TokenType.prefixedName) {
       final expandedIri = _expandPrefixedName(_currentToken.value);
       final object = IriTerm(expandedIri);
       _currentToken = _tokenizer.nextToken();
-      _log.info('Parsed prefixed name object: $object');
+      // _log.finest('Parsed prefixed name object: $object');
       return object;
     } else if (_currentToken.type == TokenType.blankNode) {
       final label = _currentToken.value;
       final object = _blankNodesByLabels[label] ?? BlankNodeTerm();
       _blankNodesByLabels[label] = object;
       _currentToken = _tokenizer.nextToken();
-      _log.info('Parsed blank node object: $object');
+      // _log.finest('Parsed blank node object: $object');
       return object;
     } else if (_currentToken.type == TokenType.literal) {
       final literalTerm = _parseLiteralValue(_currentToken.value);
       _currentToken = _tokenizer.nextToken();
-      _log.info('Parsed literal object: $literalTerm');
+      // _log.finest('Parsed literal object: $literalTerm');
       return literalTerm;
     } else if (_currentToken.type == TokenType.openBracket) {
-      _log.info('Found blank node expression for object');
+      // _log.finest('Found blank node expression for object');
       return _parseBlankNode();
     } else {
       _log.severe('Unexpected token type for object: ${_currentToken.type}');
@@ -495,7 +495,7 @@ class TurtleParser {
     }
 
     final resolved = Uri.parse(_baseUri!).resolve(iri).toString();
-    _log.info('Resolved relative IRI: $iri -> $resolved');
+    // _log.finest('Resolved relative IRI: $iri -> $resolved');
     return resolved;
   }
 
@@ -511,14 +511,14 @@ class TurtleParser {
   /// Returns a BlankNodeTerm and adds any triples found within the blank node
   /// to the [_triples] list.
   BlankNodeTerm _parseBlankNode() {
-    _log.info('Parsing blank node');
+    // _log.finest('Parsing blank node');
     _expect(TokenType.openBracket);
     final subject = BlankNodeTerm();
-    _log.info('Generated blank node identifier: $subject');
+    // _log.finest('Generated blank node identifier: $subject');
     _currentToken = _tokenizer.nextToken();
 
     if (_currentToken.type != TokenType.closeBracket) {
-      _log.info('Found blank node content');
+      // _log.finest('Found blank node content');
       final predicateObjectList = _parsePredicateObjectList();
       for (final po in predicateObjectList) {
         _triples.add(Triple(subject, po.predicate, po.object));
@@ -526,7 +526,7 @@ class TurtleParser {
       _expect(TokenType.closeBracket);
       _currentToken = _tokenizer.nextToken();
     } else {
-      _log.info('Empty blank node');
+      // _log.finest('Empty blank node');
       _currentToken = _tokenizer.nextToken();
     }
     return subject;
@@ -548,27 +548,52 @@ class TurtleParser {
   /// Properly unescapes any escape sequences in the literal value according to
   /// Turtle syntax rules.
   LiteralTerm _parseLiteralValue(String literalToken) {
-    _log.info('Parsing literal token: $literalToken');
+    // _log.finest('Parsing literal token: $literalToken');
 
-    // Extract the literal content (between the quotes)
-    final valueMatch = RegExp(
-      r'"([^"\\]*(?:\\.[^"\\]*)*)"',
-    ).firstMatch(literalToken);
-    if (valueMatch == null) {
-      _log.severe('Invalid literal format: $literalToken');
-      throw RdfSyntaxException(
-        'Invalid literal format',
-        format: _format,
-        source: SourceLocation(
-          line: _currentToken.line,
-          column: _currentToken.column,
-          context: literalToken,
-        ),
-      );
+    // Check if it's a triple-quoted multiline string
+    bool isTripleQuoted =
+        literalToken.startsWith('"""') && literalToken.length >= 6;
+
+    String value;
+    if (isTripleQuoted) {
+      // Extract the content between triple quotes
+      final closingIndex = literalToken.lastIndexOf('"""');
+      if (closingIndex > 0) {
+        final escapedValue = literalToken.substring(3, closingIndex);
+        value = _unescapeTurtleString(escapedValue);
+      } else {
+        _log.severe('Invalid triple-quoted literal format: $literalToken');
+        throw RdfSyntaxException(
+          'Invalid triple-quoted literal format',
+          format: _format,
+          source: SourceLocation(
+            line: _currentToken.line,
+            column: _currentToken.column,
+            context: literalToken,
+          ),
+        );
+      }
+    } else {
+      // Handle regular quoted literals
+      final valueMatch = RegExp(
+        r'"([^"\\]*(?:\\.[^"\\]*)*)"',
+      ).firstMatch(literalToken);
+      if (valueMatch == null) {
+        _log.severe('Invalid literal format: $literalToken');
+        throw RdfSyntaxException(
+          'Invalid literal format',
+          format: _format,
+          source: SourceLocation(
+            line: _currentToken.line,
+            column: _currentToken.column,
+            context: literalToken,
+          ),
+        );
+      }
+
+      final escapedValue = valueMatch.group(1)!;
+      value = _unescapeTurtleString(escapedValue);
     }
-
-    final escapedValue = valueMatch.group(1)!;
-    final value = _unescapeTurtleString(escapedValue);
 
     // Check for language tag (@lang)
     final langMatch = RegExp(r'@([a-zA-Z\-]+)$').firstMatch(literalToken);
@@ -720,7 +745,7 @@ class TurtleParser {
   /// _expandPrefixedName('foaf:name') // Returns 'http://xmlns.com/foaf/0.1/name'
   /// ```
   String _expandPrefixedName(String prefixedName) {
-    _log.info('Expanding prefixed name: $prefixedName');
+    // _log.finest('Expanding prefixed name: $prefixedName');
     final parts = prefixedName.split(':');
     if (parts.length != 2) {
       _log.severe('Invalid prefixed name format: $prefixedName');
@@ -749,7 +774,7 @@ class TurtleParser {
       );
     }
     final expanded = '${_prefixes[prefix]}$localName';
-    _log.info('Expanded prefixed name: $prefixedName -> $expanded');
+    // _log.finest('Expanded prefixed name: $prefixedName -> $expanded');
 
     return _resolveIri(expanded);
   }
@@ -759,7 +784,7 @@ class TurtleParser {
   /// Throws a [RdfSyntaxException] if the current token's type does not match
   /// the expected type, including line and column information in the error message.
   void _expect(TokenType type) {
-    _log.info('Expecting token type: $type, found: ${_currentToken.type}');
+    // _log.finest('Expecting token type: $type, found: ${_currentToken.type}');
     if (_currentToken.type != type) {
       _log.severe(
         'Token type mismatch: expected $type but found ${_currentToken.type}',

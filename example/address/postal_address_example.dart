@@ -4,7 +4,6 @@
 // using the Schema.org vocabulary in RDF Core.
 
 import 'package:rdf_core/rdf_core.dart';
-import 'package:rdf_core/vocab.dart';
 
 void main() {
   // Create a graph with an organization that has a postal address
@@ -49,47 +48,59 @@ RdfGraph createOrganizationWithAddress() {
   // Create triples for the organization and its address
   final triples = [
     // Define the organization
-    Triple(organization, RdfPredicates.type, SchemaClasses.organization),
     Triple(
       organization,
-      SchemaProperties.name,
+      IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+      IriTerm('https://schema.org/Organization'),
+    ),
+    Triple(
+      organization,
+      IriTerm('https://schema.org/name'),
       LiteralTerm.string('ACME Corporation'),
     ),
-    Triple(organization, SchemaProperties.url, IriTerm('https://example.org')),
     Triple(
       organization,
-      SchemaOrganizationProperties.legalName,
+      IriTerm('https://schema.org/url'),
+      IriTerm('https://example.org'),
+    ),
+    Triple(
+      organization,
+      IriTerm('https://schema.org/legalName'),
       LiteralTerm.string('ACME Corporation GmbH'),
     ),
 
     // Link to address
-    Triple(organization, SchemaPersonProperties.address, address),
+    Triple(organization, IriTerm('https://schema.org/address'), address),
 
     // Define the address details
-    Triple(address, RdfPredicates.type, SchemaClasses.postalAddress),
     Triple(
       address,
-      SchemaAddressProperties.streetAddress,
+      IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+      IriTerm('https://schema.org/PostalAddress'),
+    ),
+    Triple(
+      address,
+      IriTerm('https://schema.org/streetAddress'),
       LiteralTerm.string('123 Main Street'),
     ),
     Triple(
       address,
-      SchemaAddressProperties.addressLocality,
+      IriTerm('https://schema.org/addressLocality'),
       LiteralTerm.string('Berlin'),
     ),
     Triple(
       address,
-      SchemaAddressProperties.postalCode,
+      IriTerm('https://schema.org/postalCode'),
       LiteralTerm.string('10115'),
     ),
     Triple(
       address,
-      SchemaAddressProperties.addressRegion,
+      IriTerm('https://schema.org/addressRegion'),
       LiteralTerm.string('Berlin'),
     ),
     Triple(
       address,
-      SchemaAddressProperties.addressCountry,
+      IriTerm('https://schema.org/addressCountry'),
       LiteralTerm.string('DE'),
     ),
   ];
@@ -112,7 +123,7 @@ void printAddressInfo(RdfGraph graph, IriTerm entity) {
   final addressTriples = graph.triples.where(
     (triple) =>
         triple.subject == entity &&
-        triple.predicate == SchemaPersonProperties.address,
+        triple.predicate == IriTerm('https://schema.org/address'),
   );
 
   for (final addressTriple in addressTriples) {
@@ -121,11 +132,11 @@ void printAddressInfo(RdfGraph graph, IriTerm entity) {
 
     // Find address properties
     final addressProperties = [
-      SchemaAddressProperties.streetAddress,
-      SchemaAddressProperties.addressLocality,
-      SchemaAddressProperties.addressRegion,
-      SchemaAddressProperties.postalCode,
-      SchemaAddressProperties.addressCountry,
+      IriTerm('https://schema.org/streetAddress'),
+      IriTerm('https://schema.org/addressLocality'),
+      IriTerm('https://schema.org/addressRegion'),
+      IriTerm('https://schema.org/postalCode'),
+      IriTerm('https://schema.org/addressCountry'),
     ];
 
     for (final property in addressProperties) {
@@ -151,36 +162,40 @@ RdfGraph addBranchOffice(RdfGraph graph) {
 
   // Create triples for the branch office
   final branchTriples = [
-    Triple(organization, SchemaPersonProperties.address, branchAddress),
-    Triple(branchAddress, RdfPredicates.type, SchemaClasses.postalAddress),
+    Triple(organization, IriTerm('https://schema.org/address'), branchAddress),
     Triple(
       branchAddress,
-      SchemaAddressProperties.streetAddress,
+      IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+      IriTerm('https://schema.org/PostalAddress'),
+    ),
+    Triple(
+      branchAddress,
+      IriTerm('https://schema.org/streetAddress'),
       LiteralTerm.string('456 Innovation Blvd'),
     ),
     Triple(
       branchAddress,
-      SchemaAddressProperties.addressLocality,
+      IriTerm('https://schema.org/addressLocality'),
       LiteralTerm.string('Munich'),
     ),
     Triple(
       branchAddress,
-      SchemaAddressProperties.postalCode,
+      IriTerm('https://schema.org/postalCode'),
       LiteralTerm.string('80331'),
     ),
     Triple(
       branchAddress,
-      SchemaAddressProperties.addressRegion,
+      IriTerm('https://schema.org/addressRegion'),
       LiteralTerm.string('Bavaria'),
     ),
     Triple(
       branchAddress,
-      SchemaAddressProperties.addressCountry,
+      IriTerm('https://schema.org/addressCountry'),
       LiteralTerm.string('DE'),
     ),
     Triple(
       branchAddress,
-      SchemaProperties.name,
+      IriTerm('https://schema.org/name'),
       LiteralTerm.string('Branch Office'),
     ),
   ];

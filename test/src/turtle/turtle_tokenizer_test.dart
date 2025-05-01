@@ -450,5 +450,133 @@ void main() {
       expect(token.type, equals(TokenType.iri));
       expect(token.value, equals('<http://example.org/path\\u00A9>'));
     });
+
+    group('Multiline string literals', () {
+      test('should tokenize triple-quoted multiline string literals', () {
+        final tokenizer = TurtleTokenizer('"""Hello\nWorld"""');
+        final token = tokenizer.nextToken();
+        expect(token.type, equals(TokenType.literal));
+        expect(token.value, equals('"""Hello\nWorld"""'));
+        expect(tokenizer.nextToken().type, equals(TokenType.eof));
+      });
+
+      test('should handle empty triple-quoted string literals', () {
+        final tokenizer = TurtleTokenizer('""""""');
+        final token = tokenizer.nextToken();
+        expect(token.type, equals(TokenType.literal));
+        expect(token.value, equals('""""""'));
+        expect(tokenizer.nextToken().type, equals(TokenType.eof));
+      });
+
+      test(
+        'should handle triple-quoted string literals with escaped quotes',
+        () {
+          final tokenizer = TurtleTokenizer(
+            '"""This has \\"quotes\\" inside it"""',
+          );
+          final token = tokenizer.nextToken();
+          expect(token.type, equals(TokenType.literal));
+          expect(token.value, equals('"""This has \\"quotes\\" inside it"""'));
+          expect(tokenizer.nextToken().type, equals(TokenType.eof));
+        },
+      );
+
+      test(
+        'should handle triple-quoted string literals with embedded double quotes',
+        () {
+          final tokenizer = TurtleTokenizer('"""This has "embedded" quotes"""');
+          final token = tokenizer.nextToken();
+          expect(token.type, equals(TokenType.literal));
+          expect(token.value, equals('"""This has "embedded" quotes"""'));
+          expect(tokenizer.nextToken().type, equals(TokenType.eof));
+        },
+      );
+
+      test(
+        'should handle triple-quoted string literals with multiple lines',
+        () {
+          final input = '''"""This is a multiline
+literal with several
+lines of text"""''';
+          final tokenizer = TurtleTokenizer(input);
+          final token = tokenizer.nextToken();
+          expect(token.type, equals(TokenType.literal));
+          expect(token.value, equals(input));
+          expect(tokenizer.nextToken().type, equals(TokenType.eof));
+        },
+      );
+
+      test(
+        'should throw FormatException for unclosed triple-quoted literal',
+        () {
+          final tokenizer = TurtleTokenizer('"""unclosed multiline literal');
+          expect(() => tokenizer.nextToken(), throwsFormatException);
+        },
+      );
+
+      test('should handle language tags with triple-quoted literals', () {
+        final tokenizer = TurtleTokenizer('"""Hello\nWorld"""@en');
+        final token = tokenizer.nextToken();
+        expect(token.type, equals(TokenType.literal));
+        expect(token.value, equals('"""Hello\nWorld"""@en'));
+        expect(tokenizer.nextToken().type, equals(TokenType.eof));
+      });
+
+      test(
+        'should handle datatype annotations with triple-quoted literals',
+        () {
+          final tokenizer = TurtleTokenizer(
+            '"""Hello\nWorld"""^^<http://www.w3.org/2001/XMLSchema#string>',
+          );
+          final token = tokenizer.nextToken();
+          expect(token.type, equals(TokenType.literal));
+          expect(
+            token.value,
+            equals(
+              '"""Hello\nWorld"""^^<http://www.w3.org/2001/XMLSchema#string>',
+            ),
+          );
+          expect(tokenizer.nextToken().type, equals(TokenType.eof));
+        },
+      );
+
+      test('should handle triple-quoted literals with special characters', () {
+        final input = '''"""Special characters: 
+* Tab: \t
+* Newline: \n
+* Carriage return: \r
+* Backslash: \\
+* Unicode: \u00A9"""''';
+        final tokenizer = TurtleTokenizer(input);
+        final token = tokenizer.nextToken();
+        expect(token.type, equals(TokenType.literal));
+        expect(token.value, equals(input));
+        expect(tokenizer.nextToken().type, equals(TokenType.eof));
+      });
+
+      test(
+        'should correctly track line numbers with triple-quoted literals',
+        () {
+          final input = '''<http://example.org/subject>
+"""This is a 
+multiline
+literal"""
+<http://example.org/object> .''';
+          final tokenizer = TurtleTokenizer(input);
+
+          final subject = tokenizer.nextToken(); // Subject IRI
+          expect(subject.type, equals(TokenType.iri));
+          expect(subject.line, equals(1));
+
+          final literal = tokenizer.nextToken(); // Multiline literal
+          expect(literal.type, equals(TokenType.literal));
+          expect(literal.line, equals(2)); // Line where literal starts
+
+          final object = tokenizer.nextToken(); // Object IRI
+          expect(object.type, equals(TokenType.iri));
+          expect(object.line, equals(5)); // Line after the multiline literal
+        },
+      );
+    });
   });
 }

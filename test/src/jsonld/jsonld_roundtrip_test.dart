@@ -1,7 +1,6 @@
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_core/src/jsonld/jsonld_parser.dart';
 import 'package:rdf_core/src/jsonld/jsonld_serializer.dart';
-import 'package:rdf_core/src/vocab/dc_terms.dart';
 import 'package:rdf_core/src/vocab/rdf.dart';
 import 'package:test/test.dart';
 
@@ -79,7 +78,7 @@ void main() {
             ),
             Triple(
               IriTerm('http://example.org/person/john'),
-              DcTermsPredicates.created,
+              IriTerm('http://purl.org/dc/terms/created'),
               LiteralTerm.typed('2025-04-23T12:00:00Z', 'dateTime'),
             ),
             // Add language-tagged literals

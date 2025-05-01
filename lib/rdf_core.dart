@@ -136,6 +136,7 @@ export 'src/graph/triple.dart';
 export 'src/plugin/format_plugin.dart';
 export 'src/rdf_parser.dart';
 export 'src/rdf_serializer.dart';
+export 'src/vocab/namespaces.dart';
 
 /// RDF Core Library
 ///

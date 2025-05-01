@@ -1,19 +1,16 @@
 // Example usage of the rdf_core package
 // Demonstrates manual graph handling, Turtle, and JSON-LD parsing/serialization
 //
-// 🔎 Tip: Use built-in vocabularies from vocab/ for type-safe, standards-based RDF graphs!
-// For example, FoafPredicates.knows instead of IriTerm('http://xmlns.com/foaf/0.1/knows')
 
 import 'package:rdf_core/rdf_core.dart';
-import 'package:rdf_core/vocab.dart';
 
 void main() {
   // --- Manual Graph Construction ---
   // NOTE: Always use canonical RDF vocabularies (e.g., http://xmlns.com/foaf/0.1/) with http://, not https://
   final alice = IriTerm('http://example.org/alice');
   final bob = IriTerm('http://example.org/bob');
-  final knows = FoafPredicates.knows;
-  final name = FoafPredicates.name;
+  final knows = IriTerm('http://xmlns.com/foaf/0.1/knows');
+  final name = IriTerm('http://xmlns.com/foaf/0.1/name');
 
   final graph = RdfGraph(
     triples: [

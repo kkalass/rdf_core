@@ -18,19 +18,8 @@
 /// ```
 library rdf_namespaces;
 
-import 'acl.dart';
-import 'dc.dart';
-import 'dc_terms.dart';
-import 'foaf.dart';
-import 'ldp.dart';
-import 'owl.dart';
-import 'rdf.dart';
-import 'rdfs.dart';
-import 'schema.dart';
-import 'skos.dart';
-import 'solid.dart';
-import 'vcard.dart';
-import 'xsd.dart';
+import 'package:rdf_core/src/vocab/rdf.dart';
+import 'package:rdf_core/src/vocab/xsd.dart';
 
 /// Standard mappings between RDF namespace prefixes and their corresponding URIs.
 ///
@@ -38,19 +27,24 @@ import 'xsd.dart';
 /// used across RDF serialization formats. These mappings follow common conventions in the
 /// semantic web community.
 const Map<String, String> _rdfNamespaceMappings = {
-  Acl.prefix: Acl.namespace,
-  Dc.prefix: Dc.namespace,
-  DcTerms.prefix: DcTerms.namespace,
-  Foaf.prefix: Foaf.namespace,
-  Ldp.prefix: Ldp.namespace,
-  Owl.prefix: Owl.namespace,
+  // Core RDF vocabularies
   Rdf.prefix: Rdf.namespace,
-  Rdfs.prefix: Rdfs.namespace,
-  Schema.prefix: Schema.namespace,
-  Skos.prefix: Skos.namespace,
-  Solid.prefix: Solid.namespace,
-  Vcard.prefix: Vcard.namespace,
+  'rdfs': 'http://www.w3.org/2000/01/rdf-schema#',
+  'owl': 'http://www.w3.org/2002/07/owl#',
   Xsd.prefix: Xsd.namespace,
+
+  // Common community vocabularies
+  'schema': 'https://schema.org/',
+  'foaf': 'http://xmlns.com/foaf/0.1/',
+  'dc': 'http://purl.org/dc/elements/1.1/',
+  'dcterms': 'http://purl.org/dc/terms/',
+  'skos': 'http://www.w3.org/2004/02/skos/core#',
+  'vcard': 'http://www.w3.org/2006/vcard/ns#',
+
+  // Linked Data Platform and Solid related
+  'ldp': 'http://www.w3.org/ns/ldp#',
+  'solid': 'http://www.w3.org/ns/solid/terms#',
+  'acl': 'http://www.w3.org/ns/auth/acl#',
 };
 
 /// A class that provides access to RDF namespace mappings with support for custom mappings.

@@ -1,6 +1,8 @@
 // Tests for the RDF Namespace mappings
 import 'package:rdf_core/src/vocab/namespaces.dart';
-import 'package:rdf_core/vocab.dart';
+import 'package:rdf_core/src/vocab/rdf.dart';
+import 'package:rdf_core/src/vocab/xsd.dart';
+
 import 'package:test/test.dart';
 
 void main() {
@@ -8,52 +10,79 @@ void main() {
     final rdfNamespaceMappings = RdfNamespaceMappings();
 
     test('contains correct mappings for all supported vocabularies', () {
-      expect(rdfNamespaceMappings['acl'], equals(Acl.namespace));
-      expect(rdfNamespaceMappings['dc'], equals(Dc.namespace));
-      expect(rdfNamespaceMappings['dcterms'], equals(DcTerms.namespace));
-      expect(rdfNamespaceMappings['foaf'], equals(Foaf.namespace));
-      expect(rdfNamespaceMappings['ldp'], equals(Ldp.namespace));
-      expect(rdfNamespaceMappings['owl'], equals(Owl.namespace));
-      expect(rdfNamespaceMappings['rdf'], equals(Rdf.namespace));
-      expect(rdfNamespaceMappings['rdfs'], equals(Rdfs.namespace));
-      expect(rdfNamespaceMappings['schema'], equals(Schema.namespace));
-      expect(rdfNamespaceMappings['skos'], equals(Skos.namespace));
-      expect(rdfNamespaceMappings['solid'], equals(Solid.namespace));
-      expect(rdfNamespaceMappings['vcard'], equals(Vcard.namespace));
-      expect(rdfNamespaceMappings['xsd'], equals(Xsd.namespace));
+      // Core vocabularies
+      expect(
+        rdfNamespaceMappings['rdf'],
+        equals('http://www.w3.org/1999/02/22-rdf-syntax-ns#'),
+      );
+      expect(
+        rdfNamespaceMappings['rdfs'],
+        equals('http://www.w3.org/2000/01/rdf-schema#'),
+      );
+      expect(
+        rdfNamespaceMappings['owl'],
+        equals('http://www.w3.org/2002/07/owl#'),
+      );
+      expect(
+        rdfNamespaceMappings['xsd'],
+        equals('http://www.w3.org/2001/XMLSchema#'),
+      );
+
+      // Common community vocabularies
+      expect(rdfNamespaceMappings['schema'], equals('https://schema.org/'));
+      expect(
+        rdfNamespaceMappings['foaf'],
+        equals('http://xmlns.com/foaf/0.1/'),
+      );
+      expect(
+        rdfNamespaceMappings['dc'],
+        equals('http://purl.org/dc/elements/1.1/'),
+      );
+      expect(
+        rdfNamespaceMappings['dcterms'],
+        equals('http://purl.org/dc/terms/'),
+      );
+      expect(
+        rdfNamespaceMappings['skos'],
+        equals('http://www.w3.org/2004/02/skos/core#'),
+      );
+      expect(
+        rdfNamespaceMappings['vcard'],
+        equals('http://www.w3.org/2006/vcard/ns#'),
+      );
+
+      // Linked Data Platform and Solid related
+      expect(rdfNamespaceMappings['ldp'], equals('http://www.w3.org/ns/ldp#'));
+      expect(
+        rdfNamespaceMappings['solid'],
+        equals('http://www.w3.org/ns/solid/terms#'),
+      );
+      expect(
+        rdfNamespaceMappings['acl'],
+        equals('http://www.w3.org/ns/auth/acl#'),
+      );
     });
 
     test('prefixes match their respective class prefix constants', () {
-      expect(rdfNamespaceMappings[Acl.prefix], equals(Acl.namespace));
-      expect(rdfNamespaceMappings[Dc.prefix], equals(Dc.namespace));
-      expect(rdfNamespaceMappings[DcTerms.prefix], equals(DcTerms.namespace));
-      expect(rdfNamespaceMappings[Foaf.prefix], equals(Foaf.namespace));
-      expect(rdfNamespaceMappings[Ldp.prefix], equals(Ldp.namespace));
-      expect(rdfNamespaceMappings[Owl.prefix], equals(Owl.namespace));
       expect(rdfNamespaceMappings[Rdf.prefix], equals(Rdf.namespace));
-      expect(rdfNamespaceMappings[Rdfs.prefix], equals(Rdfs.namespace));
-      expect(rdfNamespaceMappings[Schema.prefix], equals(Schema.namespace));
-      expect(rdfNamespaceMappings[Skos.prefix], equals(Skos.namespace));
-      expect(rdfNamespaceMappings[Solid.prefix], equals(Solid.namespace));
-      expect(rdfNamespaceMappings[Vcard.prefix], equals(Vcard.namespace));
       expect(rdfNamespaceMappings[Xsd.prefix], equals(Xsd.namespace));
     });
 
     test('contains all required vocabularies', () {
       final requiredPrefixes = [
-        'acl',
-        'dc',
-        'dcterms',
-        'foaf',
-        'ldp',
-        'owl',
         'rdf',
         'rdfs',
-        'schema',
-        'skos',
-        'solid',
-        'vcard',
+        'owl',
         'xsd',
+        'schema',
+        'foaf',
+        'dc',
+        'dcterms',
+        'skos',
+        'vcard',
+        'ldp',
+        'solid',
+        'acl',
       ];
 
       for (final prefix in requiredPrefixes) {
@@ -86,9 +115,6 @@ void main() {
 
         // Custom mapping should be present
         expect(mappings['custom'], equals('http://example.org/custom#'));
-
-        // Standard mappings should still be available
-        expect(mappings['owl'], equals(Owl.namespace));
       });
 
       test('constructor creates immutable instance', () {
@@ -152,7 +178,10 @@ void main() {
         final mappings = RdfNamespaceMappings();
         final map = mappings.asMap();
 
-        expect(map['rdf'], equals(Rdf.namespace));
+        expect(
+          map['rdf'],
+          equals('http://www.w3.org/1999/02/22-rdf-syntax-ns#'),
+        );
 
         // Verify it's an unmodifiable map
         expect(() => map['test'] = 'value', throwsUnsupportedError);

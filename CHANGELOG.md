@@ -2,9 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.6.0] - 2025-05-01
+
+### Removed
+
+- **BREAKING CHANGE**: Removed all deprecated vocabulary classes from the vocab directory
+  - Removed all previously deprecated vocabulary classes (SchemaProperties, SchemaTypes, SchemaPersonProperties, etc.)
+  - Users should now use direct IriTerm instances instead of vocabulary classes
+  - Example: replace `SchemaProperties.name` with `IriTerm('https://schema.org/name')`
+- Updated examples to use direct IriTerm instances rather than vocabulary constants
+
+### Added
+
+- Improved documentation around IriTerm usage patterns
+- Added more comprehensive test coverage for core RDF functionality
+- Support for multiline strings in turtle files
+
 ## [0.5.1] - 2025-04-30
 
 ### Fixed
+
 - Fixed release script to correctly parse the changelog format with square brackets
 - Added missing development dependencies required for the release tooling
 

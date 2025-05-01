@@ -1197,5 +1197,240 @@ void main() {
         isTrue,
       );
     });
+
+    group('Multiline string literals', () {
+      test('should parse triple-quoted multiline string literals', () {
+        final parser = TurtleParser(
+          '<http://example.com/foo> <http://example.com/bar> """Hello\nWorld""".',
+        );
+        final triples = parser.parse();
+        expect(triples.length, equals(1));
+        expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
+        expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+        expect(triples[0].object, equals(LiteralTerm.string('Hello\nWorld')));
+      });
+
+      test(
+        'should parse triple-quoted string literals with embedded double quotes',
+        () {
+          final parser = TurtleParser(
+            '<http://example.com/foo> <http://example.com/bar> """Contains "quoted" text""".',
+          );
+          final triples = parser.parse();
+          expect(triples.length, equals(1));
+          expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
+          expect(
+            triples[0].predicate,
+            equals(IriTerm('http://example.com/bar')),
+          );
+          expect(
+            triples[0].object,
+            equals(LiteralTerm.string('Contains "quoted" text')),
+          );
+        },
+      );
+
+      test('should parse triple-quoted string literals with language tags', () {
+        final parser = TurtleParser(
+          '<http://example.com/foo> <http://example.com/bar> """Hello\nWorld"""@en.',
+        );
+        final triples = parser.parse();
+        expect(triples.length, equals(1));
+        expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
+        expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+        expect(
+          triples[0].object,
+          equals(LiteralTerm.withLanguage('Hello\nWorld', 'en')),
+        );
+      });
+
+      test('should parse triple-quoted string literals with datatype', () {
+        final parser = TurtleParser(
+          '<http://example.com/foo> <http://example.com/bar> """Hello\nWorld"""^^<http://www.w3.org/2001/XMLSchema#string>.',
+        );
+        final triples = parser.parse();
+        expect(triples.length, equals(1));
+        expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
+        expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+        expect(
+          triples[0].object,
+          equals(LiteralTerm.typed('Hello\nWorld', 'string')),
+        );
+      });
+
+      test('should parse empty triple-quoted string literals', () {
+        final parser = TurtleParser(
+          '<http://example.com/foo> <http://example.com/bar> """""".',
+        );
+        final triples = parser.parse();
+        expect(triples.length, equals(1));
+        expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
+        expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+        expect(triples[0].object, equals(LiteralTerm.string('')));
+      });
+
+      test(
+        'should parse triple-quoted string literals with Unicode characters',
+        () {
+          final parser = TurtleParser(
+            '<http://example.com/foo> <http://example.com/bar> """Unicode: \\u00A9 and Emoji: \\U0001F600""".',
+          );
+          final triples = parser.parse();
+          expect(triples.length, equals(1));
+          expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
+          expect(
+            triples[0].predicate,
+            equals(IriTerm('http://example.com/bar')),
+          );
+          expect(
+            triples[0].object,
+            equals(LiteralTerm.string('Unicode: © and Emoji: 😀')),
+          );
+        },
+      );
+
+      test('should parse complex multiline RDFS comment with formatting', () {
+        final parser = TurtleParser('''
+          @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+          
+          <http://example.org/term> rdfs:comment """This is a multiline
+          comment with some *formatting* and
+          line breaks that should be preserved.
+          
+          It even includes a blank line.""" .
+        ''');
+
+        final triples = parser.parse();
+        expect(triples.length, equals(1));
+        expect(triples[0].subject, equals(IriTerm('http://example.org/term')));
+        expect(
+          triples[0].predicate,
+          equals(IriTerm('http://www.w3.org/2000/01/rdf-schema#comment')),
+        );
+
+        final expectedComment = '''This is a multiline
+          comment with some *formatting* and
+          line breaks that should be preserved.
+          
+          It even includes a blank line.''';
+        expect(triples[0].object, equals(LiteralTerm.string(expectedComment)));
+      });
+
+      test(
+        'should handle triple-quoted string literals within complex structures',
+        () {
+          final parser = TurtleParser('''
+          @prefix ex: <http://example.org/> .
+          
+          ex:subject ex:predicate [
+            ex:title "Simple title" ;
+            ex:description """This is a longer
+            multiline description with "quotes"
+            and multiple lines""" ;
+            ex:notes """More notes
+            with details"""
+          ] .
+        ''');
+
+          final triples = parser.parse();
+          expect(
+            triples.length,
+            equals(4),
+          ); // subject-predicate-blanknode + 3 properties of blanknode
+
+          // Find the blank node
+          final subjectTriple = triples.firstWhere(
+            (t) => t.subject == IriTerm('http://example.org/subject'),
+          );
+          final blankNode = subjectTriple.object as BlankNodeTerm;
+
+          // Find the description triple
+          final descriptionTriple = triples.firstWhere(
+            (t) =>
+                t.subject == blankNode &&
+                t.predicate == IriTerm('http://example.org/description'),
+          );
+
+          final expectedDescription = '''This is a longer
+            multiline description with "quotes"
+            and multiple lines''';
+          expect(
+            descriptionTriple.object,
+            equals(LiteralTerm.string(expectedDescription)),
+          );
+
+          // Find the notes triple
+          final notesTriple = triples.firstWhere(
+            (t) =>
+                t.subject == blankNode &&
+                t.predicate == IriTerm('http://example.org/notes'),
+          );
+
+          final expectedNotes = '''More notes
+            with details''';
+          expect(notesTriple.object, equals(LiteralTerm.string(expectedNotes)));
+        },
+      );
+
+      test(
+        'should parse an RDFS vocabulary definition with multiline comments',
+        () {
+          final parser = TurtleParser('''
+          @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+          @prefix owl: <http://www.w3.org/2002/07/owl#> .
+          @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+          @prefix ex: <http://example.org/vocabulary#> .
+          
+          ex:Person a rdfs:Class ;
+            rdfs:label "Person"@en ;
+            rdfs:comment """A person is defined as a human being 
+            regarded as an individual with various properties
+            and relationships."""@en .
+            
+          ex:name a owl:DatatypeProperty ;
+            rdfs:label "name"@en ;
+            rdfs:comment """The name of a person.
+            Every person has a name."""@en ;
+            rdfs:domain ex:Person ;
+            rdfs:range xsd:string .
+        ''');
+
+          final triples = parser.parse();
+
+          // Find the rdfs:comment for Person
+          final personCommentTriple = triples.firstWhere(
+            (t) =>
+                t.subject == IriTerm('http://example.org/vocabulary#Person') &&
+                t.predicate ==
+                    IriTerm('http://www.w3.org/2000/01/rdf-schema#comment'),
+          );
+
+          final expectedPersonComment = '''A person is defined as a human being 
+            regarded as an individual with various properties
+            and relationships.''';
+
+          expect(
+            personCommentTriple.object,
+            equals(LiteralTerm.withLanguage(expectedPersonComment, 'en')),
+          );
+
+          // Find the rdfs:comment for name property
+          final nameCommentTriple = triples.firstWhere(
+            (t) =>
+                t.subject == IriTerm('http://example.org/vocabulary#name') &&
+                t.predicate ==
+                    IriTerm('http://www.w3.org/2000/01/rdf-schema#comment'),
+          );
+
+          final expectedNameComment = '''The name of a person.
+            Every person has a name.''';
+
+          expect(
+            nameCommentTriple.object,
+            equals(LiteralTerm.withLanguage(expectedNameComment, 'en')),
+          );
+        },
+      );
+    });
   });
 }

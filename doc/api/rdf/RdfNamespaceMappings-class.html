@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the RdfSerializerFactoryBase class from the rdf library, for the Dart programming language.">
-  <title>RdfSerializerFactoryBase class - rdf library - Dart API</title>
+  <meta name="description" content="API docs for the RdfNamespaceMappings class from the rdf library, for the Dart programming language.">
+  <title>RdfNamespaceMappings class - rdf library - Dart API</title>
 
 
   
@@ -26,9 +26,9 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">rdf_core</a></li>
     <li><a href="../rdf">rdf_core.dart</a></li>
-    <li class="self-crumb">RdfSerializerFactoryBase class</li>
+    <li class="self-crumb"><span class="deprecated">RdfNamespaceMappings</span> class</li>
   </ol>
-  <div class="self-name">RdfSerializerFactoryBase</div>
+  <div class="self-name">RdfNamespaceMappings</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -49,21 +49,32 @@
     id="dartdoc-main-content"
     class="main-content"
     data-above-sidebar="rdf&#47;rdf-library-sidebar.html"
-    data-below-sidebar="rdf&#47;RdfSerializerFactoryBase-class-sidebar.html">
+    data-below-sidebar="rdf&#47;RdfNamespaceMappings-class-sidebar.html">
     <div>
-<h1><span class="kind-class">RdfSerializerFactoryBase</span> class 
-    <a href="https://dart.dev/language/class-modifiers#abstract" class="feature feature-abstract" title="This type can not be directly constructed.">abstract</a>
-    <a href="https://dart.dev/language/class-modifiers#interface" class="feature feature-interface" title="This class can only be implemented (not extended or mixed in).">interface</a>
+<h1><span class="kind-class">RdfNamespaceMappings</span> class 
  
 </h1></div>
 
     
 <section class="desc markdown">
-  <p>Interface for serializer factories that create RDF serializer instances</p>
-<p>This interface defines the contract for factories that create serializers
-for different RDF serialization formats. It follows the Abstract Factory pattern,
-providing a way to create related serializer objects without specifying their
-concrete classes.</p>
+  <p>A class that provides access to RDF namespace mappings with support for custom mappings.</p>
+<p>This immutable class provides RDF namespace prefix-to-URI mappings for common RDF vocabularies.
+It can be extended with custom mappings and supports the spread operator via the <a href="../rdf/RdfNamespaceMappings/asMap.html">asMap</a> method.</p>
+<p>To use with the spread operator:</p>
+<pre class="language-dart"><code class="language-dart">final mappings = {
+  ...RdfNamespaceMappings().asMap(),
+  'custom': 'http://example.org/custom#'
+};
+</code></pre>
+<p>To create custom mappings:</p>
+<pre class="language-dart"><code class="language-dart">final customMappings = RdfNamespaceMappings.custom({
+  'ex': 'http://example.org/',
+  'custom': 'http://example.org/custom#'
+});
+
+// Access a namespace URI by prefix
+final exUri = customMappings['ex']; // http://example.org/
+</code></pre>
 </section>
 
 
@@ -74,22 +85,42 @@ concrete classes.</p>
         
         
 
-          <dt>Implementers</dt>
-          <dd><ul class="comma-separated clazz-relationships">
-              <li><a href="../rdf/RdfSerializerFactory-class.html">RdfSerializerFactory</a></li>
-          </ul></dd>
 
         
         
+  <dt>Annotations</dt>
+  <dd>
+    <ul class="annotation-list clazz-relationships">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/deprecated-constant.html">deprecated</a></li>
+    </ul>
+  </dd>
 
 
       </dl>
     </section>
 
     
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="RdfNamespaceMappings" class="callable">
+          <span class="name"><a href="../rdf/RdfNamespaceMappings/RdfNamespaceMappings.html">RdfNamespaceMappings</a></span><span class="signature">()</span>
+        </dt>
+        <dd>
+          Creates a new RdfNamespaceMappings instance with standard mappings.
+            <div class="constructor-modifier features">const</div>
+        </dd>
+        <dt id="RdfNamespaceMappings.custom" class="callable">
+          <span class="name"><a href="../rdf/RdfNamespaceMappings/RdfNamespaceMappings.custom.html">RdfNamespaceMappings.custom</a></span><span class="signature">(<span class="parameter" id="custom-param-customMappings"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">customMappings</span></span>)</span>
+        </dt>
+        <dd>
+          Creates a new RdfNamespaceMappings instance with custom mappings.
+        </dd>
+    </dl>
+  </section>
     
   <section
-      class="summary offset-anchor inherited"
+      class="summary offset-anchor"
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
@@ -102,6 +133,18 @@ concrete classes.</p>
 <dd class="inherited">
   The hash code for this object.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="length" class="property">
+  <span class="name"><a href="../rdf/RdfNamespaceMappings/length.html">length</a></span>
+  <span class="signature">&#8594; dynamic</span>
+  
+
+</dt>
+<dd>
+  Returns the number of mappings.
+  <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
@@ -126,15 +169,28 @@ concrete classes.</p>
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
-        <dt id="createSerializer" class="callable">
-  <span class="name"><a href="../rdf/RdfSerializerFactoryBase/createSerializer.html">createSerializer</a></span><span class="signature">(<wbr>{<span class="parameter" id="createSerializer-param-contentType"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">contentType</span></span>})
-    <span class="returntype parameter">&#8594; <a href="../rdf/RdfSerializer-class.html">RdfSerializer</a></span>
+        <dt id="asMap" class="callable">
+  <span class="name"><a href="../rdf/RdfNamespaceMappings/asMap.html">asMap</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd>
-  Creates an RdfSerializer for the specified content type.
+  Creates an unmodifiable view of the underlying mappings.
+  
+
+</dd>
+
+        <dt id="containsKey" class="callable">
+  <span class="name"><a href="../rdf/RdfNamespaceMappings/containsKey.html">containsKey</a></span><span class="signature">(<wbr><span class="parameter" id="containsKey-param-prefix"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">prefix</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Checks if the mappings contain a specific prefix.
   
 
 </dd>
@@ -165,24 +221,11 @@ concrete classes.</p>
 
 </dd>
 
-        <dt id="write" class="callable">
-  <span class="name"><a href="../rdf/RdfSerializerFactoryBase/write.html">write</a></span><span class="signature">(<wbr><span class="parameter" id="write-param-graph"><span class="type-annotation"><a href="../rdf/RdfGraph-class.html">RdfGraph</a></span> <span class="parameter-name">graph</span>, {</span><span class="parameter" id="write-param-contentType"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">contentType</span>, </span><span class="parameter" id="write-param-baseUri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">baseUri</span>, </span><span class="parameter" id="write-param-customPrefixes"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">customPrefixes</span> = <span class="default-value">const {}</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-  Directly serialize an RDF graph to the specified format
-  
-
-</dd>
-
     </dl>
   </section>
     
   <section
-      class="summary offset-anchor inherited"
+      class="summary offset-anchor"
       id="operators">
     <h2>Operators</h2>
     <dl class="callables">
@@ -196,6 +239,19 @@ concrete classes.</p>
 <dd class="inherited">
   The equality operator.
   <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="operator []" class="callable">
+  <span class="name"><a href="../rdf/RdfNamespaceMappings/operator_get.html">operator []</a></span><span class="signature">(<wbr><span class="parameter" id="[]-param-key"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">key</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Operator for retrieving a namespace URI by its prefix.
+  
 
 </dd>
 
@@ -216,7 +272,7 @@ concrete classes.</p>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../index.html">rdf_core</a></li>
     <li><a href="../rdf">rdf</a></li>
-    <li class="self-crumb">RdfSerializerFactoryBase class</li>
+    <li class="self-crumb"><span class="deprecated">RdfNamespaceMappings</span> class</li>
 </ol>
 
     <h5>rdf library</h5>

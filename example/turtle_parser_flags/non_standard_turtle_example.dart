@@ -2,8 +2,6 @@
 // This example showcases different parsing flags to make the Turtle parser more permissive
 
 import 'package:rdf_core/rdf_core.dart';
-import 'package:rdf_core/src/turtle/turtle_format.dart';
-import 'package:rdf_core/src/turtle/turtle_tokenizer.dart';
 
 void main() {
   print('RDF Core - Non-Standard Turtle Parsing Example');

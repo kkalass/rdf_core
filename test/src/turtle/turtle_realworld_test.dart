@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:path/path.dart' as path;
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_core/src/turtle/turtle_parser.dart';
-import 'package:rdf_core/src/turtle/turtle_tokenizer.dart';
 import 'package:rdf_core/src/vocab/xsd.dart';
 import 'package:test/test.dart';
 

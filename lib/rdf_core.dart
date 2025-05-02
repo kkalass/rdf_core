@@ -140,6 +140,7 @@ export 'src/vocab/namespaces.dart';
 export 'src/turtle/turtle_format.dart';
 export 'src/jsonld/jsonld_format.dart';
 export 'src/turtle/turtle_tokenizer.dart' show TurtleParsingFlag;
+export 'src/exceptions/exceptions.dart';
 
 /// RDF Core Library
 ///

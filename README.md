@@ -118,7 +118,7 @@ final rdf = RdfCore.withFormats(formats: [turtleFormat]);
 
 // Parse a document with non-standard Turtle syntax
 final nonStandardTurtle = '''
-  @prefix ex <http://example.org/> // Missing dot after prefix
+  @prefix ex: <http://example.org/> // Missing dot after prefix
   ex:resource123 a ex:Type . // Digit in local name
 ''';
 

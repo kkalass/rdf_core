@@ -20,12 +20,6 @@ environment:
   sdk: ^3.7.0
 dependencies:
   logging: ^1.2.0
-  xml: ^6.3.0
 dev_dependencies:
   test: ^1.21.0
-  yaml: ^3.1.2
-  path: ^1.8.0
-  build: ^2.4.1
-  build_config: ^1.1.1
-  build_runner: ^2.4.6
-  source_gen: ^1.4.0
+  

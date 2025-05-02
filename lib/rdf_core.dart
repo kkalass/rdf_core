@@ -139,6 +139,7 @@ export 'src/rdf_serializer.dart';
 export 'src/vocab/namespaces.dart';
 export 'src/turtle/turtle_format.dart';
 export 'src/jsonld/jsonld_format.dart';
+export 'src/turtle/turtle_tokenizer.dart' show TurtleParsingFlag;
 
 /// RDF Core Library
 ///

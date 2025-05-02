@@ -117,6 +117,29 @@ void main() {
 <pre class="language-dart"><code class="language-dart">final bnode = BlankNodeTerm();
 final newGraph = graph.withTriple(Triple(bnode, predicate, object));
 </code></pre>
+<h3 id="non-standard-turtle-parsing">Non-Standard Turtle Parsing</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:rdf_core/rdf_core.dart';
+
+// Configure a TurtleFormat with specific parsing flags
+final turtleFormat = TurtleFormat(
+  parsingFlags: {
+    TurtleParsingFlag.allowDigitInLocalName,
+    TurtleParsingFlag.allowMissingDotAfterPrefix,
+    TurtleParsingFlag.autoAddCommonPrefixes,
+  }
+);
+
+// Create an RDF Core instance with the custom format
+final rdf = RdfCore.withFormats(formats: [turtleFormat]);
+
+// Parse a document with non-standard Turtle syntax
+final nonStandardTurtle = '''
+  @prefix ex &lt;http://example.org/&gt; // Missing dot after prefix
+  ex:resource123 a ex:Type . // Digit in local name
+''';
+
+final graph = rdf.parse(nonStandardTurtle, contentType: 'text/turtle');
+</code></pre>
 <h3 id="serializationparsing">Serialization/Parsing</h3>
 <pre class="language-dart"><code class="language-dart">final turtleSerializer = TurtleSerializer();
 final turtle = turtleSerializer.write(graph);
@@ -247,7 +270,7 @@ final parsedGraph = jsonLdParser.parse();
 <footer>
   <span class="no-break">
     rdf_core
-      0.6.2
+      0.6.3
   </span>
   
 </footer>

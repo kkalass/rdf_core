@@ -137,6 +137,8 @@ export 'src/plugin/format_plugin.dart';
 export 'src/rdf_parser.dart';
 export 'src/rdf_serializer.dart';
 export 'src/vocab/namespaces.dart';
+export 'src/turtle/turtle_format.dart';
+export 'src/jsonld/jsonld_format.dart';
 
 /// RDF Core Library
 ///

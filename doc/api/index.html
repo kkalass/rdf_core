@@ -134,7 +134,7 @@ final rdf = RdfCore.withFormats(formats: [turtleFormat]);
 
 // Parse a document with non-standard Turtle syntax
 final nonStandardTurtle = '''
-  @prefix ex &lt;http://example.org/&gt; // Missing dot after prefix
+  @prefix ex: &lt;http://example.org/&gt; // Missing dot after prefix
   ex:resource123 a ex:Type . // Digit in local name
 ''';
 
@@ -270,7 +270,7 @@ final parsedGraph = jsonLdParser.parse();
 <footer>
   <span class="no-break">
     rdf_core
-      0.6.3
+      0.6.4
   </span>
   
 </footer>

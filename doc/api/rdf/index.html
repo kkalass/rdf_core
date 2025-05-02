@@ -329,6 +329,14 @@ library highly testable and extensible.</p>
   Base type for all RDF terms
 </dd>
 
+          <dt id="SourceLocation">
+  <span class="name "><a href="../rdf/SourceLocation-class.html">SourceLocation</a></span> 
+
+</dt>
+<dd>
+  Contains information about source location where an error occurred
+</dd>
+
           <dt id="Triple">
   <span class="name "><a href="../rdf/Triple-class.html">Triple</a></span> 
 
@@ -380,6 +388,102 @@ library highly testable and extensible.</p>
   Exception thrown when an attempt is made to use an unsupported format
 </dd>
 
+          <dt id="RdfConstraintViolationException">
+  <span class="name "><a href="../rdf/RdfConstraintViolationException-class.html">RdfConstraintViolationException</a></span> 
+
+</dt>
+<dd>
+  Exception thrown when an RDF model constraint is violated
+</dd>
+
+          <dt id="RdfCyclicGraphException">
+  <span class="name "><a href="../rdf/RdfCyclicGraphException-class.html">RdfCyclicGraphException</a></span> 
+
+</dt>
+<dd>
+  Exception thrown when the graph contains cycles that prevent serialization
+</dd>
+
+          <dt id="RdfException">
+  <span class="name "><a href="../rdf/RdfException-class.html">RdfException</a></span> 
+
+</dt>
+<dd>
+  Base exception class for all RDF-related errors.
+</dd>
+
+          <dt id="RdfInvalidIriException">
+  <span class="name "><a href="../rdf/RdfInvalidIriException-class.html">RdfInvalidIriException</a></span> 
+
+</dt>
+<dd>
+  Exception thrown when the parser encounters an invalid IRI
+</dd>
+
+          <dt id="RdfParserException">
+  <span class="name "><a href="../rdf/RdfParserException-class.html">RdfParserException</a></span> 
+
+</dt>
+<dd>
+  Base exception class for all RDF parser-related errors
+</dd>
+
+          <dt id="RdfSerializerException">
+  <span class="name "><a href="../rdf/RdfSerializerException-class.html">RdfSerializerException</a></span> 
+
+</dt>
+<dd>
+  Base exception class for all RDF serialization-related errors
+</dd>
+
+          <dt id="RdfShapeValidationException">
+  <span class="name "><a href="../rdf/RdfShapeValidationException-class.html">RdfShapeValidationException</a></span> 
+
+</dt>
+<dd>
+  Exception thrown when an RDF graph doesn't conform to a specified shape
+</dd>
+
+          <dt id="RdfSyntaxException">
+  <span class="name "><a href="../rdf/RdfSyntaxException-class.html">RdfSyntaxException</a></span> 
+
+</dt>
+<dd>
+  Exception thrown when the parser encounters syntax errors in the input
+</dd>
+
+          <dt id="RdfTypeException">
+  <span class="name "><a href="../rdf/RdfTypeException-class.html">RdfTypeException</a></span> 
+
+</dt>
+<dd>
+  Exception thrown when there's a type error in RDF data
+</dd>
+
+          <dt id="RdfUnsupportedFeatureException">
+  <span class="name "><a href="../rdf/RdfUnsupportedFeatureException-class.html">RdfUnsupportedFeatureException</a></span> 
+
+</dt>
+<dd>
+  Exception thrown when the parser encounters an unsupported feature
+</dd>
+
+          <dt id="RdfUnsupportedSerializationFeatureException">
+  <span class="name "><a href="../rdf/RdfUnsupportedSerializationFeatureException-class.html">RdfUnsupportedSerializationFeatureException</a></span> 
+
+</dt>
+<dd>
+  Exception thrown when the serializer cannot represent a feature in the target format
+</dd>
+
+          <dt id="RdfValidationException">
+  <span class="name "><a href="../rdf/RdfValidationException-class.html">RdfValidationException</a></span> 
+
+</dt>
+<dd>
+  Base exception class for all RDF validation-related errors
+</dd>
+
       </dl>
     </section>
   </div> <!-- /.main-content -->
@@ -409,7 +513,7 @@ library highly testable and extensible.</p>
 <footer>
   <span class="no-break">
     rdf_core
-      0.6.8
+      0.6.9
   </span>
   
 </footer>

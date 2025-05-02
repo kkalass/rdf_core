@@ -15,10 +15,7 @@ void main() {
     /// Returns the absolute path to a test asset file
     String getAssetPath(String fileName) {
       // Der direkte Pfad zum Testassets-Verzeichnis
-      return path.join(
-        '/Users/klaskalass/privat/rdf/rdf_core/test/assets/realworld',
-        fileName,
-      );
+      return path.join('test/assets/realworld', fileName);
     }
 
     /// Helper to read a file and return its content as a string

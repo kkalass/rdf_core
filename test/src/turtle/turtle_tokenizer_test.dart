@@ -369,7 +369,10 @@ void main() {
       final tokenizer2 = TurtleTokenizer('a\t');
       expect(tokenizer2.nextToken().type, equals(TokenType.a));
 
-      final tokenizer3 = TurtleTokenizer('abc');
+      final tokenizer3 = TurtleTokenizer(
+        'abc',
+        parsingFlags: {TurtleParsingFlag.allowIdentifiersWithoutColon},
+      );
       // In diesem Fall sollte 'abc' als präfixierter Name erkannt werden
       expect(tokenizer3.nextToken().type, equals(TokenType.prefixedName));
     });
@@ -382,7 +385,10 @@ void main() {
       expect(token1.value, equals('ex:'));
 
       // Nur ein Präfix ohne Doppelpunkt
-      final tokenizer2 = TurtleTokenizer('example');
+      final tokenizer2 = TurtleTokenizer(
+        'example',
+        parsingFlags: {TurtleParsingFlag.allowIdentifiersWithoutColon},
+      );
       final token2 = tokenizer2.nextToken();
       expect(token2.type, equals(TokenType.prefixedName));
       expect(token2.value, equals('example'));
@@ -432,7 +438,10 @@ void main() {
     });
 
     test('should process each character in the input correctly', () {
-      final tokenizer = TurtleTokenizer('a b c');
+      final tokenizer = TurtleTokenizer(
+        'a b c',
+        parsingFlags: {TurtleParsingFlag.allowIdentifiersWithoutColon},
+      );
       // 'a' should be recognized as the 'a' keyword (rdf:type)
       expect(tokenizer.nextToken().type, equals(TokenType.a));
       // 'b' should be recognized as a prefixed name

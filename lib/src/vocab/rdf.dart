@@ -70,4 +70,46 @@ class RdfPredicates {
   /// <http://example.org/john> rdf:type foaf:Person .
   /// ```
   static const type = IriTerm.prevalidated('${Rdf.namespace}type');
+
+  /// IRI for rdf:first predicate
+  /// [Spec](https://www.w3.org/TR/rdf11-mt/#collections)
+  ///
+  /// Used in RDF collections to link a list node to its first item.
+  ///
+  /// Example in Turtle:
+  /// ```turtle
+  /// _:node rdf:first <http://example.org/item1> .
+  /// ```
+  static const first = IriTerm.prevalidated('${Rdf.namespace}first');
+
+  /// IRI for rdf:rest predicate
+  /// [Spec](https://www.w3.org/TR/rdf11-mt/#collections)
+  ///
+  /// Used in RDF collections to link a list node to the rest of the list.
+  ///
+  /// Example in Turtle:
+  /// ```turtle
+  /// _:node rdf:rest _:nextNode .
+  /// ```
+  static const rest = IriTerm.prevalidated('${Rdf.namespace}rest');
+}
+
+/// RDF resource constants.
+///
+/// Contains IRIs for standard resources defined in the RDF vocabulary.
+class RdfResources {
+  // coverage:ignore-start
+  const RdfResources._();
+  // coverage:ignore-end
+
+  /// IRI for rdf:nil resource
+  /// [Spec](https://www.w3.org/TR/rdf11-mt/#collections)
+  ///
+  /// Represents the end of a RDF collection (list).
+  ///
+  /// Example in Turtle:
+  /// ```turtle
+  /// _:node rdf:rest rdf:nil .
+  /// ```
+  static const nil = IriTerm.prevalidated('${Rdf.namespace}nil');
 }

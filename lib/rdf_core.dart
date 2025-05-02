@@ -220,6 +220,39 @@ final class RdfCore {
     );
   }
 
+  /// Creates a new RDF library instance with only the provided formats registered
+  ///
+  /// This convenience constructor sets up an RDF library with the specified formats
+  /// registered. It allows for easy customization of the library's capabilities.
+  /// For example, if you need to support Turtle with certain parsing flags because
+  /// your turtle documents are not fully compliant with the standard.
+  ///
+  ///
+  /// Example:
+  /// ```dart
+  /// final namespaceMappings = RdfNamespaceMappings();
+  /// final turtle = TurtleFormat(
+  ///   namespaceMappings: namespaceMappings,
+  ///   parsingFlags: {TurtleParsingFlag.allowMissingFinalDot});
+  /// final rdf = RdfCore.withFormats();
+  /// final graph = rdf.parse(turtleData, contentType: 'text/turtle');
+  /// ```
+  factory RdfCore.withFormats({List<RdfFormat> formats = const []}) {
+    final registry = RdfFormatRegistry();
+    for (final format in formats) {
+      registry.registerFormat(format);
+    }
+
+    final parserFactory = RdfParserFactory(registry);
+    final serializerFactory = RdfSerializerFactory(registry);
+
+    return RdfCore(
+      registry: registry,
+      parserFactory: parserFactory,
+      serializerFactory: serializerFactory,
+    );
+  }
+
   /// Parse RDF content to create a graph
   ///
   /// Converts a string containing serialized RDF data into an in-memory RDF graph.

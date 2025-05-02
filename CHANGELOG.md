@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.3] - 2025-05-02
+
+### Added
+
+- Enhanced Turtle parsing flexibility with configurable parsing flags in TurtleTokenizer
+  - Added `TurtleParsingFlag` enum with options for handling non-standard Turtle syntax
+  - Implemented support for digits in local names (`allowDigitInLocalName`)
+  - Added support for missing dots after prefix declarations (`allowMissingDotAfterPrefix`)
+  - Implemented auto-addition of common prefixes (`autoAddCommonPrefixes`)
+  - Added support for prefix declarations without @ symbol (`allowPrefixWithoutAtSign`)
+  - Improved handling of missing final dots (`allowMissingFinalDot`)
+  - Implemented support for identifiers without colons (`allowIdentifiersWithoutColon`)
+- Improved error reporting with detailed position information and diagnostics
+- Added comprehensive logging to help diagnose parsing issues in real-world Turtle files
+- Support turtle literals for boolean, integer and decimal in turtle parser.
+- Support RDF collection turtle syntax in turtle parser.
+
+### Changed
+
+- Refactored TurtleTokenizer for better maintainability and modularity
+- Improved documentation with practical examples of non-standard Turtle syntax handling
+
+### Fixed
+
+- Made Turtle parser more robust when processing real-world datasets with syntax variations
+- Enhanced error messages to be more informative for debugging parsing issues
+
 ## [0.6.2] - 2025-05-01
 
 ### Fixed

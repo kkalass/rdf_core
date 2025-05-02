@@ -2,6 +2,7 @@ import 'package:test/test.dart';
 import 'package:rdf_core/src/exceptions/exceptions.dart';
 import 'package:rdf_core/src/graph/rdf_term.dart';
 import 'package:rdf_core/src/turtle/turtle_parser.dart';
+import 'package:rdf_core/src/turtle/turtle_tokenizer.dart';
 
 void main() {
   group('TurtleParser', () {
@@ -51,6 +52,83 @@ void main() {
       expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
       expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
       expect(triples[0].object, equals(LiteralTerm.typed('baz', 'boolean')));
+    });
+
+    test('should parse simple triples with boolean value true', () {
+      final parser = TurtleParser(
+        '<http://example.com/foo> <http://example.com/bar> true .',
+      );
+      final triples = parser.parse();
+      expect(triples.length, equals(1));
+      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(triples[0].object, equals(LiteralTerm.typed('true', 'boolean')));
+    });
+
+    test('should parse simple triples with boolean value false', () {
+      final parser = TurtleParser(
+        '<http://example.com/foo> <http://example.com/bar> false .',
+      );
+      final triples = parser.parse();
+      expect(triples.length, equals(1));
+      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(triples[0].object, equals(LiteralTerm.typed('false', 'boolean')));
+    });
+
+    test('should parse simple triples with integer literal', () {
+      final parser = TurtleParser(
+        '<http://example.com/foo> <http://example.com/bar> 42 .',
+      );
+      final triples = parser.parse();
+      expect(triples.length, equals(1));
+      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(triples[0].object, equals(LiteralTerm.typed('42', 'integer')));
+    });
+
+    test('should parse simple triples with negative integer literal', () {
+      final parser = TurtleParser(
+        '<http://example.com/foo> <http://example.com/bar> -15 .',
+      );
+      final triples = parser.parse();
+      expect(triples.length, equals(1));
+      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(triples[0].object, equals(LiteralTerm.typed('-15', 'integer')));
+    });
+
+    test('should parse simple triples with decimal literal', () {
+      final parser = TurtleParser(
+        '<http://example.com/foo> <http://example.com/bar> 3.14 .',
+      );
+      final triples = parser.parse();
+      expect(triples.length, equals(1));
+      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(triples[0].object, equals(LiteralTerm.typed('3.14', 'decimal')));
+    });
+
+    test('should parse simple triples with negative decimal literal', () {
+      final parser = TurtleParser(
+        '<http://example.com/foo> <http://example.com/bar> -2.718 .',
+      );
+      final triples = parser.parse();
+      expect(triples.length, equals(1));
+      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(triples[0].object, equals(LiteralTerm.typed('-2.718', 'decimal')));
+    });
+
+    test('should parse simple triples with zero-decimal literal', () {
+      final parser = TurtleParser(
+        '<http://example.com/foo> <http://example.com/bar> 0.0 .',
+      );
+      final triples = parser.parse();
+      expect(triples.length, equals(1));
+      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(triples[0].object, equals(LiteralTerm.typed('0.0', 'decimal')));
     });
 
     test('should parse simple triples with boolean type and prefix', () {
@@ -245,6 +323,26 @@ void main() {
       expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
       expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
       expect(triples[0].object, equals(IriTerm('http://example.com/baz')));
+    });
+
+    test('should resolve empty relative IRIs using the base URI', () {
+      final parser = TurtleParser(
+        '@prefix foaf: <http://xmlns.com/foaf/0.1/> .'
+        '<https://solidproject.org/TR/wac> foaf:topic <> .',
+        baseUri: 'http://my.example.com/',
+      );
+      final triples = parser.parse();
+
+      expect(triples.length, equals(1));
+      expect(
+        triples[0].subject,
+        equals(IriTerm('https://solidproject.org/TR/wac')),
+      );
+      expect(
+        triples[0].predicate,
+        equals(IriTerm('http://xmlns.com/foaf/0.1/topic')),
+      );
+      expect(triples[0].object, equals(IriTerm('http://my.example.com/')));
     });
 
     test('should handle prefixed names with empty prefix', () {
@@ -1431,6 +1529,858 @@ void main() {
           );
         },
       );
+    });
+
+    group('Parsing Flags', () {
+      test('should handle identifiers without colon when flag is enabled', () {
+        // Setup: Enable the allowIdentifiersWithoutColon flag
+        final parserWithFlag = TurtleParser(
+          'abc <http://example.org/predicate> "value" .',
+          parsingFlags: {TurtleParsingFlag.allowIdentifiersWithoutColon},
+          baseUri: 'http://mytest.org/',
+        );
+
+        // Execute: Parse the Turtle content
+        final triplesWithFlag = parserWithFlag.parse();
+
+        // Verify: The parser with flag should treat 'abc' as a prefixed name
+        expect(triplesWithFlag.length, equals(1));
+        expect(triplesWithFlag[0].subject, isA<IriTerm>());
+        expect(
+          triplesWithFlag[0].predicate,
+          equals(IriTerm('http://example.org/predicate')),
+        );
+        expect(
+          triplesWithFlag[0].subject,
+          equals(IriTerm('http://mytest.org/abc')),
+        );
+        expect(triplesWithFlag[0].object, equals(LiteralTerm.string('value')));
+      });
+
+      test('should handle identifiers without colon when flag is enabled', () {
+        // Setup: Enable the allowIdentifiersWithoutColon flag
+        final parserWithFlag = TurtleParser(
+          'abc <http://example.org/predicate> "value" .',
+          parsingFlags: {TurtleParsingFlag.allowIdentifiersWithoutColon},
+          // no baseUri specified - this should fail
+          // baseUri: 'http://mytest.org/',
+        );
+
+        // Execute & Verify: Should throw exception without base URI
+        expect(
+          () => parserWithFlag.parse(),
+          throwsA(isA<RdfSyntaxException>()),
+        );
+      });
+      test(
+        'should handle identifiers without colon when flag is enabled, base from turtle overrides baseUri',
+        () {
+          // Setup: Enable the allowIdentifiersWithoutColon flag
+          final parserWithFlag = TurtleParser(
+            '@base <http://mytest3.org/base/> .\n'
+            'abc <http://example.org/predicate> "value" .',
+            parsingFlags: {TurtleParsingFlag.allowIdentifiersWithoutColon},
+            baseUri: 'http://mytest.org/',
+          );
+
+          // Execute: Parse the Turtle content
+          final triplesWithFlag = parserWithFlag.parse();
+
+          // Verify: The parser with flag should treat 'abc' as a prefixed name
+          expect(triplesWithFlag.length, equals(1));
+          expect(triplesWithFlag[0].subject, isA<IriTerm>());
+          expect(
+            triplesWithFlag[0].predicate,
+            equals(IriTerm('http://example.org/predicate')),
+          );
+          expect(
+            triplesWithFlag[0].subject,
+            equals(IriTerm('http://mytest3.org/base/abc')),
+          );
+          expect(
+            triplesWithFlag[0].object,
+            equals(LiteralTerm.string('value')),
+          );
+        },
+      );
+      test(
+        'should handle identifiers without colon when flag is enabled, base from turtle',
+        () {
+          // Setup: Enable the allowIdentifiersWithoutColon flag
+          final parserWithFlag = TurtleParser(
+            '@base <http://mytest3.org/base/> .\n'
+            'abc <http://example.org/predicate> "value" .',
+            parsingFlags: {TurtleParsingFlag.allowIdentifiersWithoutColon},
+          );
+
+          // Execute: Parse the Turtle content
+          final triplesWithFlag = parserWithFlag.parse();
+
+          // Verify: The parser with flag should treat 'abc' as a prefixed name
+          expect(triplesWithFlag.length, equals(1));
+          expect(triplesWithFlag[0].subject, isA<IriTerm>());
+          expect(
+            triplesWithFlag[0].predicate,
+            equals(IriTerm('http://example.org/predicate')),
+          );
+          expect(
+            triplesWithFlag[0].subject,
+            equals(IriTerm('http://mytest3.org/base/abc')),
+          );
+          expect(
+            triplesWithFlag[0].object,
+            equals(LiteralTerm.string('value')),
+          );
+        },
+      );
+      test(
+        'should reject identifiers without colon when flag is not enabled',
+        () {
+          // Setup: Parser without the flag
+          final parserWithoutFlag = TurtleParser(
+            'abc <http://example.org/predicate> "value" .',
+          );
+
+          // Execute & Verify: Without the flag, the parse should throw an exception
+          expect(
+            () => parserWithoutFlag.parse(),
+            throwsA(isA<RdfSyntaxException>()),
+          );
+        },
+      );
+
+      test('should handle objects without colon when flag is enabled', () {
+        // Setup: Enable the allowIdentifiersWithoutColon flag
+        final parserWithFlag = TurtleParser(
+          '<http://example.org/subject> <http://example.org/predicate> abc .',
+          parsingFlags: {TurtleParsingFlag.allowIdentifiersWithoutColon},
+          baseUri: 'http://mytest2.org/',
+        );
+
+        // Execute: Parse the Turtle content
+        final triplesWithFlag = parserWithFlag.parse();
+
+        // Verify: The parser with flag should treat 'abc' as a prefixed name object
+        expect(triplesWithFlag.length, equals(1));
+        expect(
+          triplesWithFlag[0].subject,
+          equals(IriTerm('http://example.org/subject')),
+        );
+        expect(
+          triplesWithFlag[0].predicate,
+          equals(IriTerm('http://example.org/predicate')),
+        );
+        expect(
+          triplesWithFlag[0].object,
+          equals(IriTerm('http://mytest2.org/abc')),
+        );
+        expect(triplesWithFlag[0].object, isA<IriTerm>());
+      });
+      test(
+        'should handle objects without colon when flag is enabled, base missing',
+        () {
+          // Setup: Enable the allowIdentifiersWithoutColon flag
+          final parserWithFlag = TurtleParser(
+            '<http://example.org/subject> <http://example.org/predicate> abc .',
+            parsingFlags: {TurtleParsingFlag.allowIdentifiersWithoutColon},
+          );
+
+          // Execute & Verify: Should throw exception without base URI
+          expect(
+            () => parserWithFlag.parse(),
+            throwsA(isA<RdfSyntaxException>()),
+          );
+        },
+      );
+
+      test(
+        'should handle objects without colon when flag is enabled, base from turtle',
+        () {
+          // Setup: Enable the allowIdentifiersWithoutColon flag
+          final parserWithFlag = TurtleParser(
+            '@base <http://mytest3.org/base/> .\n'
+            '<http://example.org/subject> <http://example.org/predicate> abc .',
+            parsingFlags: {TurtleParsingFlag.allowIdentifiersWithoutColon},
+          );
+
+          // Execute: Parse the Turtle content
+          final triplesWithFlag = parserWithFlag.parse();
+
+          // Verify: The parser with flag should treat 'abc' as a prefixed name object
+          expect(triplesWithFlag.length, equals(1));
+          expect(
+            triplesWithFlag[0].subject,
+            equals(IriTerm('http://example.org/subject')),
+          );
+          expect(
+            triplesWithFlag[0].predicate,
+            equals(IriTerm('http://example.org/predicate')),
+          );
+          expect(
+            triplesWithFlag[0].object,
+            equals(IriTerm('http://mytest3.org/base/abc')),
+          );
+          expect(triplesWithFlag[0].object, isA<IriTerm>());
+        },
+      );
+
+      test(
+        'should handle objects without colon when flag is enabled, base from turtle overrides baseUri',
+        () {
+          // Setup: Enable the allowIdentifiersWithoutColon flag
+          final parserWithFlag = TurtleParser(
+            '@base <http://mytest3.org/base/> .\n'
+            '<http://example.org/subject> <http://example.org/predicate> abc .',
+            parsingFlags: {TurtleParsingFlag.allowIdentifiersWithoutColon},
+            baseUri: 'http://mytest2.org/',
+          );
+
+          // Execute: Parse the Turtle content
+          final triplesWithFlag = parserWithFlag.parse();
+
+          // Verify: The parser with flag should treat 'abc' as a prefixed name object
+          expect(triplesWithFlag.length, equals(1));
+          expect(
+            triplesWithFlag[0].subject,
+            equals(IriTerm('http://example.org/subject')),
+          );
+          expect(
+            triplesWithFlag[0].predicate,
+            equals(IriTerm('http://example.org/predicate')),
+          );
+          expect(
+            triplesWithFlag[0].object,
+            equals(IriTerm('http://mytest3.org/base/abc')),
+          );
+          expect(triplesWithFlag[0].object, isA<IriTerm>());
+        },
+      );
+
+      test(
+        'should handle multiple identifiers without colon when flag is enabled',
+        () {
+          // Setup: Enable the allowIdentifiersWithoutColon flag
+          final parserWithFlag = TurtleParser(
+            '''
+          abc def ghi .
+          xyz abc "test" .
+        ''',
+            parsingFlags: {TurtleParsingFlag.allowIdentifiersWithoutColon},
+            baseUri: "http://example.com/",
+          );
+
+          // Execute: Parse the Turtle content
+          final triplesWithFlag = parserWithFlag.parse();
+
+          // Verify: The parser with flag should process both triples with identifiers without colons
+          expect(triplesWithFlag.length, equals(2));
+        },
+      );
+
+      test('should handle allowDigitInLocalName flag', () {
+        // Setup: Enable the allowDigitInLocalName flag
+        final parserWithFlag = TurtleParser(
+          '''
+          @prefix mytest: <https://mytest.org/> .
+          <http://example.org/product> a mytest:3DModel .
+        ''',
+          parsingFlags: {TurtleParsingFlag.allowDigitInLocalName},
+        );
+
+        // Execute: Parse the Turtle content
+        final triplesWithFlag = parserWithFlag.parse();
+
+        // Verify: The parser with flag should allow digits at start of local name
+        expect(triplesWithFlag.length, equals(1));
+        expect(
+          triplesWithFlag[0].subject,
+          equals(IriTerm('http://example.org/product')),
+        );
+        expect(
+          triplesWithFlag[0].predicate,
+          equals(IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')),
+        );
+        expect(
+          triplesWithFlag[0].object,
+          equals(IriTerm('https://mytest.org/3DModel')),
+        );
+      });
+
+      test(
+        'should reject digits at start of local name when flag is not enabled',
+        () {
+          // Setup: Parser without the flag
+          final parserWithoutFlag = TurtleParser('''
+          @prefix schema: <https://schema.org/> .
+          <http://example.org/product> a schema:3DModel .
+        ''');
+
+          // Execute & Verify: Without the flag, the parse should throw an exception
+          expect(
+            () => parserWithoutFlag.parse(),
+            throwsA(isA<RdfSyntaxException>()),
+          );
+        },
+      );
+
+      test('should handle allowMissingDotAfterPrefix flag', () {
+        // Setup: Enable the allowMissingDotAfterPrefix flag
+        final parserWithFlag = TurtleParser(
+          '''
+          @prefix ex: <http://example.org/> 
+          ex:subject ex:predicate "value" .
+        ''',
+          parsingFlags: {TurtleParsingFlag.allowMissingDotAfterPrefix},
+        );
+
+        // Execute: Parse the Turtle content
+        final triplesWithFlag = parserWithFlag.parse();
+
+        // Verify: The parser with flag should process the triple despite missing dot after prefix
+        expect(triplesWithFlag.length, equals(1));
+        expect(
+          triplesWithFlag[0].subject,
+          equals(IriTerm('http://example.org/subject')),
+        );
+        expect(
+          triplesWithFlag[0].predicate,
+          equals(IriTerm('http://example.org/predicate')),
+        );
+        expect(triplesWithFlag[0].object, equals(LiteralTerm.string('value')));
+      });
+
+      test('should reject missing dot after prefix when flag is not enabled', () {
+        // Setup: Parser without the flag
+        final parserWithoutFlag = TurtleParser('''
+          @prefix ex: <http://example.org/> 
+          ex:subject ex:predicate "value" .
+        ''');
+
+        // Execute & Verify: Without the flag, the parse should throw an exception
+        expect(
+          () => parserWithoutFlag.parse(),
+          throwsA(isA<RdfSyntaxException>()),
+        );
+      });
+
+      test('should handle autoAddCommonPrefixes flag', () {
+        // Setup: Enable the autoAddCommonPrefixes flag
+        final parserWithFlag = TurtleParser(
+          '<http://example.org/subject> a rdf:List .',
+          parsingFlags: {TurtleParsingFlag.autoAddCommonPrefixes},
+        );
+
+        // Execute: Parse the Turtle content
+        final triplesWithFlag = parserWithFlag.parse();
+
+        // Verify: The parser with flag should automatically add the rdf prefix
+        expect(triplesWithFlag.length, equals(1));
+        expect(
+          triplesWithFlag[0].subject,
+          equals(IriTerm('http://example.org/subject')),
+        );
+        expect(
+          triplesWithFlag[0].predicate,
+          equals(IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')),
+        );
+        expect(
+          triplesWithFlag[0].object,
+          equals(IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#List')),
+        );
+      });
+
+      test(
+        'should reject undefined prefixes when autoAddCommonPrefixes is not enabled',
+        () {
+          // Setup: Parser without the flag
+          final parserWithoutFlag = TurtleParser(
+            '<http://example.org/subject> a rdf:List .',
+          );
+
+          // Execute & Verify: Without the flag, the parse should throw an exception
+          expect(
+            () => parserWithoutFlag.parse(),
+            throwsA(isA<RdfSyntaxException>()),
+          );
+        },
+      );
+
+      test('should handle allowPrefixWithoutAtSign flag', () {
+        // Setup: Enable the allowPrefixWithoutAtSign flag
+        final parserWithFlag = TurtleParser(
+          '''
+          prefix ex: <http://example.org/> .
+          ex:subject ex:predicate "value" .
+        ''',
+          parsingFlags: {TurtleParsingFlag.allowPrefixWithoutAtSign},
+        );
+
+        // Execute: Parse the Turtle content
+        final triplesWithFlag = parserWithFlag.parse();
+
+        // Verify: The parser with flag should process the prefix without @ sign
+        expect(triplesWithFlag.length, equals(1));
+        expect(
+          triplesWithFlag[0].subject,
+          equals(IriTerm('http://example.org/subject')),
+        );
+        expect(
+          triplesWithFlag[0].predicate,
+          equals(IriTerm('http://example.org/predicate')),
+        );
+        expect(triplesWithFlag[0].object, equals(LiteralTerm.string('value')));
+      });
+
+      test('should reject prefix without @ sign when flag is not enabled', () {
+        // Setup: Parser without the flag
+        final parserWithoutFlag = TurtleParser('''
+          prefix ex: <http://example.org/> .
+          ex:subject ex:predicate "value" .
+        ''');
+
+        // Execute & Verify: Without the flag, the parse should throw an exception
+        expect(
+          () => parserWithoutFlag.parse(),
+          throwsA(isA<RdfSyntaxException>()),
+        );
+      });
+
+      test('should handle allowMissingFinalDot flag', () {
+        // Setup: Enable the allowMissingFinalDot flag
+        final parserWithFlag = TurtleParser(
+          '<http://example.org/subject> <http://example.org/predicate> "value"',
+          parsingFlags: {TurtleParsingFlag.allowMissingFinalDot},
+        );
+
+        // Execute: Parse the Turtle content
+        final triplesWithFlag = parserWithFlag.parse();
+
+        // Verify: The parser with flag should process the triple despite missing final dot
+        expect(triplesWithFlag.length, equals(1));
+        expect(
+          triplesWithFlag[0].subject,
+          equals(IriTerm('http://example.org/subject')),
+        );
+        expect(
+          triplesWithFlag[0].predicate,
+          equals(IriTerm('http://example.org/predicate')),
+        );
+        expect(triplesWithFlag[0].object, equals(LiteralTerm.string('value')));
+      });
+
+      test('should reject missing final dot when flag is not enabled', () {
+        // Setup: Parser without the flag
+        final parserWithoutFlag = TurtleParser(
+          '<http://example.org/subject> <http://example.org/predicate> "value"',
+        );
+
+        // Execute & Verify: Without the flag, the parse should throw an exception
+        expect(
+          () => parserWithoutFlag.parse(),
+          throwsA(isA<RdfSyntaxException>()),
+        );
+      });
+
+      test('should reject malformed collections when flag is not enabled', () {
+        // Setup: Parser without the flag
+        final parserWithoutFlag = TurtleParser(
+          '<http://example.org/subject> <http://example.org/predicate> ( "item1" "item2" .',
+        );
+
+        // Execute & Verify: Without the flag, the parse should throw an exception
+        expect(
+          () => parserWithoutFlag.parse(),
+          throwsA(isA<RdfSyntaxException>()),
+        );
+      });
+
+      test('should handle multiple flags together', () {
+        // Setup: Enable multiple flags
+        final parserWithMultipleFlags = TurtleParser(
+          '''
+          prefix ex: <http://example.org/> .
+          abc def ghi .
+          <http://example.org/subject> ex:predicate schema:3DModel .
+        ''',
+          baseUri: 'http://mytest.org/',
+          parsingFlags: {
+            TurtleParsingFlag.allowIdentifiersWithoutColon,
+            TurtleParsingFlag.allowPrefixWithoutAtSign,
+            TurtleParsingFlag.allowMissingFinalDot,
+            TurtleParsingFlag.allowDigitInLocalName,
+            TurtleParsingFlag.autoAddCommonPrefixes,
+          },
+        );
+
+        // Execute: Parse the Turtle content
+        final triples = parserWithMultipleFlags.parse();
+
+        // Verify: The parser should handle all relaxed syntax features
+        expect(triples.length, equals(2));
+      });
+    });
+
+    group('RDF Collections', () {
+      test('should parse an empty collection', () {
+        final parser = TurtleParser(
+          '<http://example.org/subject> <http://example.org/predicate> () .',
+        );
+        final triples = parser.parse();
+
+        expect(triples.length, equals(1));
+        expect(
+          triples[0].subject,
+          equals(IriTerm('http://example.org/subject')),
+        );
+        expect(
+          triples[0].predicate,
+          equals(IriTerm('http://example.org/predicate')),
+        );
+        expect(
+          triples[0].object,
+          equals(IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil')),
+        );
+      });
+
+      test('should parse a simple collection with string literals', () {
+        final parser = TurtleParser(
+          '<http://example.org/subject> <http://example.org/predicate> ("item1" "item2" "item3") .',
+        );
+        final triples = parser.parse();
+
+        // Should generate:
+        // 1. subject predicate list1
+        // 2. list1 rdf:first "item1"
+        // 3. list1 rdf:rest list2
+        // 4. list2 rdf:first "item2"
+        // 5. list2 rdf:rest list3
+        // 6. list3 rdf:first "item3"
+        // 7. list3 rdf:rest rdf:nil
+        expect(triples.length, equals(7));
+
+        // Check the main triple pointing to the collection head
+        final mainTriple = triples.firstWhere(
+          (t) => t.subject == IriTerm('http://example.org/subject'),
+        );
+        expect(
+          mainTriple.predicate,
+          equals(IriTerm('http://example.org/predicate')),
+        );
+        expect(mainTriple.object, isA<BlankNodeTerm>());
+
+        // Get the head of the list
+        final listHead = mainTriple.object as BlankNodeTerm;
+
+        // Check first item
+        final firstItemTriple = triples.firstWhere(
+          (t) =>
+              t.subject == listHead &&
+              t.predicate ==
+                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+        );
+        expect(firstItemTriple.object, equals(LiteralTerm.string('item1')));
+
+        // Find the rest link from the first item
+        final firstRestTriple = triples.firstWhere(
+          (t) =>
+              t.subject == listHead &&
+              t.predicate ==
+                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+        );
+        expect(firstRestTriple.object, isA<BlankNodeTerm>());
+
+        // Find the second item
+        final secondNode = firstRestTriple.object as BlankNodeTerm;
+        final secondItemTriple = triples.firstWhere(
+          (t) =>
+              t.subject == secondNode &&
+              t.predicate ==
+                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+        );
+        expect(secondItemTriple.object, equals(LiteralTerm.string('item2')));
+
+        // Find the rest link from the second item
+        final secondRestTriple = triples.firstWhere(
+          (t) =>
+              t.subject == secondNode &&
+              t.predicate ==
+                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+        );
+        expect(secondRestTriple.object, isA<BlankNodeTerm>());
+
+        // Find the third item
+        final thirdNode = secondRestTriple.object as BlankNodeTerm;
+        final thirdItemTriple = triples.firstWhere(
+          (t) =>
+              t.subject == thirdNode &&
+              t.predicate ==
+                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+        );
+        expect(thirdItemTriple.object, equals(LiteralTerm.string('item3')));
+
+        // Find the rest link from the third item (should be rdf:nil)
+        final thirdRestTriple = triples.firstWhere(
+          (t) =>
+              t.subject == thirdNode &&
+              t.predicate ==
+                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+        );
+        expect(
+          thirdRestTriple.object,
+          equals(IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil')),
+        );
+      });
+
+      test('should parse a collection with mixed content types', () {
+        final parser = TurtleParser('''
+          @prefix ex: <http://example.org/> .
+          @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+          ex:subject ex:predicate (
+            "a string"
+            123
+            <http://example.org/resource>
+            true
+            "2023-05-01"^^xsd:date
+          ) .
+        ''');
+        final triples = parser.parse();
+
+        // Should be 11 triples: 1 for the main triple + (2 * 5) for the list structure
+        expect(triples.length, equals(11));
+
+        // Find all first triples to check the list items
+        final firstTriples =
+            triples
+                .where(
+                  (t) =>
+                      t.predicate ==
+                      IriTerm(
+                        'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',
+                      ),
+                )
+                .toList();
+        expect(firstTriples.length, equals(5));
+
+        // Check each list item's type
+        expect(firstTriples[0].object, equals(LiteralTerm.string('a string')));
+        expect(
+          firstTriples[1].object,
+          equals(LiteralTerm.typed('123', 'integer')),
+        );
+        expect(
+          firstTriples[2].object,
+          equals(IriTerm('http://example.org/resource')),
+        );
+        expect(
+          firstTriples[3].object,
+          equals(LiteralTerm.typed('true', 'boolean')),
+        );
+        expect(
+          firstTriples[4].object,
+          equals(LiteralTerm.typed('2023-05-01', 'date')),
+        );
+      });
+
+      test('should parse nested collections', () {
+        final parser = TurtleParser('''
+          @prefix ex: <http://example.org/> .
+          ex:subject ex:predicate (
+            "outer1"
+            ("inner1" "inner2")
+            "outer2"
+          ) .
+        ''');
+        final triples = parser.parse();
+
+        // Should be 13 triples:
+        // 1 for main triple
+        // 6 for the outer list (3 items * 2 triples per item)
+        // 6 for the inner list (2 items * 2 triples per item )
+        expect(triples.length, equals(11));
+
+        // Find the main triple
+        final mainTriple = triples.firstWhere(
+          (t) => t.subject == IriTerm('http://example.org/subject'),
+        );
+        final outerListHead = mainTriple.object as BlankNodeTerm;
+
+        // Find the first item in the outer list
+        final firstOuterTriple = triples.firstWhere(
+          (t) =>
+              t.subject == outerListHead &&
+              t.predicate ==
+                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+        );
+        expect(firstOuterTriple.object, equals(LiteralTerm.string('outer1')));
+
+        // Find the rest node of the outer list
+        final firstRestTriple = triples.firstWhere(
+          (t) =>
+              t.subject == outerListHead &&
+              t.predicate ==
+                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+        );
+        final secondOuterNode = firstRestTriple.object as BlankNodeTerm;
+
+        // Find the second item (the nested list)
+        final secondOuterTriple = triples.firstWhere(
+          (t) =>
+              t.subject == secondOuterNode &&
+              t.predicate ==
+                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+        );
+
+        // The second item should be a blank node (head of inner list)
+        expect(secondOuterTriple.object, isA<BlankNodeTerm>());
+        final innerListHead = secondOuterTriple.object as BlankNodeTerm;
+
+        // Find the first inner list item
+        final firstInnerTriple = triples.firstWhere(
+          (t) =>
+              t.subject == innerListHead &&
+              t.predicate ==
+                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+        );
+        expect(firstInnerTriple.object, equals(LiteralTerm.string('inner1')));
+
+        // Find the second inner list item
+        final innerRestTriple = triples.firstWhere(
+          (t) =>
+              t.subject == innerListHead &&
+              t.predicate ==
+                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+        );
+        final secondInnerNode = innerRestTriple.object as BlankNodeTerm;
+
+        final secondInnerTriple = triples.firstWhere(
+          (t) =>
+              t.subject == secondInnerNode &&
+              t.predicate ==
+                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+        );
+        expect(secondInnerTriple.object, equals(LiteralTerm.string('inner2')));
+
+        // Check that the inner list ends with rdf:nil
+        final innerEndTriple = triples.firstWhere(
+          (t) =>
+              t.subject == secondInnerNode &&
+              t.predicate ==
+                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+        );
+        expect(
+          innerEndTriple.object,
+          equals(IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil')),
+        );
+      });
+
+      test('should parse collection with blank node elements', () {
+        final parser = TurtleParser('''
+          @prefix ex: <http://example.org/> .
+          ex:subject ex:predicate (
+            [ ex:name "Named item" ]
+            []
+          ) .
+        ''');
+        final triples = parser.parse();
+
+        // Should have triples for:
+        // 1. subject predicate listHead
+        // 2. listHead rdf:first blankNode1
+        // 3. blankNode1 ex:name "Named item"
+        // 4. listHead rdf:rest listNode2
+        // 5. listNode2 rdf:first blankNode2
+        // 6. listNode2 rdf:rest rdf:nil
+        expect(triples.length, equals(6));
+
+        // Find main triple
+        final mainTriple = triples.firstWhere(
+          (t) => t.subject == IriTerm('http://example.org/subject'),
+        );
+        final listHead = mainTriple.object as BlankNodeTerm;
+
+        // Find first item (a blank node with ex:name property)
+        final firstItemTriple = triples.firstWhere(
+          (t) =>
+              t.subject == listHead &&
+              t.predicate ==
+                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+        );
+        final firstBlankNode = firstItemTriple.object as BlankNodeTerm;
+
+        // Check that this blank node has the ex:name property
+        final nameTriple = triples.firstWhere(
+          (t) =>
+              t.subject == firstBlankNode &&
+              t.predicate == IriTerm('http://example.org/name'),
+        );
+        expect(nameTriple.object, equals(LiteralTerm.string('Named item')));
+
+        // Find second item (an empty blank node)
+        final restTriple = triples.firstWhere(
+          (t) =>
+              t.subject == listHead &&
+              t.predicate ==
+                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+        );
+        final secondListNode = restTriple.object as BlankNodeTerm;
+
+        final secondItemTriple = triples.firstWhere(
+          (t) =>
+              t.subject == secondListNode &&
+              t.predicate ==
+                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+        );
+        expect(secondItemTriple.object, isA<BlankNodeTerm>());
+      });
+
+      test('should handle collections in complex graph structures', () {
+        final parser = TurtleParser('''
+          @prefix ex: <http://example.org/> .
+          @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+          
+          ex:subject ex:property [
+            ex:items ("item1" "item2");
+            ex:name "A collection container"
+          ] .
+        ''');
+        final triples = parser.parse();
+
+        // Find the blank node that holds the collection
+        final mainTriple = triples.firstWhere(
+          (t) => t.subject == IriTerm('http://example.org/subject'),
+        );
+        final containerNode = mainTriple.object as BlankNodeTerm;
+
+        // Find the triple connecting the container to the collection
+        final collectionTriple = triples.firstWhere(
+          (t) =>
+              t.subject == containerNode &&
+              t.predicate == IriTerm('http://example.org/items'),
+        );
+
+        // Get the collection head
+        final collectionHead = collectionTriple.object as BlankNodeTerm;
+
+        // Verify the first item in the collection
+        final firstItemTriple = triples.firstWhere(
+          (t) =>
+              t.subject == collectionHead &&
+              t.predicate ==
+                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+        );
+        expect(firstItemTriple.object, equals(LiteralTerm.string('item1')));
+
+        // Also check the name property of the container
+        final nameTriple = triples.firstWhere(
+          (t) =>
+              t.subject == containerNode &&
+              t.predicate == IriTerm('http://example.org/name'),
+        );
+        expect(
+          nameTriple.object,
+          equals(LiteralTerm.string('A collection container')),
+        );
+      });
     });
   });
 }

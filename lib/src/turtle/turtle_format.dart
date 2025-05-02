@@ -5,6 +5,7 @@
 /// syntax for encoding RDF graphs as text.
 library turtle_format;
 
+import 'package:rdf_core/src/turtle/turtle_tokenizer.dart';
 import 'package:rdf_core/src/vocab/namespaces.dart';
 
 import '../graph/rdf_graph.dart';
@@ -73,10 +74,14 @@ final class TurtleFormat implements RdfFormat {
   };
 
   final RdfNamespaceMappings _namespaceMappings;
+  final Set<TurtleParsingFlag> _parsingFlags;
 
   /// Creates a new Turtle format handler
-  const TurtleFormat({RdfNamespaceMappings? namespaceMappings})
-    : _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings();
+  const TurtleFormat({
+    RdfNamespaceMappings? namespaceMappings,
+    Set<TurtleParsingFlag> parsingFlags = const {},
+  }) : _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings(),
+       _parsingFlags = parsingFlags;
 
   @override
   String get primaryMimeType => _primaryMimeType;
@@ -85,7 +90,10 @@ final class TurtleFormat implements RdfFormat {
   Set<String> get supportedMimeTypes => _supportedMimeTypes;
 
   @override
-  RdfParser createParser() => _TurtleParserAdapter();
+  RdfParser createParser() => _TurtleParserAdapter(
+    parsingFlags: _parsingFlags,
+    namespaceMappings: _namespaceMappings,
+  );
 
   @override
   RdfSerializer createSerializer() =>
@@ -114,9 +122,23 @@ final class TurtleFormat implements RdfFormat {
 /// Internal adapter that bridges the RdfParser interface to the
 /// implementation-specific TurtleParser.
 class _TurtleParserAdapter implements RdfParser {
+  final Set<TurtleParsingFlag> _parsingFlags;
+  final RdfNamespaceMappings _namespaceMappings;
+
+  _TurtleParserAdapter({
+    required Set<TurtleParsingFlag> parsingFlags,
+    required RdfNamespaceMappings namespaceMappings,
+  }) : _namespaceMappings = namespaceMappings,
+       // Pass the parsing flags to the TurtleParser
+       _parsingFlags = parsingFlags;
   @override
   RdfGraph parse(String input, {String? documentUrl}) {
-    final parser = TurtleParser(input, baseUri: documentUrl);
+    final parser = TurtleParser(
+      input,
+      baseUri: documentUrl,
+      parsingFlags: _parsingFlags,
+      namespaceMappings: _namespaceMappings,
+    );
     return RdfGraph.fromTriples(parser.parse());
   }
 }

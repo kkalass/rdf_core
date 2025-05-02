@@ -1,7 +1,6 @@
 import 'package:logging/logging.dart';
+import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_core/src/exceptions/exceptions.dart';
-import 'package:rdf_core/src/graph/rdf_term.dart';
-import 'package:rdf_core/src/graph/triple.dart';
 import 'package:rdf_core/src/vocab/rdf.dart';
 
 import 'turtle_tokenizer.dart';
@@ -40,15 +39,25 @@ class TurtleParser {
   Token _currentToken = Token(TokenType.eof, '', 0, 0);
   final List<Triple> _triples = [];
   final Map<String, BlankNodeTerm> _blankNodesByLabels = {};
+  final Set<TurtleParsingFlag> _parsingFlags;
+  final RdfNamespaceMappings _namespaceMappings;
 
   /// Creates a new Turtle parser for the given input string.
   ///
   /// [input] is the Turtle document to parse.
   /// [baseUri] is the base URI against which relative IRIs should be resolved.
   /// If not provided, relative IRIs will be kept as-is.
-  TurtleParser(String input, {String? baseUri})
-    : _tokenizer = TurtleTokenizer(input),
-      _baseUri = baseUri;
+  /// [parsingFlags] is a set of flags that enable relaxed parsing for non-standard
+  /// Turtle syntax that may be present in real-world files.
+  TurtleParser(
+    String input, {
+    String? baseUri,
+    Set<TurtleParsingFlag> parsingFlags = const {},
+    RdfNamespaceMappings namespaceMappings = const RdfNamespaceMappings(),
+  }) : _tokenizer = TurtleTokenizer(input, parsingFlags: parsingFlags),
+       _baseUri = baseUri,
+       _parsingFlags = parsingFlags,
+       _namespaceMappings = namespaceMappings;
 
   /// Parses the input and returns a list of triples.
   ///
@@ -120,8 +129,44 @@ class TurtleParser {
       return [...triples, ..._triples];
     } catch (e, stack) {
       if (e is RdfException) {
-        // Re-throw RDF exceptions as-is
-        rethrow;
+        // add missing source information to the exception
+        if (e.source == null) {
+          _log.severe('RdfException without source information', e, stack);
+          final sourceLocation = SourceLocation(
+            line: _currentToken.line,
+            column: _currentToken.column,
+            context: _currentToken.value,
+            source: "turtle parser",
+          );
+
+          if (e is RdfConstraintViolationException) {
+            throw RdfConstraintViolationException(
+              e.message,
+              constraint: e.constraint,
+              cause: e.cause,
+              source: sourceLocation,
+            );
+          } else if (e is RdfValidationException) {
+            throw RdfValidationException(
+              e.message,
+              cause: e.cause,
+              source: sourceLocation,
+            );
+          } else if (e is RdfParserException) {
+            throw RdfSyntaxException(
+              e.message,
+              format: e.format,
+              cause: e.cause,
+              source: sourceLocation,
+            );
+          } else {
+            // simply rethrow the exception if we don't know how to handle it
+            rethrow;
+          }
+        } else {
+          // simply rethrow if it has source information
+          rethrow;
+        }
       }
 
       // Convert other exceptions to RdfSyntaxException
@@ -243,6 +288,20 @@ class TurtleParser {
 
     _currentToken = _tokenizer.nextToken();
     // _log.finest('After IRI: $_currentToken');
+
+    // In compatibility mode, allow missing dot after prefix declaration
+    // and also allow another prefix to follow directly
+    if (_parsingFlags.contains(TurtleParsingFlag.allowMissingDotAfterPrefix) &&
+        (_currentToken.type == TokenType.prefix ||
+            _currentToken.type == TokenType.eof ||
+            _currentToken.type == TokenType.prefixedName ||
+            _currentToken.type == TokenType.iri)) {
+      _log.warning(
+        'In compatibility mode: Missing dot after prefix declaration',
+      );
+      // Continue without consuming the dot
+      return;
+    }
 
     _expect(TokenType.dot);
     _currentToken = _tokenizer.nextToken();
@@ -438,6 +497,9 @@ class TurtleParser {
   /// - A blank node (e.g., _:b1)
   /// - A literal (e.g., "Hello, World!")
   /// - A blank node expression (e.g., [ ... ])
+  /// - A collection (e.g., ( item1 item2 item3 ))
+  /// - A boolean literal (e.g., true, false)
+  /// - A numeric literal (e.g., 42, 3.14)
   ///
   /// Returns an RdfTerm representing the object (IriTerm, BlankNodeTerm, or LiteralTerm).
   RdfObject _parseObject() {
@@ -467,9 +529,30 @@ class TurtleParser {
       _currentToken = _tokenizer.nextToken();
       // _log.finest('Parsed literal object: $literalTerm');
       return literalTerm;
+    } else if (_currentToken.type == TokenType.booleanLiteral) {
+      // Handle boolean literals
+      final value = _currentToken.value;
+      final literalTerm = LiteralTerm.typed(value, 'boolean');
+      _currentToken = _tokenizer.nextToken();
+      return literalTerm;
+    } else if (_currentToken.type == TokenType.integerLiteral) {
+      // Handle integer literals
+      final value = _currentToken.value;
+      final literalTerm = LiteralTerm.typed(value, 'integer');
+      _currentToken = _tokenizer.nextToken();
+      return literalTerm;
+    } else if (_currentToken.type == TokenType.decimalLiteral) {
+      // Handle decimal literals
+      final value = _currentToken.value;
+      final literalTerm = LiteralTerm.typed(value, 'decimal');
+      _currentToken = _tokenizer.nextToken();
+      return literalTerm;
     } else if (_currentToken.type == TokenType.openBracket) {
       // _log.finest('Found blank node expression for object');
       return _parseBlankNode();
+    } else if (_currentToken.type == TokenType.openParen) {
+      // Handle collection (e.g., ( item1 item2 item3 ))
+      return _parseCollection();
     } else {
       _log.severe('Unexpected token type for object: ${_currentToken.type}');
       throw RdfSyntaxException(
@@ -482,6 +565,58 @@ class TurtleParser {
         ),
       );
     }
+  }
+
+  /// Parses an RDF collection (ordered list).
+  ///
+  /// A collection in Turtle has the form:
+  /// ```turtle
+  /// ( item1 item2 item3 )
+  /// ```
+  ///
+  /// Returns a blank node representing the collection, and adds the necessary triples
+  /// to represent the list structure using rdf:first, rdf:rest, and rdf:nil.
+  RdfObject _parseCollection() {
+    // _log.finest('Parsing collection');
+    _expect(TokenType.openParen);
+    _currentToken = _tokenizer.nextToken();
+
+    // Check for empty collection - return rdf:nil for empty lists
+    if (_currentToken.type == TokenType.closeParen) {
+      _currentToken = _tokenizer.nextToken();
+      return RdfResources.nil;
+    }
+
+    // Start the collection
+    final firstNode = BlankNodeTerm();
+    BlankNodeTerm currentNode = firstNode;
+
+    while (_currentToken.type != TokenType.closeParen &&
+        _currentToken.type != TokenType.eof) {
+      // Parse the current item in the collection
+      final item = _parseObject();
+
+      // Add triple for current item (currentNode rdf:first item)
+      _triples.add(Triple(currentNode, RdfPredicates.first, item));
+
+      // Check if we've reached the end of the collection
+      if (_currentToken.type == TokenType.closeParen) {
+        // End the list with rdf:nil
+        _triples.add(Triple(currentNode, RdfPredicates.rest, RdfResources.nil));
+        break;
+      } else {
+        // Create next node and link current to it
+        final nextNode = BlankNodeTerm();
+        _triples.add(Triple(currentNode, RdfPredicates.rest, nextNode));
+        currentNode = nextNode;
+      }
+    }
+
+    // Consume closing parenthesis
+    _expect(TokenType.closeParen);
+    _currentToken = _tokenizer.nextToken();
+
+    return firstNode;
   }
 
   /// Resolves a potentially relative IRI against the base URI.
@@ -745,7 +880,62 @@ class TurtleParser {
   /// _expandPrefixedName('foaf:name') // Returns 'http://xmlns.com/foaf/0.1/name'
   /// ```
   String _expandPrefixedName(String prefixedName) {
-    // _log.finest('Expanding prefixed name: $prefixedName');
+    // Handle simple identifiers without colon if allowIdentifiersWithoutColon is enabled
+    if (_parsingFlags.contains(
+          TurtleParsingFlag.allowIdentifiersWithoutColon,
+        ) &&
+        !prefixedName.contains(':')) {
+      _log.warning(
+        'In compatibility mode: Using identifier without colon as IRI: "$prefixedName"',
+      );
+
+      if (_baseUri == null) {
+        throw RdfSyntaxException(
+          'Base URI is required when using identifiers without colon',
+          format: _format,
+          source: SourceLocation(
+            line: _currentToken.line,
+            column: _currentToken.column,
+            context: prefixedName,
+          ),
+        );
+      }
+      // resolve the identifier against the base URI
+      return _resolveIri(prefixedName);
+    }
+
+    // Handle prefixed names with digits at start of local name when allowDigitInLocalName flag is enabled
+    if (_parsingFlags.contains(TurtleParsingFlag.allowDigitInLocalName)) {
+      final defaultCommonPrefixes = _namespaceMappings.asMap();
+      final parts = prefixedName.split(':');
+      if (parts.length == 2) {
+        final prefix = parts[0];
+        final localName = parts[1];
+
+        if (RegExp(r'^\d').hasMatch(localName)) {
+          _log.warning(
+            'In compatibility mode: Handling prefixed name with numeric start in local name: $prefixedName',
+          );
+
+          // Automatically add the prefix if it's a common one and not already defined
+          if (!_prefixes.containsKey(prefix) &&
+              defaultCommonPrefixes.containsKey(prefix) &&
+              _parsingFlags.contains(TurtleParsingFlag.autoAddCommonPrefixes)) {
+            _log.warning(
+              'In compatibility mode: Auto-adding prefix for digit-starting local name: $prefix -> ${defaultCommonPrefixes[prefix]}',
+            );
+            _prefixes[prefix] = defaultCommonPrefixes[prefix]!;
+          }
+
+          // If prefix is available, expand normally
+          if (_prefixes.containsKey(prefix)) {
+            final expanded = '${_prefixes[prefix]}$localName';
+            return _resolveIri(expanded);
+          }
+        }
+      }
+    }
+
     final parts = prefixedName.split(':');
     if (parts.length != 2) {
       _log.severe('Invalid prefixed name format: $prefixedName');
@@ -759,23 +949,48 @@ class TurtleParser {
         ),
       );
     }
+
     final prefix = parts[0];
     final localName = parts[1];
-    if (!_prefixes.containsKey(prefix)) {
-      _log.severe('Unknown prefix: $prefix');
-      throw RdfSyntaxException(
-        'Unknown prefix',
-        format: _format,
-        source: SourceLocation(
-          line: _currentToken.line,
-          column: _currentToken.column,
-          context: prefix,
-        ),
-      );
-    }
-    final expanded = '${_prefixes[prefix]}$localName';
-    // _log.finest('Expanded prefixed name: $prefixedName -> $expanded');
 
+    if (!_prefixes.containsKey(prefix)) {
+      // In compatibility mode, we could try to guess the prefix
+      if (_parsingFlags.contains(TurtleParsingFlag.autoAddCommonPrefixes)) {
+        final defaultCommonPrefixes = _namespaceMappings.asMap();
+        // If we're in compatibility mode, check for common prefixes
+        if (defaultCommonPrefixes.containsKey(prefix)) {
+          _log.warning(
+            'In compatibility mode: Auto-adding common prefix: $prefix -> ${defaultCommonPrefixes[prefix]}',
+          );
+          _prefixes[prefix] = defaultCommonPrefixes[prefix]!;
+        } else {
+          // Still no match, we have to throw an exception
+          _log.severe('Unknown prefix (even in compatibility mode): $prefix');
+          throw RdfSyntaxException(
+            'Unknown prefix (compatibility mode)',
+            format: _format,
+            source: SourceLocation(
+              line: _currentToken.line,
+              column: _currentToken.column,
+              context: prefix,
+            ),
+          );
+        }
+      } else {
+        _log.severe('Unknown prefix: $prefix');
+        throw RdfSyntaxException(
+          'Unknown prefix',
+          format: _format,
+          source: SourceLocation(
+            line: _currentToken.line,
+            column: _currentToken.column,
+            context: prefix,
+          ),
+        );
+      }
+    }
+
+    final expanded = '${_prefixes[prefix]}$localName';
     return _resolveIri(expanded);
   }
 
@@ -783,9 +998,34 @@ class TurtleParser {
   ///
   /// Throws a [RdfSyntaxException] if the current token's type does not match
   /// the expected type, including line and column information in the error message.
+  ///
+  /// In compatibility mode, certain types of mismatches may be allowed to support
+  /// real-world Turtle files that don't strictly follow the specification.
   void _expect(TokenType type) {
     // _log.finest('Expecting token type: $type, found: ${_currentToken.type}');
     if (_currentToken.type != type) {
+      // In compatibility mode, handle certain common deviations from the standard
+      if (_parsingFlags.contains(TurtleParsingFlag.allowMissingFinalDot)) {
+        // For Turtle files that omit trailing dots or semicolons in certain contexts
+        if (type == TokenType.dot &&
+            (_currentToken.type == TokenType.eof ||
+                _currentToken.type == TokenType.prefixedName ||
+                _currentToken.type == TokenType.iri)) {
+          _log.warning(
+            'In compatibility mode: Missing dot at end of statement',
+          );
+          // In compatibility mode, we pretend we saw the expected token and continue
+          return;
+        }
+
+        // Some files use invalid prefix format (without colon)
+        if (type == TokenType.prefixedName &&
+            _currentToken.type == TokenType.iri) {
+          _log.warning('In compatibility mode: Treating IRI as prefixed name');
+          return;
+        }
+      }
+
       _log.severe(
         'Token type mismatch: expected $type but found ${_currentToken.type}',
       );

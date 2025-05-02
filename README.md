@@ -99,6 +99,32 @@ final bnode = BlankNodeTerm();
 final newGraph = graph.withTriple(Triple(bnode, predicate, object));
 ```
 
+### Non-Standard Turtle Parsing
+
+```dart
+import 'package:rdf_core/rdf_core.dart';
+
+// Configure a TurtleFormat with specific parsing flags
+final turtleFormat = TurtleFormat(
+  parsingFlags: {
+    TurtleParsingFlag.allowDigitInLocalName,
+    TurtleParsingFlag.allowMissingDotAfterPrefix,
+    TurtleParsingFlag.autoAddCommonPrefixes,
+  }
+);
+
+// Create an RDF Core instance with the custom format
+final rdf = RdfCore.withFormats(formats: [turtleFormat]);
+
+// Parse a document with non-standard Turtle syntax
+final nonStandardTurtle = '''
+  @prefix ex <http://example.org/> // Missing dot after prefix
+  ex:resource123 a ex:Type . // Digit in local name
+''';
+
+final graph = rdf.parse(nonStandardTurtle, contentType: 'text/turtle');
+```
+
 ### Serialization/Parsing
 
 ```dart

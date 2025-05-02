@@ -127,10 +127,8 @@ final graph = RdfGraph(triples: [
     </div>
   </section>
 
-  
-
- <section class="advanced" id="advanced">
-    <h2>💡 Advanced Usage</h2>
+  <section class="advanced" id="advanced">
+    <h2>💡 Parse and Serialize</h2>
     <pre><code class="language-dart">// Parse and serialize Turtle
 final rdf = RdfCore.withStandardFormats();
 final doc = '''
@@ -150,13 +148,46 @@ final turtle = rdf.serialize(parsed);
 // final turtle = rdf.serialize(parsed, customPrefixes: {'ex': 'http://example.org/'} );
 print(turtle); 
 </code></pre>
+<div class="links">
+  <a href="api/rdf/index.html">RdfCore API</a>
+
+</div>
+  </section>
+
+  <section class="advanced" id="non-standard-parsing">
+    <h2>🔧 Non-Standard Turtle RDF Support</h2>
+    <pre><code class="language-dart">// Parse documents with non-standard Turtle syntax
+import 'package:rdf_core/rdf_core.dart';
+
+// Configure a TurtleFormat with specific parsing flags
+final turtleFormat = TurtleFormat(
+  parsingFlags: {
+    TurtleParsingFlag.allowDigitInLocalName,
+    TurtleParsingFlag.allowMissingDotAfterPrefix,
+    TurtleParsingFlag.autoAddCommonPrefixes,
+    TurtleParsingFlag.allowPrefixWithoutAtSign,
+    TurtleParsingFlag.allowMissingFinalDot,
+  }
+);
+
+// Create an RDF Core instance with the custom format
+final rdf = RdfCore.withFormats(formats: [turtleFormat]);
+
+// Parse a non-standard document that would fail with strict parsing
+final nonStandardTurtle = '''
+  @prefix ex <http://example.org/> // Missing dot after prefix declaration
+  ex:resource123 a ex:Type . // Digit in local name (123)
+''';
+
+final graph = rdf.parse(nonStandardTurtle, contentType: 'text/turtle');
+</code></pre>
     <div class="links">
-      <a href="api/">API Reference</a>
-      <a href="https://pub.dev/packages/rdf_core">pub.dev</a>
-      <a href="https://github.com/kkalass/rdf_core">GitHub</a>
+      <a href="api/turtle_tokenizer/TurtleParsingFlag-class.html">TurtleParsingFlag API</a>
+      <a href="https://github.com/kkalass/rdf_core/tree/main/example/turtle_parser_flags">More Examples</a>
     </div>
   </section>
 
+ 
 
   <footer>
     <div style="margin-bottom:0.5rem;">

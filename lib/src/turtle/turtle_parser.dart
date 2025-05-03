@@ -1,6 +1,9 @@
 import 'package:logging/logging.dart';
-import 'package:rdf_core/rdf_core.dart';
+
 import 'package:rdf_core/src/exceptions/exceptions.dart';
+import 'package:rdf_core/src/graph/rdf_term.dart';
+import 'package:rdf_core/src/graph/triple.dart';
+import 'package:rdf_core/src/vocab/namespaces.dart';
 import 'package:rdf_core/src/vocab/rdf.dart';
 
 import 'turtle_tokenizer.dart';

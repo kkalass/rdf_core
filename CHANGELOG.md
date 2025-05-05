@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added new factory methods `LiteralTerm.integer()`, `LiteralTerm.decimal()`, and `LiteralTerm.boolean()` for more concise and type-safe creation of common literal types.
 - Updated TurtleParser to use these specialized factory methods for literal values.
+- Enhanced TurtleSerializer to use native syntax for integer, decimal and boolean literals, resulting in more idiomatic and concise Turtle output.
 
 ## [0.6.9] - 2025-05-02
 

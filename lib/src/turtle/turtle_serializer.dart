@@ -393,6 +393,17 @@ class TurtleSerializer implements RdfSerializer {
         }
         return '_:$label';
       case LiteralTerm literal:
+        // Special cases for native Turtle literal representations
+        if (literal.datatype == XsdTypes.integer) {
+          return literal.value;
+        }
+        if (literal.datatype == XsdTypes.decimal) {
+          return literal.value;
+        }
+        if (literal.datatype == XsdTypes.boolean) {
+          return literal.value;
+        }
+
         var escapedLiteralValue = _escapeTurtleString(literal.value);
 
         if (literal.language != null) {

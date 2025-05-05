@@ -229,21 +229,21 @@ void main() {
     });
 
     test('integer factory creates xsd:integer literal', () {
-      final literal = LiteralTerm.integer('42');
+      final literal = LiteralTerm.integer(42);
       expect(literal.value, equals('42'));
       expect(literal.datatype, equals(XsdTypes.integer));
       expect(literal.language, isNull);
     });
 
     test('decimal factory creates xsd:decimal literal', () {
-      final literal = LiteralTerm.decimal('3.14');
+      final literal = LiteralTerm.decimal(3.14);
       expect(literal.value, equals('3.14'));
       expect(literal.datatype, equals(XsdTypes.decimal));
       expect(literal.language, isNull);
     });
 
     test('boolean factory creates xsd:boolean literal', () {
-      final literal = LiteralTerm.boolean('true');
+      final literal = LiteralTerm.boolean(true);
       expect(literal.value, equals('true'));
       expect(literal.datatype, equals(XsdTypes.boolean));
       expect(literal.language, isNull);

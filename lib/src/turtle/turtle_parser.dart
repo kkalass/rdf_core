@@ -535,19 +535,19 @@ class TurtleParser {
     } else if (_currentToken.type == TokenType.booleanLiteral) {
       // Handle boolean literals
       final value = _currentToken.value;
-      final literalTerm = LiteralTerm.boolean(value);
+      final literalTerm = LiteralTerm.boolean(bool.parse(value));
       _currentToken = _tokenizer.nextToken();
       return literalTerm;
     } else if (_currentToken.type == TokenType.integerLiteral) {
       // Handle integer literals
       final value = _currentToken.value;
-      final literalTerm = LiteralTerm.integer(value);
+      final literalTerm = LiteralTerm.integer(int.parse(value));
       _currentToken = _tokenizer.nextToken();
       return literalTerm;
     } else if (_currentToken.type == TokenType.decimalLiteral) {
       // Handle decimal literals
       final value = _currentToken.value;
-      final literalTerm = LiteralTerm.decimal(value);
+      final literalTerm = LiteralTerm.decimal(double.parse(value));
       _currentToken = _tokenizer.nextToken();
       return literalTerm;
     } else if (_currentToken.type == TokenType.openBracket) {

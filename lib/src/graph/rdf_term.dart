@@ -241,8 +241,8 @@ class LiteralTerm extends RdfObject {
   /// // Create an integer literal
   /// final intLiteral = LiteralTerm.integer("42");
   /// ```
-  factory LiteralTerm.integer(String value) {
-    return LiteralTerm(value, datatype: XsdTypes.integer);
+  factory LiteralTerm.integer(int value) {
+    return LiteralTerm(value.toString(), datatype: XsdTypes.integer);
   }
 
   /// Create a decimal literal
@@ -254,8 +254,8 @@ class LiteralTerm extends RdfObject {
   /// // Create a decimal literal
   /// final decimalLiteral = LiteralTerm.decimal("3.14");
   /// ```
-  factory LiteralTerm.decimal(String value) {
-    return LiteralTerm(value, datatype: XsdTypes.decimal);
+  factory LiteralTerm.decimal(double value) {
+    return LiteralTerm(value.toString(), datatype: XsdTypes.decimal);
   }
 
   /// Create a boolean literal
@@ -267,8 +267,8 @@ class LiteralTerm extends RdfObject {
   /// // Create a boolean literal
   /// final boolLiteral = LiteralTerm.boolean("true");
   /// ```
-  factory LiteralTerm.boolean(String value) {
-    return LiteralTerm(value, datatype: XsdTypes.boolean);
+  factory LiteralTerm.boolean(bool value) {
+    return LiteralTerm(value.toString(), datatype: XsdTypes.boolean);
   }
 
   /// Create a language-tagged literal

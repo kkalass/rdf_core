@@ -137,7 +137,7 @@ void main() {
       expect(
         result,
         contains(
-          '<http://example.org/alice> <http://example.org/name> "Alice";\n    <http://example.org/age> "30"^^xsd:integer',
+          '<http://example.org/alice> <http://example.org/name> "Alice";\n    <http://example.org/age> 30',
         ),
       );
       expect(
@@ -647,6 +647,95 @@ void main() {
           reason: 'All blank node occurrences should have the same label',
         );
       }
+    });
+
+    test('should correctly serialize native literal types', () {
+      // Arrange
+      final graph = RdfGraph(
+        triples: [
+          // Integer literal
+          Triple(
+            IriTerm('http://example.org/resource1'),
+            IriTerm('http://example.org/hasInteger'),
+            LiteralTerm.integer(42),
+          ),
+          // Decimal literal
+          Triple(
+            IriTerm('http://example.org/resource1'),
+            IriTerm('http://example.org/hasDecimal'),
+            LiteralTerm.decimal(3.14),
+          ),
+          // Boolean literal
+          Triple(
+            IriTerm('http://example.org/resource1'),
+            IriTerm('http://example.org/isEnabled'),
+            LiteralTerm.boolean(true),
+          ),
+          // Multiple native literals with the same predicate
+          Triple(
+            IriTerm('http://example.org/resource2'),
+            IriTerm('http://example.org/hasValue'),
+            LiteralTerm.integer(123),
+          ),
+          Triple(
+            IriTerm('http://example.org/resource2'),
+            IriTerm('http://example.org/hasValue'),
+            LiteralTerm.decimal(45.67),
+          ),
+          Triple(
+            IriTerm('http://example.org/resource2'),
+            IriTerm('http://example.org/hasValue'),
+            LiteralTerm.boolean(false),
+          ),
+        ],
+      );
+
+      // Act
+      final result = serializer.write(graph);
+
+      // Assert
+      // Check for integer serialization (without quotes or datatype)
+      expect(result, contains('<http://example.org/hasInteger> 42'));
+
+      // Check for decimal serialization (without quotes or datatype)
+      expect(result, contains('<http://example.org/hasDecimal> 3.14'));
+
+      // Check for boolean serialization (without quotes or datatype)
+      expect(result, contains('<http://example.org/isEnabled> true'));
+
+      // Check for multiple literals with the same predicate
+      expect(
+        result,
+        contains('<http://example.org/hasValue> 123, 45.67, false'),
+      );
+
+      // These should NOT be serialized with quotes and datatype syntax
+      expect(
+        result,
+        isNot(contains('"42"^^<http://www.w3.org/2001/XMLSchema#integer>')),
+      );
+      expect(
+        result,
+        isNot(contains('"3.14"^^<http://www.w3.org/2001/XMLSchema#decimal>')),
+      );
+      expect(
+        result,
+        isNot(contains('"true"^^<http://www.w3.org/2001/XMLSchema#boolean>')),
+      );
+
+      // Check the structure of the output
+      expect(
+        result,
+        contains('@prefix xsd: <http://www.w3.org/2001/XMLSchema#>'),
+      );
+
+      // Check for proper grouping of triples by subject
+      expect(
+        result,
+        contains(
+          '<http://example.org/resource1> <http://example.org/hasInteger> 42;',
+        ),
+      );
     });
   });
 }

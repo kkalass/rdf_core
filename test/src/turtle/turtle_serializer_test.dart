@@ -737,5 +737,631 @@ void main() {
         ),
       );
     });
+
+    test('should correctly serialize RDF collections', () {
+      // Create an RDF collection structure (a linked list using rdf:first, rdf:rest, rdf:nil)
+      final head = BlankNodeTerm();
+      final node1 = BlankNodeTerm();
+      final node2 = BlankNodeTerm();
+
+      final graph = RdfGraph.fromTriples([
+        // Use the collection as an object in a triple
+        Triple(
+          IriTerm('http://example.org/subject'),
+          IriTerm('http://example.org/predicate'),
+          head,
+        ),
+
+        // Define the collection structure
+        Triple(
+          head,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          LiteralTerm.string('item1'),
+        ),
+        Triple(
+          head,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          node1,
+        ),
+
+        Triple(
+          node1,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          LiteralTerm.string('item2'),
+        ),
+        Triple(
+          node1,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          node2,
+        ),
+
+        Triple(
+          node2,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          LiteralTerm.string('item3'),
+        ),
+        Triple(
+          node2,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+        ),
+      ]);
+
+      // Act
+      final result = serializer.write(graph);
+
+      // Assert
+      expect(
+        result,
+        contains(
+          '<http://example.org/subject> <http://example.org/predicate> ("item1" "item2" "item3") .',
+        ),
+        reason:
+            'Collection should be serialized using compact Turtle notation ("item1" "item2" "item3")',
+      );
+
+      // Ensure the collection triples themselves are not redundantly serialized
+      expect(
+        result,
+        isNot(contains('<http://www.w3.org/1999/02/22-rdf-syntax-ns#first>')),
+        reason:
+            'Collection structure triples should not be redundantly serialized',
+      );
+      expect(
+        result,
+        isNot(contains('<http://www.w3.org/1999/02/22-rdf-syntax-ns#rest>')),
+        reason:
+            'Collection structure triples should not be redundantly serialized',
+      );
+    });
+
+    test('should correctly serialize nested RDF collections', () {
+      // Create a nested RDF collection (a collection containing another collection)
+      final outerHead = BlankNodeTerm();
+      final outerNode1 = BlankNodeTerm();
+      final outerNode2 = BlankNodeTerm();
+
+      // Inner collection
+      final innerHead = BlankNodeTerm();
+      final innerNode1 = BlankNodeTerm();
+
+      final graph = RdfGraph.fromTriples([
+        // Main triple using the outer collection
+        Triple(
+          IriTerm('http://example.org/subject'),
+          IriTerm('http://example.org/predicate'),
+          outerHead,
+        ),
+
+        // Outer collection structure
+        Triple(
+          outerHead,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          LiteralTerm.string('item1'),
+        ),
+        Triple(
+          outerHead,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          outerNode1,
+        ),
+
+        Triple(
+          outerNode1,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          innerHead,
+        ), // This item is itself a collection
+        Triple(
+          outerNode1,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          outerNode2,
+        ),
+
+        Triple(
+          outerNode2,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          LiteralTerm.string('item3'),
+        ),
+        Triple(
+          outerNode2,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+        ),
+
+        // Inner collection structure
+        Triple(
+          innerHead,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          LiteralTerm.string('nested1'),
+        ),
+        Triple(
+          innerHead,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          innerNode1,
+        ),
+
+        Triple(
+          innerNode1,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          LiteralTerm.string('nested2'),
+        ),
+        Triple(
+          innerNode1,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+        ),
+      ]);
+
+      // Act
+      final result = serializer.write(graph);
+
+      // Assert
+      expect(
+        result,
+        contains(
+          '<http://example.org/subject> <http://example.org/predicate> ("item1" ("nested1" "nested2") "item3") .',
+        ),
+        reason:
+            'Nested collection should be serialized as ("item1" ("nested1" "nested2") "item3")',
+      );
+    });
+
+    test('should correctly serialize empty RDF collections', () {
+      final graph = RdfGraph.fromTriples([
+        // Use rdf:nil directly as object to represent an empty collection
+        Triple(
+          IriTerm('http://example.org/subject'),
+          IriTerm('http://example.org/predicate'),
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+        ),
+      ]);
+
+      // Act
+      final result = serializer.write(graph);
+
+      // Assert
+      expect(
+        result,
+        contains(
+          '<http://example.org/subject> <http://example.org/predicate> () .',
+        ),
+        reason: 'Empty collection should be serialized as ()',
+      );
+    });
+
+    test(
+      'should correctly serialize RDF collections with different value types',
+      () {
+        final head = BlankNodeTerm();
+        final node1 = BlankNodeTerm();
+        final node2 = BlankNodeTerm();
+        final node3 = BlankNodeTerm();
+
+        final graph = RdfGraph.fromTriples([
+          // Main triple using the collection
+          Triple(
+            IriTerm('http://example.org/subject'),
+            IriTerm('http://example.org/predicate'),
+            head,
+          ),
+
+          // Collection with various types of values
+          Triple(
+            head,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            LiteralTerm.string('string'),
+          ),
+          Triple(
+            head,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            node1,
+          ),
+
+          Triple(
+            node1,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            LiteralTerm.integer(42),
+          ),
+          Triple(
+            node1,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            node2,
+          ),
+
+          Triple(
+            node2,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            LiteralTerm.boolean(true),
+          ),
+          Triple(
+            node2,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            node3,
+          ),
+
+          Triple(
+            node3,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            IriTerm('http://example.org/resource'),
+          ),
+          Triple(
+            node3,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+          ),
+        ]);
+
+        // Act
+        final result = serializer.write(graph);
+
+        // Assert
+        expect(
+          result,
+          contains(
+            '<http://example.org/subject> <http://example.org/predicate> ("string" 42 true <http://example.org/resource>) .',
+          ),
+          reason:
+              'Collection with mixed value types should serialize each value correctly',
+        );
+      },
+    );
+
+    test('should correctly handle multiple RDF collections in a graph', () {
+      // Create two separate collections
+      final collection1Head = BlankNodeTerm();
+      final collection1Node1 = BlankNodeTerm();
+
+      final collection2Head = BlankNodeTerm();
+      final collection2Node1 = BlankNodeTerm();
+
+      final graph = RdfGraph.fromTriples([
+        // First triple with first collection
+        Triple(
+          IriTerm('http://example.org/subject1'),
+          IriTerm('http://example.org/predicate1'),
+          collection1Head,
+        ),
+
+        // First collection structure
+        Triple(
+          collection1Head,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          LiteralTerm.string('collection1-item1'),
+        ),
+        Triple(
+          collection1Head,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          collection1Node1,
+        ),
+
+        Triple(
+          collection1Node1,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          LiteralTerm.string('collection1-item2'),
+        ),
+        Triple(
+          collection1Node1,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+        ),
+
+        // Second triple with second collection
+        Triple(
+          IriTerm('http://example.org/subject2'),
+          IriTerm('http://example.org/predicate2'),
+          collection2Head,
+        ),
+
+        // Second collection structure
+        Triple(
+          collection2Head,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          LiteralTerm.string('collection2-item1'),
+        ),
+        Triple(
+          collection2Head,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          collection2Node1,
+        ),
+
+        Triple(
+          collection2Node1,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          LiteralTerm.string('collection2-item2'),
+        ),
+        Triple(
+          collection2Node1,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+        ),
+      ]);
+
+      // Act
+      final result = serializer.write(graph);
+
+      // Assert
+      expect(
+        result,
+        contains(
+          '<http://example.org/subject1> <http://example.org/predicate1> ("collection1-item1" "collection1-item2") .',
+        ),
+        reason: 'First collection should be serialized correctly',
+      );
+
+      expect(
+        result,
+        contains(
+          '<http://example.org/subject2> <http://example.org/predicate2> ("collection2-item1" "collection2-item2") .',
+        ),
+        reason: 'Second collection should be serialized correctly',
+      );
+    });
+
+    test(
+      'should correctly handle RDF collection with a blank node as list item',
+      () {
+        final collectionHead = BlankNodeTerm();
+        final collectionNode1 = BlankNodeTerm();
+
+        // A blank node that will be a list item but also has its own properties
+        final blankNodeItem = BlankNodeTerm();
+
+        final graph = RdfGraph.fromTriples([
+          // Main triple using the collection
+          Triple(
+            IriTerm('http://example.org/subject'),
+            IriTerm('http://example.org/predicate'),
+            collectionHead,
+          ),
+
+          // Collection structure
+          Triple(
+            collectionHead,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            LiteralTerm.string('item1'),
+          ),
+          Triple(
+            collectionHead,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            collectionNode1,
+          ),
+
+          Triple(
+            collectionNode1,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            blankNodeItem,
+          ),
+          Triple(
+            collectionNode1,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+          ),
+
+          // The blank node item has its own properties
+          Triple(
+            blankNodeItem,
+            IriTerm('http://example.org/type'),
+            LiteralTerm.string('BlankNodeInCollection'),
+          ),
+        ]);
+
+        // Act
+        final result = serializer.write(graph);
+
+        // Assert - collection should use the blank node label
+        final blankNodeLabelPattern = RegExp(r'\("item1" _:b\d+\)');
+        expect(
+          blankNodeLabelPattern.hasMatch(result),
+          isTrue,
+          reason:
+              'Collection with blank node item should be serialized correctly',
+        );
+
+        // The blank node's properties should also be serialized
+        final blankNodePropertiesPattern = RegExp(
+          r'_:b\d+ <http://example\.org/type> "BlankNodeInCollection" \.',
+        );
+        expect(
+          blankNodePropertiesPattern.hasMatch(result),
+          isTrue,
+          reason: 'Blank node item properties should be serialized correctly',
+        );
+      },
+    );
+
+    test(
+      'should correctly serialize RDF collections with the same items in different orders',
+      () {
+        // Create two collections with the same items but in different orders
+        final collection1Head = BlankNodeTerm();
+        final collection1Node1 = BlankNodeTerm();
+
+        final collection2Head = BlankNodeTerm();
+        final collection2Node1 = BlankNodeTerm();
+
+        final graph = RdfGraph.fromTriples([
+          // First triple with first collection: (A, B)
+          Triple(
+            IriTerm('http://example.org/subject1'),
+            IriTerm('http://example.org/predicate'),
+            collection1Head,
+          ),
+
+          // First collection structure: A, B
+          Triple(
+            collection1Head,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            LiteralTerm.string('A'),
+          ),
+          Triple(
+            collection1Head,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            collection1Node1,
+          ),
+
+          Triple(
+            collection1Node1,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            LiteralTerm.string('B'),
+          ),
+          Triple(
+            collection1Node1,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+          ),
+
+          // Second triple with second collection: (B, A)
+          Triple(
+            IriTerm('http://example.org/subject2'),
+            IriTerm('http://example.org/predicate'),
+            collection2Head,
+          ),
+
+          // Second collection structure: B, A
+          Triple(
+            collection2Head,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            LiteralTerm.string('B'),
+          ),
+          Triple(
+            collection2Head,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            collection2Node1,
+          ),
+
+          Triple(
+            collection2Node1,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            LiteralTerm.string('A'),
+          ),
+          Triple(
+            collection2Node1,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+          ),
+        ]);
+
+        // Act
+        final result = serializer.write(graph);
+
+        // Assert
+        expect(
+          result,
+          contains(
+            '<http://example.org/subject1> <http://example.org/predicate> ("A" "B") .',
+          ),
+          reason: 'First collection should be serialized correctly',
+        );
+
+        expect(
+          result,
+          contains(
+            '<http://example.org/subject2> <http://example.org/predicate> ("B" "A") .',
+          ),
+          reason: 'Second collection should be serialized correctly',
+        );
+      },
+    );
+
+    test(
+      'should correctly handle complex graph with both collections and sets',
+      () {
+        // Create a more complex graph with both collections and sets
+        final collectionHead = BlankNodeTerm();
+        final collectionNode1 = BlankNodeTerm();
+
+        final graph = RdfGraph.fromTriples([
+          // Subject with a collection
+          Triple(
+            IriTerm('http://example.org/subject'),
+            IriTerm('http://example.org/hasCollection'),
+            collectionHead,
+          ),
+
+          // Collection structure
+          Triple(
+            collectionHead,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            LiteralTerm.string('item1'),
+          ),
+          Triple(
+            collectionHead,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            collectionNode1,
+          ),
+
+          Triple(
+            collectionNode1,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            LiteralTerm.string('item2'),
+          ),
+          Triple(
+            collectionNode1,
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+          ),
+
+          // Same subject with a set (multiple objects with same predicate)
+          Triple(
+            IriTerm('http://example.org/subject'),
+            IriTerm('http://example.org/hasItem'),
+            LiteralTerm.string('setItem1'),
+          ),
+          Triple(
+            IriTerm('http://example.org/subject'),
+            IriTerm('http://example.org/hasItem'),
+            LiteralTerm.string('setItem2'),
+          ),
+          Triple(
+            IriTerm('http://example.org/subject'),
+            IriTerm('http://example.org/hasItem'),
+            LiteralTerm.string('setItem3'),
+          ),
+
+          // Another predicate with a single value
+          Triple(
+            IriTerm('http://example.org/subject'),
+            IriTerm('http://example.org/name'),
+            LiteralTerm.string('TestSubject'),
+          ),
+        ]);
+
+        // Act
+        final result = serializer.write(graph);
+
+        // Assert
+        // Check the collection is formatted correctly
+        expect(
+          result,
+          contains('<http://example.org/hasCollection> ("item1" "item2")'),
+          reason: 'Collection should be serialized correctly',
+        );
+
+        // Check the set is formatted correctly
+        expect(
+          result,
+          contains(
+            '<http://example.org/hasItem> "setItem1", "setItem2", "setItem3"',
+          ),
+          reason: 'Set should be serialized correctly',
+        );
+
+        // Check the single value predicate is formatted correctly
+        expect(
+          result,
+          contains('<http://example.org/name> "TestSubject"'),
+          reason: 'Single value property should be serialized correctly',
+        );
+
+        // All predicates should be grouped under the same subject
+        final subjectLineCount =
+            RegExp('<http://example.org/subject>').allMatches(result).length;
+        expect(
+          subjectLineCount,
+          equals(1),
+          reason:
+              'All predicates should be grouped under a single subject occurrence',
+        );
+      },
+    );
   });
 }

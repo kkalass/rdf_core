@@ -178,7 +178,6 @@ final parsedGraph = jsonLdParser.parse();
 ## 🛣️ Roadmap / Next Steps
 
 - Remove vocab directory and replace it with a much cleaner and more discoverable generated alternative, maybe in a separate project. This should also support generating discoverable vocab classes for arbitrary Vocabularies.
-- another breaking change needed (sorry!) - rename IriNode- and BlankNode- Mapper/Serializer/Deserializer to IriResource or BlankResource - this does seem to be more in sync with RDF terminology 
 - Support base uri in jsonld and turtle serialization
 - More serialization formats (RDF/XML => in separate project, N-Triples)
 - Named Graphs (maybe as separate project)

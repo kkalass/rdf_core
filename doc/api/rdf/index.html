@@ -90,6 +90,7 @@ called "triples". Each triple consists of three parts:</p>
 <ul>
 <li><strong>Turtle</strong>: A compact, human-friendly text format (MIME type: text/turtle)</li>
 <li><strong>JSON-LD</strong>: JSON-based serialization of Linked Data (MIME type: application/ld+json)</li>
+<li><strong>N-Triples</strong>: A line-based, plain text format for encoding RDF graphs (MIME type: application/n-triples)</li>
 </ul>
 <p>The library uses a plugin system to allow registration of additional formats.</p>
 <h2 id="usage-examples">Usage Examples</h2>
@@ -207,6 +208,14 @@ library highly testable and extensible.</p>
 </dt>
 <dd>
   Literal value in RDF
+</dd>
+
+          <dt id="NTriplesFormat">
+  <span class="name "><a href="../rdf/NTriplesFormat-class.html">NTriplesFormat</a></span> 
+
+</dt>
+<dd>
+  Format definition for the N-Triples RDF serialization format.
 </dd>
 
           <dt id="RdfCore">
@@ -513,7 +522,7 @@ library highly testable and extensible.</p>
 <footer>
   <span class="no-break">
     rdf_core
-      0.6.10
+      0.7.0
   </span>
   
 </footer>

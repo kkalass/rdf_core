@@ -65,7 +65,7 @@
 <h2 id="-features">✨ Features</h2>
 <ul>
 <li><strong>Type-safe RDF model:</strong> IRIs, Literals, Triples, Graphs, and more</li>
-<li><strong>Serialization-agnostic:</strong> Clean separation from Turtle/JSON-LD</li>
+<li><strong>Serialization-agnostic:</strong> Clean separation from Turtle/JSON-LD/N-Triples</li>
 <li><strong>Extensible &amp; modular:</strong> Build your own adapters, plugins, and integrations</li>
 <li><strong>Spec-compliant:</strong> Follows <a href="https://www.w3.org/TR/rdf11-concepts/">W3C RDF 1.1</a> and related standards</li>
 </ul>
@@ -104,6 +104,29 @@ void main() {
   // Serialize the graph back to Turtle
   final serialized = rdf.serialize(graph, contentType: 'text/turtle');
   print('\nSerialized Turtle:\n$serialized');
+}
+</code></pre>
+<h3 id="parsing-and-serializing-n-triples">Parsing and Serializing N-Triples</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:rdf_core/rdf_core.dart';
+
+void main() {
+  // Example: Parse a simple N-Triples document
+  final ntriples = '''
+    &lt;http://example.org/alice&gt; &lt;http://xmlns.com/foaf/0.1/name&gt; "Alice"@en .
+    &lt;http://example.org/alice&gt; &lt;http://xmlns.com/foaf/0.1/knows&gt; &lt;http://example.org/bob&gt; .
+  ''';
+
+  final rdf = RdfCore.withStandardFormats();
+  final graph = rdf.parse(ntriples, contentType: 'application/n-triples');
+
+  // Print parsed triples
+  for (final triple in graph.triples) {
+    print('${triple.subject} ${triple.predicate} ${triple.object}');
+  }
+
+  // Serialize the graph back to N-Triples
+  final serialized = rdf.serialize(graph, contentType: 'application/n-triples');
+  print('\nSerialized N-Triples:\n$serialized');
 }
 </code></pre>
 <h2 id="-advanced-usage">🧑‍💻 Advanced Usage</h2>
@@ -218,6 +241,7 @@ final parsedGraph = jsonLdParser.parse();
 <li>Rdf-Star</li>
 <li>SHACL and schema validation</li>
 <li>Performance optimizations for large graphs</li>
+<li>streaming parsing and serialization</li>
 </ul>
 <hr>
 <h2 id="-contributing">🤝 Contributing</h2>
@@ -272,7 +296,7 @@ final parsedGraph = jsonLdParser.parse();
 <footer>
   <span class="no-break">
     rdf_core
-      0.6.10
+      0.7.0
   </span>
   
 </footer>

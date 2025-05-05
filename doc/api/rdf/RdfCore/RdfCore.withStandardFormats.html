@@ -89,6 +89,7 @@ final graph = rdf.parse(turtleData, contentType: 'text/turtle');
   registry.registerFormat(
     JsonLdFormat(namespaceMappings: _namespaceMappings),
   );
+  registry.registerFormat(const NTriplesFormat());
 
   final parserFactory = RdfParserFactory(registry);
   final serializerFactory = RdfSerializerFactory(registry);
@@ -126,7 +127,7 @@ final graph = rdf.parse(turtleData, contentType: 'text/turtle');
 <footer>
   <span class="no-break">
     rdf_core
-      0.6.10
+      0.7.0
   </span>
   
 </footer>

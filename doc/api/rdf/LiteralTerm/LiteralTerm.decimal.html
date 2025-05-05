@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the iri property from the IriTerm class, for the Dart programming language.">
-  <title>iri property - IriTerm class - rdf library - Dart API</title>
+  <meta name="description" content="API docs for the LiteralTerm.decimal constructor from Class LiteralTerm from the rdf library, for the Dart programming language.">
+  <title>LiteralTerm.decimal constructor - LiteralTerm - rdf library - Dart API</title>
 
 
   
@@ -26,10 +26,10 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rdf_core</a></li>
     <li><a href="../../rdf">rdf_core.dart</a></li>
-    <li><a href="../../rdf/IriTerm-class.html">IriTerm</a></li>
-    <li class="self-crumb">iri property</li>
+    <li><a href="../../rdf/LiteralTerm-class.html">LiteralTerm</a></li>
+    <li class="self-crumb">LiteralTerm.decimal factory constructor</li>
   </ol>
-  <div class="self-name">iri</div>
+  <div class="self-name">LiteralTerm.decimal</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -46,39 +46,43 @@
   </div>
 </header>
 <main>
-<div
-    id="dartdoc-main-content"
-    class="main-content"
-    data-above-sidebar="rdf&#47;IriTerm-class-sidebar.html"
-    data-below-sidebar="">
-    <div>
-<h1><span class="kind-property">iri</span> property 
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rdf&#47;LiteralTerm-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">LiteralTerm.decimal</span> constructor 
 </h1></div>
 
-    
-      <section class="multi-line-signature">
-        
-        <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>
-        <span class="name ">iri</span>
-        <div class="features"><span class="feature">final</span></div>
-
-      </section>
+    <section class="multi-line-signature">
       
+      <span class="name ">LiteralTerm.decimal</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="decimal-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span> <span class="parameter-name">value</span></span></li>
+</ol>)
+    </section>
+    
 <section class="desc markdown">
-  <p>The string representation of the IRI</p>
+  <p>Create a decimal literal</p>
+<p>This is a convenience factory for creating literals with xsd:decimal datatype.</p>
+<p>Example:</p>
+<pre class="language-dart"><code class="language-dart">// Create a decimal literal
+final decimalLiteral = LiteralTerm.decimal("3.14");
+</code></pre>
 </section>
 
-      
+
+    
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">final String iri;</code></pre>
+  <pre class="language-dart"><code class="language-dart">factory LiteralTerm.decimal(double value) {
+  return LiteralTerm(value.toString(), datatype: XsdTypes.decimal);
+}</code></pre>
 </section>
 
 
-    
-</div> <!-- /.main-content -->
-<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
-  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
   <form class="search-sidebar" role="search">
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
@@ -87,15 +91,15 @@
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rdf_core</a></li>
     <li><a href="../../rdf">rdf</a></li>
-    <li><a href="../../rdf/IriTerm-class.html">IriTerm</a></li>
-    <li class="self-crumb">iri property</li>
+    <li><a href="../../rdf/LiteralTerm-class.html">LiteralTerm</a></li>
+    <li class="self-crumb">LiteralTerm.decimal factory constructor</li>
 </ol>
 
-  <h5>IriTerm class</h5>
-  <div id="dartdoc-sidebar-left-content"></div>
-</div><!--/.sidebar-offcanvas-->
-<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
-</div><!--/.sidebar-offcanvas-->
+    <h5>LiteralTerm class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
 </main>
 <footer>
   <span class="no-break">

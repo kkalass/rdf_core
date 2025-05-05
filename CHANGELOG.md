@@ -5,7 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.7.0] - Unreleased
+## [0.7.0] - 2025-05-05
+
+### Added
+
+- Added support for N-Triples format, including parser and serializer implementations
+  - Implemented N-Triples as per W3C RDF 1.1 N-Triples specification
+  - Added proper escaping and validation for N-Triples syntax
+  - Integrated N-Triples format into the standard formats registry
+  - Available via MIME type 'application/n-triples' and file extension '.nt'
+
+## [0.6.10] - 2025-05-05
 
 ### Added
 
@@ -13,11 +23,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated TurtleParser to use these specialized factory methods for literal values.
 - Enhanced TurtleSerializer to use native syntax for integer, decimal and boolean literals, resulting in more idiomatic and concise Turtle output.
 - Enhanced TurtleSerializer to use native syntax for lists (aka rdf collections: `ex:Person1 ex:someProperty ("foo" "bar" "blub");`) and sets (aka multiple triple per subject/predicate pair: `ex:Person1 ex:someProperty "foo", "bar", "blub";`).
-- Added support for N-Triples format, including parser and serializer implementations
-  - Implemented N-Triples as per W3C RDF 1.1 N-Triples specification
-  - Added proper escaping and validation for N-Triples syntax
-  - Integrated N-Triples format into the standard formats registry
-  - Available via MIME type 'application/n-triples' and file extension '.nt'
 
 
 ## [0.6.9] - 2025-05-02

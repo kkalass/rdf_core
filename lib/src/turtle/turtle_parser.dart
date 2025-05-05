@@ -535,19 +535,19 @@ class TurtleParser {
     } else if (_currentToken.type == TokenType.booleanLiteral) {
       // Handle boolean literals
       final value = _currentToken.value;
-      final literalTerm = LiteralTerm.typed(value, 'boolean');
+      final literalTerm = LiteralTerm.boolean(value);
       _currentToken = _tokenizer.nextToken();
       return literalTerm;
     } else if (_currentToken.type == TokenType.integerLiteral) {
       // Handle integer literals
       final value = _currentToken.value;
-      final literalTerm = LiteralTerm.typed(value, 'integer');
+      final literalTerm = LiteralTerm.integer(value);
       _currentToken = _tokenizer.nextToken();
       return literalTerm;
     } else if (_currentToken.type == TokenType.decimalLiteral) {
       // Handle decimal literals
       final value = _currentToken.value;
-      final literalTerm = LiteralTerm.typed(value, 'decimal');
+      final literalTerm = LiteralTerm.decimal(value);
       _currentToken = _tokenizer.nextToken();
       return literalTerm;
     } else if (_currentToken.type == TokenType.openBracket) {
@@ -627,11 +627,29 @@ class TurtleParser {
   /// If the IRI is already absolute (starts with a scheme like "http:"),
   /// returns it unchanged. Otherwise, if a base URI is available,
   /// resolves the IRI against the base URI.
+  ///
+  /// Throws [RdfInvalidIriException] if the IRI is relative and no base URI is available.
   String _resolveIri(String iri) {
-    if (_baseUri == null || Uri.parse(iri).hasScheme) {
+    // If the IRI is already absolute, return it as is
+    if (Uri.parse(iri).hasScheme) {
       return iri;
     }
 
+    // If there's no base URI but the IRI is relative, throw a helpful exception
+    if (_baseUri == null) {
+      throw RdfInvalidIriException(
+        'Cannot use relative IRI without a base URI. Either provide a base URI when creating the parser, or use absolute IRIs.',
+        iri: iri,
+        format: _format,
+        source: SourceLocation(
+          line: _currentToken.line,
+          column: _currentToken.column,
+          context: _currentToken.value,
+        ),
+      );
+    }
+
+    // Resolve the relative IRI against the base URI
     final resolved = Uri.parse(_baseUri!).resolve(iri).toString();
     // _log.finest('Resolved relative IRI: $iri -> $resolved');
     return resolved;

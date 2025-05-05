@@ -232,6 +232,45 @@ class LiteralTerm extends RdfObject {
     return LiteralTerm(value, datatype: XsdTypes.string);
   }
 
+  /// Create an integer literal
+  ///
+  /// This is a convenience factory for creating literals with xsd:integer datatype.
+  ///
+  /// Example:
+  /// ```dart
+  /// // Create an integer literal
+  /// final intLiteral = LiteralTerm.integer("42");
+  /// ```
+  factory LiteralTerm.integer(String value) {
+    return LiteralTerm(value, datatype: XsdTypes.integer);
+  }
+
+  /// Create a decimal literal
+  ///
+  /// This is a convenience factory for creating literals with xsd:decimal datatype.
+  ///
+  /// Example:
+  /// ```dart
+  /// // Create a decimal literal
+  /// final decimalLiteral = LiteralTerm.decimal("3.14");
+  /// ```
+  factory LiteralTerm.decimal(String value) {
+    return LiteralTerm(value, datatype: XsdTypes.decimal);
+  }
+
+  /// Create a boolean literal
+  ///
+  /// This is a convenience factory for creating literals with xsd:boolean datatype.
+  ///
+  /// Example:
+  /// ```dart
+  /// // Create a boolean literal
+  /// final boolLiteral = LiteralTerm.boolean("true");
+  /// ```
+  factory LiteralTerm.boolean(String value) {
+    return LiteralTerm(value, datatype: XsdTypes.boolean);
+  }
+
   /// Create a language-tagged literal
   ///
   /// This is a convenience factory for creating literals with language tags.

@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.10] - Unreleased
+
+### Added
+
+- Added new factory methods `LiteralTerm.integer()`, `LiteralTerm.decimal()`, and `LiteralTerm.boolean()` for more concise and type-safe creation of common literal types.
+- Updated TurtleParser to use these specialized factory methods for literal values.
+
 ## [0.6.9] - 2025-05-02
 
 ### Fixed
@@ -57,8 +64,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Implemented support for identifiers without colons (`allowIdentifiersWithoutColon`)
 - Improved error reporting with detailed position information and diagnostics
 - Added comprehensive logging to help diagnose parsing issues in real-world Turtle files
-- Support turtle literals for boolean, integer and decimal in turtle parser.
-- Support RDF collection turtle syntax in turtle parser.
 
 ### Changed
 

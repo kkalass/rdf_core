@@ -1563,7 +1563,6 @@ void main() {
           'abc <http://example.org/predicate> "value" .',
           parsingFlags: {TurtleParsingFlag.allowIdentifiersWithoutColon},
           // no baseUri specified - this should fail
-          // baseUri: 'http://mytest.org/',
         );
 
         // Execute & Verify: Should throw exception without base URI
@@ -2382,5 +2381,29 @@ void main() {
         );
       });
     });
+
+    test(
+      'should throw specific exception for relative IRIs without base URI',
+      () {
+        final parser = TurtleParser(
+          '<relative/path> <http://example.org/predicate> "value" .',
+          // No baseUri provided
+        );
+
+        // Execute & Verify: Should throw a specific RdfInvalidIriException
+        try {
+          parser.parse();
+          fail('Expected RdfInvalidIriException was not thrown');
+        } catch (e) {
+          expect(e, isA<RdfInvalidIriException>());
+          final exception = e as RdfInvalidIriException;
+          expect(exception.iri, equals('relative/path'));
+          expect(
+            exception.message,
+            contains('Cannot use relative IRI without a base URI'),
+          );
+        }
+      },
+    );
   });
 }

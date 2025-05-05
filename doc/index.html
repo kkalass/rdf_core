@@ -154,6 +154,8 @@ print(turtle);
 </div>
   </section>
 
+
+
   <section class="advanced" id="non-standard-parsing">
     <h2>🔧 Non-Standard Turtle RDF Support</h2>
     <pre><code class="language-dart">// Parse documents with non-standard Turtle syntax
@@ -188,7 +190,36 @@ final graph = rdf.parse(nonStandardTurtle, contentType: 'text/turtle');
   </section>
 
  
+  <section class="advanced" id="n-triples">
+    <h2>🔄 N-Triples Format</h2>
+    <pre><code class="language-dart">// Parse and serialize N-Triples
+final rdf = RdfCore.withStandardFormats();
+final ntriplesDoc = '''
+  <http://example.org/alice> <http://xmlns.com/foaf/0.1/name> "Alice"@en .
+  <http://example.org/alice> <http://xmlns.com/foaf/0.1/knows> <http://example.org/bob> .
+  <http://example.org/bob> <http://xmlns.com/foaf/0.1/name> "Bob" .
+''';
 
+// Parse N-Triples explicitly by content type
+final graph = rdf.parse(ntriplesDoc, contentType: 'application/n-triples');
+
+// Or let the library auto-detect the format
+final autoDetected = rdf.parse(ntriplesDoc);
+
+// Serialize to N-Triples
+final ntriples = rdf.serialize(graph, contentType: 'application/n-triples');
+print(ntriples);
+
+// Convert between formats - parse N-Triples and serialize to Turtle
+final turtle = rdf.serialize(graph, contentType: 'text/turtle');
+print(turtle);
+</code></pre>
+    <div class="links">
+      <a href="api/ntriples_format/NTriplesFormat-class.html">NTriplesFormat API</a>
+      <a href="https://www.w3.org/TR/n-triples/">N-Triples Specification</a>
+    </div>
+  </section>
+  
   <footer>
     <div style="margin-bottom:0.5rem;">
       &copy; 2025 Klas Kalaß &mdash; <a href="LICENSE">MIT License</a> &mdash; <a href="CONTRIBUTING.md">Contributing</a>

@@ -30,6 +30,7 @@
 ///
 /// - **Turtle**: A compact, human-friendly text format (MIME type: text/turtle)
 /// - **JSON-LD**: JSON-based serialization of Linked Data (MIME type: application/ld+json)
+/// - **N-Triples**: A line-based, plain text format for encoding RDF graphs (MIME type: application/n-triples)
 ///
 /// The library uses a plugin system to allow registration of additional formats.
 ///
@@ -128,6 +129,7 @@ import 'src/rdf_parser.dart';
 import 'src/rdf_serializer.dart';
 import 'src/jsonld/jsonld_format.dart';
 import 'src/turtle/turtle_format.dart';
+import 'src/ntriples/ntriples_format.dart';
 
 // Re-export core components for easy access
 export 'src/graph/rdf_graph.dart';
@@ -139,6 +141,7 @@ export 'src/rdf_serializer.dart';
 export 'src/vocab/namespaces.dart';
 export 'src/turtle/turtle_format.dart';
 export 'src/jsonld/jsonld_format.dart';
+export 'src/ntriples/ntriples_format.dart';
 export 'src/turtle/turtle_tokenizer.dart' show TurtleParsingFlag;
 export 'src/exceptions/exceptions.dart';
 
@@ -213,6 +216,7 @@ final class RdfCore {
     registry.registerFormat(
       JsonLdFormat(namespaceMappings: _namespaceMappings),
     );
+    registry.registerFormat(const NTriplesFormat());
 
     final parserFactory = RdfParserFactory(registry);
     final serializerFactory = RdfSerializerFactory(registry);

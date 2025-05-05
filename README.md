@@ -28,11 +28,9 @@ A type-safe, and extensible Dart library for representing and manipulating RDF d
 ## ✨ Features
 
 - **Type-safe RDF model:** IRIs, Literals, Triples, Graphs, and more
-- **Serialization-agnostic:** Clean separation from Turtle/JSON-LD
+- **Serialization-agnostic:** Clean separation from Turtle/JSON-LD/N-Triples
 - **Extensible & modular:** Build your own adapters, plugins, and integrations
 - **Spec-compliant:** Follows [W3C RDF 1.1](https://www.w3.org/TR/rdf11-concepts/) and related standards
-
-
 
 ## 🚀 Quick Start
 
@@ -75,6 +73,32 @@ void main() {
   // Serialize the graph back to Turtle
   final serialized = rdf.serialize(graph, contentType: 'text/turtle');
   print('\nSerialized Turtle:\n$serialized');
+}
+```
+
+### Parsing and Serializing N-Triples
+
+```dart
+import 'package:rdf_core/rdf_core.dart';
+
+void main() {
+  // Example: Parse a simple N-Triples document
+  final ntriples = '''
+    <http://example.org/alice> <http://xmlns.com/foaf/0.1/name> "Alice"@en .
+    <http://example.org/alice> <http://xmlns.com/foaf/0.1/knows> <http://example.org/bob> .
+  ''';
+
+  final rdf = RdfCore.withStandardFormats();
+  final graph = rdf.parse(ntriples, contentType: 'application/n-triples');
+
+  // Print parsed triples
+  for (final triple in graph.triples) {
+    print('${triple.subject} ${triple.predicate} ${triple.object}');
+  }
+
+  // Serialize the graph back to N-Triples
+  final serialized = rdf.serialize(graph, contentType: 'application/n-triples');
+  print('\nSerialized N-Triples:\n$serialized');
 }
 ```
 
@@ -184,6 +208,7 @@ final parsedGraph = jsonLdParser.parse();
 - Rdf-Star
 - SHACL and schema validation
 - Performance optimizations for large graphs
+- streaming parsing and serialization
 
 ---
 

@@ -139,7 +139,7 @@ class IriTerm extends RdfPredicate implements RdfSubject {
   int get hashCode => iri.hashCode;
 
   @override
-  String toString() => 'IriTerm($iri)';
+  String toString() => '<$iri>';
 }
 
 /// BlankNode (anonymous resource) in RDF
@@ -164,7 +164,7 @@ class BlankNodeTerm extends RdfSubject {
   int get hashCode => identityHashCode(this);
 
   @override
-  String toString() => 'BlankNodeTerm(${identityHashCode(this)})';
+  String toString() => '_:${identityHashCode(this)}';
 }
 
 /// Literal value in RDF
@@ -300,5 +300,10 @@ class LiteralTerm extends RdfObject {
   int get hashCode => Object.hash(value, datatype, language);
 
   @override
-  String toString() => 'LiteralTerm($value, $datatype, $language)';
+  String toString() =>
+      language != null
+          ? '"$value"@$language'
+          : datatype == XsdTypes.string
+          ? '"$value"'
+          : '"$value"^^$datatype';
 }

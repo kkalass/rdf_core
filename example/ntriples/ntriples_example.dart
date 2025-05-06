@@ -2,7 +2,7 @@
 // All rights reserved. Use of this source code is governed by a
 // MIT-style license that can be found in the LICENSE file.
 
-/// Example showing how to use N-Triples parsing and serialization
+/// Example showing how to use N-Triples parsing and serialization.
 ///
 /// This example demonstrates:
 /// - Parsing N-Triples data
@@ -15,6 +15,7 @@
 /// abbreviations or prefixes.
 ///
 /// See the W3C specification at: https://www.w3.org/TR/n-triples/
+library ntriples_example;
 
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_core/src/ntriples/ntriples_parser.dart';

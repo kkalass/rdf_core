@@ -187,10 +187,7 @@ void _compareGraphStructure(RdfGraph originalGraph, RdfGraph roundtripGraph) {
 
   // Then verify blank node structures are preserved
   final subjectsInOriginal =
-      originalGraph.triples
-          .map((t) => t.subject)
-          .where((s) => s is IriTerm)
-          .toSet();
+      originalGraph.triples.map((t) => t.subject).whereType<IriTerm>().toSet();
 
   for (final subject in subjectsInOriginal) {
     // For each subject in the original graph

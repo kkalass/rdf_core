@@ -37,7 +37,7 @@ void main() {
 
   // Demonstrate querying the graph
   final aliceIri = IriTerm('http://example.org/alice');
-  
+
   print('\n=== Query Results ===');
   final aliceTriples = graph.findTriples(subject: aliceIri);
   print('Alice has ${aliceTriples.length} triples:');

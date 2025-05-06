@@ -148,8 +148,8 @@ final turtle = rdf.serialize(parsed);
 // final turtle = rdf.serialize(parsed, customPrefixes: {'ex': 'http://example.org/'} );
 print(turtle); 
 </code></pre>
-<div class="links">
-  <a href="api/rdf/index.html">RdfCore API</a>
+    <div class="links">
+      <a href="api/rdf/index.html">RdfCore API</a>
 
 </div>
   </section>
@@ -217,6 +217,50 @@ print(turtle);
     <div class="links">
       <a href="api/ntriples_format/NTriplesFormat-class.html">NTriplesFormat API</a>
       <a href="https://www.w3.org/TR/n-triples/">N-Triples Specification</a>
+    </div>
+  </section>
+  
+  <section class="advanced" id="json-ld">
+    <h2>📊 JSON-LD Format</h2>
+    <pre><code class="language-dart">// Parse and serialize JSON-LD
+final rdf = RdfCore.withStandardFormats();
+final jsonLdDoc = '''
+{
+  "@context": {
+    "name": "http://xmlns.com/foaf/0.1/name",
+    "knows": {
+      "@id": "http://xmlns.com/foaf/0.1/knows",
+      "@type": "@id"
+    },
+    "Person": "http://xmlns.com/foaf/0.1/Person"
+  },
+  "@id": "http://example.org/alice",
+  "@type": "Person",
+  "name": "Alice",
+  "knows": [
+    {
+      "@id": "http://example.org/bob",
+      "@type": "Person",
+      "name": "Bob"
+    }
+  ]
+}
+''';
+
+// Parse JSON-LD by content type
+final graph = rdf.parse(jsonLdDoc, contentType: 'application/ld+json');
+
+// Serialize back to JSON-LD
+final jsonLd = rdf.serialize(graph, contentType: 'application/ld+json');
+print(jsonLd);
+
+// Convert between formats - parse JSON-LD and serialize to Turtle
+final turtle = rdf.serialize(graph, contentType: 'text/turtle');
+print(turtle);
+</code></pre>
+    <div class="links">
+      <a href="api/jsonld_format/JsonLdFormat-class.html">JsonLdFormat API</a>
+      <a href="https://www.w3.org/TR/json-ld11/">JSON-LD 1.1 Specification</a>
     </div>
   </section>
   

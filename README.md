@@ -25,6 +25,12 @@ A type-safe, and extensible Dart library for representing and manipulating RDF d
 
 ---
 
+## Looking for RDF/XML support?
+
+=> Our companion project [rdf_xml](https://github.com/kkalass/rdf_xml) provides the plugin `RdfXmlFormat()` for `RdfCore`.
+
+---
+
 ## ✨ Features
 
 - **Type-safe RDF model:** IRIs, Literals, Triples, Graphs, and more
@@ -102,7 +108,73 @@ void main() {
 }
 ```
 
+### Parsing and Serializing JSON-LD
+
+```dart
+import 'package:rdf_core/rdf_core.dart';
+
+void main() {
+  // Example: Parse a simple JSON-LD document
+  final jsonLd = '''
+  {
+    "@context": {
+      "name": "http://xmlns.com/foaf/0.1/name",
+      "knows": {
+        "@id": "http://xmlns.com/foaf/0.1/knows",
+        "@type": "@id"
+      },
+      "Person": "http://xmlns.com/foaf/0.1/Person"
+    },
+    "@id": "http://example.org/alice",
+    "@type": "Person",
+    "name": "Alice",
+    "knows": [
+      {
+        "@id": "http://example.org/bob",
+        "@type": "Person",
+        "name": "Bob"
+      }
+    ]
+  }
+  ''';
+
+  final rdf = RdfCore.withStandardFormats();
+  final graph = rdf.parse(jsonLd, contentType: 'application/ld+json');
+
+  // Print parsed triples
+  for (final triple in graph.triples) {
+    print('${triple.subject} ${triple.predicate} ${triple.object}');
+  }
+
+  // Serialize the graph back to JSON-LD
+  final serialized = rdf.serialize(graph, contentType: 'application/ld+json');
+  print('\nSerialized JSON-LD:\n$serialized');
+}
+```
+
 ## 🧑‍💻 Advanced Usage
+
+### Parsing and Serializing N-Triples
+
+With the help of the separate package [rdf_xml](https://github.com/kkalass/rdf_xml) you can easily serialize/deserialize RDF/XML as well.
+
+```bash
+dart pub add rdf_xml
+```
+
+```dart
+import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_xml/rdf_xml.dart';
+
+void main() {
+  // Register the format with the registry
+  final rdfCore = RdfCore.withStandardFormats();
+  rdfCore.registerFormat(RdfXmlFormat());
+
+  // use this instance now for "application/rdf+xml"
+  // ...
+}
+```
 
 ### Graph Merging
 

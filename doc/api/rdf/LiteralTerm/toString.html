@@ -87,7 +87,12 @@ mainly for debugging or logging.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-String toString() =&gt; &#39;LiteralTerm($value, $datatype, $language)&#39;;</code></pre>
+String toString() =&gt;
+    language != null
+        ? &#39;&quot;$value&quot;@$language&#39;
+        : datatype == XsdTypes.string
+        ? &#39;&quot;$value&quot;&#39;
+        : &#39;&quot;$value&quot;^^$datatype&#39;;</code></pre>
 </section>
 
 
@@ -115,7 +120,7 @@ String toString() =&gt; &#39;LiteralTerm($value, $datatype, $language)&#39;;</co
 <footer>
   <span class="no-break">
     rdf_core
-      0.7.0
+      0.7.1
   </span>
   
 </footer>

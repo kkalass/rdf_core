@@ -62,6 +62,9 @@
 <h2 id="looking-for-mapping-dart-objects--rdf">Looking for mapping Dart Objects ↔️ RDF?</h2>
 <p>=&gt; Discover our companion project <a href="https://github.com/kkalass/rdf_mapper">rdf_mapper</a> now on GitHub!</p>
 <hr>
+<h2 id="looking-for-rdfxml-support">Looking for RDF/XML support?</h2>
+<p>=&gt; Our companion project <a href="https://github.com/kkalass/rdf_xml">rdf_xml</a> provides the plugin <code>RdfXmlFormat()</code> for <code>RdfCore</code>.</p>
+<hr>
 <h2 id="-features">✨ Features</h2>
 <ul>
 <li><strong>Type-safe RDF model:</strong> IRIs, Literals, Triples, Graphs, and more</li>
@@ -129,7 +132,64 @@ void main() {
   print('\nSerialized N-Triples:\n$serialized');
 }
 </code></pre>
+<h3 id="parsing-and-serializing-json-ld">Parsing and Serializing JSON-LD</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:rdf_core/rdf_core.dart';
+
+void main() {
+  // Example: Parse a simple JSON-LD document
+  final jsonLd = '''
+  {
+    "@context": {
+      "name": "http://xmlns.com/foaf/0.1/name",
+      "knows": {
+        "@id": "http://xmlns.com/foaf/0.1/knows",
+        "@type": "@id"
+      },
+      "Person": "http://xmlns.com/foaf/0.1/Person"
+    },
+    "@id": "http://example.org/alice",
+    "@type": "Person",
+    "name": "Alice",
+    "knows": [
+      {
+        "@id": "http://example.org/bob",
+        "@type": "Person",
+        "name": "Bob"
+      }
+    ]
+  }
+  ''';
+
+  final rdf = RdfCore.withStandardFormats();
+  final graph = rdf.parse(jsonLd, contentType: 'application/ld+json');
+
+  // Print parsed triples
+  for (final triple in graph.triples) {
+    print('${triple.subject} ${triple.predicate} ${triple.object}');
+  }
+
+  // Serialize the graph back to JSON-LD
+  final serialized = rdf.serialize(graph, contentType: 'application/ld+json');
+  print('\nSerialized JSON-LD:\n$serialized');
+}
+</code></pre>
 <h2 id="-advanced-usage">🧑‍💻 Advanced Usage</h2>
+<h3 id="parsing-and-serializing-n-triples-2">Parsing and Serializing N-Triples</h3>
+<p>With the help of the separate package <a href="https://github.com/kkalass/rdf_xml">rdf_xml</a> you can easily serialize/deserialize RDF/XML as well.</p>
+<pre class="language-bash"><code class="language-bash">dart pub add rdf_xml
+</code></pre>
+<pre class="language-dart"><code class="language-dart">import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_xml/rdf_xml.dart';
+
+void main() {
+  // Register the format with the registry
+  final rdfCore = RdfCore.withStandardFormats();
+  rdfCore.registerFormat(RdfXmlFormat());
+
+  // use this instance now for "application/rdf+xml"
+  // ...
+}
+</code></pre>
 <h3 id="graph-merging">Graph Merging</h3>
 <pre class="language-dart"><code class="language-dart">final merged = graph1.merge(graph2);
 </code></pre>
@@ -296,7 +356,7 @@ final parsedGraph = jsonLdParser.parse();
 <footer>
   <span class="no-break">
     rdf_core
-      0.7.0
+      0.7.1
   </span>
   
 </footer>

@@ -164,7 +164,7 @@ class BlankNodeTerm extends RdfSubject {
   int get hashCode => identityHashCode(this);
 
   @override
-  String toString() => '_:${identityHashCode(this)}';
+  String toString() => '_:b${identityHashCode(this)}';
 }
 
 /// Literal value in RDF

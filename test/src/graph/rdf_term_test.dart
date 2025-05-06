@@ -36,7 +36,7 @@ void main() {
 
     test('toString returns a readable representation', () {
       final iri = IriTerm('http://example.org/resource');
-      expect(iri.toString(), equals('IriTerm(http://example.org/resource)'));
+      expect(iri.toString(), equals('<http://example.org/resource>'));
     });
 
     test('is a subject, object and predicate', () {
@@ -176,7 +176,7 @@ void main() {
 
     test('toString returns a readable representation', () {
       final node = BlankNodeTerm();
-      expect(node.toString(), startsWith('BlankNodeTerm('));
+      expect(node.toString(), startsWith('_:b'));
       expect(node.toString(), contains(identityHashCode(node).toString()));
     });
 
@@ -269,7 +269,7 @@ void main() {
 
     test('toString returns a readable representation', () {
       final literal = LiteralTerm.string('hello');
-      expect(literal.toString(), contains('LiteralTerm(hello'));
+      expect(literal.toString(), contains('"hello"'));
     });
 
     test('is an object but not a subject or predicate', () {

@@ -57,7 +57,6 @@ void main() {
     });
 
     test('toString returns a readable representation', () {
-      expect(triple.toString(), contains('Triple('));
       expect(triple.toString(), contains(subject.toString()));
       expect(triple.toString(), contains(predicate.toString()));
       expect(triple.toString(), contains(object.toString()));

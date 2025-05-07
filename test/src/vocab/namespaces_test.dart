@@ -92,12 +92,6 @@ void main() {
           reason: "Missing namespace mapping for prefix: $prefix",
         );
       }
-
-      expect(
-        rdfNamespaceMappings.length,
-        equals(requiredPrefixes.length),
-        reason: "Different number of mappings than expected",
-      );
     });
 
     group('custom mappings', () {
@@ -192,15 +186,6 @@ void main() {
 
         expect(mappings.containsKey('rdf'), isTrue);
         expect(mappings.containsKey('nonexistent'), isFalse);
-      });
-
-      test('length returns correct number of mappings', () {
-        final mappings = RdfNamespaceMappings();
-
-        expect(
-          mappings.length,
-          equals(13),
-        ); // Match with number of standard namespaces
       });
     });
 

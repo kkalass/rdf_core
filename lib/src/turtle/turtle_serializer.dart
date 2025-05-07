@@ -514,11 +514,25 @@ class TurtleSerializer implements RdfSerializer {
       }
     }
 
+    final sortedSubjects =
+        triplesBySubject.keys.toList()..sort((a, b) {
+          // Sort by IRI for consistent output
+          if (a is IriTerm && b is IriTerm) {
+            return a.iri.compareTo(b.iri);
+          }
+          if (a is IriTerm) {
+            return -1; // IRIs should come before blank nodes
+          }
+          if (b is IriTerm) {
+            return 1; // IRIs should come before blank nodes
+          }
+          // Blank nodes are sorted by their hash code
+          return identityHashCode(a).compareTo(identityHashCode(b));
+        });
     // Write each subject group
     var processedSubjectCount = 0;
-    for (final entry in triplesBySubject.entries) {
-      final subject = entry.key;
-      final triples = entry.value;
+    for (final subject in sortedSubjects) {
+      final triples = triplesBySubject[subject]!;
 
       // Check if this subject is a collection
       bool skipSubject = false;
@@ -613,12 +627,19 @@ class TurtleSerializer implements RdfSerializer {
           .putIfAbsent(triple.predicate, () => [])
           .add(triple.object);
     }
+    final sortedPredicates =
+        triplesByPredicate.keys.toList()..sort((a, b) {
+          // RdfPredicates.type should always be first
+          if (a == RdfPredicates.type) return -1;
+          if (b == RdfPredicates.type) return 1;
 
+          // For all other predicates, sort alphabetically by IRI
+          return (a as IriTerm).iri.compareTo((b as IriTerm).iri);
+        });
     // Write predicates and objects
     var predicateIndex = 0;
-    for (final entry in triplesByPredicate.entries) {
-      final predicate = entry.key;
-      final objects = entry.value;
+    for (final predicate in sortedPredicates) {
+      final objects = triplesByPredicate[predicate]!;
 
       // First predicate on same line as subject, others indented on new lines
       if (predicateIndex == 0) {

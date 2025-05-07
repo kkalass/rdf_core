@@ -130,14 +130,12 @@ void main() {
       // Assert
       expect(
         result,
-        contains(
-          '<http://example.org/alice> <http://example.org/name> "Alice"',
-        ),
+        contains('<http://example.org/alice> <http://example.org/age> 30;'),
       );
       expect(
         result,
         contains(
-          '<http://example.org/alice> <http://example.org/name> "Alice";\n    <http://example.org/age> 30',
+          '<http://example.org/alice> <http://example.org/age> 30;\n    <http://example.org/name> "Alice" .',
         ),
       );
       expect(
@@ -733,7 +731,7 @@ void main() {
       expect(
         result,
         contains(
-          '<http://example.org/resource1> <http://example.org/hasInteger> 42;',
+          '<http://example.org/resource1> <http://example.org/hasDecimal> 3.14',
         ),
       );
     });
@@ -1308,7 +1306,7 @@ void main() {
 
       // Act - serialize the graph with the custom prefixes
       final result = serializer.write(graph, customPrefixes: customPrefixes);
-
+      //print(result);
       // Define the expected Turtle output
       final expected = '''@prefix ex: <http://example.org/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -1317,8 +1315,8 @@ ex:subject1 a ex:Type;
     ex:name "Example Subject";
     ex:value 42 .
 
-ex:subject2 ex:related ex:subject1;
-    ex:created "2025-05-07"^^xsd:date .''';
+ex:subject2 ex:created "2025-05-07"^^xsd:date;
+    ex:related ex:subject1 .''';
 
       // Assert - compare the entire output exactly
       expect(

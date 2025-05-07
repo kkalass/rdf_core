@@ -515,7 +515,6 @@ class TurtleSerializer implements RdfSerializer {
     }
 
     // Write each subject group
-    var isFirst = true;
     var processedSubjectCount = 0;
     for (final entry in triplesBySubject.entries) {
       final subject = entry.key;
@@ -584,14 +583,6 @@ class TurtleSerializer implements RdfSerializer {
     );
 
     return isReferencedByRest || hasCollectionPredicates;
-  }
-
-  /// Checks if a blank node is used as an item in a collection
-  bool _isCollectionItem(RdfGraph graph, BlankNodeTerm node) {
-    // A blank node is a collection item if it's the object of a rdf:first triple
-    return graph.triples.any(
-      (t) => t.predicate == RdfPredicates.first && t.object == node,
-    );
   }
 
   /// Writes a group of triples that share the same subject.

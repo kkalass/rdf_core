@@ -1262,6 +1262,68 @@ void main() {
       },
     );
 
+    test('should produce exactly the expected turtle output', () {
+      // Create a graph with various RDF features to test exact serialization
+      final graph = RdfGraph.fromTriples([
+        // Subject with multiple predicates
+        Triple(
+          IriTerm('http://example.org/subject1'),
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+          IriTerm('http://example.org/Type'),
+        ),
+        Triple(
+          IriTerm('http://example.org/subject1'),
+          IriTerm('http://example.org/name'),
+          LiteralTerm.string('Example Subject'),
+        ),
+        Triple(
+          IriTerm('http://example.org/subject1'),
+          IriTerm('http://example.org/value'),
+          LiteralTerm.integer(42),
+        ),
+
+        // Second subject with a different set of predicates
+        Triple(
+          IriTerm('http://example.org/subject2'),
+          IriTerm('http://example.org/related'),
+          IriTerm('http://example.org/subject1'),
+        ),
+        Triple(
+          IriTerm('http://example.org/subject2'),
+          IriTerm('http://example.org/created'),
+          LiteralTerm(
+            '2025-05-07',
+            datatype: IriTerm('http://www.w3.org/2001/XMLSchema#date'),
+          ),
+        ),
+      ]);
+
+      // Define the custom prefixes for this serialization
+      final customPrefixes = {'ex': 'http://example.org/'};
+
+      // Act - serialize the graph with the custom prefixes
+      final result = serializer.write(graph, customPrefixes: customPrefixes);
+
+      // Define the expected Turtle output
+      final expected = '''@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:subject1 a ex:Type;
+    ex:name "Example Subject";
+    ex:value 42 .
+
+ex:subject2 ex:related ex:subject1;
+    ex:created "2025-05-07"^^xsd:date .''';
+
+      // Assert - compare the entire output exactly
+      expect(
+        result,
+        equals(expected),
+        reason:
+            'Serialized output should exactly match the expected Turtle format',
+      );
+    });
+
     test(
       'should correctly handle complex graph with both collections and sets',
       () {

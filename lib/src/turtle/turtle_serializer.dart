@@ -343,6 +343,7 @@ class TurtleSerializer implements RdfSerializer {
 
       if (!isFirst) {
         buffer.writeln();
+        buffer.writeln();
       }
       isFirst = false;
 

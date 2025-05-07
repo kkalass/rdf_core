@@ -45,6 +45,16 @@ const Map<String, String> _rdfNamespaceMappings = {
   'ldp': 'http://www.w3.org/ns/ldp#',
   'solid': 'http://www.w3.org/ns/solid/terms#',
   'acl': 'http://www.w3.org/ns/auth/acl#',
+
+  // Other well-known vocabularies
+  "geo": "http://www.w3.org/2003/01/geo/wgs84_pos#",
+  "contact": "http://www.w3.org/2000/10/swap/pim/contact#",
+  "time": "http://www.w3.org/2006/time#",
+  "vs": "http://www.w3.org/2003/06/sw-vocab-status/ns#",
+  "dcmitype": "http://purl.org/dc/dcmitype/",
+  "void": "http://rdfs.org/ns/void#",
+  "prov": "http://www.w3.org/ns/prov#",
+  "gr": "http://purl.org/goodrelations/v1#",
 };
 
 /// A class that provides access to RDF namespace mappings with support for custom mappings.

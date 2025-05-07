@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.2] - 2025-05-07
+
+### Added
+
+- Added additional well-known namespaces to standard mappings:
+  - Added geo (http://www.w3.org/2003/01/geo/wgs84_pos#)
+  - Added contact (http://www.w3.org/2000/10/swap/pim/contact#)
+  - Added time (http://www.w3.org/2006/time#)
+  - Added vs (http://www.w3.org/2003/06/sw-vocab-status/ns#)
+  - Added dcmitype (http://purl.org/dc/dcmitype/)
+  - Added void (http://rdfs.org/ns/void#)
+  - Added prov (http://www.w3.org/ns/prov#)
+  - Added gr (http://purl.org/goodrelations/v1#)
+
+### Changed
+
+- Enhanced Turtle serialization for improved readability:
+  - Implemented inline blank node serialization for nodes referenced exactly once
+  - Added support for nested inline blank nodes in square bracket notation
+  - Added proper whitespace formatting with double line breaks between subject groups
+  - Optimized collection serialization to work with inline blank nodes
+- Added linting configuration using package:lints/core.yaml
+- Improved code quality with lint fixes and optimized Dart idioms
+
 ## [0.7.1] - 2025-05-06
 
 ### Changed

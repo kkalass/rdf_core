@@ -48,6 +48,10 @@ class TurtleSerializer implements RdfSerializer {
     final Map<BlankNodeTerm, String> blankNodeLabels = {};
     _generateBlankNodeLabels(graph, blankNodeLabels);
 
+    // Count blank node occurrences to determine which can be inlined
+    final Map<BlankNodeTerm, int> blankNodeOccurrences =
+        _countBlankNodeOccurrences(graph);
+
     // 1. Write prefixes
     final prefixCandidates = {..._namespaceMappings.asMap(), ...customPrefixes};
     // Identify which prefixes are actually used in the graph
@@ -60,9 +64,37 @@ class TurtleSerializer implements RdfSerializer {
     });
 
     // 2. Write triples grouped by subject
-    _writeTriples(buffer, graph, prefixesByIri, blankNodeLabels);
+    _writeTriples(
+      buffer,
+      graph,
+      prefixesByIri,
+      blankNodeLabels,
+      blankNodeOccurrences,
+    );
 
     return buffer.toString();
+  }
+
+  /// Counts how many times each blank node is referenced in the graph.
+  /// This helps determine which blank nodes can be inlined (those referenced exactly once).
+  Map<BlankNodeTerm, int> _countBlankNodeOccurrences(RdfGraph graph) {
+    final occurrences = <BlankNodeTerm, int>{};
+
+    for (final triple in graph.triples) {
+      // Count as a subject
+      if (triple.subject is BlankNodeTerm) {
+        final subject = triple.subject as BlankNodeTerm;
+        occurrences[subject] = (occurrences[subject] ?? 0) + 1;
+      }
+
+      // Count as an object
+      if (triple.object is BlankNodeTerm) {
+        final object = triple.object as BlankNodeTerm;
+        occurrences[object] = (occurrences[object] ?? 0) + 1;
+      }
+    }
+
+    return occurrences;
   }
 
   /// Generates unique labels for all blank nodes in the graph.
@@ -305,12 +337,133 @@ class TurtleSerializer implements RdfSerializer {
     return items;
   }
 
+  /// Marks all nodes in an RDF collection as processed to avoid duplicate serialization
+  void _markCollectionNodesAsProcessed(
+    RdfGraph graph,
+    BlankNodeTerm collectionHead,
+    Set<BlankNodeTerm> processedCollectionNodes,
+  ) {
+    var currentNode = collectionHead;
+    processedCollectionNodes.add(currentNode);
+
+    while (true) {
+      // Find the rdf:rest triple
+      final restTriples =
+          graph.triples
+              .where(
+                (t) =>
+                    t.subject == currentNode &&
+                    t.predicate == RdfPredicates.rest,
+              )
+              .toList();
+
+      if (restTriples.isEmpty) {
+        break;
+      }
+
+      final restTriple = restTriples.first;
+
+      if (restTriple.object == RdfResources.nil) {
+        break;
+      }
+
+      if (restTriple.object is! BlankNodeTerm) {
+        break;
+      }
+
+      currentNode = restTriple.object as BlankNodeTerm;
+      processedCollectionNodes.add(currentNode);
+    }
+  }
+
+  /// Writes an RDF collection to the buffer
+  void _writeCollection(
+    StringBuffer buffer,
+    List<RdfObject> items,
+    RdfGraph graph,
+    Set<BlankNodeTerm> processedCollectionNodes,
+    Map<String, String> prefixesByIri,
+    Map<BlankNodeTerm, String> blankNodeLabels,
+    Set<BlankNodeTerm> nodesToInline,
+    Map<RdfSubject, List<Triple>> triplesBySubject,
+  ) {
+    buffer.write('(');
+
+    for (var i = 0; i < items.length; i++) {
+      if (i > 0) {
+        buffer.write(' ');
+      }
+
+      final item = items[i];
+
+      // Wenn das Item ein Blank Node ist
+      if (item is BlankNodeTerm) {
+        // Prüfen, ob es eine verschachtelte Collection ist
+        final nestedItems = _extractCollection(graph, item);
+        if (nestedItems != null) {
+          // Es ist eine verschachtelte Collection
+          _markCollectionNodesAsProcessed(
+            graph,
+            item,
+            processedCollectionNodes,
+          );
+          _writeCollection(
+            buffer,
+            nestedItems,
+            graph,
+            processedCollectionNodes,
+            prefixesByIri,
+            blankNodeLabels,
+            nodesToInline,
+            triplesBySubject,
+          );
+        } else if (triplesBySubject.containsKey(item) &&
+            graph.triples.where((t) => t.object == item).length == 1 &&
+            !_isPartOfRdfCollection(graph, item)) {
+          // Es ist ein Blank Node, der inline dargestellt werden kann
+          _writeInlineBlankNode(
+            buffer,
+            item,
+            triplesBySubject[item]!,
+            graph,
+            processedCollectionNodes,
+            prefixesByIri,
+            blankNodeLabels,
+            nodesToInline,
+            triplesBySubject,
+          );
+        } else {
+          // Normaler Blank Node
+          buffer.write(
+            writeTerm(
+              item,
+              prefixesByIri: prefixesByIri,
+              blankNodeLabels: blankNodeLabels,
+            ),
+          );
+        }
+      } else {
+        // Regulärer Term
+        buffer.write(
+          writeTerm(
+            item,
+            prefixesByIri: prefixesByIri,
+            blankNodeLabels: blankNodeLabels,
+          ),
+        );
+      }
+    }
+
+    buffer.write(')');
+  }
+
   /// Writes all triples to the output buffer, grouped by subject.
   void _writeTriples(
     StringBuffer buffer,
     RdfGraph graph,
     Map<String, String> prefixesByIri,
     Map<BlankNodeTerm, String> blankNodeLabels,
+    Map<BlankNodeTerm, int> blankNodeOccurrences,
   ) {
     if (graph.triples.isEmpty) {
       return;
@@ -319,8 +472,14 @@ class TurtleSerializer implements RdfSerializer {
     // Group triples by subject for more compact representation
     final Map<RdfSubject, List<Triple>> triplesBySubject = {};
 
+    // Track blank nodes referenced as objects, to determine which can be inlined
+    final Set<BlankNodeTerm> referencedAsObject = {};
+
     // Track which blank nodes are part of collections to avoid duplicating them
     final Set<BlankNodeTerm> processedCollectionNodes = {};
+
+    // Set of blank nodes that will be inlined and should be skipped when processed as subjects
+    final Set<BlankNodeTerm> nodesToInline = {};
 
     // First pass: group triples by subject and identify collections
     for (final triple in graph.triples) {
@@ -332,47 +491,68 @@ class TurtleSerializer implements RdfSerializer {
         continue;
       }
 
+      // Track blank nodes that appear as objects
+      if (triple.object is BlankNodeTerm) {
+        referencedAsObject.add(triple.object as BlankNodeTerm);
+      }
+
       triplesBySubject.putIfAbsent(triple.subject, () => []).add(triple);
+    }
+
+    // Identify blank nodes that can be inlined (referenced only once as object)
+    for (final node in referencedAsObject) {
+      // Ein Blank Node sollte inline dargestellt werden, wenn:
+      // 1. Es genau einmal als Objekt referenziert wird
+      // 2. Es auch mindestens eine Triple als Subjekt hat
+      // 3. Es nicht Teil einer RDF-Collection ist
+      final objectRefCount =
+          graph.triples.where((t) => t.object == node).length;
+      if (objectRefCount == 1 &&
+          triplesBySubject.containsKey(node) &&
+          !_isPartOfRdfCollection(graph, node)) {
+        nodesToInline.add(node);
+      }
     }
 
     // Write each subject group
     var isFirst = true;
+    var processedSubjectCount = 0;
     for (final entry in triplesBySubject.entries) {
       final subject = entry.key;
       final triples = entry.value;
 
-      if (!isFirst) {
-        buffer.writeln();
-        buffer.writeln();
-      }
-      isFirst = false;
-
       // Check if this subject is a collection
+      bool skipSubject = false;
       if (subject is BlankNodeTerm) {
+        // Skip subjects that will be inlined
+        if (nodesToInline.contains(subject)) {
+          continue;
+        }
+
         final collectionItems = _extractCollection(graph, subject);
         if (collectionItems != null) {
           // Mark all nodes in this collection as processed
-          var currentNode = subject;
-          while (true) {
-            processedCollectionNodes.add(currentNode);
-
-            // Find the rdf:rest triple
-            final restTriple = graph.triples.firstWhere(
-              (t) =>
-                  t.subject == currentNode && t.predicate == RdfPredicates.rest,
-            );
-
-            if (restTriple.object == RdfResources.nil) {
-              break;
-            }
-
-            currentNode = restTriple.object as BlankNodeTerm;
-          }
+          _markCollectionNodesAsProcessed(
+            graph,
+            subject,
+            processedCollectionNodes,
+          );
 
           // Skip this subject as we'll handle the collection where it's referenced
-          continue;
+          skipSubject = true;
         }
       }
+
+      if (skipSubject) {
+        continue;
+      }
+
+      // Add blank line before each subject (except the first)
+      if (processedSubjectCount > 0) {
+        buffer.writeln();
+        buffer.writeln(); // Zusätzliche Leerzeile zwischen Subjektgruppen
+      }
+      processedSubjectCount++;
 
       _writeSubjectGroup(
         buffer,
@@ -382,8 +562,36 @@ class TurtleSerializer implements RdfSerializer {
         processedCollectionNodes,
         prefixesByIri,
         blankNodeLabels,
+        nodesToInline,
+        triplesBySubject,
       );
     }
+  }
+
+  /// Checks if a blank node is part of an RDF collection structure.
+  bool _isPartOfRdfCollection(RdfGraph graph, BlankNodeTerm node) {
+    // Check if this node is referenced by an rdf:rest predicate
+    final isReferencedByRest = graph.triples.any(
+      (t) => t.predicate == RdfPredicates.rest && t.object == node,
+    );
+
+    // Check if this node has rdf:first or rdf:rest predicates
+    final hasCollectionPredicates = graph.triples.any(
+      (t) =>
+          t.subject == node &&
+          (t.predicate == RdfPredicates.first ||
+              t.predicate == RdfPredicates.rest),
+    );
+
+    return isReferencedByRest || hasCollectionPredicates;
+  }
+
+  /// Checks if a blank node is used as an item in a collection
+  bool _isCollectionItem(RdfGraph graph, BlankNodeTerm node) {
+    // A blank node is a collection item if it's the object of a rdf:first triple
+    return graph.triples.any(
+      (t) => t.predicate == RdfPredicates.first && t.object == node,
+    );
   }
 
   /// Writes a group of triples that share the same subject.
@@ -395,6 +603,8 @@ class TurtleSerializer implements RdfSerializer {
     Set<BlankNodeTerm> processedCollectionNodes,
     Map<String, String> prefixesByIri,
     Map<BlankNodeTerm, String> blankNodeLabels,
+    Set<BlankNodeTerm> nodesToInline,
+    Map<RdfSubject, List<Triple>> triplesBySubject,
   ) {
     // Write subject
     final subjectStr = writeTerm(
@@ -451,122 +661,45 @@ class TurtleSerializer implements RdfSerializer {
           continue;
         }
 
+        // Check if this object is a blank node that should be inlined
+        if (object is BlankNodeTerm && nodesToInline.contains(object)) {
+          // Write this blank node inline
+          _writeInlineBlankNode(
+            buffer,
+            object,
+            triplesBySubject[object]!,
+            graph,
+            processedCollectionNodes,
+            prefixesByIri,
+            blankNodeLabels,
+            nodesToInline,
+            triplesBySubject,
+          );
+          continue;
+        }
+
         // Check if this object is a collection
         if (object is BlankNodeTerm) {
           final collectionItems = _extractCollection(graph, object);
           if (collectionItems != null) {
             // Mark this node and all related nodes as processed
-            var currentNode = object;
-            while (true) {
-              processedCollectionNodes.add(currentNode);
-
-              // Find the rdf:rest triple
-              final restTriples =
-                  graph.triples
-                      .where(
-                        (t) =>
-                            t.subject == currentNode &&
-                            t.predicate == RdfPredicates.rest,
-                      )
-                      .toList();
-
-              if (restTriples.isEmpty) {
-                // This shouldn't happen in a valid collection
-                break;
-              }
-
-              if (restTriples.first.object == RdfResources.nil) {
-                break;
-              }
-
-              if (restTriples.first.object is! BlankNodeTerm) {
-                // This shouldn't happen in a valid collection
-                break;
-              }
-
-              currentNode = restTriples.first.object as BlankNodeTerm;
-            }
+            _markCollectionNodesAsProcessed(
+              graph,
+              object,
+              processedCollectionNodes,
+            );
 
             // Write the collection in compact form
-            buffer.write('(');
-            for (var i = 0; i < collectionItems.length; i++) {
-              if (i > 0) {
-                buffer.write(' ');
-              }
-
-              final item = collectionItems[i];
-
-              // If the item is itself another collection, process it recursively
-              if (item is BlankNodeTerm) {
-                final nestedItems = _extractCollection(graph, item);
-                if (nestedItems != null) {
-                  // Mark all nodes in the nested collection as processed too
-                  var nestedNode = item;
-                  while (true) {
-                    processedCollectionNodes.add(nestedNode);
-
-                    // Find the rdf:rest triple
-                    final restTriples =
-                        graph.triples
-                            .where(
-                              (t) =>
-                                  t.subject == nestedNode &&
-                                  t.predicate == RdfPredicates.rest,
-                            )
-                            .toList();
-
-                    if (restTriples.isEmpty) {
-                      break;
-                    }
-
-                    if (restTriples.first.object == RdfResources.nil) {
-                      break;
-                    }
-
-                    if (restTriples.first.object is! BlankNodeTerm) {
-                      break;
-                    }
-
-                    nestedNode = restTriples.first.object as BlankNodeTerm;
-                  }
-
-                  // Write the nested collection
-                  buffer.write('(');
-                  for (var j = 0; j < nestedItems.length; j++) {
-                    if (j > 0) {
-                      buffer.write(' ');
-                    }
-                    buffer.write(
-                      writeTerm(
-                        nestedItems[j],
-                        prefixesByIri: prefixesByIri,
-                        blankNodeLabels: blankNodeLabels,
-                      ),
-                    );
-                  }
-                  buffer.write(')');
-                } else {
-                  // It's a blank node but not a collection
-                  buffer.write(
-                    writeTerm(
-                      item,
-                      prefixesByIri: prefixesByIri,
-                      blankNodeLabels: blankNodeLabels,
-                    ),
-                  );
-                }
-              } else {
-                // Regular term
-                buffer.write(
-                  writeTerm(
-                    item,
-                    prefixesByIri: prefixesByIri,
-                    blankNodeLabels: blankNodeLabels,
-                  ),
-                );
-              }
-            }
-            buffer.write(')');
+            _writeCollection(
+              buffer,
+              collectionItems,
+              graph,
+              processedCollectionNodes,
+              prefixesByIri,
+              blankNodeLabels,
+              nodesToInline,
+              triplesBySubject,
+            );
           } else {
             // Regular blank node
             buffer.write(
@@ -592,6 +725,111 @@ class TurtleSerializer implements RdfSerializer {
 
     // End the subject group
     buffer.write(' .');
+  }
+
+  /// Writes a blank node inline in Turtle's square bracket notation
+  void _writeInlineBlankNode(
+    StringBuffer buffer,
+    BlankNodeTerm node,
+    List<Triple> triples,
+    RdfGraph graph,
+    Set<BlankNodeTerm> processedCollectionNodes,
+    Map<String, String> prefixesByIri,
+    Map<BlankNodeTerm, String> blankNodeLabels,
+    Set<BlankNodeTerm> nodesToInline,
+    Map<RdfSubject, List<Triple>> triplesBySubject,
+  ) {
+    buffer.write('[ ');
+
+    // Group triples by predicate
+    final Map<RdfPredicate, List<RdfObject>> triplesByPredicate = {};
+    for (final triple in triples) {
+      triplesByPredicate
+          .putIfAbsent(triple.predicate, () => [])
+          .add(triple.object);
+    }
+
+    // Write predicates and objects for this inline blank node
+    var predicateIndex = 0;
+    for (final entry in triplesByPredicate.entries) {
+      final predicate = entry.key;
+      final objects = entry.value;
+
+      // Add separator between predicate-object groups
+      if (predicateIndex > 0) {
+        buffer.write(' ; ');
+      }
+      predicateIndex++;
+
+      // Write predicate
+      buffer.write(
+        writeTerm(
+          predicate,
+          prefixesByIri: prefixesByIri,
+          blankNodeLabels: blankNodeLabels,
+        ),
+      );
+      buffer.write(' ');
+
+      // Write objects
+      var objectIndex = 0;
+      for (final object in objects) {
+        if (objectIndex > 0) {
+          buffer.write(', ');
+        }
+        objectIndex++;
+
+        // Handle different object types
+        if (object is BlankNodeTerm && nodesToInline.contains(object)) {
+          // Write nested inline blank node
+          _writeInlineBlankNode(
+            buffer,
+            object,
+            triplesBySubject[object]!,
+            graph,
+            processedCollectionNodes,
+            prefixesByIri,
+            blankNodeLabels,
+            nodesToInline,
+            triplesBySubject,
+          );
+        } else if (object is BlankNodeTerm &&
+            _extractCollection(graph, object) != null) {
+          // Object is a collection
+          final collectionItems = _extractCollection(graph, object)!;
+
+          // Mark all nodes in the collection as processed
+          _markCollectionNodesAsProcessed(
+            graph,
+            object,
+            processedCollectionNodes,
+          );
+
+          // Write collection
+          _writeCollection(
+            buffer,
+            collectionItems,
+            graph,
+            processedCollectionNodes,
+            prefixesByIri,
+            blankNodeLabels,
+            nodesToInline,
+            triplesBySubject,
+          );
+        } else {
+          // Regular term
+          buffer.write(
+            writeTerm(
+              object,
+              prefixesByIri: prefixesByIri,
+              blankNodeLabels: blankNodeLabels,
+            ),
+          );
+        }
+      }
+    }
+
+    buffer.write(' ]');
   }
 
   /// Convert RDF terms to Turtle syntax string representation

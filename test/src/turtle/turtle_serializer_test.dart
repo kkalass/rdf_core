@@ -1097,7 +1097,7 @@ void main() {
     });
 
     test(
-      'should correctly handle RDF collection with a blank node as list item',
+      'should correctly handle RDF collection with a blank node as list item which is referenced in another triple',
       () {
         final collectionHead = BlankNodeTerm();
         final collectionNode1 = BlankNodeTerm();
@@ -1141,6 +1141,11 @@ void main() {
             blankNodeItem,
             IriTerm('http://example.org/type'),
             LiteralTerm.string('BlankNodeInCollection'),
+          ),
+          Triple(
+            IriTerm('http://example.org/somethingElse'),
+            IriTerm('http://example.org/relatedTo'),
+            blankNodeItem,
           ),
         ]);
 
@@ -1425,5 +1430,217 @@ ex:subject2 ex:related ex:subject1;
         );
       },
     );
+
+    test(
+      'should inline blank nodes that are referenced only once as objects',
+      () {
+        // Create a graph with a blank node that should be inlined
+        final blankNode = BlankNodeTerm();
+
+        final graph = RdfGraph.fromTriples([
+          Triple(
+            IriTerm('http://example.org/person'),
+            IriTerm('http://xmlns.com/foaf/0.1/knows'),
+            blankNode,
+          ),
+          Triple(
+            blankNode,
+            IriTerm('http://xmlns.com/foaf/0.1/name'),
+            LiteralTerm.string('John Smith'),
+          ),
+          Triple(
+            blankNode,
+            IriTerm('http://xmlns.com/foaf/0.1/age'),
+            LiteralTerm.integer(42),
+          ),
+        ]);
+
+        // Define custom prefixes for more readable output
+        final customPrefixes = {
+          'foaf': 'http://xmlns.com/foaf/0.1/',
+          'ex': 'http://example.org/',
+        };
+
+        // Act
+        final result = serializer.write(graph, customPrefixes: customPrefixes);
+
+        // Assert
+        expect(
+          result,
+          contains(
+            'ex:person foaf:knows [ foaf:name "John Smith" ; foaf:age 42 ] .',
+          ),
+        );
+        expect(
+          result,
+          isNot(contains('_:b')),
+          reason: 'No blank node labels should appear in the output',
+        );
+      },
+    );
+
+    test('should properly format nested inline blank nodes', () {
+      // Create a graph with nested blank nodes
+      final outerBlankNode = BlankNodeTerm();
+      final innerBlankNode = BlankNodeTerm();
+
+      final graph = RdfGraph.fromTriples([
+        Triple(
+          IriTerm('http://example.org/person'),
+          IriTerm('http://xmlns.com/foaf/0.1/knows'),
+          outerBlankNode,
+        ),
+        Triple(
+          outerBlankNode,
+          IriTerm('http://xmlns.com/foaf/0.1/name'),
+          LiteralTerm.string('Alice'),
+        ),
+        Triple(
+          outerBlankNode,
+          IriTerm('http://xmlns.com/foaf/0.1/knows'),
+          innerBlankNode,
+        ),
+        Triple(
+          innerBlankNode,
+          IriTerm('http://xmlns.com/foaf/0.1/name'),
+          LiteralTerm.string('Bob'),
+        ),
+      ]);
+
+      // Define custom prefixes
+      final customPrefixes = {
+        'foaf': 'http://xmlns.com/foaf/0.1/',
+        'ex': 'http://example.org/',
+      };
+
+      // Act
+      final result = serializer.write(graph, customPrefixes: customPrefixes);
+
+      // Assert - should have nested inline blank nodes
+      expect(
+        result,
+        contains(
+          'ex:person foaf:knows [ foaf:name "Alice" ; foaf:knows [ foaf:name "Bob" ] ] .',
+        ),
+        reason: 'Should properly nest inline blank nodes',
+      );
+      expect(
+        result,
+        isNot(contains('_:b')),
+        reason: 'No blank node labels should appear in the output',
+      );
+    });
+
+    test(
+      'should not inline blank nodes that are referenced multiple times',
+      () {
+        // Create a graph with a blank node referenced multiple times
+        final blankNode = BlankNodeTerm();
+
+        final graph = RdfGraph.fromTriples([
+          Triple(
+            IriTerm('http://example.org/person1'),
+            IriTerm('http://xmlns.com/foaf/0.1/knows'),
+            blankNode,
+          ),
+          Triple(
+            IriTerm('http://example.org/person2'),
+            IriTerm('http://xmlns.com/foaf/0.1/knows'),
+            blankNode,
+          ),
+          Triple(
+            blankNode,
+            IriTerm('http://xmlns.com/foaf/0.1/name'),
+            LiteralTerm.string('John Smith'),
+          ),
+        ]);
+
+        // Define custom prefixes
+        final customPrefixes = {
+          'foaf': 'http://xmlns.com/foaf/0.1/',
+          'ex': 'http://example.org/',
+        };
+
+        // Act
+        final result = serializer.write(graph, customPrefixes: customPrefixes);
+
+        // Assert - should use labeled blank nodes, not inline syntax
+        expect(
+          result,
+          contains('_:b0'),
+          reason: 'Should use labeled blank nodes for multiple references',
+        );
+        expect(
+          result,
+          isNot(contains('[')),
+          reason: 'Should not use inline blank node syntax',
+        );
+      },
+    );
+
+    test('should combine inlined blank nodes with collections', () {
+      // Create a collection
+      final collectionHead = BlankNodeTerm();
+      final collectionNode1 = BlankNodeTerm();
+
+      // Create a blank node that should be inlined
+      final inlineNode = BlankNodeTerm();
+
+      final graph = RdfGraph.fromTriples([
+        // Main triple with a collection
+        Triple(
+          IriTerm('http://example.org/subject'),
+          IriTerm('http://example.org/hasCollection'),
+          collectionHead,
+        ),
+
+        // Collection structure
+        Triple(
+          collectionHead,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          LiteralTerm.string('item1'),
+        ),
+        Triple(
+          collectionHead,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          collectionNode1,
+        ),
+        Triple(
+          collectionNode1,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          inlineNode,
+        ),
+        Triple(
+          collectionNode1,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+        ),
+
+        // Blank node with properties
+        Triple(
+          inlineNode,
+          IriTerm('http://xmlns.com/foaf/0.1/name'),
+          LiteralTerm.string('John Smith'),
+        ),
+      ]);
+
+      // Define custom prefixes
+      final customPrefixes = {
+        'ex': 'http://example.org/',
+        'foaf': 'http://xmlns.com/foaf/0.1/',
+      };
+
+      // Act
+      final result = serializer.write(graph, customPrefixes: customPrefixes);
+
+      // Assert - should have a collection with an inline blank node
+      expect(
+        result,
+        contains(
+          'ex:subject ex:hasCollection ("item1" [ foaf:name "John Smith" ])',
+        ),
+        reason: 'Should inline a blank node within a collection',
+      );
+    });
   });
 }

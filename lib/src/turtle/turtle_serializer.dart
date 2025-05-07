@@ -639,7 +639,16 @@ class TurtleSerializer implements RdfSerializer {
     // Write predicates and objects
     var predicateIndex = 0;
     for (final predicate in sortedPredicates) {
-      final objects = triplesByPredicate[predicate]!;
+      // Get objects and ensure uniqueness while preserving order
+      final objects = <RdfObject>[];
+      final seenObjects = <RdfObject>{};
+
+      for (final obj in triplesByPredicate[predicate]!) {
+        if (!seenObjects.contains(obj)) {
+          objects.add(obj);
+          seenObjects.add(obj);
+        }
+      }
 
       // First predicate on same line as subject, others indented on new lines
       if (predicateIndex == 0) {

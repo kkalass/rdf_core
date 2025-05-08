@@ -18,8 +18,6 @@
 /// ```
 library rdf_namespaces;
 
-import 'dart:math';
-
 import 'package:rdf_core/src/vocab/rdf.dart';
 import 'package:rdf_core/src/vocab/xsd.dart';
 

@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - RdfNamespaceMappings can now generate a prefix automatically if there was no matching prefix found
 
+### Fixed
+
+- IriTerm used to be case insensitive in equals, but that is actually wrong - for example: `https://schema.org/Datatype != https://schema.org/datatype` !
+
 ## [0.7.5] - 2025-05-07
 
 ### Changed

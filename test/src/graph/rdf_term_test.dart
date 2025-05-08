@@ -12,13 +12,15 @@ void main() {
       expect(iri.iri, equals('http://example.org/resource'));
     });
 
-    test('equals operator compares case-insensitively', () {
+    test('equals operator compares case-sensitively', () {
       final iri1 = IriTerm('http://example.org/resource');
       final iri2 = IriTerm('http://EXAMPLE.org/resource');
       final iri3 = IriTerm('http://example.org/different');
+      final iri4 = IriTerm('http://example.org/resource');
 
-      expect(iri1, equals(iri2));
+      expect(iri1, isNot(equals(iri2)));
       expect(iri1, isNot(equals(iri3)));
+      expect(iri1, equals(iri4));
     });
 
     test('hash codes are equal for case-variant IRIs', () {

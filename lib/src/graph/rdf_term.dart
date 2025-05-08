@@ -132,7 +132,7 @@ class IriTerm extends RdfPredicate implements RdfSubject {
 
   @override
   bool operator ==(Object other) {
-    return other is IriTerm && iri.toLowerCase() == other.iri.toLowerCase();
+    return other is IriTerm && iri == other.iri;
   }
 
   @override

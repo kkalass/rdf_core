@@ -57,22 +57,29 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">RdfNamespaceMappings.custom</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="custom-param-customMappings"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">customMappings</span></span></li>
-</ol>)
+      <span class="name ">RdfNamespaceMappings.custom</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="custom-param-customMappings"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">customMappings</span>, {</span></li>
+<li><span class="parameter" id="custom-param-useDefaults"><span class="type-annotation">dynamic</span> <span class="parameter-name">useDefaults</span> = <span class="default-value">true</span>, </span></li>
+</ol>})
     </section>
     
 <section class="desc markdown">
   <p>Creates a new RdfNamespaceMappings instance with custom mappings.</p>
 <p>Custom mappings take precedence over standard mappings when there are conflicts.</p>
-<p>@param customMappings The custom mappings to add to the standard ones</p>
+<p>@param customMappings The custom mappings to add to the standard ones
+@param useDefaults Whether to include standard mappings (default: true)</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">RdfNamespaceMappings.custom(Map&lt;String, String&gt; customMappings)
-  : _mappings = {..._rdfNamespaceMappings, ...customMappings};</code></pre>
+  <pre class="language-dart"><code class="language-dart">RdfNamespaceMappings.custom(
+  Map&lt;String, String&gt; customMappings, {
+  useDefaults = true,
+}) : _mappings =
+         useDefaults
+             ? {..._rdfNamespaceMappings, ...customMappings}
+             : customMappings;</code></pre>
 </section>
 
 
@@ -100,7 +107,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.7.5
+      0.7.6
   </span>
   
 </footer>

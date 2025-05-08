@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the operator [] method from the RdfNamespaceMappings class, for the Dart programming language.">
-  <title>operator [] method - RdfNamespaceMappings class - rdf library - Dart API</title>
+  <meta name="description" content="API docs for the getOrGeneratePrefix method from the RdfNamespaceMappings class, for the Dart programming language.">
+  <title>getOrGeneratePrefix method - RdfNamespaceMappings class - rdf library - Dart API</title>
 
 
   
@@ -27,9 +27,9 @@
     <li><a href="../../index.html">rdf_core</a></li>
     <li><a href="../../rdf">rdf_core.dart</a></li>
     <li><a href="../../rdf/RdfNamespaceMappings-class.html">RdfNamespaceMappings</a></li>
-    <li class="self-crumb">operator [] method</li>
+    <li class="self-crumb">getOrGeneratePrefix method</li>
   </ol>
-  <div class="self-name">operator []</div>
+  <div class="self-name">getOrGeneratePrefix</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -52,30 +52,62 @@
     data-above-sidebar="rdf&#47;RdfNamespaceMappings-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">operator []</span> method 
+<h1><span class="kind-method">getOrGeneratePrefix</span> method 
 </h1></div>
 
     <section class="multi-line-signature">
       
-<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
-<span class="name ">operator []</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="[]-param-key"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">key</span></span></li>
-</ol>)
+<span class="returntype">(<span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span></span>)</span>
+<span class="name ">getOrGeneratePrefix</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="getOrGeneratePrefix-param-namespace"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">namespace</span>, {</span></li>
+<li><span class="parameter" id="getOrGeneratePrefix-param-customMappings"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">customMappings</span> = <span class="default-value">const {}</span>, </span></li>
+</ol>})
 
       
 
     </section>
     
 <section class="desc markdown">
-  <p>Operator for retrieving a namespace URI by its prefix.</p>
-<p>@param key The prefix to look up
-@return The namespace URI for the prefix, or null if not found</p>
+  <p>Returns the Prefix for a given namespace URI, generating a new one if not found.
+Note that this will not change the immutable RdfNamespaceMappings instance.
+Instead, it will return a new prefix that can be used for custom mappings.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">String? operator [](Object? key) =&gt; _mappings[key];</code></pre>
+  <pre class="language-dart"><code class="language-dart">(String prefix, bool generated) getOrGeneratePrefix(
+  String namespace, {
+  Map&lt;String, String&gt; customMappings = const {},
+}) {
+  String? candidate =
+      _getKeyByValue(customMappings, namespace) ??
+      _getKeyByValue(_mappings, namespace);
+  if (candidate != null) {
+    return (candidate, false);
+  }
+
+  &#47;&#47; Generate a meaningful prefix from domain when possible
+  String? prefix = _tryGeneratePrefixFromUrl(namespace);
+
+  &#47;&#47; Ensure prefix is not already used
+  if (prefix != null &amp;&amp;
+      !customMappings.containsKey(prefix) &amp;&amp;
+      !_mappings.containsKey(prefix)) {
+    return (prefix, true);
+  }
+
+  &#47;&#47; Fall back to numbered prefixes
+  final computedPrefix = prefix ?? &#39;ns&#39;;
+  int prefixNum = 1;
+  do {
+    prefix = &#39;$computedPrefix$prefixNum&#39;;
+    prefixNum++;
+  } while (customMappings.containsKey(prefix) &amp;&amp;
+      !_mappings.containsKey(prefix));
+
+  return (prefix, true);
+}</code></pre>
 </section>
 
 
@@ -91,7 +123,7 @@
     <li><a href="../../index.html">rdf_core</a></li>
     <li><a href="../../rdf">rdf</a></li>
     <li><a href="../../rdf/RdfNamespaceMappings-class.html">RdfNamespaceMappings</a></li>
-    <li class="self-crumb">operator [] method</li>
+    <li class="self-crumb">getOrGeneratePrefix method</li>
 </ol>
 
     <h5>RdfNamespaceMappings class</h5>

@@ -106,7 +106,7 @@ the <a href="../../rdf/IriTerm/hashCode.html">hashCode</a> method as well to mai
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 bool operator ==(Object other) {
-  return other is IriTerm &amp;&amp; iri.toLowerCase() == other.iri.toLowerCase();
+  return other is IriTerm &amp;&amp; iri == other.iri;
 }</code></pre>
 </section>
 
@@ -135,7 +135,7 @@ bool operator ==(Object other) {
 <footer>
   <span class="no-break">
     rdf_core
-      0.7.5
+      0.7.6
   </span>
   
 </footer>

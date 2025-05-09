@@ -20,10 +20,10 @@ A type-safe, and extensible Dart library for representing and manipulating RDF d
 
 If you are looking for more rdf-related functionality, have a look at our companion projects:
 
-=> parse and serialize rdf/xml format: [rdf_xml](https://github.com/kkalass/rdf_xml) 
-=> easy-to-use constants for many well-known vocabularies: [rdf_vocabularies](https://github.com/kkalass/rdf_vocabularies)
-=> generate your own easy-to-use constants for other vocabularies with a build_runner: [rdf_vocabulary_to_dart](https://github.com/kkalass/rdf_vocabulary_to_dart)
-=> map Dart Objects ↔️ RDF: [rdf_mapper](https://github.com/kkalass/rdf_mapper)
+* parse and serialize rdf/xml format: [rdf_xml](https://github.com/kkalass/rdf_xml) 
+* easy-to-use constants for many well-known vocabularies: [rdf_vocabularies](https://github.com/kkalass/rdf_vocabularies)
+* generate your own easy-to-use constants for other vocabularies with a build_runner: [rdf_vocabulary_to_dart](https://github.com/kkalass/rdf_vocabulary_to_dart)
+* map Dart Objects ↔️ RDF: [rdf_mapper](https://github.com/kkalass/rdf_mapper)
 
 ---
 

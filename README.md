@@ -2,16 +2,13 @@
   <img src="https://kkalass.github.io/rdf_core/logo.svg" alt="rdf_core logo" width="96" height="96"/>
 </div>
 
-# rdf_core
+# RDF Core
 
 [![pub package](https://img.shields.io/pub/v/rdf_core.svg)](https://pub.dev/packages/rdf_core)
 [![build](https://github.com/kkalass/rdf_core/actions/workflows/ci.yml/badge.svg)](https://github.com/kkalass/rdf_core/actions)
 [![codecov](https://codecov.io/gh/kkalass/rdf_core/branch/main/graph/badge.svg)](https://codecov.io/gh/kkalass/rdf_core)
 [![license](https://img.shields.io/github/license/kkalass/rdf_core.svg)](https://github.com/kkalass/rdf_core/blob/main/LICENSE)
 
----
-
-# RDF Core
 
 [🌐 **Official Homepage**](https://kkalass.github.io/rdf_core/)
 
@@ -19,15 +16,14 @@ A type-safe, and extensible Dart library for representing and manipulating RDF d
 
 ---
 
-## Looking for mapping Dart Objects ↔️ RDF?
+## Core of a whole family of projects
 
-=> Discover our companion project [rdf_mapper](https://github.com/kkalass/rdf_mapper) now on GitHub!
+If you are looking for more rdf-related functionality, have a look at our companion projects:
 
----
-
-## Looking for RDF/XML support?
-
-=> Our companion project [rdf_xml](https://github.com/kkalass/rdf_xml) provides the plugin `RdfXmlFormat()` for `RdfCore`.
+=> parse and serialize rdf/xml format: [rdf_xml](https://github.com/kkalass/rdf_xml) 
+=> easy-to-use constants for many well-known vocabularies: [rdf_vocabularies](https://github.com/kkalass/rdf_vocabularies)
+=> generate your own easy-to-use constants for other vocabularies with a build_runner: [rdf_vocabulary_to_dart](https://github.com/kkalass/rdf_vocabulary_to_dart)
+=> map Dart Objects ↔️ RDF: [rdf_mapper](https://github.com/kkalass/rdf_mapper)
 
 ---
 
@@ -273,9 +269,8 @@ final parsedGraph = jsonLdParser.parse();
 
 ## 🛣️ Roadmap / Next Steps
 
-- Remove vocab directory and replace it with a much cleaner and more discoverable generated alternative, maybe in a separate project. This should also support generating discoverable vocab classes for arbitrary Vocabularies.
 - Support base uri in jsonld and turtle serialization
-- More serialization formats (RDF/XML => in separate project, N-Triples)
+- Improve jsonld parser/serializer (and include realworld tests for e.g. foaf.jsonld)
 - Named Graphs (maybe as separate project)
 - Rdf-Star
 - SHACL and schema validation

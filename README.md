@@ -269,6 +269,7 @@ final parsedGraph = jsonLdParser.parse();
 
 ## 🛣️ Roadmap / Next Steps
 
+- Make use of dart:convert classes, change from Parser/Serializer notation to decoder/encoder
 - Support base uri in jsonld and turtle serialization
 - Improve jsonld parser/serializer (and include realworld tests for e.g. foaf.jsonld)
 - Named Graphs (maybe as separate project)

@@ -67,12 +67,12 @@ final triple = Triple(subject, predicate, object);
 <p>See: <a href="https://www.w3.org/TR/rdf11-concepts/">RDF 1.1 Concepts and Abstract Syntax</a>
 Central facade for the RDF library, providing access to parsing and serialization.</p>
 <p>This class serves as the primary entry point for the RDF library, offering a simplified
-interface for common RDF operations. It encapsulates the complexity of parser and serializer
-factories, format registries, and plugin management behind a clean, user-friendly API.</p>
+interface for common RDF operations. It encapsulates the complexity of codec management,
+format registries, and plugin management behind a clean, user-friendly API.</p>
 <p>The class follows IoC principles by accepting dependencies in its constructor,
 making it suitable for dependency injection and improving testability.
-For most use cases, the <a href="../rdf/RdfCore/RdfCore.withStandardFormats.html">RdfCore.withStandardFormats</a> factory constructor
-provides a pre-configured instance with standard formats registered.</p>
+For most use cases, the <a href="../rdf/RdfCore/RdfCore.withStandardCodecs.html">RdfCore.withStandardCodecs</a> factory constructor
+provides a pre-configured instance with standard codecs registered.</p>
 </section>
 
 
@@ -82,30 +82,30 @@ provides a pre-configured instance with standard formats registered.</p>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="RdfCore" class="callable">
-          <span class="name"><a href="../rdf/RdfCore/RdfCore.html">RdfCore</a></span><span class="signature">({<span class="parameter" id="-param-registry"><span>required</span> <span class="type-annotation"><a href="../rdf/RdfFormatRegistry-class.html">RdfFormatRegistry</a></span> <span class="parameter-name">registry</span>, </span><span class="parameter" id="-param-parserFactory"><span>required</span> <span class="type-annotation"><a href="../rdf/RdfParserFactory-class.html">RdfParserFactory</a></span> <span class="parameter-name">parserFactory</span>, </span><span class="parameter" id="-param-serializerFactory"><span>required</span> <span class="type-annotation"><a href="../rdf/RdfSerializerFactory-class.html">RdfSerializerFactory</a></span> <span class="parameter-name">serializerFactory</span></span>})</span>
+          <span class="name"><a href="../rdf/RdfCore/RdfCore.html">RdfCore</a></span><span class="signature">({<span class="parameter" id="-param-registry"><span>required</span> <span class="type-annotation"><a href="../rdf/RdfCodecRegistry-class.html">RdfCodecRegistry</a></span> <span class="parameter-name">registry</span></span>})</span>
         </dt>
         <dd>
           Creates a new RDF library instance with the given components
         </dd>
-        <dt id="RdfCore.withFormats" class="callable">
-          <span class="name"><a href="../rdf/RdfCore/RdfCore.withFormats.html">RdfCore.withFormats</a></span><span class="signature">({<span class="parameter" id="withFormats-param-formats"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/RdfFormat-class.html">RdfFormat</a></span>&gt;</span></span> <span class="parameter-name">formats</span> = <span class="default-value">const []</span></span>})</span>
+        <dt id="RdfCore.withCodecs" class="callable">
+          <span class="name"><a href="../rdf/RdfCore/RdfCore.withCodecs.html">RdfCore.withCodecs</a></span><span class="signature">({<span class="parameter" id="withCodecs-param-codecs"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/RdfCodec-class.html">RdfCodec</a></span>&gt;</span></span> <span class="parameter-name">codecs</span> = <span class="default-value">const []</span></span>})</span>
         </dt>
         <dd>
-          Creates a new RDF library instance with only the provided formats registered
+          Creates a new RDF library instance with only the provided codecs registered
             <div class="constructor-modifier features">factory</div>
         </dd>
-        <dt id="RdfCore.withStandardFormats" class="callable">
-          <span class="name"><a href="../rdf/RdfCore/RdfCore.withStandardFormats.html">RdfCore.withStandardFormats</a></span><span class="signature">({<span class="parameter" id="withStandardFormats-param-namespaceMappings"><span class="type-annotation"><a href="../rdf/RdfNamespaceMappings-class.html">RdfNamespaceMappings</a>?</span> <span class="parameter-name">namespaceMappings</span></span>})</span>
+        <dt id="RdfCore.withStandardCodecs" class="callable">
+          <span class="name"><a href="../rdf/RdfCore/RdfCore.withStandardCodecs.html">RdfCore.withStandardCodecs</a></span><span class="signature">({<span class="parameter" id="withStandardCodecs-param-namespaceMappings"><span class="type-annotation"><a href="../rdf/RdfNamespaceMappings-class.html">RdfNamespaceMappings</a>?</span> <span class="parameter-name">namespaceMappings</span>, </span><span class="parameter" id="withStandardCodecs-param-additionalCodecs"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/RdfCodec-class.html">RdfCodec</a></span>&gt;</span></span> <span class="parameter-name">additionalCodecs</span> = <span class="default-value">const []</span></span>})</span>
         </dt>
         <dd>
-          Creates a new RDF library instance with standard formats registered
+          Creates a new RDF library instance with standard codecs registered
             <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
   </section>
     
   <section
-      class="summary offset-anchor"
+      class="summary offset-anchor inherited"
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
@@ -118,18 +118,6 @@ provides a pre-configured instance with standard formats registered.</p>
 <dd class="inherited">
   The hash code for this object.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="registry" class="property">
-  <span class="name"><a href="../rdf/RdfCore/registry.html">registry</a></span>
-  <span class="signature">&#8594; <a href="../rdf/RdfFormatRegistry-class.html">RdfFormatRegistry</a></span>
-  
-
-</dt>
-<dd>
-  Access to the underlying format registry
-  <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
@@ -154,28 +142,41 @@ provides a pre-configured instance with standard formats registered.</p>
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
-        <dt id="getParser" class="callable">
-  <span class="name"><a href="../rdf/RdfCore/getParser.html">getParser</a></span><span class="signature">(<wbr>{<span class="parameter" id="getParser-param-contentType"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">contentType</span></span>})
-    <span class="returntype parameter">&#8594; <a href="../rdf/RdfParser-class.html">RdfParser</a></span>
+        <dt id="codec" class="callable">
+  <span class="name"><a href="../rdf/RdfCore/codec.html">codec</a></span><span class="signature">(<wbr>[<span class="parameter" id="codec-param-contentType"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">contentType</span></span>])
+    <span class="returntype parameter">&#8594; <a href="../rdf/RdfCodec-class.html">RdfCodec</a></span>
   </span>
   
 
 </dt>
 <dd>
-  Get an instance of a parser for a specific format
+  Get a codec for a specific content type
   
 
 </dd>
 
-        <dt id="getSerializer" class="callable">
-  <span class="name"><a href="../rdf/RdfCore/getSerializer.html">getSerializer</a></span><span class="signature">(<wbr>{<span class="parameter" id="getSerializer-param-contentType"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">contentType</span></span>})
-    <span class="returntype parameter">&#8594; <a href="../rdf/RdfSerializer-class.html">RdfSerializer</a></span>
+        <dt id="decode" class="callable">
+  <span class="name"><a href="../rdf/RdfCore/decode.html">decode</a></span><span class="signature">(<wbr><span class="parameter" id="decode-param-content"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">content</span>, {</span><span class="parameter" id="decode-param-contentType"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">contentType</span>, </span><span class="parameter" id="decode-param-documentUrl"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">documentUrl</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rdf/RdfGraph-class.html">RdfGraph</a></span>
   </span>
   
 
 </dt>
 <dd>
-  Get an instance of a serializer for a specific format
+  Decode RDF content to create a graph
+  
+
+</dd>
+
+        <dt id="encode" class="callable">
+  <span class="name"><a href="../rdf/RdfCore/encode.html">encode</a></span><span class="signature">(<wbr><span class="parameter" id="encode-param-graph"><span class="type-annotation"><a href="../rdf/RdfGraph-class.html">RdfGraph</a></span> <span class="parameter-name">graph</span>, {</span><span class="parameter" id="encode-param-contentType"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">contentType</span>, </span><span class="parameter" id="encode-param-baseUri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">baseUri</span>, </span><span class="parameter" id="encode-param-customPrefixes"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">customPrefixes</span> = <span class="default-value">const {}</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Encode an RDF graph to a string representation
   
 
 </dd>
@@ -190,45 +191,6 @@ provides a pre-configured instance with standard formats registered.</p>
 <dd class="inherited">
   Invoked when a nonexistent method or property is accessed.
   <div class="features"><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="parse" class="callable">
-  <span class="name"><a href="../rdf/RdfCore/parse.html">parse</a></span><span class="signature">(<wbr><span class="parameter" id="parse-param-content"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">content</span>, {</span><span class="parameter" id="parse-param-contentType"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">contentType</span>, </span><span class="parameter" id="parse-param-documentUrl"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">documentUrl</span></span>})
-    <span class="returntype parameter">&#8594; <a href="../rdf/RdfGraph-class.html">RdfGraph</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-  Parse RDF content to create a graph
-  
-
-</dd>
-
-        <dt id="registerFormat" class="callable">
-  <span class="name"><a href="../rdf/RdfCore/registerFormat.html">registerFormat</a></span><span class="signature">(<wbr><span class="parameter" id="registerFormat-param-format"><span class="type-annotation"><a href="../rdf/RdfFormat-class.html">RdfFormat</a></span> <span class="parameter-name">format</span></span>)
-    <span class="returntype parameter">&#8594; void</span>
-  </span>
-  
-
-</dt>
-<dd>
-  Register a custom format with the RDF library
-  
-
-</dd>
-
-        <dt id="serialize" class="callable">
-  <span class="name"><a href="../rdf/RdfCore/serialize.html">serialize</a></span><span class="signature">(<wbr><span class="parameter" id="serialize-param-graph"><span class="type-annotation"><a href="../rdf/RdfGraph-class.html">RdfGraph</a></span> <span class="parameter-name">graph</span>, {</span><span class="parameter" id="serialize-param-contentType"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">contentType</span>, </span><span class="parameter" id="serialize-param-baseUri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">baseUri</span>, </span><span class="parameter" id="serialize-param-customPrefixes"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">customPrefixes</span> = <span class="default-value">const {}</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-  Serialize an RDF graph to a string representation
-  
 
 </dd>
 
@@ -295,7 +257,7 @@ provides a pre-configured instance with standard formats registered.</p>
 <footer>
   <span class="no-break">
     rdf_core
-      0.7.6
+      0.8.0
   </span>
   
 </footer>

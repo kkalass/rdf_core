@@ -57,9 +57,7 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">RdfCore</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-registry"><span>required</span> <span class="type-annotation"><a href="../../rdf/RdfFormatRegistry-class.html">RdfFormatRegistry</a></span> <span class="parameter-name">registry</span>, </span></li>
-<li><span class="parameter" id="-param-parserFactory"><span>required</span> <span class="type-annotation"><a href="../../rdf/RdfParserFactory-class.html">RdfParserFactory</a></span> <span class="parameter-name">parserFactory</span>, </span></li>
-<li><span class="parameter" id="-param-serializerFactory"><span>required</span> <span class="type-annotation"><a href="../../rdf/RdfSerializerFactory-class.html">RdfSerializerFactory</a></span> <span class="parameter-name">serializerFactory</span>, </span></li>
+      <span class="name ">RdfCore</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-registry"><span>required</span> <span class="type-annotation"><a href="../../rdf/RdfCodecRegistry-class.html">RdfCodecRegistry</a></span> <span class="parameter-name">registry</span>, </span></li>
 </ol>})
     </section>
     
@@ -67,16 +65,13 @@
   <p>Creates a new RDF library instance with the given components</p>
 <p>This constructor enables full dependency injection, allowing for:</p>
 <ul>
-<li>Custom format registries</li>
-<li>Modified parser or serializer factories</li>
+<li>Custom codec registries</li>
 <li>Mock implementations for testing</li>
 </ul>
-<p>For standard usage, see <a href="../../rdf/RdfCore/RdfCore.withStandardFormats.html">RdfCore.withStandardFormats</a>.</p>
+<p>For standard usage, see <a href="../../rdf/RdfCore/RdfCore.withStandardCodecs.html">RdfCore.withStandardCodecs</a>.</p>
 <p>Parameters:</p>
 <ul>
-<li><code>registry</code>: The format registry that manages available RDF formats</li>
-<li><code>parserFactory</code>: The factory that creates parser instances</li>
-<li><code>serializerFactory</code>: The factory that creates serializer instances</li>
+<li><code>registry</code>: The codec registry that manages available RDF codecs</li>
 </ul>
 </section>
 
@@ -84,13 +79,7 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">RdfCore({
-  required RdfFormatRegistry registry,
-  required RdfParserFactory parserFactory,
-  required RdfSerializerFactory serializerFactory,
-}) : _registry = registry,
-     _parserFactory = parserFactory,
-     _serializerFactory = serializerFactory;</code></pre>
+  <pre class="language-dart"><code class="language-dart">RdfCore({required RdfCodecRegistry registry}) : _registry = registry;</code></pre>
 </section>
 
 
@@ -118,7 +107,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.7.6
+      0.8.0
   </span>
   
 </footer>

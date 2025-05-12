@@ -79,7 +79,7 @@ final dateLiteral = LiteralTerm.typed("2023-04-01", "date");
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">factory LiteralTerm.typed(String value, String xsdType) {
-  return LiteralTerm(value, datatype: XsdTypes.makeIri(xsdType));
+  return LiteralTerm(value, datatype: Xsd.makeIri(xsdType));
 }</code></pre>
 </section>
 
@@ -108,7 +108,7 @@ final dateLiteral = LiteralTerm.typed("2023-04-01", "date");
 <footer>
   <span class="no-break">
     rdf_core
-      0.7.6
+      0.8.0
   </span>
   
 </footer>

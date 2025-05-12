@@ -65,8 +65,9 @@
 <section class="desc markdown">
   <p>RDF (Resource Description Framework) Library for Dart</p>
 <p>This library provides a comprehensive implementation of the W3C RDF data model,
-allowing applications to parse, manipulate, and serialize RDF data in various formats.
-It implements the RDF 1.1 Concepts and Abstract Syntax specification and supports
+allowing applications to parse, manipulate, and serialize RDF data in various
+ways.</p>
+<p>It implements the RDF 1.1 Concepts and Abstract Syntax specification and supports
 multiple serialization formats.</p>
 <h2 id="core-concepts">Core Concepts</h2>
 <h3 id="rdf-data-model">RDF Data Model</h3>
@@ -85,20 +86,20 @@ called "triples". Each triple consists of three parts:</p>
 <li><strong>Triples</strong>: Individual statements in the form subject-predicate-object</li>
 <li><strong>Graphs</strong>: Collections of triples representing related statements</li>
 </ul>
-<h3 id="serialization-formats">Serialization Formats</h3>
-<p>This library supports these RDF serialization formats:</p>
+<h3 id="serialization-codecs">Serialization Codecs</h3>
+<p>This library supports these RDF serialization codecs:</p>
 <ul>
 <li><strong>Turtle</strong>: A compact, human-friendly text format (MIME type: text/turtle)</li>
 <li><strong>JSON-LD</strong>: JSON-based serialization of Linked Data (MIME type: application/ld+json)</li>
 <li><strong>N-Triples</strong>: A line-based, plain text format for encoding RDF graphs (MIME type: application/n-triples)</li>
 </ul>
-<p>The library uses a plugin system to allow registration of additional formats.</p>
+<p>The library uses a plugin system to allow registration of additional codecs.</p>
 <h2 id="usage-examples">Usage Examples</h2>
-<h3 id="basic-parsing-and-serialization">Basic Parsing and Serialization</h3>
+<h3 id="basic-decoding-and-encoding">Basic Decoding and Encoding</h3>
 <pre class="language-dart"><code class="language-dart">// Create an RDF library instance with standard formats
-final rdf = RdfCore.withStandardFormats();
+final rdf = RdfCore.withStandardCodecs();
 
-// Parse Turtle data
+// Decode Turtle data
 final turtleData = '''
 @prefix foaf: &lt;http://xmlns.com/foaf/0.1/&gt; .
 
@@ -106,10 +107,10 @@ final turtleData = '''
                            foaf:knows &lt;http://example.org/jane&gt; .
 ''';
 
-final graph = rdf.parse(turtleData, contentType: 'text/turtle');
+final graph = rdf.decode(turtleData, contentType: 'text/turtle');
 
-// Serialize to JSON-LD
-final jsonLd = rdf.serialize(graph, contentType: 'application/ld+json');
+// Encode to JSON-LD
+final jsonLd = rdf.encode(graph, contentType: 'application/ld+json');
 print(jsonLd);
 </code></pre>
 <h3 id="creating-and-manipulating-graphs">Creating and Manipulating Graphs</h3>
@@ -135,10 +136,10 @@ for (final triple in nameTriples) {
   print('Name: ${triple.object}');
 }
 </code></pre>
-<h3 id="auto-detection-of-formats">Auto-detection of formats</h3>
-<pre class="language-dart"><code class="language-dart">// The library can automatically detect the format from content
+<h3 id="auto-detection-of-codecs">Auto-detection of codecs</h3>
+<pre class="language-dart"><code class="language-dart">// The library can automatically detect the codec from content
 final unknownContent = getContentFromSomewhere();
-final graph = rdf.parse(unknownContent); // Format auto-detected
+final graph = rdf.decode(unknownContent); // Format auto-detected
 </code></pre>
 <h3 id="using-custom-prefixes-in-serialization">Using Custom Prefixes in Serialization</h3>
 <pre class="language-dart"><code class="language-dart">final customPrefixes = {
@@ -158,9 +159,9 @@ final turtle = rdf.serialize(
 <li><strong>Terms</strong>: Classes for representing RDF terms (IRIs, blank nodes, literals)</li>
 <li><strong>Triples</strong>: The atomic data unit in RDF, combining subject, predicate, and object</li>
 <li><strong>Graphs</strong>: Collections of triples with query capabilities</li>
-<li><strong>Parsers</strong>: Convert serialized RDF text into graph structures</li>
-<li><strong>Serializers</strong>: Convert graph structures into serialized text</li>
-<li><strong>Format Registry</strong>: Plugin system for registering new serialization formats</li>
+<li><strong>Decoders</strong>: Convert serialized RDF text into graph structures</li>
+<li><strong>Encoders</strong>: Convert graph structures into serialized text</li>
+<li><strong>Codec Registry</strong>: Plugin system for registering new codecs</li>
 </ul>
 <p>The design follows IoC principles with dependency injection, making the
 library highly testable and extensible.</p>
@@ -170,20 +171,28 @@ library highly testable and extensible.</p>
     <section class="summary offset-anchor" id="classes">
       <h2>Classes</h2>
       <dl>
+          <dt id="AutoDetectingCodec">
+  <span class="name "><a href="../rdf/AutoDetectingCodec-class.html">AutoDetectingCodec</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="AutoDetectingDecoder">
+  <span class="name "><a href="../rdf/AutoDetectingDecoder-class.html">AutoDetectingDecoder</a></span> 
+
+</dt>
+<dd>
+  A decoder that detects the format from content and delegates to the appropriate actual decoder.
+</dd>
+
           <dt id="BlankNodeTerm">
   <span class="name "><a href="../rdf/BlankNodeTerm-class.html">BlankNodeTerm</a></span> 
 
 </dt>
 <dd>
   BlankNode (anonymous resource) in RDF
-</dd>
-
-          <dt id="FormatDetectingParser">
-  <span class="name "><a href="../rdf/FormatDetectingParser-class.html">FormatDetectingParser</a></span> 
-
-</dt>
-<dd>
-  A parser that detects the format from content and delegates to the appropriate parser
 </dd>
 
           <dt id="IriTerm">
@@ -194,8 +203,8 @@ library highly testable and extensible.</p>
   IRI (Internationalized Resource Identifier) in RDF
 </dd>
 
-          <dt id="JsonLdFormat">
-  <span class="name "><a href="../rdf/JsonLdFormat-class.html">JsonLdFormat</a></span> 
+          <dt id="JsonLdCodec">
+  <span class="name "><a href="../rdf/JsonLdCodec-class.html">JsonLdCodec</a></span> 
 
 </dt>
 <dd>
@@ -210,12 +219,28 @@ library highly testable and extensible.</p>
   Literal value in RDF
 </dd>
 
-          <dt id="NTriplesFormat">
-  <span class="name "><a href="../rdf/NTriplesFormat-class.html">NTriplesFormat</a></span> 
+          <dt id="NTriplesCodec">
+  <span class="name "><a href="../rdf/NTriplesCodec-class.html">NTriplesCodec</a></span> 
 
 </dt>
 <dd>
   Format definition for the N-Triples RDF serialization format.
+</dd>
+
+          <dt id="RdfCodec">
+  <span class="name "><a href="../rdf/RdfCodec-class.html">RdfCodec</a></span> 
+
+</dt>
+<dd>
+  Represents a content codec that can be handled by the RDF framework.
+</dd>
+
+          <dt id="RdfCodecRegistry">
+  <span class="name "><a href="../rdf/RdfCodecRegistry-class.html">RdfCodecRegistry</a></span> 
+
+</dt>
+<dd>
+  Manages registration and discovery of RDF codec plugins.
 </dd>
 
           <dt id="RdfCore">
@@ -226,20 +251,20 @@ library highly testable and extensible.</p>
   RDF Core Library
 </dd>
 
-          <dt id="RdfFormat">
-  <span class="name "><a href="../rdf/RdfFormat-class.html">RdfFormat</a></span> 
+          <dt id="RdfDecoder">
+  <span class="name "><a href="../rdf/RdfDecoder-class.html">RdfDecoder</a></span> 
 
 </dt>
 <dd>
-  Represents a content format that can be handled by the RDF framework.
+  Base class for decoding RDF documents in various formats
 </dd>
 
-          <dt id="RdfFormatRegistry">
-  <span class="name "><a href="../rdf/RdfFormatRegistry-class.html">RdfFormatRegistry</a></span> 
+          <dt id="RdfEncoder">
+  <span class="name "><a href="../rdf/RdfEncoder-class.html">RdfEncoder</a></span> 
 
 </dt>
 <dd>
-  Manages registration and discovery of RDF format plugins.
+  Interface for encoding RDF graphs to different serialization formats.
 </dd>
 
           <dt id="RdfGraph">
@@ -266,60 +291,12 @@ library highly testable and extensible.</p>
   Base type for values that can appear in the object position of a triple
 </dd>
 
-          <dt id="RdfParser">
-  <span class="name "><a href="../rdf/RdfParser-class.html">RdfParser</a></span> 
-
-</dt>
-<dd>
-  Interface for parsing RDF documents in various formats
-</dd>
-
-          <dt id="RdfParserFactory">
-  <span class="name "><a href="../rdf/RdfParserFactory-class.html">RdfParserFactory</a></span> 
-
-</dt>
-<dd>
-  Factory for creating RDF parsers based on content type.
-</dd>
-
-          <dt id="RdfParserFactoryBase">
-  <span class="name "><a href="../rdf/RdfParserFactoryBase-class.html">RdfParserFactoryBase</a></span> 
-
-</dt>
-<dd>
-  Interface for parser factories that create RDF parser instances
-</dd>
-
           <dt id="RdfPredicate">
   <span class="name "><a href="../rdf/RdfPredicate-class.html">RdfPredicate</a></span> 
 
 </dt>
 <dd>
   Base type for values that can appear in the predicate position of a triple
-</dd>
-
-          <dt id="RdfSerializer">
-  <span class="name "><a href="../rdf/RdfSerializer-class.html">RdfSerializer</a></span> 
-
-</dt>
-<dd>
-  Interface for writing RDF graphs to different serialization formats.
-</dd>
-
-          <dt id="RdfSerializerFactory">
-  <span class="name "><a href="../rdf/RdfSerializerFactory-class.html">RdfSerializerFactory</a></span> 
-
-</dt>
-<dd>
-  Factory for creating RDF serializers based on content type.
-</dd>
-
-          <dt id="RdfSerializerFactoryBase">
-  <span class="name "><a href="../rdf/RdfSerializerFactoryBase-class.html">RdfSerializerFactoryBase</a></span> 
-
-</dt>
-<dd>
-  Interface for serializer factories that create RDF serializer instances
 </dd>
 
           <dt id="RdfSubject">
@@ -354,12 +331,12 @@ library highly testable and extensible.</p>
   Represents an RDF triple.
 </dd>
 
-          <dt id="TurtleFormat">
-  <span class="name "><a href="../rdf/TurtleFormat-class.html">TurtleFormat</a></span> 
+          <dt id="TurtleCodec">
+  <span class="name "><a href="../rdf/TurtleCodec-class.html">TurtleCodec</a></span> 
 
 </dt>
 <dd>
-  RDF Format implementation for the Turtle serialization format.
+  RDF Codec implementation for the Turtle serialization format.
 </dd>
 
       </dl>
@@ -383,18 +360,72 @@ library highly testable and extensible.</p>
 
 
 
+    <section class="summary offset-anchor" id="properties">
+      <h2>Properties</h2>
+      <dl class="properties">
+          <dt id="jsonld" class="property">
+  <span class="name"><a href="../rdf/jsonld.html">jsonld</a></span>
+  <span class="signature">&#8594; <a href="../rdf/JsonLdCodec-class.html">JsonLdCodec</a></span>
+  
+
+</dt>
+<dd>
+  Global convenience variable for working with JSON-LD format
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+          <dt id="ntriples" class="property">
+  <span class="name"><a href="../rdf/ntriples.html">ntriples</a></span>
+  <span class="signature">&#8594; <a href="../rdf/NTriplesCodec-class.html">NTriplesCodec</a></span>
+  
+
+</dt>
+<dd>
+  Global convenience variable for working with N-Triples format
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+          <dt id="rdf" class="property">
+  <span class="name"><a href="../rdf/rdf.html">rdf</a></span>
+  <span class="signature">&#8594; <a href="../rdf/RdfCore-class.html">RdfCore</a></span>
+  
+
+</dt>
+<dd>
+  Global convenience variable for accessing RDF functionality
+with standard codecs pre-registered
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+          <dt id="turtle" class="property">
+  <span class="name"><a href="../rdf/turtle.html">turtle</a></span>
+  <span class="signature">&#8594; <a href="../rdf/TurtleCodec-class.html">TurtleCodec</a></span>
+  
+
+</dt>
+<dd>
+  Global convenience variable for working with Turtle format
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+      </dl>
+    </section>
 
 
 
     <section class="summary offset-anchor" id="exceptions">
       <h2>Exceptions / Errors</h2>
       <dl>
-          <dt id="FormatNotSupportedException">
-  <span class="name "><a href="../rdf/FormatNotSupportedException-class.html">FormatNotSupportedException</a></span> 
+          <dt id="CodecNotSupportedException">
+  <span class="name "><a href="../rdf/CodecNotSupportedException-class.html">CodecNotSupportedException</a></span> 
 
 </dt>
 <dd>
-  Exception thrown when an attempt is made to use an unsupported format
+  Exception thrown when an attempt is made to use an unsupported codec
 </dd>
 
           <dt id="RdfConstraintViolationException">
@@ -410,7 +441,23 @@ library highly testable and extensible.</p>
 
 </dt>
 <dd>
-  Exception thrown when the graph contains cycles that prevent serialization
+  Exception thrown when the graph contains cycles that prevent encoding
+</dd>
+
+          <dt id="RdfDecoderException">
+  <span class="name "><a href="../rdf/RdfDecoderException-class.html">RdfDecoderException</a></span> 
+
+</dt>
+<dd>
+  Base exception class for all RDF decoder-related errors
+</dd>
+
+          <dt id="RdfEncoderException">
+  <span class="name "><a href="../rdf/RdfEncoderException-class.html">RdfEncoderException</a></span> 
+
+</dt>
+<dd>
+  Base exception class for all RDF encoding-related errors
 </dd>
 
           <dt id="RdfException">
@@ -426,23 +473,7 @@ library highly testable and extensible.</p>
 
 </dt>
 <dd>
-  Exception thrown when the parser encounters an invalid IRI
-</dd>
-
-          <dt id="RdfParserException">
-  <span class="name "><a href="../rdf/RdfParserException-class.html">RdfParserException</a></span> 
-
-</dt>
-<dd>
-  Base exception class for all RDF parser-related errors
-</dd>
-
-          <dt id="RdfSerializerException">
-  <span class="name "><a href="../rdf/RdfSerializerException-class.html">RdfSerializerException</a></span> 
-
-</dt>
-<dd>
-  Base exception class for all RDF serialization-related errors
+  Exception thrown when the decoder encounters an invalid IRI
 </dd>
 
           <dt id="RdfShapeValidationException">
@@ -458,7 +489,7 @@ library highly testable and extensible.</p>
 
 </dt>
 <dd>
-  Exception thrown when the parser encounters syntax errors in the input
+  Exception thrown when the decoder encounters syntax errors in the input
 </dd>
 
           <dt id="RdfTypeException">
@@ -469,20 +500,20 @@ library highly testable and extensible.</p>
   Exception thrown when there's a type error in RDF data
 </dd>
 
+          <dt id="RdfUnsupportedEncoderFeatureException">
+  <span class="name "><a href="../rdf/RdfUnsupportedEncoderFeatureException-class.html">RdfUnsupportedEncoderFeatureException</a></span> 
+
+</dt>
+<dd>
+  Exception thrown when the encoder cannot represent a feature in the target format
+</dd>
+
           <dt id="RdfUnsupportedFeatureException">
   <span class="name "><a href="../rdf/RdfUnsupportedFeatureException-class.html">RdfUnsupportedFeatureException</a></span> 
 
 </dt>
 <dd>
-  Exception thrown when the parser encounters an unsupported feature
-</dd>
-
-          <dt id="RdfUnsupportedSerializationFeatureException">
-  <span class="name "><a href="../rdf/RdfUnsupportedSerializationFeatureException-class.html">RdfUnsupportedSerializationFeatureException</a></span> 
-
-</dt>
-<dd>
-  Exception thrown when the serializer cannot represent a feature in the target format
+  Exception thrown when the decoder encounters an unsupported feature
 </dd>
 
           <dt id="RdfValidationException">
@@ -522,7 +553,7 @@ library highly testable and extensible.</p>
 <footer>
   <span class="no-break">
     rdf_core
-      0.7.6
+      0.8.0
   </span>
   
 </footer>

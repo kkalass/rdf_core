@@ -75,7 +75,7 @@ final decimalLiteral = LiteralTerm.decimal("3.14");
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">factory LiteralTerm.decimal(double value) {
-  return LiteralTerm(value.toString(), datatype: XsdTypes.decimal);
+  return LiteralTerm(value.toString(), datatype: Xsd.decimal);
 }</code></pre>
 </section>
 
@@ -104,7 +104,7 @@ final decimalLiteral = LiteralTerm.decimal("3.14");
 <footer>
   <span class="no-break">
     rdf_core
-      0.7.6
+      0.8.0
   </span>
   
 </footer>

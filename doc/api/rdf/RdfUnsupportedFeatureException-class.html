@@ -57,10 +57,10 @@
 
     
 <section class="desc markdown">
-  <p>Exception thrown when the parser encounters an unsupported feature</p>
+  <p>Exception thrown when the decoder encounters an unsupported feature</p>
 <p>This exception indicates that the input document uses a feature of the
 RDF serialization format that is valid according to the specification
-but not implemented by this parser.</p>
+but not implemented by this decoder.</p>
 <p>This differs from a syntax exception in that the document is valid
 according to the format specification, but contains features beyond
 what the current implementation supports.</p>
@@ -81,7 +81,7 @@ what the current implementation supports.</p>
     <ul class="gt-separated dark clazz-relationships">
       <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
         <li><a href="../rdf/RdfException-class.html">RdfException</a></li>
-        <li><a href="../rdf/RdfParserException-class.html">RdfParserException</a></li>
+        <li><a href="../rdf/RdfDecoderException-class.html">RdfDecoderException</a></li>
       <li>RdfUnsupportedFeatureException</li>
     </ul>
   </dd>
@@ -141,13 +141,13 @@ what the current implementation supports.</p>
 </dd>
 
         <dt id="format" class="property inherited">
-  <span class="name"><a href="../rdf/RdfParserException/format.html">format</a></span>
+  <span class="name"><a href="../rdf/RdfDecoderException/format.html">format</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
   
 
 </dt>
 <dd class="inherited">
-  Format being parsed when the exception occurred
+  Format being decoded when the exception occurred
   <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -285,7 +285,7 @@ what the current implementation supports.</p>
 <footer>
   <span class="no-break">
     rdf_core
-      0.7.6
+      0.8.0
   </span>
   
 </footer>

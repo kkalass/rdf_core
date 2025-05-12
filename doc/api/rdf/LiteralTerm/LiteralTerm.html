@@ -79,7 +79,7 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">const LiteralTerm(this.value, {required this.datatype, this.language})
   : assert(
-      (language == null) != (datatype == RdfTypes.langString),
+      (language == null) != (datatype == Rdf.langString),
       &#39;Language-tagged literals must use rdf:langString datatype, and rdf:langString must have a language tag&#39;,
     );</code></pre>
 </section>
@@ -109,7 +109,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.7.6
+      0.8.0
   </span>
   
 </footer>

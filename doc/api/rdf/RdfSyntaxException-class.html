@@ -57,10 +57,10 @@
 
     
 <section class="desc markdown">
-  <p>Exception thrown when the parser encounters syntax errors in the input</p>
+  <p>Exception thrown when the decoder encounters syntax errors in the input</p>
 <p>This exception indicates that the input document contains syntax that violates
-the rules of the RDF serialization format being parsed. These are typically
-errors in the document itself, not in the parser.</p>
+the rules of the RDF serialization format being decoded. These are typically
+errors in the document itself, not in the decoder.</p>
 <p>Examples include:</p>
 <ul>
 <li>Missing closing tags or delimiters</li>
@@ -79,7 +79,7 @@ errors in the document itself, not in the parser.</p>
     <ul class="gt-separated dark clazz-relationships">
       <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
         <li><a href="../rdf/RdfException-class.html">RdfException</a></li>
-        <li><a href="../rdf/RdfParserException-class.html">RdfParserException</a></li>
+        <li><a href="../rdf/RdfDecoderException-class.html">RdfDecoderException</a></li>
       <li>RdfSyntaxException</li>
     </ul>
   </dd>
@@ -127,13 +127,13 @@ errors in the document itself, not in the parser.</p>
 </dd>
 
         <dt id="format" class="property inherited">
-  <span class="name"><a href="../rdf/RdfParserException/format.html">format</a></span>
+  <span class="name"><a href="../rdf/RdfDecoderException/format.html">format</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
   
 
 </dt>
 <dd class="inherited">
-  Format being parsed when the exception occurred
+  Format being decoded when the exception occurred
   <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -271,7 +271,7 @@ errors in the document itself, not in the parser.</p>
 <footer>
   <span class="no-break">
     rdf_core
-      0.7.6
+      0.8.0
   </span>
   
 </footer>

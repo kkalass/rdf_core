@@ -63,8 +63,8 @@ providing common functionality for all specific exceptions. It captures
 essential error information including error messages, causes, and source
 locations.</p>
 <p>Specific exception types in the library extend this base class to provide
-more targeted error handling for different RDF operations (parsing,
-serialization, validation, etc.).</p>
+more targeted error handling for different RDF operations (decoding,
+encoding, validation, etc.).</p>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">try {
   // RDF operation that might fail
@@ -96,8 +96,8 @@ serialization, validation, etc.).</p>
 
           <dt>Implementers</dt>
           <dd><ul class="comma-separated clazz-relationships">
-              <li><a href="../rdf/RdfParserException-class.html">RdfParserException</a></li>
-              <li><a href="../rdf/RdfSerializerException-class.html">RdfSerializerException</a></li>
+              <li><a href="../rdf/RdfDecoderException-class.html">RdfDecoderException</a></li>
+              <li><a href="../rdf/RdfEncoderException-class.html">RdfEncoderException</a></li>
               <li><a href="../rdf/RdfValidationException-class.html">RdfValidationException</a></li>
           </ul></dd>
 
@@ -272,7 +272,7 @@ serialization, validation, etc.).</p>
 <footer>
   <span class="no-break">
     rdf_core
-      0.7.6
+      0.8.0
   </span>
   
 </footer>

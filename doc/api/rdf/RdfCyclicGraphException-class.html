@@ -57,10 +57,10 @@
 
     
 <section class="desc markdown">
-  <p>Exception thrown when the graph contains cycles that prevent serialization</p>
+  <p>Exception thrown when the graph contains cycles that prevent encoding</p>
 <p>Some RDF formats have limitations with cyclic structures, particularly
 when using abbreviated syntax. This exception indicates that the graph
-contains cyclical relationships that prevent effective serialization
+contains cyclical relationships that prevent effective encoding
 in the target format.</p>
 </section>
 
@@ -73,7 +73,7 @@ in the target format.</p>
     <ul class="gt-separated dark clazz-relationships">
       <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
         <li><a href="../rdf/RdfException-class.html">RdfException</a></li>
-        <li><a href="../rdf/RdfSerializerException-class.html">RdfSerializerException</a></li>
+        <li><a href="../rdf/RdfEncoderException-class.html">RdfEncoderException</a></li>
       <li>RdfCyclicGraphException</li>
     </ul>
   </dd>
@@ -121,13 +121,13 @@ in the target format.</p>
 </dd>
 
         <dt id="format" class="property inherited">
-  <span class="name"><a href="../rdf/RdfSerializerException/format.html">format</a></span>
+  <span class="name"><a href="../rdf/RdfEncoderException/format.html">format</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
   
 
 </dt>
 <dd class="inherited">
-  Format being serialized to when the exception occurred
+  Format being encoded to when the exception occurred
   <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -265,7 +265,7 @@ in the target format.</p>
 <footer>
   <span class="no-break">
     rdf_core
-      0.7.6
+      0.8.0
   </span>
   
 </footer>

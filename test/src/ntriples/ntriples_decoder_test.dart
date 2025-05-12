@@ -1,23 +1,23 @@
-// Tests for the N-Triples parser implementation
+// Tests for the N-Triples decoder implementation
 
 import 'package:rdf_core/rdf_core.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('NTriplesParser', () {
+  group('NTriplesDecoder', () {
     late RdfCore rdf;
 
     setUp(() {
-      rdf = RdfCore.withStandardFormats();
+      rdf = RdfCore.withStandardCodecs();
     });
 
-    test('parses empty document', () {
+    test('decodes empty document', () {
       final input = '';
-      final graph = rdf.parse(input, contentType: 'application/n-triples');
+      final graph = rdf.decode(input, contentType: 'application/n-triples');
       expect(graph.isEmpty, isTrue);
     });
 
-    test('parses document with comments and empty lines', () {
+    test('decodes document with comments and empty lines', () {
       final input = '''
 # This is a comment
   # This is an indented comment
@@ -26,7 +26,7 @@ void main() {
 
 # Another comment
 ''';
-      final graph = rdf.parse(input, contentType: 'application/n-triples');
+      final graph = rdf.decode(input, contentType: 'application/n-triples');
       expect(graph.triples.length, equals(1));
       final triple = graph.triples.first;
       expect(
@@ -43,25 +43,25 @@ void main() {
       );
     });
 
-    test('parses multiple triples', () {
+    test('decodes multiple triples', () {
       final input = '''
 <http://example.org/subject1> <http://example.org/predicate1> <http://example.org/object1> .
 <http://example.org/subject2> <http://example.org/predicate2> <http://example.org/object2> .
 <http://example.org/subject3> <http://example.org/predicate3> <http://example.org/object3> .
 ''';
-      final graph = rdf.parse(input, contentType: 'application/n-triples');
+      final graph = rdf.decode(input, contentType: 'application/n-triples');
       expect(graph.triples.length, equals(3));
     });
 
-    test('parses blank nodes', () {
+    test('decodes blank nodes', () {
       final input = '''
 _:b1 <http://example.org/predicate> <http://example.org/object> .
 <http://example.org/subject> <http://example.org/predicate> _:b2 .
 ''';
-      final graph = rdf.parse(input, contentType: 'application/n-triples');
+      final graph = rdf.decode(input, contentType: 'application/n-triples');
       expect(graph.triples.length, equals(2));
 
-      // Check that blank nodes are parsed correctly
+      // Check that blank nodes are decoded correctly
       final triple1 = graph.triples.elementAt(0);
       final triple2 = graph.triples.elementAt(1);
 
@@ -69,13 +69,13 @@ _:b1 <http://example.org/predicate> <http://example.org/object> .
       expect(triple2.object, isA<BlankNodeTerm>());
     });
 
-    test('parses literals with language tags', () {
+    test('decodes literals with language tags', () {
       final input = '''
 <http://example.org/subject> <http://example.org/predicate> "Plain literal" .
 <http://example.org/subject> <http://example.org/predicate> "English"@en .
 <http://example.org/subject> <http://example.org/predicate> "Deutsch"@de .
 ''';
-      final graph = rdf.parse(input, contentType: 'application/n-triples');
+      final graph = rdf.decode(input, contentType: 'application/n-triples');
       expect(graph.triples.length, equals(3));
 
       final triple1 = graph.triples.elementAt(0);
@@ -95,12 +95,12 @@ _:b1 <http://example.org/predicate> <http://example.org/object> .
       expect((triple3.object as LiteralTerm).language, equals('de'));
     });
 
-    test('parses literals with datatypes', () {
+    test('decodes literals with datatypes', () {
       final input = '''
 <http://example.org/subject> <http://example.org/predicate> "42"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <http://example.org/subject> <http://example.org/predicate> "true"^^<http://www.w3.org/2001/XMLSchema#boolean> .
 ''';
-      final graph = rdf.parse(input, contentType: 'application/n-triples');
+      final graph = rdf.decode(input, contentType: 'application/n-triples');
       expect(graph.triples.length, equals(2));
 
       final triple1 = graph.triples.elementAt(0);
@@ -121,13 +121,13 @@ _:b1 <http://example.org/predicate> <http://example.org/object> .
       );
     });
 
-    test('parses escaped characters in literals', () {
+    test('decodes escaped characters in literals', () {
       final input = '''
 <http://example.org/subject> <http://example.org/predicate> "Line 1\\nLine 2" .
 <http://example.org/subject> <http://example.org/predicate> "Tab\\tCharacter" .
 <http://example.org/subject> <http://example.org/predicate> "Quote \\"inside\\" string" .
 ''';
-      final graph = rdf.parse(input, contentType: 'application/n-triples');
+      final graph = rdf.decode(input, contentType: 'application/n-triples');
       expect(graph.triples.length, equals(3));
 
       final triple1 = graph.triples.elementAt(0);
@@ -150,29 +150,29 @@ _:b1 <http://example.org/predicate> <http://example.org/object> .
     test('throws error on invalid triples', () {
       // Missing period
       expect(
-        () => rdf.parse(
+        () => rdf.decode(
           '<http://example.org/subject> <http://example.org/predicate> <http://example.org/object>',
           contentType: 'application/n-triples',
         ),
-        throwsA(isA<RdfParserException>()),
+        throwsA(isA<RdfDecoderException>()),
       );
 
       // Invalid subject (string literal not allowed)
       expect(
-        () => rdf.parse(
+        () => rdf.decode(
           '"subject" <http://example.org/predicate> <http://example.org/object> .',
           contentType: 'application/n-triples',
         ),
-        throwsA(isA<RdfParserException>()),
+        throwsA(isA<RdfDecoderException>()),
       );
 
       // Invalid predicate (blank node not allowed)
       expect(
-        () => rdf.parse(
+        () => rdf.decode(
           '<http://example.org/subject> _:predicate <http://example.org/object> .',
           contentType: 'application/n-triples',
         ),
-        throwsA(isA<RdfParserException>()),
+        throwsA(isA<RdfDecoderException>()),
       );
     });
 
@@ -182,8 +182,8 @@ _:b1 <http://example.org/predicate> <http://example.org/object> .
 <http://example.org/subject> <http://example.org/predicate> "Literal value" .
 ''';
 
-      // Parse without specifying content type
-      final graph = rdf.parse(input);
+      // Decode without specifying content type
+      final graph = rdf.decode(input);
       expect(graph.triples.length, equals(2));
     });
   });

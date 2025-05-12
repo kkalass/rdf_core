@@ -24,8 +24,8 @@ library exceptions.base;
 /// locations.
 ///
 /// Specific exception types in the library extend this base class to provide
-/// more targeted error handling for different RDF operations (parsing,
-/// serialization, validation, etc.).
+/// more targeted error handling for different RDF operations (decoding,
+/// encoding, validation, etc.).
 ///
 /// Example:
 /// ```dart

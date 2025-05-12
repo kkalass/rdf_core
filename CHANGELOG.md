@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2025-05-12
+
+### Breaking Changes
+
+- **API Refactoring**: Changed terminology to align with dart:convert standards
+  - Renamed `parse` → `decode`
+  - Renamed `serialize` → `encode`
+  - Renamed `RdfFormat` → `RdfCodec`
+  - Renamed `withStandardFormats` → `withStandardCodecs`
+  - Renamed `withFormats` → `withCodecs`
+
+### Added
+
+- Added `additionalCodecs` parameter to `withStandardCodecs` factory constructor
+- Added global convenience variables (`turtle`, `jsonld`, `ntriples`, `rdf`) for easier API usage
+- Improved documentation for registry access through the `registry` property
+
 ## [0.7.6] - 2025-05-08
 
 ### Added

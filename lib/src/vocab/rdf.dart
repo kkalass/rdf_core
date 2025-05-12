@@ -6,7 +6,7 @@
 /// Example usage:
 /// ```dart
 /// import 'package:rdf_core/src/vocab/rdf.dart';
-/// final type = RdfPredicates.type;
+/// final type = Rdf.type;
 /// ```
 ///
 /// All constants are pre-constructed as IriTerm objects to enable direct use in
@@ -27,15 +27,6 @@ class Rdf {
   /// [Spec](http://www.w3.org/1999/02/22-rdf-syntax-ns#)
   static const String namespace = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
   static const String prefix = 'rdf';
-}
-
-/// RDF type/class constants.
-///
-/// Contains IRIs that represent classes or types defined in the RDF vocabulary.
-class RdfTypes {
-  // coverage:ignore-start
-  const RdfTypes._();
-  // coverage:ignore-end
 
   /// IRI for rdf:langString datatype
   ///
@@ -48,16 +39,6 @@ class RdfTypes {
   /// <http://example.org/book> <http://example.org/title> "The Title"@en .
   /// ```
   static const langString = IriTerm.prevalidated('${Rdf.namespace}langString');
-}
-
-/// RDF predicate constants.
-///
-/// Contains IRIs for properties defined in the RDF vocabulary.
-
-class RdfPredicates {
-  // coverage:ignore-start
-  const RdfPredicates._();
-  // coverage:ignore-end
 
   /// IRI for rdf:type predicate
   /// [Spec](https://www.w3.org/TR/rdf11-concepts/#section-triples)
@@ -92,15 +73,6 @@ class RdfPredicates {
   /// _:node rdf:rest _:nextNode .
   /// ```
   static const rest = IriTerm.prevalidated('${Rdf.namespace}rest');
-}
-
-/// RDF resource constants.
-///
-/// Contains IRIs for standard resources defined in the RDF vocabulary.
-class RdfResources {
-  // coverage:ignore-start
-  const RdfResources._();
-  // coverage:ignore-end
 
   /// IRI for rdf:nil resource
   /// [Spec](https://www.w3.org/TR/rdf11-mt/#collections)

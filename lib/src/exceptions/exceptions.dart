@@ -14,6 +14,6 @@
 library exceptions.all;
 
 export 'rdf_exception.dart';
-export 'rdf_parser_exception.dart';
-export 'rdf_serializer_exception.dart';
+export 'rdf_decoder_exception.dart';
+export 'rdf_encoder_exception.dart';
 export 'rdf_validation_exception.dart';

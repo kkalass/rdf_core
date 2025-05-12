@@ -1,6 +1,6 @@
 import 'package:rdf_core/src/exceptions/exceptions.dart';
 import 'package:rdf_core/src/graph/rdf_term.dart';
-import 'package:rdf_core/src/jsonld/jsonld_parser.dart';
+import 'package:rdf_core/src/jsonld/jsonld_decoder.dart';
 import 'package:rdf_core/src/vocab/rdf.dart';
 import 'package:test/test.dart';
 
@@ -149,7 +149,7 @@ void main() {
         triples.any(
           (t) =>
               t.subject == IriTerm('http://example.org/person/john') &&
-              t.predicate == RdfPredicates.type &&
+              t.predicate == Rdf.type &&
               t.object == IriTerm('http://xmlns.com/foaf/0.1/Person'),
         ),
         isTrue,
@@ -179,7 +179,7 @@ void main() {
         triples.any(
           (t) =>
               t.subject == IriTerm('http://example.org/person/john') &&
-              t.predicate == RdfPredicates.type &&
+              t.predicate == Rdf.type &&
               t.object == IriTerm('http://xmlns.com/foaf/0.1/Person'),
         ),
         isTrue,
@@ -209,7 +209,7 @@ void main() {
         triples.any(
           (t) =>
               t.subject == IriTerm('http://example.org/person/john') &&
-              t.predicate == RdfPredicates.type &&
+              t.predicate == Rdf.type &&
               t.object == IriTerm('http://xmlns.com/foaf/0.1/Person'),
         ),
         isTrue,
@@ -241,7 +241,7 @@ void main() {
         triples.any(
           (t) =>
               t.subject == IriTerm('http://example.org/person/john') &&
-              t.predicate == RdfPredicates.type &&
+              t.predicate == Rdf.type &&
               t.object == IriTerm('http://xmlns.com/foaf/0.1/Person'),
         ),
         isTrue,
@@ -252,7 +252,7 @@ void main() {
         triples.any(
           (t) =>
               t.subject == IriTerm('http://example.org/person/john') &&
-              t.predicate == RdfPredicates.type &&
+              t.predicate == Rdf.type &&
               t.object == IriTerm('http://schema.org/Person'),
         ),
         isTrue,

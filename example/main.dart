@@ -15,7 +15,7 @@ void main() {
   final graph = RdfGraph(
     triples: [
       Triple(alice, knows, bob),
-      // Note the LiteralTerm.string convenience constructor which is the same as LiteralTerm('Alice', datatype: XsdTypes.string)
+      // Note the LiteralTerm.string convenience constructor which is the same as LiteralTerm('Alice', datatype: Xsd.string)
       Triple(alice, name, LiteralTerm.string('Alice')),
       Triple(bob, name, LiteralTerm.string('Bob')),
     ],
@@ -27,9 +27,7 @@ void main() {
   }
 
   // --- Serialize to Turtle ---
-  var rdfCore = RdfCore.withStandardFormats();
-  final turtleSerializer = rdfCore.getSerializer(contentType: 'text/turtle');
-  final turtle = turtleSerializer.write(
+  final turtleStr = turtle.encode(
     graph,
     customPrefixes: {'ex': 'http://example.org/'},
   );
@@ -44,30 +42,36 @@ void main() {
   //     foaf:name "Alice" .
   // ex:bob foaf:name "Bob" .
   // ```
-  print('\nTurtle serialization:\n$turtle');
+  print('\nTurtle serialization:\n$turtleStr');
 
   // --- Parse from Turtle ---
-  final parsedGraph = rdfCore
-      .getParser(contentType: 'text/turtle')
-      .parse(turtle);
+  final parsedGraph = turtle.decode(turtleStr);
+
   print('\nParsed from Turtle:');
   for (final triple in parsedGraph.triples) {
     print('  ${triple.subject} ${triple.predicate} ${triple.object}');
   }
 
+  // --- Or: Make use of Codec Registration ---
+
+  // We can use the codecs for turtle, ntriples, jsonld etc. directly like above,
+  // or we can get them from the RDF Core instance to use them based on the content type.
+  //
+  // Note that this way, also a contentType of null is allowed, which will
+  // automatically detect the decoder format based on the input string and use
+  // the first registered codec as encoder (typically turtle).
+  final contentType =
+      'application/ld+json'; // or 'text/turtle', 'application/n-triples', etc.
+  final codec = rdf.codec(contentType);
+
   // --- Serialize to JSON-LD ---
-  final jsonldSerializer = rdfCore.getSerializer(
-    contentType: 'application/ld+json',
-  );
-  final jsonld = jsonldSerializer.write(graph);
+  final encoded = codec.encode(graph);
   print('\nJSON-LD serialization:\n$jsonld');
 
   // --- Parse from JSON-LD ---
-  final parsedFromJsonLd = rdfCore
-      .getParser(contentType: 'application/ld+json')
-      .parse(jsonld);
+  final decoded = codec.decode(encoded);
   print('\nParsed from JSON-LD:');
-  for (final triple in parsedFromJsonLd.triples) {
+  for (final triple in decoded.triples) {
     print('  ${triple.subject} ${triple.predicate} ${triple.object}');
   }
 }

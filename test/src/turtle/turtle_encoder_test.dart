@@ -2,24 +2,24 @@
 import 'package:rdf_core/src/graph/rdf_graph.dart';
 import 'package:rdf_core/src/graph/rdf_term.dart';
 import 'package:rdf_core/src/graph/triple.dart';
-import 'package:rdf_core/src/turtle/turtle_serializer.dart';
+import 'package:rdf_core/src/turtle/turtle_encoder.dart';
 import 'package:rdf_core/src/vocab/xsd.dart';
 import 'package:test/test.dart';
 
 void main() {
-  late TurtleSerializer serializer;
+  late TurtleEncoder encoder;
 
   setUp(() {
-    serializer = TurtleSerializer();
+    encoder = TurtleEncoder();
   });
 
-  group('TurtleSerializer', () {
+  group('TurtleEncoder', () {
     test('should serialize empty graph', () {
       // Arrange
       final graph = RdfGraph();
 
       // Act
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
 
       // Assert
       expect(result, isEmpty);
@@ -32,14 +32,14 @@ void main() {
           Triple(
             IriTerm("http://example.org/test"),
             IriTerm("http://my-ontology.org/test#deleted"),
-            LiteralTerm("true", datatype: XsdTypes.boolean),
+            LiteralTerm("true", datatype: Xsd.boolean),
           ),
         ],
       );
       final prefixes = {'ex': 'http://example.org/'};
 
       // Act
-      final result = serializer.write(graph, customPrefixes: prefixes);
+      final result = encoder.convert(graph, customPrefixes: prefixes);
 
       // Assert
       expect(
@@ -62,7 +62,7 @@ void main() {
       );
 
       // Act
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
 
       // Assert
       expect(
@@ -86,7 +86,7 @@ void main() {
       );
 
       // Act
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
 
       // Assert
       expect(
@@ -125,7 +125,7 @@ void main() {
       );
 
       // Act
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
 
       // Assert
       expect(
@@ -179,7 +179,7 @@ void main() {
       );
 
       // Act
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
 
       // Assert
       expect(
@@ -204,7 +204,7 @@ void main() {
       );
 
       // Act
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
 
       // Assert
       // We should have a blank node reference, but we can't check the exact label
@@ -229,7 +229,7 @@ void main() {
       );
 
       // Act
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
 
       // Assert
       expect(
@@ -255,7 +255,7 @@ void main() {
       );
 
       // Act
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
 
       // Assert
       expect(
@@ -305,7 +305,7 @@ void main() {
         final prefixes = {'ex': 'http://example.org/'};
 
         // Act
-        final result = serializer.write(graph, customPrefixes: prefixes);
+        final result = encoder.convert(graph, customPrefixes: prefixes);
 
         // Assert
         expect(result, contains('@prefix ex: <http://example.org/> .'));
@@ -334,7 +334,7 @@ void main() {
       );
 
       // Act
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
 
       // Assert
       // Check for standard Unicode characters (below U+FFFF)
@@ -369,7 +369,7 @@ void main() {
       );
 
       // Act
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
 
       // Assert
       // Use case-insensitive regex to match the escape sequences
@@ -399,7 +399,7 @@ void main() {
       final prefixes = {'': 'http://example.org/default#'};
 
       // Act
-      final result = serializer.write(graph, customPrefixes: prefixes);
+      final result = encoder.convert(graph, customPrefixes: prefixes);
 
       // Assert
       expect(result, contains('@prefix : <http://example.org/default#> .'));
@@ -434,7 +434,7 @@ void main() {
       );
 
       // Act
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
 
       // Assert
       // Check for correct indentation and separators
@@ -469,7 +469,7 @@ void main() {
       );
 
       // Act
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
 
       // Assert
       expect(
@@ -498,7 +498,7 @@ void main() {
       };
 
       // Act
-      final result = serializer.write(graph, customPrefixes: customPrefixes);
+      final result = encoder.convert(graph, customPrefixes: customPrefixes);
 
       // Assert
       expect(result, contains('@prefix book: <http://example.org/book/> .'));
@@ -527,8 +527,8 @@ void main() {
           ],
         );
 
-        final serializer = TurtleSerializer();
-        final result = serializer.write(graph);
+        final serializer = TurtleEncoder();
+        final result = serializer.convert(graph);
 
         expect(
           result,
@@ -559,7 +559,7 @@ void main() {
       };
 
       // Act
-      final result = serializer.write(graph, customPrefixes: customPrefixes);
+      final result = encoder.convert(graph, customPrefixes: customPrefixes);
 
       // Assert
       expect(result, contains('@prefix book: <http://example.org/book/> .'));
@@ -586,7 +586,7 @@ void main() {
       };
 
       // Act
-      final result = serializer.write(graph, customPrefixes: customPrefixes);
+      final result = encoder.convert(graph, customPrefixes: customPrefixes);
 
       // Assert
       expect(result, contains('@prefix ex: <http://example.org/> .'));
@@ -626,7 +626,7 @@ void main() {
         ),
       ]);
 
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
 
       // The blank node should have the same label in all usages
       final matches = RegExp(r'_:b(\d+)').allMatches(result).toList();
@@ -689,7 +689,7 @@ void main() {
       );
 
       // Act
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
 
       // Assert
       // Check for integer serialization (without quotes or datatype)
@@ -786,7 +786,7 @@ void main() {
       ]);
 
       // Act
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
 
       // Assert
       expect(
@@ -890,7 +890,7 @@ void main() {
       ]);
 
       // Act
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
 
       // Assert
       expect(
@@ -914,7 +914,7 @@ void main() {
       ]);
 
       // Act
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
 
       // Assert
       expect(
@@ -989,7 +989,7 @@ void main() {
         ]);
 
         // Act
-        final result = serializer.write(graph);
+        final result = encoder.convert(graph);
 
         // Assert
         expect(
@@ -1074,7 +1074,7 @@ void main() {
       ]);
 
       // Act
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
 
       // Assert
       expect(
@@ -1148,7 +1148,7 @@ void main() {
         ]);
 
         // Act
-        final result = serializer.write(graph);
+        final result = encoder.convert(graph);
 
         // Assert - collection should use the blank node label
         final blankNodeLabelPattern = RegExp(r'\("item1" _:b\d+\)');
@@ -1244,7 +1244,7 @@ void main() {
         ]);
 
         // Act
-        final result = serializer.write(graph);
+        final result = encoder.convert(graph);
 
         // Assert
         expect(
@@ -1305,7 +1305,7 @@ void main() {
       final customPrefixes = {'ex': 'http://example.org/'};
 
       // Act - serialize the graph with the custom prefixes
-      final result = serializer.write(graph, customPrefixes: customPrefixes);
+      final result = encoder.convert(graph, customPrefixes: customPrefixes);
       //print(result);
       // Define the expected Turtle output
       final expected = '''@prefix ex: <http://example.org/> .
@@ -1391,7 +1391,7 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
         ]);
 
         // Act
-        final result = serializer.write(graph);
+        final result = encoder.convert(graph);
 
         // Assert
         // Check the collection is formatted correctly
@@ -1460,7 +1460,7 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
         };
 
         // Act
-        final result = serializer.write(graph, customPrefixes: customPrefixes);
+        final result = encoder.convert(graph, customPrefixes: customPrefixes);
 
         // Assert
         expect(
@@ -1512,7 +1512,7 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
       };
 
       // Act
-      final result = serializer.write(graph, customPrefixes: customPrefixes);
+      final result = encoder.convert(graph, customPrefixes: customPrefixes);
 
       // Assert - should have nested inline blank nodes
       expect(
@@ -1560,7 +1560,7 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
         };
 
         // Act
-        final result = serializer.write(graph, customPrefixes: customPrefixes);
+        final result = encoder.convert(graph, customPrefixes: customPrefixes);
 
         // Assert - should use labeled blank nodes, not inline syntax
         expect(
@@ -1629,7 +1629,7 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
       };
 
       // Act
-      final result = serializer.write(graph, customPrefixes: customPrefixes);
+      final result = encoder.convert(graph, customPrefixes: customPrefixes);
 
       // Assert - should have a collection with an inline blank node
       expect(

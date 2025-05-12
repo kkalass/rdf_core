@@ -2,95 +2,102 @@ import 'package:rdf_core/rdf_core.dart';
 import 'package:test/test.dart';
 
 void main() {
-  late RdfFormatRegistry registry;
-  late RdfCore rdfLib;
+  late RdfCodecRegistry registry;
+  late RdfCore rdf;
 
   setUp(() {
     // Create a fresh registry for each test
-    registry = RdfFormatRegistry();
-    rdfLib = RdfCore.withStandardFormats();
+    registry = RdfCodecRegistry();
+    final _namespaceMappings = const RdfNamespaceMappings();
 
-    // Clear the registry to ensure tests are isolated
+    // Register standard formats
+    registry.registerCodec(TurtleCodec(namespaceMappings: _namespaceMappings));
+    registry.registerCodec(JsonLdCodec(namespaceMappings: _namespaceMappings));
+    registry.registerCodec(const NTriplesCodec());
+
+    rdf = RdfCore(registry: registry);
+  });
+
+  tearDown(() {
+    // Clean up after each test
     registry.clear();
   });
 
+  // Test the RdfCore functionality)
+
   group('RdfCore', () {
-    test('withStandardFormats registers standard formats', () {
-      // The factory constructor should pre-register standard formats
+    test('withStandardCodecs registers standard codecs', () {
+      // The factory constructor should pre-register standard codecs
 
-      // Check that at least the standard formats are registered (Turtle, JSON-LD)
-      final formats = rdfLib.registry.getAllFormats();
-      expect(formats.length, greaterThanOrEqualTo(2));
+      // Check that at least the standard codecs are registered (Turtle, JSON-LD)
+      final codecs = registry.getAllCodecs();
+      expect(codecs.length, greaterThanOrEqualTo(2));
 
-      // Verify we can get a parser for Turtle
-      final turtleParser = rdfLib.getParser(contentType: 'text/turtle');
-      expect(turtleParser, isNotNull);
+      // Verify we can get a decoder for Turtle
+      final turtleDecoder = rdf.codec('text/turtle').decoder;
+      expect(turtleDecoder, isNotNull);
 
-      // Verify we can get a parser for JSON-LD
-      final jsonLdParser = rdfLib.getParser(contentType: 'application/ld+json');
-      expect(jsonLdParser, isNotNull);
+      // Verify we can get a decoder for JSON-LD
+      final jsonLdEncoder = rdf.codec('application/ld+json').encoder;
+      expect(jsonLdEncoder, isNotNull);
     });
 
-    test('registerFormat adds custom format', () {
-      final customFormat = _CustomRdfFormat();
+    test('registerCodec adds custom codec', () {
+      final customCodec = _CustomRdfCodec();
 
-      // Register our custom format
-      rdfLib.registerFormat(customFormat);
+      // Register our custom codec
+      registry.registerCodec(customCodec);
 
-      // Verify we can get a parser for our custom format
-      final customParser = rdfLib.getParser(
-        contentType: 'application/x-custom-rdf',
-      );
-      expect(customParser, isA<_CustomRdfParser>());
+      // Verify we can get a decoder for our custom codec
+      final customDecoder = rdf.codec('application/x-custom-rdf').decoder;
+      expect(customDecoder, isA<_CustomRdfDecoder>());
 
-      // Verify we can get a serializer for our custom format
-      final customSerializer = rdfLib.getSerializer(
-        contentType: 'application/x-custom-rdf',
-      );
-      expect(customSerializer, isA<_CustomRdfSerializer>());
+      // Verify we can get a encoder for our custom codec
+      final customEncoder = rdf.codec('application/x-custom-rdf').encoder;
+      expect(customEncoder, isA<_CustomRdfEncoder>());
     });
 
-    test('parse and serialize with custom format', () {
-      final customFormat = _CustomRdfFormat();
-      rdfLib.registerFormat(customFormat);
+    test('parse and encode with custom codec', () {
+      final customCodec = _CustomRdfCodec();
+      registry.registerCodec(customCodec);
 
-      // Custom format parsing should work
-      final graph = rdfLib.parse(
+      // Custom codec parsing should work
+      final graph = rdf.decode(
         'custom content',
         contentType: 'application/x-custom-rdf',
       );
       expect(graph.size, equals(1));
 
-      // Custom format serialization should work
-      final serialized = rdfLib.serialize(
+      // Custom codec serialization should work
+      final encoded = rdf.encode(
         graph,
         contentType: 'application/x-custom-rdf',
       );
-      expect(serialized, equals('CUSTOM:1 triple(s)'));
+      expect(encoded, equals('CUSTOM:1 triple(s)'));
     });
 
-    test('auto-detection works with custom format', () {
-      // Register our custom format that accepts any input
-      rdfLib.registerFormat(_CustomRdfFormat());
+    test('auto-detection works with custom codec', () {
+      // Register our custom codec that accepts any input
+      registry.registerCodec(_CustomRdfCodec());
 
-      // Custom format should be detected
-      final graph = rdfLib.parse('custom content');
+      // Custom codec should be detected
+      final graph = rdf.decode('custom content');
       expect(graph.size, equals(1));
     });
   });
 }
 
-// Example of a custom format implementation
+// Example of a custom codec implementation
 
-class _CustomRdfFormat implements RdfFormat {
+class _CustomRdfCodec extends RdfCodec {
   @override
   bool canParse(String content) => true; // Accept any content for testing
 
   @override
-  RdfParser createParser() => _CustomRdfParser();
+  RdfDecoder get decoder => _CustomRdfDecoder();
 
   @override
-  RdfSerializer createSerializer() => _CustomRdfSerializer();
+  RdfEncoder get encoder => _CustomRdfEncoder();
 
   @override
   String get primaryMimeType => 'application/x-custom-rdf';
@@ -102,9 +109,9 @@ class _CustomRdfFormat implements RdfFormat {
   };
 }
 
-class _CustomRdfParser implements RdfParser {
+class _CustomRdfDecoder extends RdfDecoder {
   @override
-  RdfGraph parse(String input, {String? documentUrl}) {
+  RdfGraph convert(String input, {String? documentUrl}) {
     // For testing, always create a graph with one triple
     final subject = IriTerm('http://example.org/subject');
     final predicate = IriTerm('http://example.org/predicate');
@@ -114,9 +121,9 @@ class _CustomRdfParser implements RdfParser {
   }
 }
 
-class _CustomRdfSerializer implements RdfSerializer {
+class _CustomRdfEncoder extends RdfEncoder {
   @override
-  String write(
+  String convert(
     RdfGraph graph, {
     String? baseUri,
     Map<String, String> customPrefixes = const {},

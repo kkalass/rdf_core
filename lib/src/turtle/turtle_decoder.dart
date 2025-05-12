@@ -1,15 +1,38 @@
 import 'package:logging/logging.dart';
+import 'package:rdf_core/rdf_core.dart';
 
-import 'package:rdf_core/src/exceptions/exceptions.dart';
-import 'package:rdf_core/src/graph/rdf_term.dart';
-import 'package:rdf_core/src/graph/triple.dart';
-import 'package:rdf_core/src/vocab/namespaces.dart';
 import 'package:rdf_core/src/vocab/rdf.dart';
 
 import 'turtle_tokenizer.dart';
 
 final _log = Logger("rdf.turtle");
 const _format = "Turtle";
+
+/// Decoder for Turtle format
+///
+/// Internal adapter that bridges the RdfDecoder interface to the
+/// implementation-specific TurtleParser.
+class TurtleDecoder extends RdfDecoder {
+  final Set<TurtleParsingFlag> _parsingFlags;
+  final RdfNamespaceMappings _namespaceMappings;
+
+  TurtleDecoder({
+    required Set<TurtleParsingFlag> parsingFlags,
+    required RdfNamespaceMappings namespaceMappings,
+  }) : _namespaceMappings = namespaceMappings,
+       // Pass the parsing flags to the TurtleParser
+       _parsingFlags = parsingFlags;
+  @override
+  RdfGraph convert(String input, {String? documentUrl}) {
+    final parser = TurtleParser(
+      input,
+      baseUri: documentUrl,
+      parsingFlags: _parsingFlags,
+      namespaceMappings: _namespaceMappings,
+    );
+    return RdfGraph.fromTriples(parser.parse());
+  }
+}
 
 /// A parser for Turtle syntax, which is a text-based format for representing RDF data.
 ///
@@ -155,7 +178,7 @@ class TurtleParser {
               cause: e.cause,
               source: sourceLocation,
             );
-          } else if (e is RdfParserException) {
+          } else if (e is RdfDecoderException) {
             throw RdfSyntaxException(
               e.message,
               format: e.format,
@@ -464,7 +487,7 @@ class TurtleParser {
     if (_currentToken.type == TokenType.a) {
       _currentToken = _tokenizer.nextToken();
       // _log.finest('Found "a" keyword, expanded to rdf:type');
-      return RdfPredicates.type;
+      return Rdf.type;
     } else if (_currentToken.type == TokenType.iri) {
       final iriValue = _extractIriValue(_currentToken.value);
       final resolvedIri = _resolveIri(iriValue);
@@ -587,7 +610,7 @@ class TurtleParser {
     // Check for empty collection - return rdf:nil for empty lists
     if (_currentToken.type == TokenType.closeParen) {
       _currentToken = _tokenizer.nextToken();
-      return RdfResources.nil;
+      return Rdf.nil;
     }
 
     // Start the collection
@@ -600,17 +623,17 @@ class TurtleParser {
       final item = _parseObject();
 
       // Add triple for current item (currentNode rdf:first item)
-      _triples.add(Triple(currentNode, RdfPredicates.first, item));
+      _triples.add(Triple(currentNode, Rdf.first, item));
 
       // Check if we've reached the end of the collection
       if (_currentToken.type == TokenType.closeParen) {
         // End the list with rdf:nil
-        _triples.add(Triple(currentNode, RdfPredicates.rest, RdfResources.nil));
+        _triples.add(Triple(currentNode, Rdf.rest, Rdf.nil));
         break;
       } else {
         // Create next node and link current to it
         final nextNode = BlankNodeTerm();
-        _triples.add(Triple(currentNode, RdfPredicates.rest, nextNode));
+        _triples.add(Triple(currentNode, Rdf.rest, nextNode));
         currentNode = nextNode;
       }
     }

@@ -29,9 +29,9 @@ ex:anotherResource ex:hasValue "test"
   print('----------------------------------------\n');
 
   try {
-    final strictRdf = RdfCore.withStandardFormats();
+    final strictRdf = RdfCore.withStandardCodecs();
     // ignore: unused_local_variable
-    final strictGraph = strictRdf.parse(
+    final strictGraph = strictRdf.decode(
       nonStandardTurtle,
       contentType: 'text/turtle',
     );
@@ -46,7 +46,7 @@ ex:anotherResource ex:hasValue "test"
   print('2. Using specific TurtleParsingFlags:\n');
 
   // Create a custom TurtleFormat with specific parsing flags
-  final customFormat = TurtleFormat(
+  final customCodec = TurtleCodec(
     parsingFlags: {
       TurtleParsingFlag.allowIdentifiersWithoutColon,
       TurtleParsingFlag.allowMissingFinalDot,
@@ -54,11 +54,15 @@ ex:anotherResource ex:hasValue "test"
     },
   );
 
+  // We can now use this custom codec either directly with
+  //`customCodec.decode(...)` and `customCodec.encode(...)`, or we register it
+  // with the RDF Core instance to use it based on the content type.
+
   // Create an RDF Core instance with the custom format
-  final customRdf = RdfCore.withFormats(formats: [customFormat]);
+  final customRdf = RdfCore.withCodecs(codecs: [customCodec]);
 
   try {
-    final permissiveGraph = customRdf.parse(
+    final permissiveGraph = customRdf.decode(
       nonStandardTurtle,
       contentType: 'text/turtle',
     );
@@ -78,7 +82,7 @@ ex:anotherResource ex:hasValue "test"
   print('3. Using all permissive flags for maximum compatibility:\n');
 
   // Create a format with all permissive flags
-  final maxPermissiveFormat = TurtleFormat(
+  final maxPermissiveFormat = TurtleCodec(
     parsingFlags: {
       TurtleParsingFlag.allowDigitInLocalName, // Allow numbers in local names
       TurtleParsingFlag
@@ -94,7 +98,7 @@ ex:anotherResource ex:hasValue "test"
     },
   );
 
-  final maxPermissiveRdf = RdfCore.withFormats(formats: [maxPermissiveFormat]);
+  final maxPermissiveRdf = RdfCore.withCodecs(codecs: [maxPermissiveFormat]);
 
   // Even more problematic document with multiple syntax issues
   final veryNonStandardTurtle = '''
@@ -109,7 +113,7 @@ anotherResource ex:hasValue "test"
   print('----------------------------------------\n');
 
   try {
-    final permissiveGraph = maxPermissiveRdf.parse(
+    final permissiveGraph = maxPermissiveRdf.decode(
       veryNonStandardTurtle,
       contentType: 'text/turtle',
       documentUrl: 'http://example.org/test',
@@ -140,17 +144,17 @@ wd:Q42 rdfs:label "Douglas Adams"@en ;
        wdt:P569 "1952-03-11T00:00:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
 ''';
 
-  final wikidataFormat = TurtleFormat(
+  final wikidataFormat = TurtleCodec(
     parsingFlags: {
       TurtleParsingFlag
           .allowDigitInLocalName, // Required for Wikidata's Q42, P31, etc.
     },
   );
 
-  final wikidataRdf = RdfCore.withFormats(formats: [wikidataFormat]);
+  final wikidataRdf = RdfCore.withCodecs(codecs: [wikidataFormat]);
 
   try {
-    final wikidataGraph = wikidataRdf.parse(
+    final wikidataGraph = wikidataRdf.decode(
       wikidataExample,
       contentType: 'text/turtle',
     );

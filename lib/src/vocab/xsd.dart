@@ -21,6 +21,13 @@ import 'package:rdf_core/src/graph/rdf_term.dart';
 /// XSD namespace and datatype constants
 ///
 /// Contains IRIs for XML Schema datatypes commonly used in RDF.
+///
+/// This class provides access to the standard XML Schema datatypes that are used
+/// in RDF for typing literal values. The RDF specification adopts XSD datatypes
+/// as its primary type system for literal values.
+///
+/// These constants are particularly important when creating typed literals in RDF graphs.
+
 class Xsd {
   // coverage:ignore-start
   const Xsd._();
@@ -31,20 +38,6 @@ class Xsd {
   static const String namespace = 'http://www.w3.org/2001/XMLSchema#';
 
   static const String prefix = 'xsd';
-}
-
-/// XML Schema Definition (XSD) datatype constants
-///
-/// This class provides access to the standard XML Schema datatypes that are used
-/// in RDF for typing literal values. The RDF specification adopts XSD datatypes
-/// as its primary type system for literal values.
-///
-/// These constants are particularly important when creating typed literals in RDF graphs.
-class XsdTypes {
-  // coverage:ignore-start
-  // Private constructor prevents instantiation
-  const XsdTypes._();
-  // coverage:ignore-end
 
   /// IRI for xsd:string datatype
   /// [Spec](https://www.w3.org/TR/xmlschema-2/#string)
@@ -112,7 +105,7 @@ class XsdTypes {
   /// Example:
   /// ```dart
   /// // Create an IRI for xsd:gMonth datatype
-  /// final gMonthType = XsdTypes.makeIri("gMonth");
+  /// final gMonthType = Xsd.makeIri("gMonth");
   /// ```
   static IriTerm makeIri(String xsdType) => IriTerm('${Xsd.namespace}$xsdType');
 }

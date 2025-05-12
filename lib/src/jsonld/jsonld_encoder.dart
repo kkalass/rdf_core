@@ -1,6 +1,6 @@
 /// JSON-LD Serializer Implementation
 ///
-/// Implements the [JsonLdSerializer] class to convert RDF graphs to JSON-LD format.
+/// Implements the [JsonLdEncoder] class to convert RDF graphs to JSON-LD format.
 ///
 /// Example usage:
 /// ```dart
@@ -18,14 +18,14 @@ import 'package:logging/logging.dart';
 import 'package:rdf_core/src/graph/rdf_graph.dart';
 import 'package:rdf_core/src/graph/rdf_term.dart';
 import 'package:rdf_core/src/graph/triple.dart';
-import 'package:rdf_core/src/rdf_serializer.dart';
+import 'package:rdf_core/src/rdf_encoder.dart';
 import 'package:rdf_core/src/vocab/namespaces.dart';
 import 'package:rdf_core/src/vocab/rdf.dart';
 import 'package:rdf_core/src/vocab/xsd.dart';
 
 final _log = Logger("rdf.jsonld");
 
-/// Serializer for converting RDF graphs to JSON-LD format.
+/// Encoder for converting RDF graphs to JSON-LD format.
 ///
 /// JSON-LD is a lightweight Linked Data format that is easy for humans to read
 /// and write and easy for machines to parse and generate. This serializer
@@ -38,16 +38,16 @@ final _log = Logger("rdf.jsonld");
 ///
 /// The serializer produces compacted JSON-LD by default, using prefixes
 /// to make property names more readable.
-final class JsonLdSerializer implements RdfSerializer {
+final class JsonLdEncoder extends RdfEncoder {
   /// Well-known common prefixes used for more readable JSON-LD output.
   final RdfNamespaceMappings _namespaceMappings;
 
   /// Creates a new JSON-LD serializer.
-  const JsonLdSerializer({RdfNamespaceMappings? namespaceMappings})
+  const JsonLdEncoder({RdfNamespaceMappings? namespaceMappings})
     : _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings();
 
   @override
-  String write(
+  String convert(
     RdfGraph graph, {
     String? baseUri,
     Map<String, String> customPrefixes = const {},
@@ -198,7 +198,7 @@ final class JsonLdSerializer implements RdfSerializer {
         );
       } else if (triple.object is LiteralTerm) {
         final literal = triple.object as LiteralTerm;
-        if (literal.datatype != XsdTypes.string) {
+        if (literal.datatype != Xsd.string) {
           _checkTermForPrefix(
             literal.datatype,
             iriToPrefixMap,
@@ -273,7 +273,7 @@ final class JsonLdSerializer implements RdfSerializer {
     final typeObjects = <RdfObject>[];
 
     for (final triple in triples) {
-      if (triple.predicate == RdfPredicates.type) {
+      if (triple.predicate == Rdf.type) {
         // Handle rdf:type specially
         typeObjects.add(triple.object);
       } else {
@@ -407,21 +407,21 @@ final class JsonLdSerializer implements RdfSerializer {
     final datatype = literal.datatype;
 
     // String literals (default datatype)
-    if (datatype == XsdTypes.string) {
+    if (datatype == Xsd.string) {
       return value;
     }
 
     // Number literals
-    if (datatype == XsdTypes.integer) {
+    if (datatype == Xsd.integer) {
       return int.tryParse(value) ?? {'@value': value, '@type': datatype.iri};
     }
 
-    if (datatype == XsdTypes.double || datatype == XsdTypes.decimal) {
+    if (datatype == Xsd.double || datatype == Xsd.decimal) {
       return double.tryParse(value) ?? {'@value': value, '@type': datatype.iri};
     }
 
     // Boolean literals
-    if (datatype == XsdTypes.boolean) {
+    if (datatype == Xsd.boolean) {
       if (value == 'true') return true;
       if (value == 'false') return false;
       return {'@value': value, '@type': datatype.iri};

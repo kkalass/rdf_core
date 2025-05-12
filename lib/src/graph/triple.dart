@@ -12,7 +12,7 @@
 /// final triple2 = Triple(bnode, predicate, object);
 ///
 /// // Advanced: literal as object
-/// final literal = LiteralTerm('Alice', datatype: XsdTypes.string);
+/// final literal = LiteralTerm('Alice', datatype: Xsd.string);
 /// final triple3 = Triple(subject, predicate, literal);
 /// ```
 ///

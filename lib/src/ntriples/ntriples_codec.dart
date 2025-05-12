@@ -6,8 +6,8 @@ library ntriples_format;
 
 import 'package:rdf_core/rdf_core.dart';
 
-import 'ntriples_parser.dart';
-import 'ntriples_serializer.dart';
+import 'ntriples_decoder.dart';
+import 'ntriples_encoder.dart';
 
 /// Format definition for the N-Triples RDF serialization format.
 ///
@@ -31,7 +31,7 @@ import 'ntriples_serializer.dart';
 /// <http://example.org/subject> <http://example.org/predicate> "Literal value" .
 /// <http://example.org/subject> <http://example.org/predicate> "Value"@en .
 /// ```
-final class NTriplesFormat implements RdfFormat {
+final class NTriplesCodec extends RdfCodec {
   /// The primary MIME type for N-Triples: application/n-triples
   static const String _primaryMimeType = 'application/n-triples';
 
@@ -42,7 +42,7 @@ final class NTriplesFormat implements RdfFormat {
   static const List<String> fileExtensions = ['.nt'];
 
   /// Creates a new N-Triples format definition
-  const NTriplesFormat();
+  const NTriplesCodec();
 
   @override
   String get primaryMimeType => _primaryMimeType;
@@ -54,10 +54,10 @@ final class NTriplesFormat implements RdfFormat {
   };
 
   @override
-  RdfParser createParser() => NTriplesParser();
+  RdfDecoder get decoder => NTriplesDecoder();
 
   @override
-  RdfSerializer createSerializer() => NTriplesSerializer();
+  RdfEncoder get encoder => NTriplesEncoder();
 
   @override
   bool canParse(String content) {
@@ -94,3 +94,15 @@ final class NTriplesFormat implements RdfFormat {
   @override
   String toString() => 'NTriplesFormat()';
 }
+
+/// Global convenience variable for working with N-Triples format
+///
+/// This variable provides direct access to N-Triples codec for easy
+/// encoding and decoding of N-Triples data.
+///
+/// Example:
+/// ```dart
+/// final graph = ntriples.decode(ntriplesString);
+/// final serialized = ntriples.encode(graph);
+/// ```
+final ntriples = NTriplesCodec();

@@ -1,70 +1,58 @@
-// Tests for the N-Triples serializer implementation
+// Tests for the N-Triples endoder implementation
 
 import 'package:rdf_core/rdf_core.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('NTriplesSerializer', () {
+  group('NTriplesEndoder', () {
     late RdfCore rdf;
 
     setUp(() {
-      rdf = RdfCore.withStandardFormats();
+      rdf = RdfCore.withStandardCodecs();
     });
 
-    test('serializes empty graph', () {
+    test('endodes empty graph', () {
       final graph = RdfGraph();
-      final ntriples = rdf.serialize(
-        graph,
-        contentType: 'application/n-triples',
-      );
+      final ntriples = rdf.encode(graph, contentType: 'application/n-triples');
       expect(ntriples.trim(), isEmpty);
     });
 
-    test('serializes simple IRI triple', () {
+    test('endodes simple IRI triple', () {
       final subject = IriTerm('http://example.org/subject');
       final predicate = IriTerm('http://example.org/predicate');
       final object = IriTerm('http://example.org/object');
       final triple = Triple(subject, predicate, object);
       final graph = RdfGraph.fromTriples([triple]);
 
-      final ntriples = rdf.serialize(
-        graph,
-        contentType: 'application/n-triples',
-      );
+      final ntriples = rdf.encode(graph, contentType: 'application/n-triples');
       expect(ntriples, contains('<http://example.org/subject>'));
       expect(ntriples, contains('<http://example.org/predicate>'));
       expect(ntriples, contains('<http://example.org/object>'));
       expect(ntriples, contains('.'));
     });
 
-    test('serializes triple with blank nodes', () {
+    test('endodes triple with blank nodes', () {
       final subject = BlankNodeTerm();
       final predicate = IriTerm('http://example.org/predicate');
       final object = BlankNodeTerm();
       final triple = Triple(subject, predicate, object);
       final graph = RdfGraph.fromTriples([triple]);
 
-      final ntriples = rdf.serialize(
-        graph,
-        contentType: 'application/n-triples',
-      );
+      final ntriples = rdf.encode(graph, contentType: 'application/n-triples');
       expect(
         ntriples,
         matches(r'_:b\d+ <http://example\.org/predicate> _:b\d+ \.\n'),
       );
     });
 
-    test('serializes triple with simple literal', () {
+    test('endodes triple with simple literal', () {
       final subject = IriTerm('http://example.org/subject');
       final predicate = IriTerm('http://example.org/predicate');
       final object = LiteralTerm.string('Simple literal');
       final triple = Triple(subject, predicate, object);
       final graph = RdfGraph.fromTriples([triple]);
 
-      final ntriples = rdf.serialize(
-        graph,
-        contentType: 'application/n-triples',
-      );
+      final ntriples = rdf.encode(graph, contentType: 'application/n-triples');
       expect(
         ntriples,
         contains(
@@ -73,17 +61,14 @@ void main() {
       );
     });
 
-    test('serializes triple with language-tagged literal', () {
+    test('endodes triple with language-tagged literal', () {
       final subject = IriTerm('http://example.org/subject');
       final predicate = IriTerm('http://example.org/predicate');
       final object = LiteralTerm.withLanguage('English text', 'en');
       final triple = Triple(subject, predicate, object);
       final graph = RdfGraph.fromTriples([triple]);
 
-      final ntriples = rdf.serialize(
-        graph,
-        contentType: 'application/n-triples',
-      );
+      final ntriples = rdf.encode(graph, contentType: 'application/n-triples');
       expect(
         ntriples,
         contains(
@@ -92,7 +77,7 @@ void main() {
       );
     });
 
-    test('serializes triple with datatyped literal', () {
+    test('endodes triple with datatyped literal', () {
       final subject = IriTerm('http://example.org/subject');
       final predicate = IriTerm('http://example.org/predicate');
       // Create a typed literal using the correct term constructor
@@ -103,10 +88,7 @@ void main() {
       final triple = Triple(subject, predicate, object);
       final graph = RdfGraph.fromTriples([triple]);
 
-      final ntriples = rdf.serialize(
-        graph,
-        contentType: 'application/n-triples',
-      );
+      final ntriples = rdf.encode(graph, contentType: 'application/n-triples');
       expect(
         ntriples,
         contains(
@@ -126,10 +108,7 @@ void main() {
       final triple = Triple(subject, predicate, object);
       final graph = RdfGraph.fromTriples([triple]);
 
-      final ntriples = rdf.serialize(
-        graph,
-        contentType: 'application/n-triples',
-      );
+      final ntriples = rdf.encode(graph, contentType: 'application/n-triples');
       expect(
         ntriples,
         contains(
@@ -146,10 +125,7 @@ void main() {
       final triple = Triple(subject, predicate, object);
       final graph = RdfGraph.fromTriples([triple]);
 
-      final ntriples = rdf.serialize(
-        graph,
-        contentType: 'application/n-triples',
-      );
+      final ntriples = rdf.encode(graph, contentType: 'application/n-triples');
       expect(
         ntriples,
         contains(
@@ -158,7 +134,7 @@ void main() {
       );
     });
 
-    test('serializes multiple triples', () {
+    test('endodes multiple triples', () {
       final subject1 = IriTerm('http://example.org/subject1');
       final predicate1 = IriTerm('http://example.org/predicate1');
       final object1 = IriTerm('http://example.org/object1');
@@ -172,10 +148,7 @@ void main() {
         Triple(subject2, predicate2, object2),
       ]);
 
-      final ntriples = rdf.serialize(
-        graph,
-        contentType: 'application/n-triples',
-      );
+      final ntriples = rdf.encode(graph, contentType: 'application/n-triples');
       expect(
         ntriples,
         contains(
@@ -198,39 +171,39 @@ void main() {
 <http://example.org/subject4> <http://example.org/predicate4> "42"^^<http://www.w3.org/2001/XMLSchema#integer> .
 ''';
 
-      // Parse the original N-Triples
-      final graph = rdf.parse(
+      // Decode the original N-Triples
+      final graph = rdf.decode(
         originalNTriples,
         contentType: 'application/n-triples',
       );
 
-      // Serialize back to N-Triples
-      final serializedNTriples = rdf.serialize(
+      // Endode back to N-Triples
+      final endodedNTriples = rdf.encode(
         graph,
         contentType: 'application/n-triples',
       );
 
-      // Parse the serialized result again
-      final reparsedGraph = rdf.parse(
-        serializedNTriples,
+      // Decode the endoded result again
+      final redecodedGraph = rdf.decode(
+        endodedNTriples,
         contentType: 'application/n-triples',
       );
 
       // The number of triples should be the same
-      expect(reparsedGraph.triples.length, equals(graph.triples.length));
+      expect(redecodedGraph.triples.length, equals(graph.triples.length));
 
       // Check for IRI subjects, typed literals, and language-tagged literals
       final iriSubjectCount =
           graph.triples.where((t) => t.subject is IriTerm).length;
-      final reparsedIriSubjectCount =
-          reparsedGraph.triples.where((t) => t.subject is IriTerm).length;
-      expect(iriSubjectCount, equals(reparsedIriSubjectCount));
+      final redecodedIriSubjectCount =
+          redecodedGraph.triples.where((t) => t.subject is IriTerm).length;
+      expect(iriSubjectCount, equals(redecodedIriSubjectCount));
 
       final literalObjectCount =
           graph.triples.where((t) => t.object is LiteralTerm).length;
-      final reparsedLiteralObjectCount =
-          reparsedGraph.triples.where((t) => t.object is LiteralTerm).length;
-      expect(literalObjectCount, equals(reparsedLiteralObjectCount));
+      final redecodedLiteralObjectCount =
+          redecodedGraph.triples.where((t) => t.object is LiteralTerm).length;
+      expect(literalObjectCount, equals(redecodedLiteralObjectCount));
 
       // Check for language-tagged literals
       final langLiteralCount =
@@ -241,15 +214,15 @@ void main() {
                     (t.object as LiteralTerm).language != null,
               )
               .length;
-      final reparsedLangLiteralCount =
-          reparsedGraph.triples
+      final redecodedLangLiteralCount =
+          redecodedGraph.triples
               .where(
                 (t) =>
                     t.object is LiteralTerm &&
                     (t.object as LiteralTerm).language != null,
               )
               .length;
-      expect(langLiteralCount, equals(reparsedLangLiteralCount));
+      expect(langLiteralCount, equals(redecodedLangLiteralCount));
     });
   });
 }

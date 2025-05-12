@@ -9,28 +9,28 @@ import 'package:logging/logging.dart';
 import '../graph/rdf_graph.dart';
 import '../graph/rdf_term.dart';
 import '../graph/triple.dart';
-import '../rdf_serializer.dart';
+import '../rdf_encoder.dart';
 import '../vocab/xsd.dart';
 
-/// Serializer for the N-Triples format.
+/// Encoder for the N-Triples format.
 ///
-/// This class implements the RdfSerializer interface to convert RDF graphs into
+/// This class extends the RdfEncoder abstract class to convert RDF graphs into
 /// the N-Triples serialization format. N-Triples is a line-based format where
 /// each line represents a single triple, making it very simple to parse and generate.
 ///
-/// The serializer creates one line for each triple in the form:
+/// The encoder creates one line for each triple in the form:
 /// `<subject> <predicate> <object> .`
 ///
 /// N-Triples is fully compatible with the RDF 1.1 N-Triples specification
 /// (https://www.w3.org/TR/n-triples/).
-final class NTriplesSerializer implements RdfSerializer {
+final class NTriplesEncoder extends RdfEncoder {
   final _logger = Logger('rdf.ntriples.serializer');
 
   /// Creates a new N-Triples serializer
-  NTriplesSerializer();
+  NTriplesEncoder();
 
   @override
-  String write(
+  String convert(
     RdfGraph graph, {
     String? baseUri,
     Map<String, String> customPrefixes = const {},
@@ -73,7 +73,7 @@ final class NTriplesSerializer implements RdfSerializer {
 
       if (term.language != null && term.language!.isNotEmpty) {
         buffer.write('@${term.language}');
-      } else if (term.datatype.iri != XsdTypes.string.iri) {
+      } else if (term.datatype.iri != Xsd.string.iri) {
         // Only output datatype if it's not xsd:string (implied default in N-Triples)
         buffer.write('^^<${_escapeIri(term.datatype.iri)}>');
       }

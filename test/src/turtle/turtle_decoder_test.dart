@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
 import 'package:rdf_core/src/exceptions/exceptions.dart';
 import 'package:rdf_core/src/graph/rdf_term.dart';
-import 'package:rdf_core/src/turtle/turtle_parser.dart';
+import 'package:rdf_core/src/turtle/turtle_decoder.dart';
 import 'package:rdf_core/src/turtle/turtle_tokenizer.dart';
 
 void main() {

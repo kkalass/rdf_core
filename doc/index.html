@@ -81,6 +81,7 @@ nav a:hover, nav a:focus {
       <a href="#features">Features</a>
       <a href="#quickstart">Quick Start</a>
       <a href="#advanced">Advanced</a>
+      <a href="#api-overview">API Overview</a>
       <a href="api/">API Docs</a>
       <a href="https://pub.dev/packages/rdf_core">pub.dev</a>
       <a href="https://github.com/kkalass/rdf_core">GitHub</a>
@@ -112,6 +113,7 @@ nav a:hover, nav a:focus {
     <h2>🚀 Quick Start</h2>
     <pre><code class="language-dart">import 'package:rdf_core/rdf_core.dart';
 
+// Create a graph manually
 final graph = RdfGraph(triples: [
   Triple(
     IriTerm('https://example.org/subject'),
@@ -119,6 +121,16 @@ final graph = RdfGraph(triples: [
     LiteralTerm.string('Hello, World!'),
   ),
 ]);
+
+// Use global convenience variables
+final turtleData = '@prefix ex: <http://example.org/> . ex:subject ex:predicate "Hello, World!" .';
+final graphFromTurtle = turtle.decode(turtleData);
+
+final jsonLdData = '{"@id": "http://example.org/subject", "http://example.org/predicate": "Hello, World!"}';
+final graphFromJsonLd = jsonld.decode(jsonLdData);
+
+// Or use the pre-configured RdfCore instance
+final rdfGraph = rdf.decode(turtleData, contentType: 'text/turtle');
 </code></pre>
     <div class="links">
       <a href="api/">Full API Docs</a>
@@ -128,9 +140,8 @@ final graph = RdfGraph(triples: [
   </section>
 
   <section class="advanced" id="advanced">
-    <h2>💡 Parse and Serialize</h2>
-    <pre><code class="language-dart">// Parse and serialize Turtle
-final rdf = RdfCore.withStandardFormats();
+    <h2>💡 Decode and Encode</h2>
+    <pre><code class="language-dart">// Decode and encode Turtle using the global convenience variable
 final doc = '''
   @prefix ex: <http://example.org/> .
   @prefix foaf: <http://xmlns.com/foaf/0.1/> .
@@ -139,17 +150,22 @@ final doc = '''
     foaf:name "Alice" .
   ex:bob foaf:name "Bob" .
 ''';
-final parsed = rdf.parse(doc);
-final turtle = rdf.serialize(parsed);
+final parsed = turtle.decode(doc);
+final serialized = turtle.encode(parsed);
 
-// Outputs nearly the same as doc, but we did not provide customPrefixes for the serializer so this time we get the full IRIs for example.com.
+// Alternatively, use the pre-configured RdfCore instance
+final rdf = RdfCore.withStandardCodecs();
+final parsed2 = rdf.decode(doc, contentType: 'text/turtle');
+final serialized2 = rdf.encode(parsed2, contentType: 'text/turtle');
+
+// Outputs nearly the same as doc, but we did not provide customPrefixes for the encoder so this time we get the full IRIs for example.com.
 // Note that well known prefixes like foaf: are used automatically.
 // If we wanted exactly the same, we would have to call it like this:
-// final turtle = rdf.serialize(parsed, customPrefixes: {'ex': 'http://example.org/'} );
-print(turtle); 
+// final serialized = turtle.encode(parsed, customPrefixes: {'ex': 'http://example.org/'} );
+print(serialized); 
 </code></pre>
     <div class="links">
-      <a href="api/rdf/index.html">RdfCore API</a>
+      <a href="api/rdf/RdfCodec-class.html">RdfCodec API</a>
 
 </div>
   </section>
@@ -158,11 +174,11 @@ print(turtle);
 
   <section class="advanced" id="non-standard-parsing">
     <h2>🔧 Non-Standard Turtle RDF Support</h2>
-    <pre><code class="language-dart">// Parse documents with non-standard Turtle syntax
+    <pre><code class="language-dart">// Decode documents with non-standard Turtle syntax
 import 'package:rdf_core/rdf_core.dart';
 
-// Configure a TurtleFormat with specific parsing flags
-final turtleFormat = TurtleFormat(
+// Configure a TurtleCodec with specific parsing flags
+final turtleCodec = TurtleCodec(
   parsingFlags: {
     TurtleParsingFlag.allowDigitInLocalName,
     TurtleParsingFlag.allowMissingDotAfterPrefix,
@@ -172,19 +188,19 @@ final turtleFormat = TurtleFormat(
   }
 );
 
-// Create an RDF Core instance with the custom format
-final rdf = RdfCore.withFormats(formats: [turtleFormat]);
+// Create an RDF Core instance with the custom codec
+final rdf = RdfCore.withCodecs(codecs: [turtleCodec]);
 
-// Parse a non-standard document that would fail with strict parsing
+// Decode a non-standard document that would fail with strict parsing
 final nonStandardTurtle = '''
   @prefix ex: <http://example.org/> // Missing dot after prefix declaration
   ex:resource123 a ex:Type . // Digit in local name (123)
 ''';
 
-final graph = rdf.parse(nonStandardTurtle, contentType: 'text/turtle');
+final graph = rdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 </code></pre>
     <div class="links">
-      <a href="api/turtle_tokenizer/TurtleParsingFlag-class.html">TurtleParsingFlag API</a>
+      <a href="api/turtle_format/TurtleCodec-class.html">TurtleCodec API</a>
       <a href="https://github.com/kkalass/rdf_core/tree/main/example/turtle_parser_flags">More Examples</a>
     </div>
   </section>
@@ -192,38 +208,42 @@ final graph = rdf.parse(nonStandardTurtle, contentType: 'text/turtle');
  
   <section class="advanced" id="n-triples">
     <h2>🔄 N-Triples Format</h2>
-    <pre><code class="language-dart">// Parse and serialize N-Triples
-final rdf = RdfCore.withStandardFormats();
+    <pre><code class="language-dart">// Decode and encode N-Triples using the global convenience variable
 final ntriplesDoc = '''
   <http://example.org/alice> <http://xmlns.com/foaf/0.1/name> "Alice"@en .
   <http://example.org/alice> <http://xmlns.com/foaf/0.1/knows> <http://example.org/bob> .
   <http://example.org/bob> <http://xmlns.com/foaf/0.1/name> "Bob" .
 ''';
 
-// Parse N-Triples explicitly by content type
-final graph = rdf.parse(ntriplesDoc, contentType: 'application/n-triples');
+// Option 1: Use the global convenience variable
+final graph = ntriples.decode(ntriplesDoc);
+final encodedNTriples = ntriples.encode(graph);
+
+// Option 2: Use the pre-configured RdfCore instance
+final rdf = RdfCore.withStandardCodecs();
+// Decode N-Triples explicitly by content type
+final graph2 = rdf.decode(ntriplesDoc, contentType: 'application/n-triples');
 
 // Or let the library auto-detect the format
-final autoDetected = rdf.parse(ntriplesDoc);
+final autoDetected = rdf.decode(ntriplesDoc);
 
-// Serialize to N-Triples
-final ntriples = rdf.serialize(graph, contentType: 'application/n-triples');
-print(ntriples);
+// Encode to N-Triples
+final encodedNTriples2 = rdf.encode(graph2, contentType: 'application/n-triples');
+print(encodedNTriples2);
 
-// Convert between formats - parse N-Triples and serialize to Turtle
-final turtle = rdf.serialize(graph, contentType: 'text/turtle');
-print(turtle);
+// Convert between formats - decode N-Triples and encode to Turtle
+final encodedTurtle = rdf.encode(graph2, contentType: 'text/turtle');
+print(encodedTurtle);
 </code></pre>
     <div class="links">
-      <a href="api/ntriples_format/NTriplesFormat-class.html">NTriplesFormat API</a>
+      <a href="api/ntriples_format/NTriplesCodec-class.html">NTriplesCodec API</a>
       <a href="https://www.w3.org/TR/n-triples/">N-Triples Specification</a>
     </div>
   </section>
   
   <section class="advanced" id="json-ld">
     <h2>📊 JSON-LD Format</h2>
-    <pre><code class="language-dart">// Parse and serialize JSON-LD
-final rdf = RdfCore.withStandardFormats();
+    <pre><code class="language-dart">// Decode and encode JSON-LD using the global convenience variable
 final jsonLdDoc = '''
 {
   "@context": {
@@ -247,21 +267,85 @@ final jsonLdDoc = '''
 }
 ''';
 
-// Parse JSON-LD by content type
-final graph = rdf.parse(jsonLdDoc, contentType: 'application/ld+json');
+// Option 1: Use the global convenience variable
+final graph = jsonld.decode(jsonLdDoc);
+final encodedJsonLd = jsonld.encode(graph);
 
-// Serialize back to JSON-LD
-final jsonLd = rdf.serialize(graph, contentType: 'application/ld+json');
-print(jsonLd);
+// Option 2: Use the pre-configured RdfCore instance
+final rdf = RdfCore.withStandardCodecs();
+// Decode JSON-LD by content type
+final graph2 = rdf.decode(jsonLdDoc, contentType: 'application/ld+json');
 
-// Convert between formats - parse JSON-LD and serialize to Turtle
-final turtle = rdf.serialize(graph, contentType: 'text/turtle');
-print(turtle);
+// Encode back to JSON-LD
+final encodedJsonLd2 = rdf.encode(graph2, contentType: 'application/ld+json');
+print(encodedJsonLd2);
+
+// Convert between formats - decode JSON-LD and encode to Turtle
+final encodedTurtle = rdf.encode(graph2, contentType: 'text/turtle');
+print(encodedTurtle);
 </code></pre>
     <div class="links">
-      <a href="api/jsonld_format/JsonLdFormat-class.html">JsonLdFormat API</a>
+      <a href="api/jsonld_format/JsonLdCodec-class.html">JsonLdCodec API</a>
       <a href="https://www.w3.org/TR/json-ld11/">JSON-LD 1.1 Specification</a>
     </div>
+  </section>
+  
+  <section class="advanced" id="api-overview">
+    <h2>🗺️ API Overview</h2>
+    <table style="width:100%; border-collapse: collapse;">
+      <tr>
+        <th style="text-align:left; padding:8px; border-bottom:1px solid #ddd;">Type</th>
+        <th style="text-align:left; padding:8px; border-bottom:1px solid #ddd;">Description</th>
+      </tr>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><code>IriTerm</code></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">Represents an IRI (Internationalized Resource Identifier)</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><code>LiteralTerm</code></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">Represents an RDF literal value</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><code>BlankNodeTerm</code></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">Represents a blank node</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><code>Triple</code></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">Atomic RDF statement (subject, predicate, object)</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><code>RdfGraph</code></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">Collection of RDF triples</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><code>RdfCodec</code></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">Base class for decoding/encoding RDF in various formats</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><code>RdfDecoder</code></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">Base class for decoding RDF</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><code>RdfEncoder</code></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">Base class for encoding RDF</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><code>turtle</code></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">Global convenience variable for Turtle format</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><code>jsonld</code></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">Global convenience variable for JSON-LD format</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><code>ntriples</code></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">Global convenience variable for N-Triples format</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><code>rdf</code></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">Global RdfCore instance with standard codecs</td>
+      </tr>
+    </table>
   </section>
   
   <footer>

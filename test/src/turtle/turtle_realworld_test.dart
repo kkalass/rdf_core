@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:path/path.dart' as path;
 import 'package:rdf_core/rdf_core.dart';
-import 'package:rdf_core/src/turtle/turtle_parser.dart';
+import 'package:rdf_core/src/turtle/turtle_decoder.dart';
 import 'package:rdf_core/src/vocab/xsd.dart';
 import 'package:test/test.dart';
 
@@ -90,7 +90,7 @@ void main() {
       deprecated.forEach((triple) {
         expect(triple.object, isA<LiteralTerm>());
         var literal = (triple.object as LiteralTerm);
-        expect(literal.datatype, equals(XsdTypes.boolean));
+        expect(literal.datatype, equals(Xsd.boolean));
         expect(literal.value, equals("true"));
       });
       expect(deprecated.length, equals(24));

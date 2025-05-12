@@ -192,62 +192,62 @@ void main() {
 
   group('LiteralTerm', () {
     test('constructs with datatype', () {
-      final literal = LiteralTerm('42', datatype: XsdTypes.integer);
+      final literal = LiteralTerm('42', datatype: Xsd.integer);
       expect(literal.value, equals('42'));
-      expect(literal.datatype, equals(XsdTypes.integer));
+      expect(literal.datatype, equals(Xsd.integer));
       expect(literal.language, isNull);
     });
 
     test('constructs with language tag', () {
       final literal = LiteralTerm(
         'hello',
-        datatype: RdfTypes.langString,
+        datatype: Rdf.langString,
         language: 'en',
       );
       expect(literal.value, equals('hello'));
-      expect(literal.datatype, equals(RdfTypes.langString));
+      expect(literal.datatype, equals(Rdf.langString));
       expect(literal.language, equals('en'));
     });
 
     test('typed factory creates correct datatype', () {
       final literal = LiteralTerm.typed('42', 'integer');
       expect(literal.value, equals('42'));
-      expect(literal.datatype, equals(XsdTypes.integer));
+      expect(literal.datatype, equals(Xsd.integer));
       expect(literal.language, isNull);
     });
 
     test('string factory creates xsd:string literal', () {
       final literal = LiteralTerm.string('hello');
       expect(literal.value, equals('hello'));
-      expect(literal.datatype, equals(XsdTypes.string));
+      expect(literal.datatype, equals(Xsd.string));
       expect(literal.language, isNull);
     });
 
     test('withLanguage factory creates language-tagged literal', () {
       final literal = LiteralTerm.withLanguage('hello', 'en');
       expect(literal.value, equals('hello'));
-      expect(literal.datatype, equals(RdfTypes.langString));
+      expect(literal.datatype, equals(Rdf.langString));
       expect(literal.language, equals('en'));
     });
 
     test('integer factory creates xsd:integer literal', () {
       final literal = LiteralTerm.integer(42);
       expect(literal.value, equals('42'));
-      expect(literal.datatype, equals(XsdTypes.integer));
+      expect(literal.datatype, equals(Xsd.integer));
       expect(literal.language, isNull);
     });
 
     test('decimal factory creates xsd:decimal literal', () {
       final literal = LiteralTerm.decimal(3.14);
       expect(literal.value, equals('3.14'));
-      expect(literal.datatype, equals(XsdTypes.decimal));
+      expect(literal.datatype, equals(Xsd.decimal));
       expect(literal.language, isNull);
     });
 
     test('boolean factory creates xsd:boolean literal', () {
       final literal = LiteralTerm.boolean(true);
       expect(literal.value, equals('true'));
-      expect(literal.datatype, equals(XsdTypes.boolean));
+      expect(literal.datatype, equals(Xsd.boolean));
       expect(literal.language, isNull);
     });
 
@@ -286,7 +286,7 @@ void main() {
       'throws assertion error when language tag is used without rdf:langString',
       () {
         expect(
-          () => LiteralTerm('hello', datatype: XsdTypes.string, language: 'en'),
+          () => LiteralTerm('hello', datatype: Xsd.string, language: 'en'),
           throwsA(isA<AssertionError>()),
         );
       },
@@ -296,7 +296,7 @@ void main() {
       'throws assertion error when rdf:langString is used without language tag',
       () {
         expect(
-          () => LiteralTerm('hello', datatype: RdfTypes.langString),
+          () => LiteralTerm('hello', datatype: Rdf.langString),
           throwsA(isA<AssertionError>()),
         );
       },

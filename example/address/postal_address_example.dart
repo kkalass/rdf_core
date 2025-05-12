@@ -14,12 +14,11 @@ void main() {
   printGraph(graph);
 
   // Serialize to Turtle format for a nicer view
-  final rdfCore = RdfCore.withStandardFormats();
-  final turtle = rdfCore
-      .getSerializer(contentType: 'text/turtle')
-      .write(graph, customPrefixes: {'ex': 'http://example.org/'});
 
-  print('\nTurtle serialization:\n$turtle');
+  final turtleStr = turtle // or use: rdf.codec('text/turtle')
+      .encode(graph, customPrefixes: {'ex': 'http://example.org/'});
+
+  print('\nTurtle serialization:\n$turtleStr');
 
   // Extract and print the address information
   final organization = IriTerm('http://example.org/acme');
@@ -30,9 +29,8 @@ void main() {
 
   // Print the updated graph
   print('\nUpdated Graph with Branch Office:');
-  final updatedTurtle = rdfCore
-      .getSerializer(contentType: 'text/turtle')
-      .write(updatedGraph, customPrefixes: {'ex': 'http://example.org/'});
+  final updatedTurtle = turtle // or use: rdf.codec('text/turtle')
+      .encode(updatedGraph, customPrefixes: {'ex': 'http://example.org/'});
 
   print('\n$updatedTurtle');
 }

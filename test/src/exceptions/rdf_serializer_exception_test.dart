@@ -1,16 +1,16 @@
 import 'package:rdf_core/src/exceptions/rdf_exception.dart';
-import 'package:rdf_core/src/exceptions/rdf_serializer_exception.dart';
+import 'package:rdf_core/src/exceptions/rdf_encoder_exception.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('RdfSerializerException', () {
+  group('RdfEncoderException', () {
     test('constructor initializes properties correctly', () {
-      const message = 'Serializer error';
+      const message = 'Encoder error';
       const format = 'Turtle';
       final cause = Exception('IO error');
       final source = SourceLocation(line: 5, column: 10, source: 'graph node');
 
-      final exception = RdfSerializerException(
+      final exception = RdfEncoderException(
         message,
         format: format,
         cause: cause,
@@ -24,37 +24,32 @@ void main() {
     });
 
     test('toString formats message correctly', () {
-      const exception = RdfSerializerException(
-        'Serializer error',
-        format: 'Turtle',
-      );
+      const exception = RdfEncoderException('Encoder error', format: 'Turtle');
 
       expect(
         exception.toString(),
-        equals('RdfSerializerException(Turtle): Serializer error'),
+        equals('RdfEncoderException(Turtle): Encoder error'),
       );
     });
 
     test('toString includes source when available', () {
       final source = SourceLocation(line: 5, column: 10, source: 'graph node');
-      final exception = RdfSerializerException(
-        'Serializer error',
+      final exception = RdfEncoderException(
+        'Encoder error',
         format: 'Turtle',
         source: source,
       );
 
       expect(
         exception.toString(),
-        equals(
-          'RdfSerializerException(Turtle): Serializer error at graph node:6:11',
-        ),
+        equals('RdfEncoderException(Turtle): Encoder error at graph node:6:11'),
       );
     });
 
     test('toString includes cause when available', () {
       final cause = Exception('IO error');
-      final exception = RdfSerializerException(
-        'Serializer error',
+      final exception = RdfEncoderException(
+        'Encoder error',
         format: 'Turtle',
         cause: cause,
       );
@@ -62,20 +57,20 @@ void main() {
       expect(
         exception.toString(),
         equals(
-          'RdfSerializerException(Turtle): Serializer error\nCaused by: Exception: IO error',
+          'RdfEncoderException(Turtle): Encoder error\nCaused by: Exception: IO error',
         ),
       );
     });
   });
 
-  group('RdfUnsupportedSerializationFeatureException', () {
+  group('RdfUnsupportedEncoderFeatureException', () {
     test('constructor initializes properties correctly', () {
-      const message = 'Feature cannot be serialized';
+      const message = 'Feature cannot be encoded';
       const feature = 'Named graphs';
       const format = 'Turtle';
       final cause = Exception('Not supported');
 
-      final exception = RdfUnsupportedSerializationFeatureException(
+      final exception = RdfUnsupportedEncoderFeatureException(
         message,
         feature: feature,
         format: format,
@@ -89,8 +84,8 @@ void main() {
     });
 
     test('toString formats message correctly', () {
-      const exception = RdfUnsupportedSerializationFeatureException(
-        'Feature cannot be serialized',
+      const exception = RdfUnsupportedEncoderFeatureException(
+        'Feature cannot be encoded',
         feature: 'Named graphs',
         format: 'Turtle',
       );
@@ -98,7 +93,7 @@ void main() {
       expect(
         exception.toString(),
         equals(
-          'RdfUnsupportedSerializationFeatureException(Turtle): Named graphs - Feature cannot be serialized',
+          'RdfUnsupportedEncoderFeatureException(Turtle): Named graphs - Feature cannot be encoded',
         ),
       );
     });
@@ -106,8 +101,8 @@ void main() {
     test('toString includes all components when available', () {
       final cause = Exception('Format limitation');
       final source = SourceLocation(line: 5, column: 10, source: 'graph node');
-      final exception = RdfUnsupportedSerializationFeatureException(
-        'Feature cannot be serialized',
+      final exception = RdfUnsupportedEncoderFeatureException(
+        'Feature cannot be encoded',
         feature: 'Named graphs',
         format: 'Turtle',
         cause: cause,
@@ -117,7 +112,7 @@ void main() {
       expect(
         exception.toString(),
         equals(
-          'RdfUnsupportedSerializationFeatureException(Turtle): Named graphs - Feature cannot be serialized at graph node:6:11\nCaused by: Exception: Format limitation',
+          'RdfUnsupportedEncoderFeatureException(Turtle): Named graphs - Feature cannot be encoded at graph node:6:11\nCaused by: Exception: Format limitation',
         ),
       );
     });

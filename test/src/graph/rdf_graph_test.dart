@@ -2,13 +2,13 @@ import 'package:test/test.dart';
 import 'package:rdf_core/src/graph/rdf_graph.dart';
 import 'package:rdf_core/src/graph/rdf_term.dart';
 import 'package:rdf_core/src/graph/triple.dart';
-import 'package:rdf_core/src/turtle/turtle_serializer.dart';
+import 'package:rdf_core/src/turtle/turtle_encoder.dart';
 
 void main() {
   group('RdfGraph', () {
     test('langTerm', () {
       final langTerm = LiteralTerm.withLanguage('Hello', 'en');
-      expect(TurtleSerializer().writeTerm(langTerm), equals('"Hello"@en'));
+      expect(TurtleEncoder().writeTerm(langTerm), equals('"Hello"@en'));
     });
 
     test('illegal langTerm', () {
@@ -36,7 +36,7 @@ void main() {
         datatype: IriTerm("$baseIri$type"),
         language: 'en',
       );
-      expect(TurtleSerializer().writeTerm(langTerm), equals('"Hello"@en'));
+      expect(TurtleEncoder().writeTerm(langTerm), equals('"Hello"@en'));
     });
 
     // Tests for the new immutable RdfGraph implementation

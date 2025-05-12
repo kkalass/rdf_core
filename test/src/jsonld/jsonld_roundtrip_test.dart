@@ -1,6 +1,6 @@
 import 'package:rdf_core/rdf_core.dart';
-import 'package:rdf_core/src/jsonld/jsonld_parser.dart';
-import 'package:rdf_core/src/jsonld/jsonld_serializer.dart';
+import 'package:rdf_core/src/jsonld/jsonld_decoder.dart';
+import 'package:rdf_core/src/jsonld/jsonld_encoder.dart';
 import 'package:rdf_core/src/vocab/rdf.dart';
 import 'package:test/test.dart';
 
@@ -14,7 +14,7 @@ void main() {
           triples: [
             Triple(
               IriTerm('http://example.org/person/alice'),
-              RdfPredicates.type,
+              Rdf.type,
               IriTerm('http://xmlns.com/foaf/0.1/Person'),
             ),
             Triple(
@@ -26,8 +26,8 @@ void main() {
         );
 
         // Perform roundtrip
-        final serializer = JsonLdSerializer();
-        final jsonLdOutput = serializer.write(graph);
+        final encoder = JsonLdEncoder();
+        final jsonLdOutput = encoder.convert(graph);
 
         final parser = JsonLdParser(jsonLdOutput);
         final roundtripTriples = parser.parse();
@@ -63,7 +63,7 @@ void main() {
             // Add person with various property types
             Triple(
               IriTerm('http://example.org/person/john'),
-              RdfPredicates.type,
+              Rdf.type,
               IriTerm('http://xmlns.com/foaf/0.1/Person'),
             ),
             Triple(
@@ -118,7 +118,7 @@ void main() {
           ),
           Triple(
             addressNode,
-            RdfPredicates.type,
+            Rdf.type,
             IriTerm('http://schema.org/PostalAddress'),
           ),
           Triple(
@@ -134,8 +134,8 @@ void main() {
         ]);
 
         // Perform roundtrip conversion
-        final serializer = JsonLdSerializer();
-        final jsonLdOutput = serializer.write(
+        final encoder = JsonLdEncoder();
+        final jsonLdOutput = encoder.convert(
           graph,
           customPrefixes: {
             'foaf': 'http://xmlns.com/foaf/0.1/',

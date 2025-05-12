@@ -11,7 +11,7 @@
 /// final bnode = BlankNodeTerm();
 ///
 /// // Advanced: create a literal
-/// final literal = LiteralTerm('42', datatype: XsdTypes.int);
+/// final literal = LiteralTerm('42', datatype: Xsd.int);
 ///
 /// // Type checking
 /// if (term is IriTerm) print('It is an IRI!');
@@ -199,7 +199,7 @@ class LiteralTerm extends RdfObject {
   /// This constructor enforces those constraints with an assertion.
   const LiteralTerm(this.value, {required this.datatype, this.language})
     : assert(
-        (language == null) != (datatype == RdfTypes.langString),
+        (language == null) != (datatype == Rdf.langString),
         'Language-tagged literals must use rdf:langString datatype, and rdf:langString must have a language tag',
       );
 
@@ -216,7 +216,7 @@ class LiteralTerm extends RdfObject {
   /// final dateLiteral = LiteralTerm.typed("2023-04-01", "date");
   /// ```
   factory LiteralTerm.typed(String value, String xsdType) {
-    return LiteralTerm(value, datatype: XsdTypes.makeIri(xsdType));
+    return LiteralTerm(value, datatype: Xsd.makeIri(xsdType));
   }
 
   /// Create a plain string literal
@@ -229,7 +229,7 @@ class LiteralTerm extends RdfObject {
   /// final stringLiteral = LiteralTerm.string("Hello, World!");
   /// ```
   factory LiteralTerm.string(String value) {
-    return LiteralTerm(value, datatype: XsdTypes.string);
+    return LiteralTerm(value, datatype: Xsd.string);
   }
 
   /// Create an integer literal
@@ -242,7 +242,7 @@ class LiteralTerm extends RdfObject {
   /// final intLiteral = LiteralTerm.integer("42");
   /// ```
   factory LiteralTerm.integer(int value) {
-    return LiteralTerm(value.toString(), datatype: XsdTypes.integer);
+    return LiteralTerm(value.toString(), datatype: Xsd.integer);
   }
 
   /// Create a decimal literal
@@ -255,7 +255,7 @@ class LiteralTerm extends RdfObject {
   /// final decimalLiteral = LiteralTerm.decimal("3.14");
   /// ```
   factory LiteralTerm.decimal(double value) {
-    return LiteralTerm(value.toString(), datatype: XsdTypes.decimal);
+    return LiteralTerm(value.toString(), datatype: Xsd.decimal);
   }
 
   /// Create a boolean literal
@@ -268,7 +268,7 @@ class LiteralTerm extends RdfObject {
   /// final boolLiteral = LiteralTerm.boolean("true");
   /// ```
   factory LiteralTerm.boolean(bool value) {
-    return LiteralTerm(value.toString(), datatype: XsdTypes.boolean);
+    return LiteralTerm(value.toString(), datatype: Xsd.boolean);
   }
 
   /// Create a language-tagged literal
@@ -285,7 +285,7 @@ class LiteralTerm extends RdfObject {
   /// final deLiteral = LiteralTerm.withLanguage("Hallo", "de");
   /// ```
   factory LiteralTerm.withLanguage(String value, String langTag) {
-    return LiteralTerm(value, datatype: RdfTypes.langString, language: langTag);
+    return LiteralTerm(value, datatype: Rdf.langString, language: langTag);
   }
 
   @override
@@ -303,7 +303,7 @@ class LiteralTerm extends RdfObject {
   String toString() =>
       language != null
           ? '"$value"@$language'
-          : datatype == XsdTypes.string
+          : datatype == Xsd.string
           ? '"$value"'
           : '"$value"^^$datatype';
 }

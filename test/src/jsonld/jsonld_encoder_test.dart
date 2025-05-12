@@ -4,21 +4,21 @@ import 'dart:convert';
 import 'package:rdf_core/src/graph/rdf_graph.dart';
 import 'package:rdf_core/src/graph/rdf_term.dart';
 import 'package:rdf_core/src/graph/triple.dart';
-import 'package:rdf_core/src/jsonld/jsonld_serializer.dart';
+import 'package:rdf_core/src/jsonld/jsonld_encoder.dart';
 import 'package:rdf_core/src/vocab/rdf.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('JSON-LD Serializer', () {
-    late JsonLdSerializer serializer;
+  group('JSON-LD Encoder', () {
+    late JsonLdEncoder encoder;
 
     setUp(() {
-      serializer = JsonLdSerializer();
+      encoder = JsonLdEncoder();
     });
 
     test('should serialize empty graph to empty JSON object', () {
       final graph = RdfGraph();
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
       expect(result, '{}');
     });
 
@@ -31,7 +31,7 @@ void main() {
         ),
       ]);
 
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
 
       // Parse the JSON to verify structure
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
@@ -46,12 +46,12 @@ void main() {
       final graph = RdfGraph.fromTriples([
         Triple(
           IriTerm('http://example.org/subject'),
-          RdfPredicates.type,
+          Rdf.type,
           IriTerm('http://example.org/Class'),
         ),
       ]);
 
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
       expect(jsonObj['@context']['rdf'], equals(Rdf.namespace));
@@ -74,7 +74,7 @@ void main() {
         ),
       ]);
 
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
       expect(jsonObj.containsKey('@context'), isTrue);
@@ -94,7 +94,7 @@ void main() {
         ),
       ]);
 
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
       expect(
@@ -134,7 +134,7 @@ void main() {
         ),
       ]);
 
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
       expect(
@@ -155,7 +155,7 @@ void main() {
         ),
       ]);
 
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
       final nameValue = jsonObj['http://example.org/name'];
@@ -178,7 +178,7 @@ void main() {
         'vocab': 'http://example.org/vocabulary/',
       };
 
-      final result = serializer.write(graph, customPrefixes: customPrefixes);
+      final result = encoder.convert(graph, customPrefixes: customPrefixes);
 
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
@@ -195,7 +195,7 @@ void main() {
       final graph = RdfGraph.fromTriples([
         Triple(
           IriTerm('http://example.org/person/john'),
-          RdfPredicates.type,
+          Rdf.type,
           IriTerm('http://xmlns.com/foaf/0.1/Person'),
         ),
         Triple(
@@ -218,7 +218,7 @@ void main() {
         ),
         Triple(
           IriTerm('http://example.org/person/jane'),
-          RdfPredicates.type,
+          Rdf.type,
           IriTerm('http://xmlns.com/foaf/0.1/Person'),
         ),
         Triple(
@@ -228,7 +228,7 @@ void main() {
         ),
       ]);
 
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
       expect(jsonObj['@context']['foaf'], equals('http://xmlns.com/foaf/0.1/'));
@@ -272,8 +272,8 @@ void main() {
           ),
         ]);
 
-        final serializer = JsonLdSerializer();
-        final result = serializer.write(graph);
+        final encoder2 = JsonLdEncoder();
+        final result = encoder2.convert(graph);
         final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
         expect(
@@ -308,7 +308,7 @@ void main() {
         ),
       ]);
 
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
       // Extract all blank node IDs from the serialized JSON-LD
@@ -357,7 +357,7 @@ void main() {
         ),
       ]);
 
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
       // Check that non-parsable numeric values have correct type info
@@ -401,7 +401,7 @@ void main() {
         ),
       ]);
 
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
       final value = jsonObj['http://example.org/predicate'];
@@ -414,17 +414,17 @@ void main() {
       final graph = RdfGraph.fromTriples([
         Triple(
           IriTerm('http://example.org/subject'),
-          RdfPredicates.type,
+          Rdf.type,
           IriTerm('http://example.org/Type1'),
         ),
         Triple(
           IriTerm('http://example.org/subject'),
-          RdfPredicates.type,
+          Rdf.type,
           IriTerm('http://example.org/Type2'),
         ),
       ]);
 
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
       expect(jsonObj['@type'], isA<List>());
@@ -449,7 +449,7 @@ void main() {
         ),
       ]);
 
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
       expect(jsonObj['http://example.org/predicate'], isA<List>());
@@ -478,7 +478,7 @@ void main() {
         'nested': 'http://example.org/vocabulary/nested/',
       };
 
-      final result = serializer.write(graph, customPrefixes: customPrefixes);
+      final result = encoder.convert(graph, customPrefixes: customPrefixes);
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
       // The more specific prefix should be used for the nested predicate
@@ -497,7 +497,7 @@ void main() {
 
       final customPrefixes = {'vocab': 'http://example.org/vocabulary/'};
 
-      final result = serializer.write(graph, customPrefixes: customPrefixes);
+      final result = encoder.convert(graph, customPrefixes: customPrefixes);
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
       // When the predicate exactly matches a namespace, use the prefix with empty local part
@@ -513,7 +513,7 @@ void main() {
         ),
       ]);
 
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
       // The full IRI should be used since there's no prefix mapping
@@ -535,7 +535,7 @@ void main() {
         ),
       ]);
 
-      final result = serializer.write(graph);
+      final result = encoder.convert(graph);
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
       // The double value should be parsed and represented as a number

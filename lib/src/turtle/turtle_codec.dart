@@ -8,14 +8,13 @@ library turtle_format;
 import 'package:rdf_core/src/turtle/turtle_tokenizer.dart';
 import 'package:rdf_core/src/vocab/namespaces.dart';
 
-import '../graph/rdf_graph.dart';
-import '../plugin/format_plugin.dart';
-import '../rdf_parser.dart';
-import '../rdf_serializer.dart';
-import 'turtle_parser.dart';
-import 'turtle_serializer.dart';
+import '../plugin/rdf_codec.dart';
+import '../rdf_decoder.dart';
+import '../rdf_encoder.dart';
+import 'turtle_decoder.dart';
+import 'turtle_encoder.dart';
 
-/// RDF Format implementation for the Turtle serialization format.
+/// RDF Codec implementation for the Turtle serialization format.
 ///
 /// Turtle (Terse RDF Triple Language) is a textual syntax for RDF that is
 /// both readable by humans and parsable by machines. It is a simplified,
@@ -57,7 +56,7 @@ import 'turtle_serializer.dart';
 ///
 /// Turtle files typically use the `.ttl` file extension.
 /// The primary MIME type is `text/turtle`.
-final class TurtleFormat implements RdfFormat {
+final class TurtleCodec extends RdfCodec {
   static const _primaryMimeType = 'text/turtle';
 
   /// All MIME types that this format implementation can handle
@@ -77,7 +76,7 @@ final class TurtleFormat implements RdfFormat {
   final Set<TurtleParsingFlag> _parsingFlags;
 
   /// Creates a new Turtle format handler
-  const TurtleFormat({
+  const TurtleCodec({
     RdfNamespaceMappings? namespaceMappings,
     Set<TurtleParsingFlag> parsingFlags = const {},
   }) : _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings(),
@@ -90,14 +89,14 @@ final class TurtleFormat implements RdfFormat {
   Set<String> get supportedMimeTypes => _supportedMimeTypes;
 
   @override
-  RdfParser createParser() => _TurtleParserAdapter(
+  RdfDecoder get decoder => TurtleDecoder(
     parsingFlags: _parsingFlags,
     namespaceMappings: _namespaceMappings,
   );
 
   @override
-  RdfSerializer createSerializer() =>
-      TurtleSerializer(namespaceMappings: _namespaceMappings);
+  RdfEncoder get encoder =>
+      TurtleEncoder(namespaceMappings: _namespaceMappings);
 
   @override
   bool canParse(String content) {
@@ -117,28 +116,14 @@ final class TurtleFormat implements RdfFormat {
   }
 }
 
-/// Parser adapter for Turtle format
+/// Global convenience variable for working with Turtle format
 ///
-/// Internal adapter that bridges the RdfParser interface to the
-/// implementation-specific TurtleParser.
-class _TurtleParserAdapter implements RdfParser {
-  final Set<TurtleParsingFlag> _parsingFlags;
-  final RdfNamespaceMappings _namespaceMappings;
-
-  _TurtleParserAdapter({
-    required Set<TurtleParsingFlag> parsingFlags,
-    required RdfNamespaceMappings namespaceMappings,
-  }) : _namespaceMappings = namespaceMappings,
-       // Pass the parsing flags to the TurtleParser
-       _parsingFlags = parsingFlags;
-  @override
-  RdfGraph parse(String input, {String? documentUrl}) {
-    final parser = TurtleParser(
-      input,
-      baseUri: documentUrl,
-      parsingFlags: _parsingFlags,
-      namespaceMappings: _namespaceMappings,
-    );
-    return RdfGraph.fromTriples(parser.parse());
-  }
-}
+/// This variable provides direct access to Turtle codec for easy
+/// encoding and decoding of Turtle data.
+///
+/// Example:
+/// ```dart
+/// final graph = turtle.decode(turtleString);
+/// final serialized = turtle.encode(graph);
+/// ```
+final turtle = TurtleCodec();

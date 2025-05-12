@@ -33,8 +33,25 @@ If you are looking for more rdf-related functionality, have a look at our compan
 - **Serialization-agnostic:** Clean separation from Turtle/JSON-LD/N-Triples
 - **Extensible & modular:** Build your own adapters, plugins, and integrations
 - **Spec-compliant:** Follows [W3C RDF 1.1](https://www.w3.org/TR/rdf11-concepts/) and related standards
+- **Convenience global variables:** Easy usage with `turtle`, `jsonld` and `ntriples` for quick encoding/decoding
 
 ## 🚀 Quick Start
+
+### Convenience Globals
+
+The library provides global variables for quick and easy access:
+
+```dart
+import 'package:rdf_core/rdf_core.dart';
+
+// Easy access to formats through global variables
+final graphFromTurtle = turtle.decode(turtleData);
+final graphFromJsonLd = jsonld.decode(jsonLdData);
+final graphFromNTriples = ntriples.decode(ntriplesData);
+
+// Or use the pre-configured RdfCore instance
+final graph = rdf.decode(data, contentType: 'text/turtle');
+```
 
 ### Manual Graph Creation
 
@@ -59,13 +76,17 @@ import 'package:rdf_core/rdf_core.dart';
 
 void main() {
   // Example: Parse a simple Turtle document
-  final turtle = '''
+  final turtleData = '''
     @prefix foaf: <http://xmlns.com/foaf/0.1/> .
     <http://example.org/alice> foaf:name "Alice"@en .
   ''';
 
-  final rdf = RdfCore.withStandardFormats();
-  final graph = rdf.parse(turtle, contentType: 'text/turtle');
+  // Option 1: Using the convenience global variable
+  final graph = turtle.decode(turtleData);
+  
+  // Option 2: Using RdfCore instance
+  // final rdfCore = RdfCore.withStandardCodecs();
+  // final graph = rdfCore.decode(turtleData, contentType: 'text/turtle');
 
   // Print parsed triples
   for (final triple in graph.triples) {
@@ -73,7 +94,7 @@ void main() {
   }
 
   // Serialize the graph back to Turtle
-  final serialized = rdf.serialize(graph, contentType: 'text/turtle');
+  final serialized = turtle.encode(graph);
   print('\nSerialized Turtle:\n$serialized');
 }
 ```
@@ -85,13 +106,13 @@ import 'package:rdf_core/rdf_core.dart';
 
 void main() {
   // Example: Parse a simple N-Triples document
-  final ntriples = '''
+  final ntriplesData = '''
     <http://example.org/alice> <http://xmlns.com/foaf/0.1/name> "Alice"@en .
     <http://example.org/alice> <http://xmlns.com/foaf/0.1/knows> <http://example.org/bob> .
   ''';
 
-  final rdf = RdfCore.withStandardFormats();
-  final graph = rdf.parse(ntriples, contentType: 'application/n-triples');
+  // Using the convenience global variable
+  final graph = ntriples.decode(ntriplesData);
 
   // Print parsed triples
   for (final triple in graph.triples) {
@@ -99,7 +120,7 @@ void main() {
   }
 
   // Serialize the graph back to N-Triples
-  final serialized = rdf.serialize(graph, contentType: 'application/n-triples');
+  final serialized = ntriples.encode(graph);
   print('\nSerialized N-Triples:\n$serialized');
 }
 ```
@@ -111,7 +132,7 @@ import 'package:rdf_core/rdf_core.dart';
 
 void main() {
   // Example: Parse a simple JSON-LD document
-  final jsonLd = '''
+  final jsonLdData = '''
   {
     "@context": {
       "name": "http://xmlns.com/foaf/0.1/name",
@@ -134,8 +155,8 @@ void main() {
   }
   ''';
 
-  final rdf = RdfCore.withStandardFormats();
-  final graph = rdf.parse(jsonLd, contentType: 'application/ld+json');
+  // Using the convenience global variable
+  final graph = jsonld.decode(jsonLdData);
 
   // Print parsed triples
   for (final triple in graph.triples) {
@@ -143,14 +164,14 @@ void main() {
   }
 
   // Serialize the graph back to JSON-LD
-  final serialized = rdf.serialize(graph, contentType: 'application/ld+json');
+  final serialized = jsonld.encode(graph);
   print('\nSerialized JSON-LD:\n$serialized');
 }
 ```
 
 ## 🧑‍💻 Advanced Usage
 
-### Parsing and Serializing N-Triples
+### Parsing and Serializing RDF/XML
 
 With the help of the separate package [rdf_xml](https://github.com/kkalass/rdf_xml) you can easily serialize/deserialize RDF/XML as well.
 
@@ -163,12 +184,16 @@ import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_xml/rdf_xml.dart';
 
 void main() {
-  // Register the format with the registry
-  final rdfCore = RdfCore.withStandardFormats();
-  rdfCore.registerFormat(RdfXmlFormat());
-
-  // use this instance now for "application/rdf+xml"
-  // ...
+  
+  // Option 1: Use the codec directly
+  final graph = rdfxml.decode(rdfXmlData);
+  final serialized = rdfxml.encode(graph);
+  
+  // Option 2: Register with RdfCore
+  final rdf = RdfCore.withStandardCodecs(additionalCodecs: [RdfXmlCodec()])
+  
+  // Now it can be used with the rdf instance in addition to turtle etc.
+  final graphFromRdf = rdf.decode(rdfXmlData, contentType: 'application/rdf+xml');
 }
 ```
 
@@ -187,6 +212,10 @@ final results = graph.findTriples(subject: subject);
 ### Blank Node Handling
 
 ```dart
+// Note: BlankNodeTerm is based on identity - if you call BlankNodeTerm() 
+// a second time, it will be a different blank node and get a different 
+// label in serialization formats. You have to reuse an instance, if you
+// want to refer to the same blank node.
 final bnode = BlankNodeTerm();
 final newGraph = graph.withTriple(Triple(bnode, predicate, object));
 ```
@@ -196,8 +225,8 @@ final newGraph = graph.withTriple(Triple(bnode, predicate, object));
 ```dart
 import 'package:rdf_core/rdf_core.dart';
 
-// Configure a TurtleFormat with specific parsing flags
-final turtleFormat = TurtleFormat(
+// Configure a custom TurtleCodec with specific parsing flags
+final customTurtleCodec = TurtleCodec(
   parsingFlags: {
     TurtleParsingFlag.allowDigitInLocalName,
     TurtleParsingFlag.allowMissingDotAfterPrefix,
@@ -205,26 +234,19 @@ final turtleFormat = TurtleFormat(
   }
 );
 
-// Create an RDF Core instance with the custom format
-final rdf = RdfCore.withFormats(formats: [turtleFormat]);
-
-// Parse a document with non-standard Turtle syntax
+// Option 1: Use the custom codec directly
 final nonStandardTurtle = '''
   @prefix ex: <http://example.org/> // Missing dot after prefix
   ex:resource123 a ex:Type . // Digit in local name
 ''';
 
-final graph = rdf.parse(nonStandardTurtle, contentType: 'text/turtle');
-```
+final graph = customTurtleCodec.decode(nonStandardTurtle);
 
-### Serialization/Parsing
-
-```dart
-final turtleSerializer = TurtleSerializer();
-final turtle = turtleSerializer.write(graph);
-
-final jsonLdParser = JsonLdParser(jsonLdSource);
-final parsedGraph = jsonLdParser.parse();
+// Option 2: Register the custom codec with an RdfCore instance - note that this 
+// time we register only the specified codecs here. If we want jsonld, we have to 
+// add it to the list as well.
+final customRdf = RdfCore.withCodecs(codecs: [customTurtleCodec]);
+final graph2 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 ```
 
 ---
@@ -253,8 +275,13 @@ final parsedGraph = jsonLdParser.parse();
 | `BlankNodeTerm`| Represents a blank node                       |
 | `Triple`       | Atomic RDF statement (subject, predicate, object) |
 | `RdfGraph`     | Collection of RDF triples                     |
-| `RdfParser`    | Interface for parsing RDF from various formats |
-| `RdfSerializer`| Interface for serializing RDF                 |
+| `RdfCodec`     | Base class for decoding/encoding RDF in various formats |
+| `RdfDecoder`   | Base class for decoding RDF                    |
+| `RdfEncoder`   | Base class for encoding RDF                    |
+| `turtle`       | Global convenience variable for Turtle format |
+| `jsonld`       | Global convenience variable for JSON-LD format |
+| `ntriples`     | Global convenience variable for N-Triples format |
+| `rdf`          | Global RdfCore instance with standard codecs  |
 
 ---
 
@@ -269,7 +296,6 @@ final parsedGraph = jsonLdParser.parse();
 
 ## 🛣️ Roadmap / Next Steps
 
-- Make use of dart:convert classes, change from Parser/Serializer notation to decoder/encoder
 - Support base uri in jsonld and turtle serialization
 - Improve jsonld parser/serializer (and include realworld tests for e.g. foaf.jsonld)
 - Named Graphs (maybe as separate project)

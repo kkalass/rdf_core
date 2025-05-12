@@ -7,31 +7,31 @@ library ntriples_parser;
 import 'package:logging/logging.dart';
 
 import '../exceptions/rdf_exception.dart';
-import '../exceptions/rdf_parser_exception.dart';
+import '../exceptions/rdf_decoder_exception.dart';
 import '../graph/rdf_graph.dart';
 import '../graph/rdf_term.dart';
 import '../graph/triple.dart';
-import '../rdf_parser.dart';
+import '../rdf_decoder.dart';
 
-/// Parser for the N-Triples format.
+/// Decoder for the N-Triples format.
 ///
 /// N-Triples is a line-based, plain text serialization for RDF data.
 /// Each line contains exactly one triple and ends with a period.
-/// This parser implements the N-Triples format as specified in the
+/// This decoder implements the N-Triples format as specified in the
 /// [RDF 1.1 N-Triples specification](https://www.w3.org/TR/n-triples/).
 ///
 /// The parser processes the input line by line, ignoring comment lines
 /// (starting with '#') and empty lines, and parses each remaining line
 /// as a separate triple.
-final class NTriplesParser implements RdfParser {
+final class NTriplesDecoder extends RdfDecoder {
   final _logger = Logger('rdf.ntriples.parser');
   static const _formatName = 'application/n-triples';
 
   /// Creates a new N-Triples parser
-  NTriplesParser();
+  NTriplesDecoder();
 
   @override
-  RdfGraph parse(String input, {String? documentUrl}) {
+  RdfGraph convert(String input, {String? documentUrl}) {
     _logger.fine(
       'Parsing N-Triples document${documentUrl != null ? " with base URL: $documentUrl" : ""}',
     );
@@ -53,7 +53,7 @@ final class NTriplesParser implements RdfParser {
         final triple = _parseLine(trimmed, lineNumber);
         triples.add(triple);
       } catch (e) {
-        throw RdfParserException(
+        throw RdfDecoderException(
           'Error parsing N-Triples at line $lineNumber: ${e.toString()}',
           format: _formatName,
           source: SourceLocation(
@@ -72,7 +72,7 @@ final class NTriplesParser implements RdfParser {
   Triple _parseLine(String line, int lineNumber) {
     // Check that the line ends with a period
     if (!line.trim().endsWith('.')) {
-      throw RdfParserException(
+      throw RdfDecoderException(
         'Missing period at end of triple',
         format: _formatName,
         source: SourceLocation(
@@ -89,7 +89,7 @@ final class NTriplesParser implements RdfParser {
     // Split into subject, predicate, object
     final parts = _splitTripleParts(content, lineNumber);
     if (parts.length != 3) {
-      throw RdfParserException(
+      throw RdfDecoderException(
         'Invalid triple format: expected 3 parts, found ${parts.length}',
         format: _formatName,
         source: SourceLocation(
@@ -179,7 +179,7 @@ final class NTriplesParser implements RdfParser {
       // would be maintained throughout the parse to ensure consistency
       return BlankNodeTerm();
     } else {
-      throw RdfParserException(
+      throw RdfDecoderException(
         'Invalid subject: $subject. Must be an IRI or blank node',
         format: _formatName,
         source: SourceLocation(
@@ -198,7 +198,7 @@ final class NTriplesParser implements RdfParser {
       final iri = _parseIri(predicate, lineNumber);
       return IriTerm(iri);
     } else {
-      throw RdfParserException(
+      throw RdfDecoderException(
         'Invalid predicate: $predicate. Must be an IRI',
         format: _formatName,
         source: SourceLocation(
@@ -223,7 +223,7 @@ final class NTriplesParser implements RdfParser {
       // Literal
       return _parseLiteral(object, lineNumber);
     } else {
-      throw RdfParserException(
+      throw RdfDecoderException(
         'Invalid object: $object. Must be an IRI, blank node, or literal',
         format: _formatName,
         source: SourceLocation(
@@ -238,7 +238,7 @@ final class NTriplesParser implements RdfParser {
   /// Parses an IRI from its N-Triples representation (enclosed in angle brackets)
   String _parseIri(String iriText, int lineNumber) {
     if (!iriText.startsWith('<') || !iriText.endsWith('>')) {
-      throw RdfParserException(
+      throw RdfDecoderException(
         'Invalid IRI: $iriText. Must be enclosed in angle brackets',
         format: _formatName,
         source: SourceLocation(
@@ -258,7 +258,7 @@ final class NTriplesParser implements RdfParser {
     // Find the end of the literal value
     int endQuoteIndex = _findEndQuoteIndex(literalText);
     if (endQuoteIndex == -1) {
-      throw RdfParserException(
+      throw RdfDecoderException(
         'Invalid literal: $literalText. Missing closing quote',
         format: _formatName,
         source: SourceLocation(
@@ -288,7 +288,7 @@ final class NTriplesParser implements RdfParser {
     } else if (suffix.startsWith('^^')) {
       // Typed literal
       if (!suffix.substring(2).startsWith('<') || !suffix.endsWith('>')) {
-        throw RdfParserException(
+        throw RdfDecoderException(
           'Invalid datatype IRI in literal: $literalText',
           format: _formatName,
           source: SourceLocation(
@@ -306,7 +306,7 @@ final class NTriplesParser implements RdfParser {
       final datatypeIriTerm = IriTerm(unescapedDatatypeIri);
       return LiteralTerm(valueUnescaped, datatype: datatypeIriTerm);
     } else {
-      throw RdfParserException(
+      throw RdfDecoderException(
         'Invalid literal suffix: $suffix',
         format: _formatName,
         source: SourceLocation(

@@ -13,14 +13,14 @@ void main() {
 
     test('typeIri has correct value', () {
       expect(
-        RdfPredicates.type,
+        Rdf.type,
         equals(IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')),
       );
     });
 
     test('langStringIri has correct value', () {
       expect(
-        RdfTypes.langString,
+        Rdf.langString,
         equals(
           const IriTerm.prevalidated(
             'http://www.w3.org/1999/02/22-rdf-syntax-ns#langString',
@@ -37,7 +37,7 @@ void main() {
       expect(() {
         // This should not compile, but we'll check it at runtime too
         // Dynamic cast is used to bypass compile-time check for demonstration
-        final typeIri = RdfPredicates.type as dynamic;
+        final typeIri = Rdf.type as dynamic;
         typeIri.iri = 'modified';
       }, throwsNoSuchMethodError);
     });

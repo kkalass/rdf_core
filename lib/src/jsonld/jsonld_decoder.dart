@@ -1,12 +1,22 @@
 import 'dart:convert';
 
 import 'package:logging/logging.dart';
-import 'package:rdf_core/src/exceptions/exceptions.dart';
-import 'package:rdf_core/src/graph/rdf_term.dart';
-import 'package:rdf_core/src/graph/triple.dart';
+import 'package:rdf_core/rdf_core.dart';
 
 final _log = Logger("rdf.jsonld");
 const _format = "JSON-LD";
+
+/// Decoder for JSON-LD format
+///
+/// Adapter that bridges the RdfDecoder base class to the
+/// implementation-specific JsonLdParser.
+class JsonLdDecoder extends RdfDecoder {
+  @override
+  RdfGraph convert(String input, {String? documentUrl}) {
+    final parser = JsonLdParser(input, baseUri: documentUrl);
+    return RdfGraph.fromTriples(parser.parse());
+  }
+}
 
 /// A parser for JSON-LD (JSON for Linked Data) format.
 ///

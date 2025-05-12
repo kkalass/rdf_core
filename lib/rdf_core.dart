@@ -1,7 +1,9 @@
 /// RDF (Resource Description Framework) Library for Dart
 ///
 /// This library provides a comprehensive implementation of the W3C RDF data model,
-/// allowing applications to parse, manipulate, and serialize RDF data in various formats.
+/// allowing applications to parse, manipulate, and serialize RDF data in various
+/// ways.
+///
 /// It implements the RDF 1.1 Concepts and Abstract Syntax specification and supports
 /// multiple serialization formats.
 ///
@@ -24,25 +26,25 @@
 /// - **Triples**: Individual statements in the form subject-predicate-object
 /// - **Graphs**: Collections of triples representing related statements
 ///
-/// ### Serialization Formats
+/// ### Serialization Codecs
 ///
-/// This library supports these RDF serialization formats:
+/// This library supports these RDF serialization codecs:
 ///
 /// - **Turtle**: A compact, human-friendly text format (MIME type: text/turtle)
 /// - **JSON-LD**: JSON-based serialization of Linked Data (MIME type: application/ld+json)
 /// - **N-Triples**: A line-based, plain text format for encoding RDF graphs (MIME type: application/n-triples)
 ///
-/// The library uses a plugin system to allow registration of additional formats.
+/// The library uses a plugin system to allow registration of additional codecs.
 ///
 /// ## Usage Examples
 ///
-/// ### Basic Parsing and Serialization
+/// ### Basic Decoding and Encoding
 ///
 /// ```dart
 /// // Create an RDF library instance with standard formats
-/// final rdf = RdfCore.withStandardFormats();
+/// final rdf = RdfCore.withStandardCodecs();
 ///
-/// // Parse Turtle data
+/// // Decode Turtle data
 /// final turtleData = '''
 /// @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 ///
@@ -50,10 +52,10 @@
 ///                            foaf:knows <http://example.org/jane> .
 /// ''';
 ///
-/// final graph = rdf.parse(turtleData, contentType: 'text/turtle');
+/// final graph = rdf.decode(turtleData, contentType: 'text/turtle');
 ///
-/// // Serialize to JSON-LD
-/// final jsonLd = rdf.serialize(graph, contentType: 'application/ld+json');
+/// // Encode to JSON-LD
+/// final jsonLd = rdf.encode(graph, contentType: 'application/ld+json');
 /// print(jsonLd);
 /// ```
 ///
@@ -83,12 +85,12 @@
 /// }
 /// ```
 ///
-/// ### Auto-detection of formats
+/// ### Auto-detection of codecs
 ///
 /// ```dart
-/// // The library can automatically detect the format from content
+/// // The library can automatically detect the codec from content
 /// final unknownContent = getContentFromSomewhere();
-/// final graph = rdf.parse(unknownContent); // Format auto-detected
+/// final graph = rdf.decode(unknownContent); // Format auto-detected
 /// ```
 ///
 /// ### Using Custom Prefixes in Serialization
@@ -113,9 +115,9 @@
 /// - **Terms**: Classes for representing RDF terms (IRIs, blank nodes, literals)
 /// - **Triples**: The atomic data unit in RDF, combining subject, predicate, and object
 /// - **Graphs**: Collections of triples with query capabilities
-/// - **Parsers**: Convert serialized RDF text into graph structures
-/// - **Serializers**: Convert graph structures into serialized text
-/// - **Format Registry**: Plugin system for registering new serialization formats
+/// - **Decoders**: Convert serialized RDF text into graph structures
+/// - **Encoders**: Convert graph structures into serialized text
+/// - **Codec Registry**: Plugin system for registering new codecs
 ///
 /// The design follows IoC principles with dependency injection, making the
 /// library highly testable and extensible.
@@ -124,26 +126,24 @@ library rdf;
 import 'package:rdf_core/src/vocab/namespaces.dart';
 
 import 'src/graph/rdf_graph.dart';
-import 'src/plugin/format_plugin.dart';
-import 'src/rdf_parser.dart';
-import 'src/rdf_serializer.dart';
-import 'src/jsonld/jsonld_format.dart';
-import 'src/turtle/turtle_format.dart';
-import 'src/ntriples/ntriples_format.dart';
+import 'src/jsonld/jsonld_codec.dart';
+import 'src/ntriples/ntriples_codec.dart';
+import 'src/plugin/rdf_codec.dart';
+import 'src/turtle/turtle_codec.dart';
 
+export 'src/exceptions/exceptions.dart';
 // Re-export core components for easy access
 export 'src/graph/rdf_graph.dart';
 export 'src/graph/rdf_term.dart';
 export 'src/graph/triple.dart';
-export 'src/plugin/format_plugin.dart';
-export 'src/rdf_parser.dart';
-export 'src/rdf_serializer.dart';
-export 'src/vocab/namespaces.dart';
-export 'src/turtle/turtle_format.dart';
-export 'src/jsonld/jsonld_format.dart';
-export 'src/ntriples/ntriples_format.dart';
+export 'src/jsonld/jsonld_codec.dart';
+export 'src/ntriples/ntriples_codec.dart';
+export 'src/plugin/rdf_codec.dart';
+export 'src/rdf_decoder.dart';
+export 'src/rdf_encoder.dart';
+export 'src/turtle/turtle_codec.dart';
 export 'src/turtle/turtle_tokenizer.dart' show TurtleParsingFlag;
-export 'src/exceptions/exceptions.dart';
+export 'src/vocab/namespaces.dart';
 
 /// RDF Core Library
 ///
@@ -159,78 +159,68 @@ export 'src/exceptions/exceptions.dart';
 /// Central facade for the RDF library, providing access to parsing and serialization.
 ///
 /// This class serves as the primary entry point for the RDF library, offering a simplified
-/// interface for common RDF operations. It encapsulates the complexity of parser and serializer
-/// factories, format registries, and plugin management behind a clean, user-friendly API.
+/// interface for common RDF operations. It encapsulates the complexity of codec management,
+/// format registries, and plugin management behind a clean, user-friendly API.
 ///
 /// The class follows IoC principles by accepting dependencies in its constructor,
 /// making it suitable for dependency injection and improving testability.
-/// For most use cases, the [RdfCore.withStandardFormats] factory constructor
-/// provides a pre-configured instance with standard formats registered.
+/// For most use cases, the [RdfCore.withStandardCodecs] factory constructor
+/// provides a pre-configured instance with standard codecs registered.
 final class RdfCore {
-  final RdfFormatRegistry _registry;
-  final RdfParserFactory _parserFactory;
-  final RdfSerializerFactory _serializerFactory;
+  final RdfCodecRegistry _registry;
 
   /// Creates a new RDF library instance with the given components
   ///
   /// This constructor enables full dependency injection, allowing for:
-  /// - Custom format registries
-  /// - Modified parser or serializer factories
+  /// - Custom codec registries
   /// - Mock implementations for testing
   ///
-  /// For standard usage, see [RdfCore.withStandardFormats].
+  /// For standard usage, see [RdfCore.withStandardCodecs].
   ///
   /// Parameters:
-  /// - [registry]: The format registry that manages available RDF formats
-  /// - [parserFactory]: The factory that creates parser instances
-  /// - [serializerFactory]: The factory that creates serializer instances
-  RdfCore({
-    required RdfFormatRegistry registry,
-    required RdfParserFactory parserFactory,
-    required RdfSerializerFactory serializerFactory,
-  }) : _registry = registry,
-       _parserFactory = parserFactory,
-       _serializerFactory = serializerFactory;
+  /// - [registry]: The codec registry that manages available RDF codecs
+  RdfCore({required RdfCodecRegistry registry}) : _registry = registry;
 
-  /// Creates a new RDF library instance with standard formats registered
+  /// Creates a new RDF library instance with standard codecs registered
   ///
-  /// This convenience constructor sets up an RDF library with Turtle and JSON-LD
-  /// formats ready to use. It's the recommended way to create an instance for
-  /// most applications.
+  /// This convenience constructor sets up an RDF library with Turtle, JSON-LD and
+  /// N-Triples codecs ready to use. It's the recommended way to create an instance
+  /// for most applications.
+  ///
+  /// Parameters:
+  /// - [namespaceMappings]: Optional custom namespace mappings for all codecs
+  /// - [additionalCodecs]: Optional list of additional codecs to register beyond
+  ///   the standard ones
   ///
   /// Example:
   /// ```dart
-  /// final rdf = RdfCore.withStandardFormats();
-  /// final graph = rdf.parse(turtleData, contentType: 'text/turtle');
+  /// final rdf = RdfCore.withStandardCodecs();
+  /// final graph = rdf.decode(turtleData, contentType: 'text/turtle');
   /// ```
-  factory RdfCore.withStandardFormats({
+  factory RdfCore.withStandardCodecs({
     RdfNamespaceMappings? namespaceMappings,
+    List<RdfCodec> additionalCodecs = const [],
   }) {
-    final registry = RdfFormatRegistry();
+    final registry = RdfCodecRegistry();
     final _namespaceMappings =
         namespaceMappings ?? const RdfNamespaceMappings();
+
     // Register standard formats
-    registry.registerFormat(
-      TurtleFormat(namespaceMappings: _namespaceMappings),
-    );
-    registry.registerFormat(
-      JsonLdFormat(namespaceMappings: _namespaceMappings),
-    );
-    registry.registerFormat(const NTriplesFormat());
+    registry.registerCodec(TurtleCodec(namespaceMappings: _namespaceMappings));
+    registry.registerCodec(JsonLdCodec(namespaceMappings: _namespaceMappings));
+    registry.registerCodec(const NTriplesCodec());
 
-    final parserFactory = RdfParserFactory(registry);
-    final serializerFactory = RdfSerializerFactory(registry);
+    // Register additional codecs
+    for (final codec in additionalCodecs) {
+      registry.registerCodec(codec);
+    }
 
-    return RdfCore(
-      registry: registry,
-      parserFactory: parserFactory,
-      serializerFactory: serializerFactory,
-    );
+    return RdfCore(registry: registry);
   }
 
-  /// Creates a new RDF library instance with only the provided formats registered
+  /// Creates a new RDF library instance with only the provided codecs registered
   ///
-  /// This convenience constructor sets up an RDF library with the specified formats
+  /// This convenience constructor sets up an RDF library with the specified codecs
   /// registered. It allows for easy customization of the library's capabilities.
   /// For example, if you need to support Turtle with certain parsing flags because
   /// your turtle documents are not fully compliant with the standard.
@@ -239,29 +229,22 @@ final class RdfCore {
   /// Example:
   /// ```dart
   /// final namespaceMappings = RdfNamespaceMappings();
-  /// final turtle = TurtleFormat(
+  /// final turtle = TurtleCodec(
   ///   namespaceMappings: namespaceMappings,
   ///   parsingFlags: {TurtleParsingFlag.allowMissingFinalDot});
-  /// final rdf = RdfCore.withFormats();
-  /// final graph = rdf.parse(turtleData, contentType: 'text/turtle');
+  /// final rdf = RdfCore.withCodecs(codecs: [turtle]);
+  /// final graph = rdf.decode(turtleData, contentType: 'text/turtle');
   /// ```
-  factory RdfCore.withFormats({List<RdfFormat> formats = const []}) {
-    final registry = RdfFormatRegistry();
-    for (final format in formats) {
-      registry.registerFormat(format);
+  factory RdfCore.withCodecs({List<RdfCodec> codecs = const []}) {
+    final registry = RdfCodecRegistry();
+    for (final codec in codecs) {
+      registry.registerCodec(codec);
     }
 
-    final parserFactory = RdfParserFactory(registry);
-    final serializerFactory = RdfSerializerFactory(registry);
-
-    return RdfCore(
-      registry: registry,
-      parserFactory: parserFactory,
-      serializerFactory: serializerFactory,
-    );
+    return RdfCore(registry: registry);
   }
 
-  /// Parse RDF content to create a graph
+  /// Decode RDF content to create a graph
   ///
   /// Converts a string containing serialized RDF data into an in-memory RDF graph.
   /// The format can be explicitly specified using the contentType parameter,
@@ -276,24 +259,20 @@ final class RdfCore {
   /// - An [RdfGraph] containing the parsed triples
   ///
   /// Throws:
-  /// - Format-specific exceptions for parsing errors
-  /// - [FormatNotSupportedException] if the format is not supported and cannot be detected
-  RdfGraph parse(String content, {String? contentType, String? documentUrl}) {
-    return _parserFactory.parse(
-      content,
-      contentType: contentType,
-      documentUrl: documentUrl,
-    );
+  /// - Codec-specific exceptions for parsing errors
+  /// - [CodecNotSupportedException] if the codec is not supported and cannot be detected
+  RdfGraph decode(String content, {String? contentType, String? documentUrl}) {
+    return codec(contentType).decode(content, documentUrl: documentUrl);
   }
 
-  /// Serialize an RDF graph to a string representation
+  /// Encode an RDF graph to a string representation
   ///
   /// Converts an in-memory RDF graph into a serialized string representation
-  /// in the specified format. If no format is specified, the default format
+  /// in the specified format. If no format is specified, the default codec
   /// (typically Turtle) is used.
   ///
   /// Parameters:
-  /// - [graph]: The RDF graph to serialize
+  /// - [graph]: The RDF graph to encode
   /// - [contentType]: Optional MIME type to specify the output format
   /// - [baseUri]: Optional base URI for the serialized output, which may enable
   ///   more compact representations with relative URIs
@@ -304,81 +283,49 @@ final class RdfCore {
   /// - A string containing the serialized RDF data
   ///
   /// Throws:
-  /// - [FormatNotSupportedException] if the requested format is not supported
-  /// - Format-specific exceptions for serialization errors
-  String serialize(
+  /// - [CodecNotSupportedException] if the requested codec is not supported
+  /// - Codec-specific exceptions for serialization errors
+  String encode(
     RdfGraph graph, {
     String? contentType,
     String? baseUri,
     Map<String, String> customPrefixes = const {},
   }) {
-    return _serializerFactory.write(
-      graph,
-      contentType: contentType,
-      baseUri: baseUri,
-      customPrefixes: customPrefixes,
-    );
+    return codec(
+      contentType,
+    ).encode(graph, baseUri: baseUri, customPrefixes: customPrefixes);
   }
 
-  /// Register a custom format with the RDF library
+  /// Get a codec for a specific content type
   ///
-  /// This method allows extending the library with support for additional
-  /// RDF serialization formats beyond the standard ones.
-  ///
-  /// Parameters:
-  /// - [format]: The format implementation to register
-  ///
-  /// After registering a format, it can be used for both parsing and serialization
-  /// by specifying its MIME type in the [parse] and [serialize] methods.
-  ///
-  /// Example:
-  /// ```dart
-  /// final rdf = RdfCore.withStandardFormats();
-  /// rdf.registerFormat(MyCustomRdfFormat());
-  /// ```
-  void registerFormat(RdfFormat format) {
-    _registry.registerFormat(format);
-  }
-
-  /// Get an instance of a parser for a specific format
-  ///
-  /// This method provides direct access to format-specific parsers when
-  /// more control over the parsing process is needed.
+  /// Returns a codec that can handle the specified content type.
+  /// If no content type is specified, returns the default codec
+  /// (typically for Turtle).
   ///
   /// Parameters:
-  /// - [contentType]: MIME type of the format to get a parser for
+  /// - [contentType]: Optional MIME type to specify the format. If not specified,
+  /// then the encoding will be with the default codec (the first codec registered,
+  /// typically turtle) and the decoding codec will be automatically detected.
   ///
   /// Returns:
-  /// - An [RdfParser] instance for the specified format
-  /// - If no contentType is specified, returns an auto-detecting parser
-  RdfParser getParser({String? contentType}) {
-    return _parserFactory.createParser(contentType: contentType);
-  }
-
-  /// Get an instance of a serializer for a specific format
-  ///
-  /// This method provides direct access to format-specific serializers when
-  /// more control over the serialization process is needed.
-  ///
-  /// Parameters:
-  /// - [contentType]: MIME type of the format to get a serializer for
-  ///
-  /// Returns:
-  /// - An [RdfSerializer] instance for the specified format
-  /// - If no contentType is specified, returns a serializer for the default format
+  /// - An [RdfCodec] that can handle the specified content type
   ///
   /// Throws:
-  /// - [FormatNotSupportedException] if no serializer is available for the specified format
-  RdfSerializer getSerializer({String? contentType}) {
-    return _serializerFactory.createSerializer(contentType: contentType);
+  /// - [CodecNotSupportedException] if the requested format is not supported
+  RdfCodec codec([String? contentType]) {
+    return _registry.getCodec(contentType);
   }
-
-  /// Access to the underlying format registry
-  ///
-  /// Provides access to the format registry for advanced operations
-  /// like querying available formats or format-specific capabilities.
-  ///
-  /// Returns:
-  /// - The [RdfFormatRegistry] instance used by this library
-  RdfFormatRegistry get registry => _registry;
 }
+
+/// Global convenience variable for accessing RDF functionality
+/// with standard codecs pre-registered
+///
+/// This variable provides a pre-configured RDF library instance with
+/// Turtle, JSON-LD, and N-Triples codecs registered.
+///
+/// Example:
+/// ```dart
+/// final graph = rdf.decode(turtleData, contentType: 'text/turtle');
+/// final serialized = rdf.encode(graph, contentType: 'application/ld+json');
+/// ```
+final rdf = RdfCore.withStandardCodecs();

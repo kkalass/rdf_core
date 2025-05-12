@@ -7,12 +7,11 @@ library jsonld_format;
 
 import 'package:rdf_core/src/vocab/namespaces.dart';
 
-import '../graph/rdf_graph.dart';
-import '../plugin/format_plugin.dart';
-import '../rdf_parser.dart';
-import '../rdf_serializer.dart';
-import 'jsonld_parser.dart';
-import 'jsonld_serializer.dart';
+import '../plugin/rdf_codec.dart';
+import '../rdf_decoder.dart';
+import '../rdf_encoder.dart';
+import 'jsonld_decoder.dart';
+import 'jsonld_encoder.dart';
 
 /// RDF Format implementation for the JSON-LD serialization format.
 ///
@@ -73,7 +72,7 @@ import 'jsonld_serializer.dart';
 ///
 /// JSON-LD files typically use the `.jsonld` file extension.
 /// The primary MIME type is `application/ld+json`.
-final class JsonLdFormat implements RdfFormat {
+final class JsonLdCodec extends RdfCodec {
   static const _primaryMimeType = 'application/ld+json';
 
   /// All MIME types that this format implementation can handle
@@ -81,8 +80,8 @@ final class JsonLdFormat implements RdfFormat {
 
   final RdfNamespaceMappings _namespaceMappings;
 
-  /// Creates a new JSON-LD format handler
-  const JsonLdFormat({RdfNamespaceMappings? namespaceMappings})
+  /// Creates a new JSON-LD codec
+  const JsonLdCodec({RdfNamespaceMappings? namespaceMappings})
     : _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings();
 
   @override
@@ -92,11 +91,11 @@ final class JsonLdFormat implements RdfFormat {
   Set<String> get supportedMimeTypes => _supportedMimeTypes;
 
   @override
-  RdfParser createParser() => _JsonLdParserAdapter();
+  RdfDecoder get decoder => JsonLdDecoder();
 
   @override
-  RdfSerializer createSerializer() =>
-      JsonLdSerializer(namespaceMappings: this._namespaceMappings);
+  RdfEncoder get encoder =>
+      JsonLdEncoder(namespaceMappings: this._namespaceMappings);
 
   @override
   bool canParse(String content) {
@@ -116,14 +115,14 @@ final class JsonLdFormat implements RdfFormat {
   }
 }
 
-/// Parser adapter for JSON-LD format
+/// Global convenience variable for working with JSON-LD format
 ///
-/// Internal adapter that bridges the RdfParser interface to the
-/// implementation-specific JsonLdParser.
-class _JsonLdParserAdapter implements RdfParser {
-  @override
-  RdfGraph parse(String input, {String? documentUrl}) {
-    final parser = JsonLdParser(input, baseUri: documentUrl);
-    return RdfGraph.fromTriples(parser.parse());
-  }
-}
+/// This variable provides direct access to JSON-LD codec for easy
+/// encoding and decoding of JSON-LD data.
+///
+/// Example:
+/// ```dart
+/// final graph = jsonld.decode(jsonLdString);
+/// final serialized = jsonld.encode(graph);
+/// ```
+final jsonld = JsonLdCodec();

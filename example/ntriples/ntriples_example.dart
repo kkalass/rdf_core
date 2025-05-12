@@ -18,8 +18,6 @@
 library ntriples_example;
 
 import 'package:rdf_core/rdf_core.dart';
-import 'package:rdf_core/src/ntriples/ntriples_parser.dart';
-import 'package:rdf_core/src/ntriples/ntriples_serializer.dart';
 
 void main() {
   print('N-Triples Format Example\n');
@@ -39,11 +37,11 @@ void main() {
   print('------------------------');
 
   // Create RDF Core instance with standard formats (includes N-Triples)
-  final rdf = RdfCore.withStandardFormats();
+  final rdf = RdfCore.withStandardCodecs();
 
   // Parse N-Triples using explicit content type
   print('\nParsing with explicit content type: "application/n-triples"');
-  final graph = rdf.parse(ntriplesData, contentType: 'application/n-triples');
+  final graph = rdf.decode(ntriplesData, contentType: 'application/n-triples');
 
   // Examine the parsed graph
   print('\nParsed graph contains ${graph.triples.length} triples:');
@@ -53,14 +51,14 @@ void main() {
 
   // N-Triples auto-detection example
   print('\nParsing with format auto-detection:');
-  final autoDetectedGraph = rdf.parse(ntriplesData);
+  final autoDetectedGraph = rdf.decode(ntriplesData);
   print(
     'Auto-detected graph contains ${autoDetectedGraph.triples.length} triples',
   );
 
   // Serialize back to N-Triples
   print('\nSerializing back to N-Triples:');
-  final serializedNTriples = rdf.serialize(
+  final serializedNTriples = rdf.encode(
     graph,
     contentType: 'application/n-triples',
   );
@@ -68,7 +66,7 @@ void main() {
 
   // Convert between formats - serialize to Turtle
   print('\nConverting to Turtle format:');
-  final turtle = rdf.serialize(
+  final turtle = rdf.encode(
     graph,
     contentType: 'text/turtle',
     customPrefixes: {
@@ -92,7 +90,7 @@ void main() {
 _:blank1 <http://example.org/property> "Value from blank node" .
 ''';
 
-  final advancedGraph = rdf.parse(
+  final advancedGraph = rdf.decode(
     advancedNTriples,
     contentType: 'application/n-triples',
   );
@@ -105,12 +103,10 @@ _:blank1 <http://example.org/property> "Value from blank node" .
   // Direct use of NTriplesParser and NTriplesSerializer
   print('\nDirect use of NTriplesParser and NTriplesSerializer:');
 
-  final directParser = NTriplesParser();
-  final directGraph = directParser.parse(ntriplesData);
+  final directGraph = ntriples.decode(ntriplesData);
 
-  final directSerializer = NTriplesSerializer();
   // ignore: unused_local_variable
-  final directOutput = directSerializer.write(directGraph);
+  final directOutput = ntriples.encode(directGraph);
 
   print(
     'Direct parsing and serialization produced ${directGraph.triples.length} triples',
@@ -144,7 +140,7 @@ _:blank1 <http://example.org/property> "Value from blank node" .
     ],
   );
 
-  final customOutput = rdf.serialize(
+  final customOutput = rdf.encode(
     customGraph,
     contentType: 'application/n-triples',
   );

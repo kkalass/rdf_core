@@ -26,9 +26,7 @@ void main() {
   }
   ''';
 
-  // Initialize RdfCore with standard formats (includes JSON-LD)
-  final rdf = RdfCore.withStandardFormats();
-  final graph = rdf.parse(jsonLd, contentType: 'application/ld+json');
+  final graph = jsonld.decode(jsonLd);
 
   print('=== Parsed Triples ===');
   for (final triple in graph.triples) {
@@ -46,7 +44,7 @@ void main() {
   }
 
   // Serialize the graph back to JSON-LD
-  final serialized = rdf.serialize(graph, contentType: 'application/ld+json');
+  final serialized = jsonld.encode(graph);
   print('\n=== Serialized JSON-LD ===');
   print(serialized);
 }

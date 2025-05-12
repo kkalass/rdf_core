@@ -1,38 +1,38 @@
-import 'package:rdf_core/src/jsonld/jsonld_format.dart';
-import 'package:rdf_core/src/jsonld/jsonld_serializer.dart';
+import 'package:rdf_core/src/jsonld/jsonld_codec.dart';
+import 'package:rdf_core/src/jsonld/jsonld_encoder.dart';
 import 'package:test/test.dart';
 
 void main() {
   group('JsonLdFormat', () {
-    late JsonLdFormat format;
+    late JsonLdCodec codec;
 
     setUp(() {
-      format = const JsonLdFormat();
+      codec = const JsonLdCodec();
     });
 
     test('primaryMimeType returns application/ld+json', () {
-      expect(format.primaryMimeType, equals('application/ld+json'));
+      expect(codec.primaryMimeType, equals('application/ld+json'));
     });
 
     test('supportedMimeTypes contains expected types', () {
       expect(
-        format.supportedMimeTypes,
+        codec.supportedMimeTypes,
         containsAll(['application/ld+json', 'application/json+ld']),
       );
-      expect(format.supportedMimeTypes.length, equals(2));
+      expect(codec.supportedMimeTypes.length, equals(2));
     });
 
-    test('createParser returns a JsonLdParser adapter', () {
-      final parser = format.createParser();
+    test('codec.decoder returns a JsonLdDecoder', () {
+      final parser = codec.decoder;
       expect(parser, isNotNull);
       // Can't check exact type since _JsonLdParserAdapter is private
       // but we can verify its behavior
       expect(parser.toString(), contains('JsonLd'));
     });
 
-    test('createSerializer returns a JsonLdSerializer', () {
-      final serializer = format.createSerializer();
-      expect(serializer, isA<JsonLdSerializer>());
+    test('codec.encoder returns a JsonLdSerializer', () {
+      final serializer = codec.encoder;
+      expect(serializer, isA<JsonLdEncoder>());
     });
 
     group('canParse', () {
@@ -44,7 +44,7 @@ void main() {
             "name": "John Doe"
           }
         ''';
-        expect(format.canParse(content), isTrue);
+        expect(codec.canParse(content), isTrue);
       });
 
       test('returns true for valid JSON-LD object with @id', () {
@@ -54,7 +54,7 @@ void main() {
             "http://xmlns.com/foaf/0.1/name": "John Doe"
           }
         ''';
-        expect(format.canParse(content), isTrue);
+        expect(codec.canParse(content), isTrue);
       });
 
       test('returns true for valid JSON-LD object with @type', () {
@@ -64,7 +64,7 @@ void main() {
             "http://xmlns.com/foaf/0.1/name": "John Doe"
           }
         ''';
-        expect(format.canParse(content), isTrue);
+        expect(codec.canParse(content), isTrue);
       });
 
       test('returns true for valid JSON-LD object with @graph', () {
@@ -78,7 +78,7 @@ void main() {
             ]
           }
         ''';
-        expect(format.canParse(content), isTrue);
+        expect(codec.canParse(content), isTrue);
       });
 
       test('returns true for valid JSON-LD array', () {
@@ -90,12 +90,12 @@ void main() {
             }
           ]
         ''';
-        expect(format.canParse(content), isTrue);
+        expect(codec.canParse(content), isTrue);
       });
 
       test('returns false for non-JSON content', () {
         final content = 'This is just plain text';
-        expect(format.canParse(content), isFalse);
+        expect(codec.canParse(content), isFalse);
       });
 
       test('returns false for JSON without JSON-LD keywords', () {
@@ -105,7 +105,7 @@ void main() {
             "email": "john@example.org"
           }
         ''';
-        expect(format.canParse(content), isFalse);
+        expect(codec.canParse(content), isFalse);
       });
 
       test('handles whitespace in content correctly', () {
@@ -117,7 +117,7 @@ void main() {
           }
           
         ''';
-        expect(format.canParse(content), isTrue);
+        expect(codec.canParse(content), isTrue);
       });
     });
   });

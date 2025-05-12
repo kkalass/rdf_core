@@ -1,28 +1,23 @@
-import 'package:rdf_core/src/graph/rdf_term.dart';
-import 'package:rdf_core/src/plugin/format_plugin.dart';
-import 'package:rdf_core/src/rdf_parser.dart';
-import 'package:rdf_core/src/jsonld/jsonld_format.dart';
-import 'package:rdf_core/src/turtle/turtle_format.dart';
+import 'package:rdf_core/rdf_core.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('RdfParser', () {
-    late RdfFormatRegistry registry;
-    late RdfParserFactory rdfParserFactory;
-    late RdfParser rdfParser;
+  group('FormatDetectingDecoder', () {
+    late RdfCodecRegistry registry;
+
+    late RdfDecoder rdfDecoder;
 
     setUp(() {
-      // Setup registry with formats
-      registry = RdfFormatRegistry();
-      registry.registerFormat(const TurtleFormat());
-      registry.registerFormat(const JsonLdFormat());
+      // Setup registry with codecs
+      registry = RdfCodecRegistry();
+      registry.registerCodec(const TurtleCodec());
+      registry.registerCodec(const JsonLdCodec());
 
-      // Create factory and parser
-      rdfParserFactory = RdfParserFactory(registry);
-      rdfParser = rdfParserFactory.createParser();
+      // Create format detecting decoder
+      rdfDecoder = AutoDetectingDecoder(registry);
     });
 
-    test('should parse a simple profile', () {
+    test('should decode a simple profile', () {
       final input = '''
         @prefix solid: <http://www.w3.org/ns/solid/terms#> .
         @prefix space: <http://www.w3.org/ns/pim/space#> .
@@ -33,7 +28,7 @@ void main() {
           space:storage <https://example.com/storage/> .
       ''';
 
-      final graph = rdfParser.parse(
+      final graph = rdfDecoder.convert(
         input,
         documentUrl: 'https://example.com/profile#me',
       );
@@ -64,7 +59,7 @@ void main() {
       );
     });
 
-    test('should parse a real life profile', () {
+    test('should decode a real life profile', () {
       final input = '''
 @prefix : <#>.
 @prefix acl: <http://www.w3.org/ns/auth/acl#>.
@@ -100,7 +95,7 @@ pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
     foaf:name "Klas Kala\u00df".
       ''';
 
-      final graph = rdfParser.parse(
+      final graph = rdfDecoder.convert(
         input,
         documentUrl: 'https://kkalass.datapod.igrant.io/profile/card',
       );
@@ -148,7 +143,7 @@ pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
           solid:storage <https://example.com/storage2/> .
       ''';
 
-      final graph = rdfParser.parse(input);
+      final graph = rdfDecoder.convert(input);
 
       // Find all storage triples
       final storageTriples = graph.findTriples(
@@ -175,7 +170,7 @@ pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
           solid:storage <https://example.com/storage/> .
       ''';
 
-      final graph = rdfParser.parse(input);
+      final graph = rdfDecoder.convert(input);
 
       // Verify type declaration
       final typeTriples = graph.findTriples(
@@ -200,7 +195,7 @@ pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
       );
     });
 
-    test('should parse complex profiles with different triple patterns', () {
+    test('should decode complex profiles with different triple patterns', () {
       final input = '''
         @prefix solid: <http://www.w3.org/ns/solid/terms#> .
         @prefix space: <http://www.w3.org/ns/pim/space#> .
@@ -218,7 +213,7 @@ pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
           ] .
       ''';
 
-      final graph = rdfParser.parse(input);
+      final graph = rdfDecoder.convert(input);
 
       // Verify profile type
       final profileTypeTriples = graph.findTriples(
@@ -252,7 +247,7 @@ pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
       expect(graph.triples.length > 5, isTrue);
     });
 
-    test('should handle format detection', () {
+    test('should handle codec detection', () {
       // Turtle content
       final turtleInput = '''
         @prefix ex: <http://example.org/> .
@@ -270,12 +265,12 @@ pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
         }
       ''';
 
-      // Both should parse without errors and with correct content type detection
+      // Both should decode without errors and with correct content type detection
       // Turtle
-      final turtleGraph = rdfParser.parse(turtleInput);
+      final turtleGraph = rdfDecoder.convert(turtleInput);
       expect(turtleGraph.triples.length, equals(1));
 
-      final jsonLdGraph = rdfParser.parse(jsonLdInput);
+      final jsonLdGraph = rdfDecoder.convert(jsonLdInput);
       expect(jsonLdGraph.triples.length, equals(1));
       expect(jsonLdGraph.triples, equals(turtleGraph.triples));
     });
@@ -286,42 +281,11 @@ pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
         ex:subject ex:predicate "object" .
       ''';
 
-      // Parse with explicit content type
-      final graph = rdfParserFactory
-          .createParser(contentType: 'text/turtle')
-          .parse(input);
+      // decode with explicit content type
+      final graph = RdfCore(
+        registry: registry,
+      ).codec('text/turtle').decode(input);
 
-      expect(graph.triples.length, equals(1));
-    });
-  });
-
-  group('RdfParserFactory', () {
-    late RdfFormatRegistry registry;
-    late RdfParserFactory factory;
-
-    setUp(() {
-      registry = RdfFormatRegistry();
-      registry.registerFormat(const TurtleFormat());
-      registry.registerFormat(const JsonLdFormat());
-      factory = RdfParserFactory(registry);
-    });
-
-    test('should create the correct parser for content type', () {
-      final turtleParser = factory.createParser(contentType: 'text/turtle');
-      final jsonldParser = factory.createParser(
-        contentType: 'application/ld+json',
-      );
-      final autoParser = factory.createParser();
-
-      expect(turtleParser, isA<RdfParser>());
-      expect(jsonldParser, isA<RdfParser>());
-      expect(autoParser, isA<RdfParser>());
-    });
-
-    test('convenience parse method should work correctly', () {
-      final input = '@prefix ex: <http://example.org/> . ex:s ex:p "o" .';
-
-      final graph = factory.createParser().parse(input);
       expect(graph.triples.length, equals(1));
     });
   });

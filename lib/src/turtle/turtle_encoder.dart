@@ -2,38 +2,38 @@ import 'package:logging/logging.dart';
 import 'package:rdf_core/src/graph/rdf_graph.dart';
 import 'package:rdf_core/src/graph/rdf_term.dart';
 import 'package:rdf_core/src/graph/triple.dart';
-import 'package:rdf_core/src/rdf_serializer.dart';
+import 'package:rdf_core/src/rdf_encoder.dart';
 import 'package:rdf_core/src/vocab/namespaces.dart';
 import 'package:rdf_core/src/vocab/rdf.dart';
 import 'package:rdf_core/src/vocab/xsd.dart';
 
 final _log = Logger("rdf.turtle");
 
-/// Turtle Serializer Implementation
+/// Turtle Encoder Implementation
 ///
-/// Implements the [TurtleSerializer] class for serializing RDF graphs to Turtle syntax.
+/// Extends the [RdfEncoder] class for serializing RDF graphs to Turtle syntax.
 ///
 /// Example usage:
 /// ```dart
-/// import 'package:rdf_core/src/turtle/turtle_serializer.dart';
-/// final serializer = TurtleSerializer();
-/// final turtle = serializer.write(graph);
+/// import 'package:rdf_core/src/turtle/turtle_encoder.dart';
+/// final encoder = TurtleEncoder();
+/// final turtle = encoder.convert(graph);
 /// ```
 ///
 /// See: [Turtle - Terse RDF Triple Language](https://www.w3.org/TR/turtle/)
 /// NOTE: Always use canonical RDF vocabularies (e.g., http://xmlns.com/foaf/0.1/) with http://, not https://
 /// This serializer will warn if it detects use of https:// for a namespace that is canonical as http://.
-class TurtleSerializer implements RdfSerializer {
+class TurtleEncoder extends RdfEncoder {
   /// A map of well-known common RDF prefixes used in Turtle serialization.
   /// These prefixes provide shorthand notation for commonly used RDF namespaces
   /// and do not need to be specified explicitly for serialization.
   final RdfNamespaceMappings _namespaceMappings;
 
-  TurtleSerializer({RdfNamespaceMappings? namespaceMappings})
+  TurtleEncoder({RdfNamespaceMappings? namespaceMappings})
     : _namespaceMappings = namespaceMappings ?? RdfNamespaceMappings();
 
   @override
-  String write(
+  String convert(
     RdfGraph graph, {
     String? baseUri,
     Map<String, String> customPrefixes = const {},
@@ -171,8 +171,8 @@ class TurtleSerializer implements RdfSerializer {
         );
       } else if (triple.object is LiteralTerm) {
         final literal = triple.object as LiteralTerm;
-        if (literal.datatype == XsdTypes.string ||
-            literal.datatype == RdfTypes.langString) {
+        if (literal.datatype == Xsd.string ||
+            literal.datatype == Rdf.langString) {
           // string and langString will not actually be written, they are implicit.
           continue;
         }
@@ -195,7 +195,7 @@ class TurtleSerializer implements RdfSerializer {
     Map<String, String> usedPrefixes,
     Map<String, String> prefixCandidates,
   ) {
-    if (term == RdfPredicates.type) {
+    if (term == Rdf.type) {
       // This IRI has special handling in Turtle besides the prefix stuff:
       // it will be rendered simply as "a" - no prefix needed
       return;
@@ -277,13 +277,9 @@ class TurtleSerializer implements RdfSerializer {
 
     // Check if we have both rdf:first and rdf:rest predicates
     final firstTriples =
-        outgoingTriples
-            .where((t) => t.predicate == RdfPredicates.first)
-            .toList();
+        outgoingTriples.where((t) => t.predicate == Rdf.first).toList();
     final restTriples =
-        outgoingTriples
-            .where((t) => t.predicate == RdfPredicates.rest)
-            .toList();
+        outgoingTriples.where((t) => t.predicate == Rdf.rest).toList();
 
     // If this is not a collection node, return null
     if (firstTriples.isEmpty || restTriples.isEmpty) {
@@ -298,7 +294,7 @@ class TurtleSerializer implements RdfSerializer {
     while (true) {
       // Find the rdf:first triple for the current node
       final firstTriple = graph.triples.firstWhere(
-        (t) => t.subject == currentNode && t.predicate == RdfPredicates.first,
+        (t) => t.subject == currentNode && t.predicate == Rdf.first,
         orElse:
             () =>
                 throw Exception(
@@ -311,7 +307,7 @@ class TurtleSerializer implements RdfSerializer {
 
       // Find the rdf:rest triple for the current node
       final restTriple = graph.triples.firstWhere(
-        (t) => t.subject == currentNode && t.predicate == RdfPredicates.rest,
+        (t) => t.subject == currentNode && t.predicate == Rdf.rest,
         orElse:
             () =>
                 throw Exception(
@@ -320,7 +316,7 @@ class TurtleSerializer implements RdfSerializer {
       );
 
       // If we've reached rdf:nil, we're done
-      if (restTriple.object == RdfResources.nil) {
+      if (restTriple.object == Rdf.nil) {
         break;
       }
 
@@ -350,11 +346,7 @@ class TurtleSerializer implements RdfSerializer {
       // Find the rdf:rest triple
       final restTriples =
           graph.triples
-              .where(
-                (t) =>
-                    t.subject == currentNode &&
-                    t.predicate == RdfPredicates.rest,
-              )
+              .where((t) => t.subject == currentNode && t.predicate == Rdf.rest)
               .toList();
 
       if (restTriples.isEmpty) {
@@ -363,7 +355,7 @@ class TurtleSerializer implements RdfSerializer {
 
       final restTriple = restTriples.first;
 
-      if (restTriple.object == RdfResources.nil) {
+      if (restTriple.object == Rdf.nil) {
         break;
       }
 
@@ -484,8 +476,7 @@ class TurtleSerializer implements RdfSerializer {
     // First pass: group triples by subject and identify collections
     for (final triple in graph.triples) {
       // Skip triples that are part of a collection structure
-      if ((triple.predicate == RdfPredicates.first ||
-              triple.predicate == RdfPredicates.rest) &&
+      if ((triple.predicate == Rdf.first || triple.predicate == Rdf.rest) &&
           triple.subject is BlankNodeTerm &&
           processedCollectionNodes.contains(triple.subject)) {
         continue;
@@ -585,15 +576,14 @@ class TurtleSerializer implements RdfSerializer {
   bool _isPartOfRdfCollection(RdfGraph graph, BlankNodeTerm node) {
     // Check if this node is referenced by an rdf:rest predicate
     final isReferencedByRest = graph.triples.any(
-      (t) => t.predicate == RdfPredicates.rest && t.object == node,
+      (t) => t.predicate == Rdf.rest && t.object == node,
     );
 
     // Check if this node has rdf:first or rdf:rest predicates
     final hasCollectionPredicates = graph.triples.any(
       (t) =>
           t.subject == node &&
-          (t.predicate == RdfPredicates.first ||
-              t.predicate == RdfPredicates.rest),
+          (t.predicate == Rdf.first || t.predicate == Rdf.rest),
     );
 
     return isReferencedByRest || hasCollectionPredicates;
@@ -629,9 +619,9 @@ class TurtleSerializer implements RdfSerializer {
     }
     final sortedPredicates =
         triplesByPredicate.keys.toList()..sort((a, b) {
-          // RdfPredicates.type should always be first
-          if (a == RdfPredicates.type) return -1;
-          if (b == RdfPredicates.type) return 1;
+          // Rdf.type should always be first
+          if (a == Rdf.type) return -1;
+          if (b == Rdf.type) return 1;
 
           // For all other predicates, sort alphabetically by IRI
           return (a as IriTerm).iri.compareTo((b as IriTerm).iri);
@@ -677,7 +667,7 @@ class TurtleSerializer implements RdfSerializer {
         objectIndex++;
 
         // Check if this is rdf:nil which should be serialized as ()
-        if (object == RdfResources.nil) {
+        if (object == Rdf.nil) {
           buffer.write('()');
           continue;
         }
@@ -861,7 +851,7 @@ class TurtleSerializer implements RdfSerializer {
   }) {
     switch (term) {
       case IriTerm _:
-        if (term == RdfPredicates.type) {
+        if (term == Rdf.type) {
           return 'a';
         } else {
           // Check if the predicate is a known prefix
@@ -909,13 +899,13 @@ class TurtleSerializer implements RdfSerializer {
         return '_:$label';
       case LiteralTerm literal:
         // Special cases for native Turtle literal representations
-        if (literal.datatype == XsdTypes.integer) {
+        if (literal.datatype == Xsd.integer) {
           return literal.value;
         }
-        if (literal.datatype == XsdTypes.decimal) {
+        if (literal.datatype == Xsd.decimal) {
           return literal.value;
         }
-        if (literal.datatype == XsdTypes.boolean) {
+        if (literal.datatype == Xsd.boolean) {
           return literal.value;
         }
 
@@ -924,7 +914,7 @@ class TurtleSerializer implements RdfSerializer {
         if (literal.language != null) {
           return '"$escapedLiteralValue"@${literal.language}';
         }
-        if (literal.datatype != XsdTypes.string) {
+        if (literal.datatype != Xsd.string) {
           return '"$escapedLiteralValue"^^${writeTerm(literal.datatype, prefixesByIri: prefixesByIri, blankNodeLabels: blankNodeLabels)}';
         }
         return '"$escapedLiteralValue"';

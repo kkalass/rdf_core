@@ -1,16 +1,16 @@
 import 'package:rdf_core/src/exceptions/rdf_exception.dart';
-import 'package:rdf_core/src/exceptions/rdf_parser_exception.dart';
+import 'package:rdf_core/src/exceptions/rdf_decoder_exception.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('RdfParserException', () {
+  group('RdfDecoderException', () {
     test('constructor initializes properties correctly', () {
       const message = 'Parser error';
       const format = 'Turtle';
       final cause = Exception('IO error');
       final source = SourceLocation(line: 5, column: 10, source: 'test.ttl');
 
-      final exception = RdfParserException(
+      final exception = RdfDecoderException(
         message,
         format: format,
         cause: cause,
@@ -24,17 +24,17 @@ void main() {
     });
 
     test('toString formats message correctly', () {
-      const exception = RdfParserException('Parser error', format: 'Turtle');
+      const exception = RdfDecoderException('Parser error', format: 'Turtle');
 
       expect(
         exception.toString(),
-        equals('RdfParserException(Turtle): Parser error'),
+        equals('RdfDecoderException(Turtle): Parser error'),
       );
     });
 
     test('toString includes source when available', () {
       final source = SourceLocation(line: 5, column: 10, source: 'test.ttl');
-      final exception = RdfParserException(
+      final exception = RdfDecoderException(
         'Parser error',
         format: 'Turtle',
         source: source,
@@ -42,13 +42,13 @@ void main() {
 
       expect(
         exception.toString(),
-        equals('RdfParserException(Turtle): Parser error at test.ttl:6:11'),
+        equals('RdfDecoderException(Turtle): Parser error at test.ttl:6:11'),
       );
     });
 
     test('toString includes cause when available', () {
       final cause = Exception('IO error');
-      final exception = RdfParserException(
+      final exception = RdfDecoderException(
         'Parser error',
         format: 'Turtle',
         cause: cause,
@@ -57,7 +57,7 @@ void main() {
       expect(
         exception.toString(),
         equals(
-          'RdfParserException(Turtle): Parser error\nCaused by: Exception: IO error',
+          'RdfDecoderException(Turtle): Parser error\nCaused by: Exception: IO error',
         ),
       );
     });

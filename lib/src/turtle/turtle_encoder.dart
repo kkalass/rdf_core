@@ -39,10 +39,13 @@ class TurtleEncoder extends RdfGraphEncoder {
     Map<String, String> customPrefixes = const {},
   }) {
     _log.info('Serializing graph to Turtle');
-    // TODO KK - support base IRIs - store all refs to IRIs within this
-    // pod relative to the pod root (or the application root within the pod?)
 
     final buffer = StringBuffer();
+
+    // Write base directive if provided
+    if (baseUri != null) {
+      buffer.writeln('@base <$baseUri> .');
+    }
 
     // Map to store generated blank node labels for this serialization
     final Map<BlankNodeTerm, String> blankNodeLabels = {};
@@ -70,6 +73,7 @@ class TurtleEncoder extends RdfGraphEncoder {
       prefixesByIri,
       blankNodeLabels,
       blankNodeOccurrences,
+      baseUri,
     );
 
     return buffer.toString();
@@ -456,6 +460,7 @@ class TurtleEncoder extends RdfGraphEncoder {
     Map<String, String> prefixesByIri,
     Map<BlankNodeTerm, String> blankNodeLabels,
     Map<BlankNodeTerm, int> blankNodeOccurrences,
+    String? baseUri,
   ) {
     if (graph.triples.isEmpty) {
       return;
@@ -568,6 +573,7 @@ class TurtleEncoder extends RdfGraphEncoder {
         blankNodeLabels,
         nodesToInline,
         triplesBySubject,
+        baseUri,
       );
     }
   }
@@ -600,12 +606,14 @@ class TurtleEncoder extends RdfGraphEncoder {
     Map<BlankNodeTerm, String> blankNodeLabels,
     Set<BlankNodeTerm> nodesToInline,
     Map<RdfSubject, List<Triple>> triplesBySubject,
+    String? baseUri,
   ) {
     // Write subject
     final subjectStr = writeTerm(
       subject,
       prefixesByIri: prefixesByIri,
       blankNodeLabels: blankNodeLabels,
+      baseUri: baseUri,
     );
     buffer.write(subjectStr);
 
@@ -848,6 +856,7 @@ class TurtleEncoder extends RdfGraphEncoder {
     RdfTerm term, {
     Map<String, String> prefixesByIri = const {},
     Map<BlankNodeTerm, String> blankNodeLabels = const {},
+    String? baseUri,
   }) {
     switch (term) {
       case IriTerm _:
@@ -884,6 +893,13 @@ class TurtleEncoder extends RdfGraphEncoder {
             }
           }
         }
+
+        // Handle base URI relative references
+        if (baseUri != null && term.iri.startsWith(baseUri)) {
+          final localPart = term.iri.substring(baseUri.length);
+          return '<$localPart>';
+        }
+
         return '<${term.iri}>';
       case BlankNodeTerm blankNode:
         // Use the pre-generated label for this blank node

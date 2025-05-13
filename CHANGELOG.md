@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.2] - 2025-05-13
+
+### Fixed
+
+- **AutoDetectingGraphCodec**: Improved handling of codec detection failures
+  - Fixed implementation to properly delegate to registry.detectGraphCodec
+  - Modified AutoDetectingGraphDecoder to try all registered codecs in sequence when auto-detection fails
+  - Corrected supportedMimeTypes to use the default codec's supported types
+- **Turtle Encoder**: Enhanced relative URI support
+  - Added proper handling of relative URIs when baseUri is provided
+  - Improved base URI handling in the Turtle output format
+- **Exception Handling**: Updated tests to handle both FormatException and custom exception types:
+  - Modified tests to accept RdfSyntaxException, RdfDecoderException in addition to FormatException
+  - Fixed encoder comparison to check for runtimeType equality instead of instance identity
+
 ## [0.8.1] - 2025-05-13
 
 ### Breaking Changes - DO NOT USE 0.8.0 please

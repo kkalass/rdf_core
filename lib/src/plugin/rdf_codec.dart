@@ -345,7 +345,10 @@ final class AutoDetectingGraphCodec extends RdfGraphCodec {
   RdfGraphEncoder get encoder => _defaultCodec.encoder;
 
   @override
-  bool canParse(String content) => true;
+  bool canParse(String content) {
+    final codec = _registry.detectGraphCodec(content);
+    return codec != null;
+  }
 }
 
 /// A decoder that detects the format from content and delegates to the appropriate actual decoder.
@@ -367,14 +370,22 @@ final class AutoDetectingGraphDecoder extends RdfGraphDecoder {
 
   @override
   RdfGraph convert(String input, {String? documentUrl}) {
+    // First try to use format auto-detection
     final format = _registry.detectGraphCodec(input);
 
     if (format != null) {
       _logger.fine('Using detected format: ${format.primaryMimeType}');
-      return format.decoder.convert(input, documentUrl: documentUrl);
+      try {
+        return format.decoder.convert(input, documentUrl: documentUrl);
+      } catch (e) {
+        _logger.fine(
+          'Failed with detected format ${format.primaryMimeType}: $e',
+        );
+        // If the detected format fails, fall through to trying all formats
+      }
     }
 
-    // If we can't detect, try the first available format
+    // If we can't detect or the detected format fails, try all formats in sequence
     final codecs = _registry.getAllGraphCodecs();
     if (codecs.isEmpty) {
       throw CodecNotSupportedException('No RDF codecs registered');

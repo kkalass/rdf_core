@@ -171,16 +171,16 @@ library highly testable and extensible.</p>
     <section class="summary offset-anchor" id="classes">
       <h2>Classes</h2>
       <dl>
-          <dt id="AutoDetectingCodec">
-  <span class="name "><a href="../rdf/AutoDetectingCodec-class.html">AutoDetectingCodec</a></span> 
+          <dt id="AutoDetectingGraphCodec">
+  <span class="name "><a href="../rdf/AutoDetectingGraphCodec-class.html">AutoDetectingGraphCodec</a></span> 
 
 </dt>
 <dd>
   
 </dd>
 
-          <dt id="AutoDetectingDecoder">
-  <span class="name "><a href="../rdf/AutoDetectingDecoder-class.html">AutoDetectingDecoder</a></span> 
+          <dt id="AutoDetectingGraphDecoder">
+  <span class="name "><a href="../rdf/AutoDetectingGraphDecoder-class.html">AutoDetectingGraphDecoder</a></span> 
 
 </dt>
 <dd>
@@ -203,8 +203,8 @@ library highly testable and extensible.</p>
   IRI (Internationalized Resource Identifier) in RDF
 </dd>
 
-          <dt id="JsonLdCodec">
-  <span class="name "><a href="../rdf/JsonLdCodec-class.html">JsonLdCodec</a></span> 
+          <dt id="JsonLdGraphCodec">
+  <span class="name "><a href="../rdf/JsonLdGraphCodec-class.html">JsonLdGraphCodec</a></span> 
 
 </dt>
 <dd>
@@ -227,14 +227,6 @@ library highly testable and extensible.</p>
   Format definition for the N-Triples RDF serialization format.
 </dd>
 
-          <dt id="RdfCodec">
-  <span class="name "><a href="../rdf/RdfCodec-class.html">RdfCodec</a></span> 
-
-</dt>
-<dd>
-  Represents a content codec that can be handled by the RDF framework.
-</dd>
-
           <dt id="RdfCodecRegistry">
   <span class="name "><a href="../rdf/RdfCodecRegistry-class.html">RdfCodecRegistry</a></span> 
 
@@ -251,28 +243,36 @@ library highly testable and extensible.</p>
   RDF Core Library
 </dd>
 
-          <dt id="RdfDecoder">
-  <span class="name "><a href="../rdf/RdfDecoder-class.html">RdfDecoder</a></span> 
-
-</dt>
-<dd>
-  Base class for decoding RDF documents in various formats
-</dd>
-
-          <dt id="RdfEncoder">
-  <span class="name "><a href="../rdf/RdfEncoder-class.html">RdfEncoder</a></span> 
-
-</dt>
-<dd>
-  Interface for encoding RDF graphs to different serialization formats.
-</dd>
-
           <dt id="RdfGraph">
   <span class="name "><a href="../rdf/RdfGraph-class.html">RdfGraph</a></span> 
 
 </dt>
 <dd>
   Represents an immutable RDF graph with triple pattern matching capabilities
+</dd>
+
+          <dt id="RdfGraphCodec">
+  <span class="name "><a href="../rdf/RdfGraphCodec-class.html">RdfGraphCodec</a></span> 
+
+</dt>
+<dd>
+  Represents a content codec that can be handled by the RDF framework.
+</dd>
+
+          <dt id="RdfGraphDecoder">
+  <span class="name "><a href="../rdf/RdfGraphDecoder-class.html">RdfGraphDecoder</a></span> 
+
+</dt>
+<dd>
+  Base class for decoding RDF documents in various formats
+</dd>
+
+          <dt id="RdfGraphEncoder">
+  <span class="name "><a href="../rdf/RdfGraphEncoder-class.html">RdfGraphEncoder</a></span> 
+
+</dt>
+<dd>
+  Interface for encoding RDF graphs to different serialization formats.
 </dd>
 
           <dt id="RdfNamespaceMappings">
@@ -363,9 +363,9 @@ library highly testable and extensible.</p>
     <section class="summary offset-anchor" id="properties">
       <h2>Properties</h2>
       <dl class="properties">
-          <dt id="jsonld" class="property">
-  <span class="name"><a href="../rdf/jsonld.html">jsonld</a></span>
-  <span class="signature">&#8594; <a href="../rdf/JsonLdCodec-class.html">JsonLdCodec</a></span>
+          <dt id="jsonldGraph" class="property">
+  <span class="name"><a href="../rdf/jsonldGraph.html">jsonldGraph</a></span>
+  <span class="signature">&#8594; <a href="../rdf/JsonLdGraphCodec-class.html">JsonLdGraphCodec</a></span>
   
 
 </dt>
@@ -553,7 +553,7 @@ with standard codecs pre-registered
 <footer>
   <span class="no-break">
     rdf_core
-      0.8.0
+      0.8.1
   </span>
   
 </footer>

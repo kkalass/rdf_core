@@ -81,7 +81,7 @@
 
 // Easy access to formats through global variables
 final graphFromTurtle = turtle.decode(turtleData);
-final graphFromJsonLd = jsonld.decode(jsonLdData);
+final graphFromJsonLd = lsonldGraph.decode(jsonLdData);
 final graphFromNTriples = ntriples.decode(ntriplesData);
 
 // Or use the pre-configured RdfCore instance
@@ -179,7 +179,7 @@ void main() {
   ''';
 
   // Using the convenience global variable
-  final graph = jsonld.decode(jsonLdData);
+  final graph = lsonldGraph.decode(jsonLdData);
 
   // Print parsed triples
   for (final triple in graph.triples) {
@@ -187,7 +187,7 @@ void main() {
   }
 
   // Serialize the graph back to JSON-LD
-  final serialized = jsonld.encode(graph);
+  final serialized = lsonldGraph.encode(graph);
   print('\nSerialized JSON-LD:\n$serialized');
 }
 </code></pre>
@@ -296,16 +296,16 @@ final graph2 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 <td>Collection of RDF triples</td>
 </tr>
 <tr>
-<td><code>RdfCodec</code></td>
-<td>Base class for decoding/encoding RDF in various formats</td>
+<td><code>RdfGraphCodec</code></td>
+<td>Base class for decoding/encoding RDF Graphs in various formats</td>
 </tr>
 <tr>
-<td><code>RdfDecoder</code></td>
-<td>Base class for decoding RDF</td>
+<td><code>RdfGraphDecoder</code></td>
+<td>Base class for decoding RDF Graphs</td>
 </tr>
 <tr>
-<td><code>RdfEncoder</code></td>
-<td>Base class for encoding RDF</td>
+<td><code>RdfGraphEncoder</code></td>
+<td>Base class for encoding RDF Graphs</td>
 </tr>
 <tr>
 <td><code>turtle</code></td>
@@ -397,7 +397,7 @@ final graph2 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 <footer>
   <span class="no-break">
     rdf_core
-      0.8.0
+      0.8.1
   </span>
   
 </footer>

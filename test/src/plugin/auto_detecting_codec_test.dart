@@ -11,6 +11,7 @@ void main() {
     setUp(() {
       registry = RdfCodecRegistry();
       defaultCodec = const TurtleCodec();
+      registry.registerGraphCodec(defaultCodec);
       codec = AutoDetectingGraphCodec(
         registry: registry,
         defaultCodec: defaultCodec,

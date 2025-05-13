@@ -14,7 +14,7 @@ import '../vocab/xsd.dart';
 
 /// Encoder for the N-Triples format.
 ///
-/// This class extends the RdfEncoder abstract class to convert RDF graphs into
+/// This class extends the RdfGraphEncoder abstract class to convert RDF graphs into
 /// the N-Triples serialization format. N-Triples is a line-based format where
 /// each line represents a single triple, making it very simple to parse and generate.
 ///

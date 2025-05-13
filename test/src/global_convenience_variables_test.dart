@@ -1,7 +1,8 @@
+// filepath: /Users/klaskalass/privat/rdf/rdf_core/test/src/global_convenience_variables_test.dart
 import 'package:rdf_core/rdf_core.dart';
 import 'package:test/test.dart';
 
-// Tests for the global convenience variable 'rdf'
+// Tests for the global convenience variables: rdf, turtle, jsonldGraph, ntriples
 void main() {
   group('Global Convenience Variable - rdf', () {
     test('rdf provides an instance of RdfCore with standard codecs', () {
@@ -203,6 +204,223 @@ void main() {
       expect(
         finalGraph.triples.first.object,
         equals(originalGraph.triples.first.object),
+      );
+    });
+  });
+
+  group('Global Convenience Variable - turtle', () {
+    test('turtle provides instance of TurtleGraphCodec', () {
+      // Assert
+      expect(turtle, isA<RdfGraphCodec>());
+      expect(turtle.primaryMimeType, equals('text/turtle'));
+    });
+
+    test('turtle encoder serializes RDF graph to Turtle format', () {
+      // Arrange
+      final graph = RdfGraph().withTriple(
+        Triple(
+          IriTerm('http://example.org/subject'),
+          IriTerm('http://example.org/predicate'),
+          LiteralTerm.string('object'),
+        ),
+      );
+
+      // Act
+      final encoded = turtle.encoder.convert(graph);
+
+      // Assert
+      expect(encoded, contains('<http://example.org/subject>'));
+      expect(encoded, contains('<http://example.org/predicate>'));
+      expect(encoded, contains('"object"'));
+    });
+
+    test('turtle decoder parses Turtle format to RDF graph', () {
+      // Arrange
+      final turtleContent =
+          '@prefix ex: <http://example.org/> .\nex:subject ex:predicate "object" .';
+
+      // Act
+      final graph = turtle.decoder.convert(turtleContent);
+
+      // Assert
+      expect(graph, isA<RdfGraph>());
+      expect(graph.size, equals(1));
+      expect(
+        graph.triples.first.subject,
+        equals(IriTerm('http://example.org/subject')),
+      );
+    });
+
+    test(
+      'turtle encodes graphs with relative URIs when baseUri is provided',
+      () {
+        // Arrange
+        final graph = RdfGraph().withTriple(
+          Triple(
+            IriTerm('http://example.org/base/subject'),
+            IriTerm('http://example.org/predicate'),
+            LiteralTerm.string('object'),
+          ),
+        );
+
+        // Act - encode with baseUri
+        final encoded = turtle.encoder.convert(
+          graph,
+          baseUri: 'http://example.org/base/',
+        );
+
+        // Assert - subject should be relative
+        expect(encoded, contains('<subject>'));
+        expect(encoded, contains('@base <http://example.org/base/>'));
+      },
+    );
+  });
+
+  group('Global Convenience Variable - jsonldGraph', () {
+    test('jsonldGraph provides instance of JsonLdGraphCodec', () {
+      // Assert
+      expect(jsonldGraph, isA<RdfGraphCodec>());
+      expect(jsonldGraph.primaryMimeType, equals('application/ld+json'));
+    });
+
+    test('jsonldGraph encoder serializes RDF graph to JSON-LD format', () {
+      // Arrange
+      final graph = RdfGraph().withTriple(
+        Triple(
+          IriTerm('http://example.org/subject'),
+          IriTerm('http://example.org/predicate'),
+          LiteralTerm.string('object'),
+        ),
+      );
+
+      // Act
+      final encoded = jsonldGraph.encoder.convert(graph);
+
+      // Assert
+      expect(encoded, contains('"@id": "http://example.org/subject"'));
+      expect(encoded, contains('"http://example.org/predicate": "object"'));
+    });
+
+    test('jsonldGraph decoder parses JSON-LD format to RDF graph', () {
+      // Arrange
+      final jsonLdContent = '''
+      {
+        "@context": {
+          "ex": "http://example.org/"
+        },
+        "@id": "ex:subject",
+        "ex:predicate": "object"
+      }''';
+
+      // Act
+      final graph = jsonldGraph.decoder.convert(jsonLdContent);
+
+      // Assert
+      expect(graph, isA<RdfGraph>());
+      expect(graph.size, equals(1));
+      expect(
+        graph.triples.first.subject,
+        equals(IriTerm('http://example.org/subject')),
+      );
+    });
+
+    test('jsonldGraph handles compact IRIs', () {
+      // Arrange
+      final jsonLdContent = '''
+      {
+        "@context": {
+          "schema": "https://schema.org/",
+          "name": "schema:name"
+        },
+        "@id": "http://example.org/person/1",
+        "name": "John Doe"
+      }''';
+
+      // Act
+      final graph = jsonldGraph.decoder.convert(jsonLdContent);
+
+      // Assert
+      expect(graph, isA<RdfGraph>());
+      expect(graph.size, equals(1));
+
+      expect(graph.triples.first.predicate, isA<IriTerm>());
+      expect(
+        graph.triples.first.predicate,
+        equals(IriTerm('https://schema.org/name')),
+      );
+      // The object should be the string value
+      expect(
+        graph.triples.first.object,
+        equals(LiteralTerm.string('John Doe')),
+      );
+    });
+  });
+
+  group('Global Convenience Variable - ntriples', () {
+    test('ntriples provides instance of NTriplesCodec', () {
+      // Assert
+      expect(ntriples, isA<RdfGraphCodec>());
+      expect(ntriples.primaryMimeType, equals('application/n-triples'));
+    });
+
+    test('ntriples encoder serializes RDF graph to N-Triples format', () {
+      // Arrange
+      final graph = RdfGraph().withTriple(
+        Triple(
+          IriTerm('http://example.org/subject'),
+          IriTerm('http://example.org/predicate'),
+          LiteralTerm.string('object'),
+        ),
+      );
+
+      // Act
+      final encoded = ntriples.encoder.convert(graph);
+
+      // Assert
+      expect(
+        encoded.trim(),
+        equals(
+          '<http://example.org/subject> <http://example.org/predicate> "object" .',
+        ),
+      );
+    });
+
+    test('ntriples decoder parses N-Triples format to RDF graph', () {
+      // Arrange
+      final ntriplesContent =
+          '<http://example.org/subject> <http://example.org/predicate> "object" .';
+
+      // Act
+      final graph = ntriples.decoder.convert(ntriplesContent);
+
+      // Assert
+      expect(graph, isA<RdfGraph>());
+      expect(graph.size, equals(1));
+      expect(
+        graph.triples.first.subject,
+        equals(IriTerm('http://example.org/subject')),
+      );
+    });
+
+    test('ntriples handles special characters correctly', () {
+      // Arrange
+      final graph = RdfGraph().withTriple(
+        Triple(
+          IriTerm('http://example.org/subject'),
+          IriTerm('http://example.org/predicate'),
+          LiteralTerm.string('Special chars: \r\n\t"\\'),
+        ),
+      );
+
+      // Act - Round-trip test
+      final encoded = ntriples.encoder.convert(graph);
+      final decoded = ntriples.decoder.convert(encoded);
+
+      // Assert
+      expect(decoded.size, equals(1));
+      expect(
+        decoded.triples.first.object,
+        equals(LiteralTerm.string('Special chars: \r\n\t"\\')),
       );
     });
   });

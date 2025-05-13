@@ -227,9 +227,7 @@ class JsonLdParser {
           _processType(subject, value, triples, context);
         }
         continue;
-      }
-
-      // Expand predicate using context
+      } // Expand predicate using context
       final predicateStr = _expandPredicate(key, context);
       final predicate = IriTerm(predicateStr);
       _log.info('Processing property: $key -> $predicate');
@@ -377,6 +375,20 @@ class JsonLdParser {
         // Treat as IRI
         triples.add(Triple(subject, predicate, IriTerm(value)));
         _log.info('Added IRI triple: $subject -> $predicate -> $value');
+      } else if (value.contains(':')) {
+        // Check if it's a prefixed IRI like "schema:name"
+        final expanded = _expandPrefixedIri(value, context);
+        if (expanded != value) {
+          // Was expanded, so treat as IRI
+          triples.add(Triple(subject, predicate, IriTerm(expanded)));
+          _log.info(
+            'Added expanded IRI triple: $subject -> $predicate -> $expanded (from $value)',
+          );
+        } else {
+          // Wasn't expanded, treat as literal
+          triples.add(Triple(subject, predicate, LiteralTerm.string(value)));
+          _log.info('Added literal triple: $subject -> $predicate -> "$value"');
+        }
       } else {
         // Treat as literal
         triples.add(Triple(subject, predicate, LiteralTerm.string(value)));
@@ -468,7 +480,20 @@ class JsonLdParser {
 
   /// Expand a predicate using the context
   String _expandPredicate(String key, Map<String, String> context) {
-    // Predicate actually is an IRI, so expand it
+    // Check direct match in context first - this is for cases like
+    // where "name" is defined to be "schema:name" or a full IRI
+    if (context.containsKey(key)) {
+      final value = context[key]!;
+      // If value is a prefixed IRI, expand it further
+      if (value.contains(':') &&
+          !value.startsWith('http://') &&
+          !value.startsWith('https://')) {
+        return _expandPrefixedIri(value, context);
+      }
+      return value;
+    }
+
+    // Otherwise try to expand as a prefixed IRI
     return _expandPrefixedIri(key, context);
   }
 

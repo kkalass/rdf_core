@@ -11,9 +11,13 @@ void main() {
     final _namespaceMappings = const RdfNamespaceMappings();
 
     // Register standard formats
-    registry.registerCodec(TurtleCodec(namespaceMappings: _namespaceMappings));
-    registry.registerCodec(JsonLdCodec(namespaceMappings: _namespaceMappings));
-    registry.registerCodec(const NTriplesCodec());
+    registry.registerGraphCodec(
+      TurtleCodec(namespaceMappings: _namespaceMappings),
+    );
+    registry.registerGraphCodec(
+      JsonLdGraphCodec(namespaceMappings: _namespaceMappings),
+    );
+    registry.registerGraphCodec(const NTriplesCodec());
 
     rdf = RdfCore(registry: registry);
   });
@@ -30,7 +34,7 @@ void main() {
       // The factory constructor should pre-register standard codecs
 
       // Check that at least the standard codecs are registered (Turtle, JSON-LD)
-      final codecs = registry.getAllCodecs();
+      final codecs = registry.getAllGraphCodecs();
       expect(codecs.length, greaterThanOrEqualTo(2));
 
       // Verify we can get a decoder for Turtle
@@ -43,10 +47,10 @@ void main() {
     });
 
     test('registerCodec adds custom codec', () {
-      final customCodec = _CustomRdfCodec();
+      final customCodec = _CustomRdfGraphCodec();
 
       // Register our custom codec
-      registry.registerCodec(customCodec);
+      registry.registerGraphCodec(customCodec);
 
       // Verify we can get a decoder for our custom codec
       final customDecoder = rdf.codec('application/x-custom-rdf').decoder;
@@ -54,12 +58,12 @@ void main() {
 
       // Verify we can get a encoder for our custom codec
       final customEncoder = rdf.codec('application/x-custom-rdf').encoder;
-      expect(customEncoder, isA<_CustomRdfEncoder>());
+      expect(customEncoder, isA<_CustomRdfGraphEncoder>());
     });
 
     test('parse and encode with custom codec', () {
-      final customCodec = _CustomRdfCodec();
-      registry.registerCodec(customCodec);
+      final customCodec = _CustomRdfGraphCodec();
+      registry.registerGraphCodec(customCodec);
 
       // Custom codec parsing should work
       final graph = rdf.decode(
@@ -78,7 +82,7 @@ void main() {
 
     test('auto-detection works with custom codec', () {
       // Register our custom codec that accepts any input
-      registry.registerCodec(_CustomRdfCodec());
+      registry.registerGraphCodec(_CustomRdfGraphCodec());
 
       // Custom codec should be detected
       final graph = rdf.decode('custom content');
@@ -89,15 +93,15 @@ void main() {
 
 // Example of a custom codec implementation
 
-class _CustomRdfCodec extends RdfCodec {
+class _CustomRdfGraphCodec extends RdfGraphCodec {
   @override
   bool canParse(String content) => true; // Accept any content for testing
 
   @override
-  RdfDecoder get decoder => _CustomRdfDecoder();
+  RdfGraphDecoder get decoder => _CustomRdfDecoder();
 
   @override
-  RdfEncoder get encoder => _CustomRdfEncoder();
+  RdfGraphEncoder get encoder => _CustomRdfGraphEncoder();
 
   @override
   String get primaryMimeType => 'application/x-custom-rdf';
@@ -109,7 +113,7 @@ class _CustomRdfCodec extends RdfCodec {
   };
 }
 
-class _CustomRdfDecoder extends RdfDecoder {
+class _CustomRdfDecoder extends RdfGraphDecoder {
   @override
   RdfGraph convert(String input, {String? documentUrl}) {
     // For testing, always create a graph with one triple
@@ -121,7 +125,7 @@ class _CustomRdfDecoder extends RdfDecoder {
   }
 }
 
-class _CustomRdfEncoder extends RdfEncoder {
+class _CustomRdfGraphEncoder extends RdfGraphEncoder {
   @override
   String convert(
     RdfGraph graph, {

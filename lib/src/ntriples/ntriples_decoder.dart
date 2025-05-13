@@ -23,7 +23,7 @@ import '../rdf_decoder.dart';
 /// The parser processes the input line by line, ignoring comment lines
 /// (starting with '#') and empty lines, and parses each remaining line
 /// as a separate triple.
-final class NTriplesDecoder extends RdfDecoder {
+final class NTriplesDecoder extends RdfGraphDecoder {
   final _logger = Logger('rdf.ntriples.parser');
   static const _formatName = 'application/n-triples';
 

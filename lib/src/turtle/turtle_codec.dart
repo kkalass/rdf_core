@@ -56,7 +56,7 @@ import 'turtle_encoder.dart';
 ///
 /// Turtle files typically use the `.ttl` file extension.
 /// The primary MIME type is `text/turtle`.
-final class TurtleCodec extends RdfCodec {
+final class TurtleCodec extends RdfGraphCodec {
   static const _primaryMimeType = 'text/turtle';
 
   /// All MIME types that this format implementation can handle
@@ -89,13 +89,13 @@ final class TurtleCodec extends RdfCodec {
   Set<String> get supportedMimeTypes => _supportedMimeTypes;
 
   @override
-  RdfDecoder get decoder => TurtleDecoder(
+  RdfGraphDecoder get decoder => TurtleDecoder(
     parsingFlags: _parsingFlags,
     namespaceMappings: _namespaceMappings,
   );
 
   @override
-  RdfEncoder get encoder =>
+  RdfGraphEncoder get encoder =>
       TurtleEncoder(namespaceMappings: _namespaceMappings);
 
   @override

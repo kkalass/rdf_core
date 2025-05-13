@@ -5,16 +5,16 @@ void main() {
   group('FormatDetectingDecoder', () {
     late RdfCodecRegistry registry;
 
-    late RdfDecoder rdfDecoder;
+    late RdfGraphDecoder rdfDecoder;
 
     setUp(() {
       // Setup registry with codecs
       registry = RdfCodecRegistry();
-      registry.registerCodec(const TurtleCodec());
-      registry.registerCodec(const JsonLdCodec());
+      registry.registerGraphCodec(const TurtleCodec());
+      registry.registerGraphCodec(const JsonLdGraphCodec());
 
       // Create format detecting decoder
-      rdfDecoder = AutoDetectingDecoder(registry);
+      rdfDecoder = AutoDetectingGraphDecoder(registry);
     });
 
     test('should decode a simple profile', () {

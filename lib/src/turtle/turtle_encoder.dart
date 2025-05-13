@@ -11,7 +11,7 @@ final _log = Logger("rdf.turtle");
 
 /// Turtle Encoder Implementation
 ///
-/// Extends the [RdfEncoder] class for serializing RDF graphs to Turtle syntax.
+/// Extends the [RdfGraphEncoder] class for serializing RDF graphs to Turtle syntax.
 ///
 /// Example usage:
 /// ```dart
@@ -23,7 +23,7 @@ final _log = Logger("rdf.turtle");
 /// See: [Turtle - Terse RDF Triple Language](https://www.w3.org/TR/turtle/)
 /// NOTE: Always use canonical RDF vocabularies (e.g., http://xmlns.com/foaf/0.1/) with http://, not https://
 /// This serializer will warn if it detects use of https:// for a namespace that is canonical as http://.
-class TurtleEncoder extends RdfEncoder {
+class TurtleEncoder extends RdfGraphEncoder {
   /// A map of well-known common RDF prefixes used in Turtle serialization.
   /// These prefixes provide shorthand notation for commonly used RDF namespaces
   /// and do not need to be specified explicitly for serialization.

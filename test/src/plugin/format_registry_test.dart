@@ -80,7 +80,7 @@ void main() {
       // Don't register any codecs
 
       expect(
-        () => registry.getGraphCodec('application/not-registered').encoder,
+        () => registry.getGraphCodec('application/not-registered'),
         throwsA(isA<CodecNotSupportedException>()),
       );
     });
@@ -89,7 +89,7 @@ void main() {
       // Don't register any codecs
 
       expect(
-        () => registry.getGraphCodec(null).decoder,
+        () => registry.getGraphCodec(null),
         throwsA(isA<CodecNotSupportedException>()),
       );
     });

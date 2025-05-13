@@ -31,7 +31,7 @@ import 'ntriples_encoder.dart';
 /// <http://example.org/subject> <http://example.org/predicate> "Literal value" .
 /// <http://example.org/subject> <http://example.org/predicate> "Value"@en .
 /// ```
-final class NTriplesCodec extends RdfCodec {
+final class NTriplesCodec extends RdfGraphCodec {
   /// The primary MIME type for N-Triples: application/n-triples
   static const String _primaryMimeType = 'application/n-triples';
 
@@ -54,10 +54,10 @@ final class NTriplesCodec extends RdfCodec {
   };
 
   @override
-  RdfDecoder get decoder => NTriplesDecoder();
+  RdfGraphDecoder get decoder => NTriplesDecoder();
 
   @override
-  RdfEncoder get encoder => NTriplesEncoder();
+  RdfGraphEncoder get encoder => NTriplesEncoder();
 
   @override
   bool canParse(String content) {

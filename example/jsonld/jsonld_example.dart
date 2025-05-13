@@ -26,7 +26,7 @@ void main() {
   }
   ''';
 
-  final graph = jsonld.decode(jsonLd);
+  final graph = jsonldGraph.decode(jsonLd);
 
   print('=== Parsed Triples ===');
   for (final triple in graph.triples) {
@@ -44,7 +44,7 @@ void main() {
   }
 
   // Serialize the graph back to JSON-LD
-  final serialized = jsonld.encode(graph);
+  final serialized = jsonldGraph.encode(graph);
   print('\n=== Serialized JSON-LD ===');
   print(serialized);
 }

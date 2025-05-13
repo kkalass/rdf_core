@@ -17,8 +17,8 @@ import 'graph/rdf_graph.dart';
 ///
 /// Format-specific decoders should implement this base class to be used with the
 /// RDF library's parsing framework.
-abstract class RdfDecoder extends Converter<String, RdfGraph> {
-  const RdfDecoder();
+abstract class RdfGraphDecoder extends Converter<String, RdfGraph> {
+  const RdfGraphDecoder();
 
   /// Decodes an RDF document and return an RDF graph
   ///

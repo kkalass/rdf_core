@@ -38,7 +38,7 @@ final _log = Logger("rdf.jsonld");
 ///
 /// The serializer produces compacted JSON-LD by default, using prefixes
 /// to make property names more readable.
-final class JsonLdEncoder extends RdfEncoder {
+final class JsonLdEncoder extends RdfGraphEncoder {
   /// Well-known common prefixes used for more readable JSON-LD output.
   final RdfNamespaceMappings _namespaceMappings;
 

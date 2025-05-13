@@ -46,7 +46,7 @@ import 'package:rdf_core/rdf_core.dart';
 
 // Easy access to formats through global variables
 final graphFromTurtle = turtle.decode(turtleData);
-final graphFromJsonLd = jsonld.decode(jsonLdData);
+final graphFromJsonLd = lsonldGraph.decode(jsonLdData);
 final graphFromNTriples = ntriples.decode(ntriplesData);
 
 // Or use the pre-configured RdfCore instance
@@ -156,7 +156,7 @@ void main() {
   ''';
 
   // Using the convenience global variable
-  final graph = jsonld.decode(jsonLdData);
+  final graph = lsonldGraph.decode(jsonLdData);
 
   // Print parsed triples
   for (final triple in graph.triples) {
@@ -164,7 +164,7 @@ void main() {
   }
 
   // Serialize the graph back to JSON-LD
-  final serialized = jsonld.encode(graph);
+  final serialized = lsonldGraph.encode(graph);
   print('\nSerialized JSON-LD:\n$serialized');
 }
 ```
@@ -275,9 +275,9 @@ final graph2 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 | `BlankNodeTerm`| Represents a blank node                       |
 | `Triple`       | Atomic RDF statement (subject, predicate, object) |
 | `RdfGraph`     | Collection of RDF triples                     |
-| `RdfCodec`     | Base class for decoding/encoding RDF in various formats |
-| `RdfDecoder`   | Base class for decoding RDF                    |
-| `RdfEncoder`   | Base class for encoding RDF                    |
+| `RdfGraphCodec`     | Base class for decoding/encoding RDF Graphs in various formats |
+| `RdfGraphDecoder`   | Base class for decoding RDF Graphs                   |
+| `RdfGraphEncoder`   | Base class for encoding RDF Graphs                   |
 | `turtle`       | Global convenience variable for Turtle format |
 | `jsonld`       | Global convenience variable for JSON-LD format |
 | `ntriples`     | Global convenience variable for N-Triples format |

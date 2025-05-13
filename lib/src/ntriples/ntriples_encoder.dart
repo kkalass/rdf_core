@@ -23,7 +23,7 @@ import '../vocab/xsd.dart';
 ///
 /// N-Triples is fully compatible with the RDF 1.1 N-Triples specification
 /// (https://www.w3.org/TR/n-triples/).
-final class NTriplesEncoder extends RdfEncoder {
+final class NTriplesEncoder extends RdfGraphEncoder {
   final _logger = Logger('rdf.ntriples.serializer');
 
   /// Creates a new N-Triples serializer

@@ -23,8 +23,8 @@ import 'graph/rdf_graph.dart';
 /// - Determining how to represent triples in their specific format
 /// - Handling namespace prefixes and base URIs
 /// - Applying format-specific optimizations for readability or size
-abstract class RdfEncoder extends Converter<RdfGraph, String> {
-  const RdfEncoder();
+abstract class RdfGraphEncoder extends Converter<RdfGraph, String> {
+  const RdfGraphEncoder();
 
   /// Encodes an RDF graph to a string representation in a specific format.
   ///

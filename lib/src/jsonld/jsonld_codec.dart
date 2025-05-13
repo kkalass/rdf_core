@@ -72,7 +72,7 @@ import 'jsonld_encoder.dart';
 ///
 /// JSON-LD files typically use the `.jsonld` file extension.
 /// The primary MIME type is `application/ld+json`.
-final class JsonLdCodec extends RdfCodec {
+final class JsonLdGraphCodec extends RdfGraphCodec {
   static const _primaryMimeType = 'application/ld+json';
 
   /// All MIME types that this format implementation can handle
@@ -81,7 +81,7 @@ final class JsonLdCodec extends RdfCodec {
   final RdfNamespaceMappings _namespaceMappings;
 
   /// Creates a new JSON-LD codec
-  const JsonLdCodec({RdfNamespaceMappings? namespaceMappings})
+  const JsonLdGraphCodec({RdfNamespaceMappings? namespaceMappings})
     : _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings();
 
   @override
@@ -91,10 +91,10 @@ final class JsonLdCodec extends RdfCodec {
   Set<String> get supportedMimeTypes => _supportedMimeTypes;
 
   @override
-  RdfDecoder get decoder => JsonLdDecoder();
+  RdfGraphDecoder get decoder => JsonLdDecoder();
 
   @override
-  RdfEncoder get encoder =>
+  RdfGraphEncoder get encoder =>
       JsonLdEncoder(namespaceMappings: this._namespaceMappings);
 
   @override
@@ -118,11 +118,13 @@ final class JsonLdCodec extends RdfCodec {
 /// Global convenience variable for working with JSON-LD format
 ///
 /// This variable provides direct access to JSON-LD codec for easy
-/// encoding and decoding of JSON-LD data.
+/// encoding and decoding of JSON-LD data. Note that this is the variant
+/// of JSON-LD that is used for RdfGraph only, for the full RdfDataset use
+/// [JsonLdDatasetCodec].
 ///
 /// Example:
 /// ```dart
-/// final graph = jsonld.decode(jsonLdString);
-/// final serialized = jsonld.encode(graph);
+/// final graph = jsonldGraph.decode(jsonLdString);
+/// final serialized = jsonldGraph.encode(graph);
 /// ```
-final jsonld = JsonLdCodec();
+final jsonldGraph = JsonLdGraphCodec();

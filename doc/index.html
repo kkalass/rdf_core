@@ -127,7 +127,7 @@ final turtleData = '@prefix ex: <http://example.org/> . ex:subject ex:predicate 
 final graphFromTurtle = turtle.decode(turtleData);
 
 final jsonLdData = '{"@id": "http://example.org/subject", "http://example.org/predicate": "Hello, World!"}';
-final graphFromJsonLd = jsonld.decode(jsonLdData);
+final graphFromJsonLd = lsonldGraph.decode(jsonLdData);
 
 // Or use the pre-configured RdfCore instance
 final rdfGraph = rdf.decode(turtleData, contentType: 'text/turtle');
@@ -268,8 +268,8 @@ final jsonLdDoc = '''
 ''';
 
 // Option 1: Use the global convenience variable
-final graph = jsonld.decode(jsonLdDoc);
-final encodedJsonLd = jsonld.encode(graph);
+final graph = lsonldGraph.decode(jsonLdDoc);
+final encodedJsonLd = lsonldGraph.encode(graph);
 
 // Option 2: Use the pre-configured RdfCore instance
 final rdf = RdfCore.withStandardCodecs();

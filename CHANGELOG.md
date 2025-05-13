@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.1] - 2025-05-13
+
+### Breaking Changes - DO NOT USE 0.8.0 please
+
+- **API Refactoring**: In preparation for RDF 1.1 Dataset support:
+  - Renamed `RdfCodec` → `RdfGraphCodec`
+  - Renamed `RdfEncoder` → `RdfGraphEncoder`
+  - Renamed `RdfDecoder` → `RdfGraphDecoder`
+
+
 ## [0.8.0] - 2025-05-12
 
 ### Breaking Changes

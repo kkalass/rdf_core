@@ -31,7 +31,7 @@ import '../rdf_encoder.dart';
 ///
 /// Example of implementing a new format:
 /// ```dart
-/// class MyCustomCodec implements RdfCodec {
+/// class MyCustomGraphCodec implements RdfGraphCodec {
 ///   @override
 ///   String get primaryMimeType => 'application/x-custom-rdf';
 ///
@@ -39,10 +39,10 @@ import '../rdf_encoder.dart';
 ///   Set<String> get supportedMimeTypes => {primaryMimeType};
 ///
 ///   @override
-///   RdfDecoder get decoder => MyCustomDecoder();
+///   RdfGraphDecoder get decoder => MyCustomGraphDecoder();
 ///
 ///   @override
-///   RdfEncoder get encoder => MyCustomEncoder();
+///   RdfGraphEncoder get encoder => MyCustomGraphEncoder();
 ///
 ///   @override
 ///   bool canParse(String content) {
@@ -51,7 +51,7 @@ import '../rdf_encoder.dart';
 ///   }
 /// }
 /// ```
-abstract class RdfCodec extends Codec<RdfGraph, String> {
+abstract class RdfGraphCodec extends Codec<RdfGraph, String> {
   /// The primary MIME type for this codec
   ///
   /// This is the canonical MIME type used to identify the codec,
@@ -70,16 +70,16 @@ abstract class RdfCodec extends Codec<RdfGraph, String> {
   /// Returns a new instance of a decoder that can convert text in this codec's format
   /// to an RdfGraph object.
   @override
-  RdfDecoder get decoder;
+  RdfGraphDecoder get decoder;
 
   /// Creates an encoder instance for this codec
   ///
   /// Returns a new instance of an encoder that can convert an RdfGraph
   /// to text in this codec's format.
   @override
-  RdfEncoder get encoder;
+  RdfGraphEncoder get encoder;
 
-  const RdfCodec();
+  const RdfGraphCodec();
 
   /// Encodes an RDF graph to a string representation in this codec
   ///
@@ -184,8 +184,8 @@ abstract class RdfCodec extends Codec<RdfGraph, String> {
 /// ```
 final class RdfCodecRegistry {
   final _logger = Logger('rdf.codec_registry');
-  final Map<String, RdfCodec> _codecsByMimeType = {};
-  final List<RdfCodec> _codecs = [];
+  final Map<String, RdfGraphCodec> _graphCodecsByMimeType = {};
+  final List<RdfGraphCodec> _graphCodecs = [];
 
   /// Creates a new codec registry
   ///
@@ -200,19 +200,19 @@ final class RdfCodecRegistry {
   /// be considered during auto-detection of unknown content.
   ///
   /// @param codec The codec implementation to register
-  void registerCodec(RdfCodec codec) {
-    _logger.fine('Registering codec: ${codec.primaryMimeType}');
-    _codecs.add(codec);
+  void registerGraphCodec(RdfGraphCodec codec) {
+    _logger.fine('Registering graph codec: ${codec.primaryMimeType}');
+    _graphCodecs.add(codec);
 
     for (final mimeType in codec.supportedMimeTypes) {
       final normalized = _normalizeMimeType(mimeType);
-      _codecsByMimeType[normalized] = codec;
+      _graphCodecsByMimeType[normalized] = codec;
     }
   }
 
-  Set<String> get allMimeTypes {
+  Set<String> get allGraphMimeTypes {
     final mimeTypes = <String>{};
-    for (final codec in _codecs) {
+    for (final codec in _graphCodecs) {
       mimeTypes.addAll(codec.supportedMimeTypes);
     }
     return Set.unmodifiable(mimeTypes);
@@ -224,13 +224,13 @@ final class RdfCodecRegistry {
   /// in the format specified by the given MIME type.
   ///
   /// @param mimeType The MIME type for which to retrieve a codec. Can be null.
-  /// @return The appropriate [RdfCodec] for the given MIME type. If you pass in null as mimeType then a special
+  /// @return The appropriate [RdfGraphCodec] for the given MIME type. If you pass in null as mimeType then a special
   /// one that auto-detects the format for the decoder, but encodes to the first registered codec
   /// @throws UnsupportedCodecException If no codec is found for the given MIME type.
-  RdfCodec getCodec(String? mimeType) {
-    RdfCodec? result;
+  RdfGraphCodec getGraphCodec(String? mimeType) {
+    RdfGraphCodec? result;
     if (mimeType != null) {
-      result = _codecsByMimeType[_normalizeMimeType(mimeType)];
+      result = _graphCodecsByMimeType[_normalizeMimeType(mimeType)];
       if (result == null) {
         throw CodecNotSupportedException(
           'No codec registered for MIME type: $mimeType',
@@ -240,12 +240,15 @@ final class RdfCodecRegistry {
     }
 
     // Use the first registered codec as default encoder
-    if (_codecs.isEmpty) {
+    if (_graphCodecs.isEmpty) {
       throw CodecNotSupportedException('No codecs registered');
     }
 
     // If no codec found, return a special detecting codec
-    return AutoDetectingCodec(defaultCodec: _codecs.first, registry: this);
+    return AutoDetectingGraphCodec(
+      defaultCodec: _graphCodecs.first,
+      registry: this,
+    );
   }
 
   /// Retrieves all registered codecs
@@ -254,7 +257,7 @@ final class RdfCodecRegistry {
   /// This can be useful for iterating through available codecs or for diagnostics.
   ///
   /// @return An unmodifiable list of all registered codecs
-  List<RdfCodec> getAllCodecs() => List.unmodifiable(_codecs);
+  List<RdfGraphCodec> getAllGraphCodecs() => List.unmodifiable(_graphCodecs);
 
   /// Detect codec from content when no MIME type is available
   ///
@@ -264,10 +267,10 @@ final class RdfCodecRegistry {
   ///
   /// @param content The content string to analyze
   /// @return The first codec that claims it can parse the content, or null if none found
-  RdfCodec? detectCodec(String content) {
+  RdfGraphCodec? detectGraphCodec(String content) {
     _logger.fine('Attempting to detect codec from content');
 
-    for (final codec in _codecs) {
+    for (final codec in _graphCodecs) {
       if (codec.canParse(content)) {
         _logger.fine('Detected codec: ${codec.primaryMimeType}');
         return codec;
@@ -294,8 +297,8 @@ final class RdfCodecRegistry {
   /// Removes all registered codecs from the registry. This is primarily
   /// useful for unit testing to ensure a clean state.
   void clear() {
-    _codecs.clear();
-    _codecsByMimeType.clear();
+    _graphCodecs.clear();
+    _graphCodecsByMimeType.clear();
   }
 }
 
@@ -318,13 +321,13 @@ class CodecNotSupportedException implements Exception {
   String toString() => 'CodecNotSupportedException: $message';
 }
 
-final class AutoDetectingCodec extends RdfCodec {
-  final RdfCodec _defaultCodec;
+final class AutoDetectingGraphCodec extends RdfGraphCodec {
+  final RdfGraphCodec _defaultCodec;
 
   final RdfCodecRegistry _registry;
 
-  AutoDetectingCodec({
-    required RdfCodec defaultCodec,
+  AutoDetectingGraphCodec({
+    required RdfGraphCodec defaultCodec,
     required RdfCodecRegistry registry,
   }) : _defaultCodec = defaultCodec,
        _registry = registry;
@@ -333,13 +336,13 @@ final class AutoDetectingCodec extends RdfCodec {
   String get primaryMimeType => _defaultCodec.primaryMimeType;
 
   @override
-  Set<String> get supportedMimeTypes => _registry.allMimeTypes;
+  Set<String> get supportedMimeTypes => _registry.allGraphMimeTypes;
 
   @override
-  RdfDecoder get decoder => AutoDetectingDecoder(_registry);
+  RdfGraphDecoder get decoder => AutoDetectingGraphDecoder(_registry);
 
   @override
-  RdfEncoder get encoder => _defaultCodec.encoder;
+  RdfGraphEncoder get encoder => _defaultCodec.encoder;
 
   @override
   bool canParse(String content) => true;
@@ -353,18 +356,18 @@ final class AutoDetectingCodec extends RdfCodec {
 ///
 /// This class is primarily used internally by the RdfCodecRegistry and is not
 /// typically instantiated directly by library users.
-final class AutoDetectingDecoder extends RdfDecoder {
+final class AutoDetectingGraphDecoder extends RdfGraphDecoder {
   final _logger = Logger('rdf.format_detecting_parser');
   final RdfCodecRegistry _registry;
 
   /// Creates a new auto-detecting decoder
   ///
   /// @param registry The format registry to use for detection and parser creation
-  AutoDetectingDecoder(this._registry);
+  AutoDetectingGraphDecoder(this._registry);
 
   @override
   RdfGraph convert(String input, {String? documentUrl}) {
-    final format = _registry.detectCodec(input);
+    final format = _registry.detectGraphCodec(input);
 
     if (format != null) {
       _logger.fine('Using detected format: ${format.primaryMimeType}');
@@ -372,7 +375,7 @@ final class AutoDetectingDecoder extends RdfDecoder {
     }
 
     // If we can't detect, try the first available format
-    final codecs = _registry.getAllCodecs();
+    final codecs = _registry.getAllGraphCodecs();
     if (codecs.isEmpty) {
       throw CodecNotSupportedException('No RDF codecs registered');
     }

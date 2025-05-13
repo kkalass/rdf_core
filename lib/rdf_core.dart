@@ -199,20 +199,24 @@ final class RdfCore {
   /// ```
   factory RdfCore.withStandardCodecs({
     RdfNamespaceMappings? namespaceMappings,
-    List<RdfCodec> additionalCodecs = const [],
+    List<RdfGraphCodec> additionalCodecs = const [],
   }) {
     final registry = RdfCodecRegistry();
     final _namespaceMappings =
         namespaceMappings ?? const RdfNamespaceMappings();
 
     // Register standard formats
-    registry.registerCodec(TurtleCodec(namespaceMappings: _namespaceMappings));
-    registry.registerCodec(JsonLdCodec(namespaceMappings: _namespaceMappings));
-    registry.registerCodec(const NTriplesCodec());
+    registry.registerGraphCodec(
+      TurtleCodec(namespaceMappings: _namespaceMappings),
+    );
+    registry.registerGraphCodec(
+      JsonLdGraphCodec(namespaceMappings: _namespaceMappings),
+    );
+    registry.registerGraphCodec(const NTriplesCodec());
 
     // Register additional codecs
     for (final codec in additionalCodecs) {
-      registry.registerCodec(codec);
+      registry.registerGraphCodec(codec);
     }
 
     return RdfCore(registry: registry);
@@ -235,10 +239,10 @@ final class RdfCore {
   /// final rdf = RdfCore.withCodecs(codecs: [turtle]);
   /// final graph = rdf.decode(turtleData, contentType: 'text/turtle');
   /// ```
-  factory RdfCore.withCodecs({List<RdfCodec> codecs = const []}) {
+  factory RdfCore.withCodecs({List<RdfGraphCodec> codecs = const []}) {
     final registry = RdfCodecRegistry();
     for (final codec in codecs) {
-      registry.registerCodec(codec);
+      registry.registerGraphCodec(codec);
     }
 
     return RdfCore(registry: registry);
@@ -308,12 +312,12 @@ final class RdfCore {
   /// typically turtle) and the decoding codec will be automatically detected.
   ///
   /// Returns:
-  /// - An [RdfCodec] that can handle the specified content type
+  /// - An [RdfGraphCodec] that can handle the specified content type
   ///
   /// Throws:
   /// - [CodecNotSupportedException] if the requested format is not supported
-  RdfCodec codec([String? contentType]) {
-    return _registry.getCodec(contentType);
+  RdfGraphCodec codec([String? contentType]) {
+    return _registry.getGraphCodec(contentType);
   }
 }
 

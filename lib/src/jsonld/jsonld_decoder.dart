@@ -10,7 +10,7 @@ const _format = "JSON-LD";
 ///
 /// Adapter that bridges the RdfDecoder base class to the
 /// implementation-specific JsonLdParser.
-class JsonLdDecoder extends RdfDecoder {
+class JsonLdDecoder extends RdfGraphDecoder {
   @override
   RdfGraph convert(String input, {String? documentUrl}) {
     final parser = JsonLdParser(input, baseUri: documentUrl);

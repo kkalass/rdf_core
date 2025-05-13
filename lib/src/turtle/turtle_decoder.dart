@@ -12,7 +12,7 @@ const _format = "Turtle";
 ///
 /// Internal adapter that bridges the RdfDecoder interface to the
 /// implementation-specific TurtleParser.
-class TurtleDecoder extends RdfDecoder {
+class TurtleDecoder extends RdfGraphDecoder {
   final Set<TurtleParsingFlag> _parsingFlags;
   final RdfNamespaceMappings _namespaceMappings;
 

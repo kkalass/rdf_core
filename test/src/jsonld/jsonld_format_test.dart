@@ -4,10 +4,10 @@ import 'package:test/test.dart';
 
 void main() {
   group('JsonLdFormat', () {
-    late JsonLdCodec codec;
+    late JsonLdGraphCodec codec;
 
     setUp(() {
-      codec = const JsonLdCodec();
+      codec = const JsonLdGraphCodec();
     });
 
     test('primaryMimeType returns application/ld+json', () {

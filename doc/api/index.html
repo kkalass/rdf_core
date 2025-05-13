@@ -60,7 +60,7 @@
 <h2 id="core-of-a-whole-family-of-projects">Core of a whole family of projects</h2>
 <p>If you are looking for more rdf-related functionality, have a look at our companion projects:</p>
 <ul>
-<li>parse and serialize rdf/xml format: <a href="https://github.com/kkalass/rdf_xml">rdf_xml</a></li>
+<li>encode and decode rdf/xml format: <a href="https://github.com/kkalass/rdf_xml">rdf_xml</a></li>
 <li>easy-to-use constants for many well-known vocabularies: <a href="https://github.com/kkalass/rdf_vocabularies">rdf_vocabularies</a></li>
 <li>generate your own easy-to-use constants for other vocabularies with a build_runner: <a href="https://github.com/kkalass/rdf_vocabulary_to_dart">rdf_vocabulary_to_dart</a></li>
 <li>map Dart Objects ↔️ RDF: <a href="https://github.com/kkalass/rdf_mapper">rdf_mapper</a></li>
@@ -79,7 +79,7 @@
 <p>The library provides global variables for quick and easy access:</p>
 <pre class="language-dart"><code class="language-dart">import 'package:rdf_core/rdf_core.dart';
 
-// Easy access to formats through global variables
+// Easy access to codecs through global variables
 final graphFromTurtle = turtle.decode(turtleData);
 final graphFromJsonLd = lsonldGraph.decode(jsonLdData);
 final graphFromNTriples = ntriples.decode(ntriplesData);
@@ -100,11 +100,11 @@ void main() {
   print(graph);
 }
 </code></pre>
-<h3 id="parsing-and-serializing-turtle">Parsing and Serializing Turtle</h3>
+<h3 id="decoding-and-encoding-turtle">Decoding and Encoding Turtle</h3>
 <pre class="language-dart"><code class="language-dart">import 'package:rdf_core/rdf_core.dart';
 
 void main() {
-  // Example: Parse a simple Turtle document
+  // Example: Decode a simple Turtle document
   final turtleData = '''
     @prefix foaf: &lt;http://xmlns.com/foaf/0.1/&gt; .
     &lt;http://example.org/alice&gt; foaf:name "Alice"@en .
@@ -117,21 +117,21 @@ void main() {
   // final rdfCore = RdfCore.withStandardCodecs();
   // final graph = rdfCore.decode(turtleData, contentType: 'text/turtle');
 
-  // Print parsed triples
+  // Print decoded triples
   for (final triple in graph.triples) {
     print('${triple.subject} ${triple.predicate} ${triple.object}');
   }
 
-  // Serialize the graph back to Turtle
+  // Encode the graph back to Turtle
   final serialized = turtle.encode(graph);
-  print('\nSerialized Turtle:\n$serialized');
+  print('\nEncoded Turtle:\n$serialized');
 }
 </code></pre>
-<h3 id="parsing-and-serializing-n-triples">Parsing and Serializing N-Triples</h3>
+<h3 id="decoding-and-encoding-n-triples">Decoding and Encoding N-Triples</h3>
 <pre class="language-dart"><code class="language-dart">import 'package:rdf_core/rdf_core.dart';
 
 void main() {
-  // Example: Parse a simple N-Triples document
+  // Example: Decode a simple N-Triples document
   final ntriplesData = '''
     &lt;http://example.org/alice&gt; &lt;http://xmlns.com/foaf/0.1/name&gt; "Alice"@en .
     &lt;http://example.org/alice&gt; &lt;http://xmlns.com/foaf/0.1/knows&gt; &lt;http://example.org/bob&gt; .
@@ -140,21 +140,21 @@ void main() {
   // Using the convenience global variable
   final graph = ntriples.decode(ntriplesData);
 
-  // Print parsed triples
+  // Print decoded triples
   for (final triple in graph.triples) {
     print('${triple.subject} ${triple.predicate} ${triple.object}');
   }
 
-  // Serialize the graph back to N-Triples
+  // Encode the graph back to N-Triples
   final serialized = ntriples.encode(graph);
-  print('\nSerialized N-Triples:\n$serialized');
+  print('\nEncoded N-Triples:\n$serialized');
 }
 </code></pre>
-<h3 id="parsing-and-serializing-json-ld">Parsing and Serializing JSON-LD</h3>
+<h3 id="decoding-and-encoding-json-ld">Decoding and Encoding JSON-LD</h3>
 <pre class="language-dart"><code class="language-dart">import 'package:rdf_core/rdf_core.dart';
 
 void main() {
-  // Example: Parse a simple JSON-LD document
+  // Example: Decode a simple JSON-LD document
   final jsonLdData = '''
   {
     "@context": {
@@ -181,19 +181,19 @@ void main() {
   // Using the convenience global variable
   final graph = lsonldGraph.decode(jsonLdData);
 
-  // Print parsed triples
+  // Print decoded triples
   for (final triple in graph.triples) {
     print('${triple.subject} ${triple.predicate} ${triple.object}');
   }
 
-  // Serialize the graph back to JSON-LD
+  // Encode the graph back to JSON-LD
   final serialized = lsonldGraph.encode(graph);
-  print('\nSerialized JSON-LD:\n$serialized');
+  print('\nEncoded JSON-LD:\n$serialized');
 }
 </code></pre>
 <h2 id="-advanced-usage">🧑‍💻 Advanced Usage</h2>
-<h3 id="parsing-and-serializing-rdfxml">Parsing and Serializing RDF/XML</h3>
-<p>With the help of the separate package <a href="https://github.com/kkalass/rdf_xml">rdf_xml</a> you can easily serialize/deserialize RDF/XML as well.</p>
+<h3 id="decoding-and-encoding-rdfxml">Decoding and Encoding RDF/XML</h3>
+<p>With the help of the separate package <a href="https://github.com/kkalass/rdf_xml">rdf_xml</a> you can easily encode/decode RDF/XML as well.</p>
 <pre class="language-bash"><code class="language-bash">dart pub add rdf_xml
 </code></pre>
 <pre class="language-dart"><code class="language-dart">import 'package:rdf_core/rdf_core.dart';
@@ -221,12 +221,12 @@ void main() {
 <h3 id="blank-node-handling">Blank Node Handling</h3>
 <pre class="language-dart"><code class="language-dart">// Note: BlankNodeTerm is based on identity - if you call BlankNodeTerm() 
 // a second time, it will be a different blank node and get a different 
-// label in serialization formats. You have to reuse an instance, if you
+// label in encoding codecs. You have to reuse an instance, if you
 // want to refer to the same blank node.
 final bnode = BlankNodeTerm();
 final newGraph = graph.withTriple(Triple(bnode, predicate, object));
 </code></pre>
-<h3 id="non-standard-turtle-parsing">Non-Standard Turtle Parsing</h3>
+<h3 id="non-standard-turtle-decoding">Non-Standard Turtle decoding</h3>
 <pre class="language-dart"><code class="language-dart">import 'package:rdf_core/rdf_core.dart';
 
 // Configure a custom TurtleCodec with specific parsing flags
@@ -309,15 +309,15 @@ final graph2 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 </tr>
 <tr>
 <td><code>turtle</code></td>
-<td>Global convenience variable for Turtle format</td>
+<td>Global convenience variable for Turtle codec</td>
 </tr>
 <tr>
 <td><code>jsonld</code></td>
-<td>Global convenience variable for JSON-LD format</td>
+<td>Global convenience variable for JSON-LD codec</td>
 </tr>
 <tr>
 <td><code>ntriples</code></td>
-<td>Global convenience variable for N-Triples format</td>
+<td>Global convenience variable for N-Triples codec</td>
 </tr>
 <tr>
 <td><code>rdf</code></td>
@@ -336,13 +336,13 @@ final graph2 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 <hr>
 <h2 id="-roadmap--next-steps">🛣️ Roadmap / Next Steps</h2>
 <ul>
-<li>Support base uri in jsonld and turtle serialization</li>
-<li>Improve jsonld parser/serializer (and include realworld tests for e.g. foaf.jsonld)</li>
-<li>Named Graphs (maybe as separate project)</li>
-<li>Rdf-Star</li>
+<li>Support base uri in jsonld and turtle encoding</li>
+<li>RDF 1.1: Datasets with Named Graphs</li>
+<li>Improve jsonld decoder/encoder (full RdfDataset support and include realworld tests for e.g. foaf.jsonld)</li>
+<li>RDF 1.2: Rdf-Star</li>
 <li>SHACL and schema validation</li>
 <li>Performance optimizations for large graphs</li>
-<li>streaming parsing and serialization</li>
+<li>Optimize streaming decoding and encoding</li>
 </ul>
 <hr>
 <h2 id="-contributing">🤝 Contributing</h2>
@@ -397,7 +397,7 @@ final graph2 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 <footer>
   <span class="no-break">
     rdf_core
-      0.8.1
+      0.8.2-dev
   </span>
   
 </footer>

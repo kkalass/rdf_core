@@ -41,12 +41,22 @@ abstract class RdfGraphEncoder extends Converter<RdfGraph, String> {
   /// - [graph] The RDF graph to encode.
   /// - [baseUri] Optional base URI for resolving/shortening IRIs in the output.
   ///   When provided, the encoder may use this to produce more compact output.
-  /// - [customPrefixes] Optional map of prefix to namespace mappings to use in serialization.
-  ///   Allows caller-specified namespace abbreviations for readable output.
   ///
   /// Returns:
   /// - The serialized representation of the graph as a string.
   String convert(RdfGraph graph, {String? baseUri});
 
+  /// Creates a new encoder instance with the specified options.
+  ///
+  /// This method follows the Builder pattern to create a new encoder configured with
+  /// the given options. It allows for customizing the encoding behavior without
+  /// modifying the original encoder instance.
+  ///
+  /// Parameters:
+  /// - [options] The encoder options to apply, including [customPrefixes] for
+  ///   namespace handling.
+  ///
+  /// Returns:
+  /// - A new encoder instance with the specified options applied.
   RdfGraphEncoder withOptions(RdfGraphEncoderOptions options);
 }

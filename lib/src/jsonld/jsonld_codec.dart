@@ -140,7 +140,7 @@ final class JsonLdGraphCodec extends RdfGraphCodec {
 /// This variable provides direct access to JSON-LD codec for easy
 /// encoding and decoding of JSON-LD data. Note that this is the variant
 /// of JSON-LD that is used for RdfGraph only, for the full RdfDataset use
-/// [JsonLdDatasetCodec].
+/// JsonLdDatasetCodec.
 ///
 /// Example:
 /// ```dart

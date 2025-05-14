@@ -28,9 +28,18 @@ void main() {
         final rdfCore = RdfCore.withStandardCodecs();
 
         // Assert - we should find Turtle, JSON-LD, and N-Triples codecs
-        expect(() => rdfCore.codec('text/turtle'), returnsNormally);
-        expect(() => rdfCore.codec('application/ld+json'), returnsNormally);
-        expect(() => rdfCore.codec('application/n-triples'), returnsNormally);
+        expect(
+          () => rdfCore.codec(contentType: 'text/turtle'),
+          returnsNormally,
+        );
+        expect(
+          () => rdfCore.codec(contentType: 'application/ld+json'),
+          returnsNormally,
+        );
+        expect(
+          () => rdfCore.codec(contentType: 'application/n-triples'),
+          returnsNormally,
+        );
       });
 
       test(
@@ -45,11 +54,20 @@ void main() {
           );
 
           // Assert - we should find the standard codecs plus our custom one
-          expect(() => rdfCore.codec('text/turtle'), returnsNormally);
-          expect(() => rdfCore.codec('application/ld+json'), returnsNormally);
-          expect(() => rdfCore.codec('application/n-triples'), returnsNormally);
           expect(
-            () => rdfCore.codec('application/x-custom-rdf'),
+            () => rdfCore.codec(contentType: 'text/turtle'),
+            returnsNormally,
+          );
+          expect(
+            () => rdfCore.codec(contentType: 'application/ld+json'),
+            returnsNormally,
+          );
+          expect(
+            () => rdfCore.codec(contentType: 'application/n-triples'),
+            returnsNormally,
+          );
+          expect(
+            () => rdfCore.codec(contentType: 'application/x-custom-rdf'),
             returnsNormally,
           );
         },
@@ -64,11 +82,11 @@ void main() {
 
         // Assert - we should find only our custom codec
         expect(
-          () => rdfCore.codec('application/x-custom-rdf'),
+          () => rdfCore.codec(contentType: 'application/x-custom-rdf'),
           returnsNormally,
         );
         expect(
-          () => rdfCore.codec('text/turtle'),
+          () => rdfCore.codec(contentType: 'text/turtle'),
           throwsA(isA<CodecNotSupportedException>()),
         );
       });
@@ -83,21 +101,30 @@ void main() {
 
       test('codec returns the correct codec for a content type', () {
         // Act & Assert
-        expect(rdfCore.codec('text/turtle'), isA<TurtleCodec>());
-        expect(rdfCore.codec('application/ld+json'), isA<JsonLdGraphCodec>());
-        expect(rdfCore.codec('application/n-triples'), isA<NTriplesCodec>());
+        expect(rdfCore.codec(contentType: 'text/turtle'), isA<TurtleCodec>());
+        expect(
+          rdfCore.codec(contentType: 'application/ld+json'),
+          isA<JsonLdGraphCodec>(),
+        );
+        expect(
+          rdfCore.codec(contentType: 'application/n-triples'),
+          isA<NTriplesCodec>(),
+        );
       });
 
       test('codec handles case-insensitive content types', () {
         // Act & Assert
-        expect(rdfCore.codec('TEXT/TURTLE'), isA<TurtleCodec>());
-        expect(rdfCore.codec('Application/LD+JSON'), isA<JsonLdGraphCodec>());
+        expect(rdfCore.codec(contentType: 'TEXT/TURTLE'), isA<TurtleCodec>());
+        expect(
+          rdfCore.codec(contentType: 'Application/LD+JSON'),
+          isA<JsonLdGraphCodec>(),
+        );
       });
 
       test('codec throws for unsupported content type', () {
         // Act & Assert
         expect(
-          () => rdfCore.codec('application/unsupported'),
+          () => rdfCore.codec(contentType: 'application/unsupported'),
           throwsA(isA<CodecNotSupportedException>()),
         );
       });
@@ -184,7 +211,9 @@ void main() {
         final encoded = rdfCore.encode(
           graphWithTriple,
           contentType: 'text/turtle',
-          customPrefixes: {'ex': 'http://example.org/'},
+          options: RdfGraphEncoderOptions(
+            customPrefixes: {'ex': 'http://example.org/'},
+          ),
         );
 
         // Assert
@@ -206,7 +235,9 @@ void main() {
           graphWithTriple,
           contentType: 'text/turtle',
           baseUri: 'http://example.com/',
-          customPrefixes: {'ex': 'http://example.org/'},
+          options: RdfGraphEncoderOptions(
+            customPrefixes: {'ex': 'http://example.org/'},
+          ),
         );
 
         // Assert - should use the base URI to produce more compact output
@@ -230,12 +261,7 @@ void main() {
           final encoded = rdfCore.encode(graph);
 
           // Assert - should be Turtle syntax
-          expect(
-            encoded,
-            contains(
-              '<http://example.org/subject> <http://example.org/predicate> "object"',
-            ),
-          );
+          expect(encoded, contains('ex:subject ex:predicate "object"'));
         },
       );
     });
@@ -258,6 +284,12 @@ class _CustomRdfGraphCodec extends RdfGraphCodec {
 
   @override
   Set<String> get supportedMimeTypes => {'application/x-custom-rdf'};
+
+  @override
+  RdfGraphCodec withOptions({
+    RdfGraphEncoderOptions? encoder,
+    RdfGraphDecoderOptions? decoder,
+  }) => this;
 }
 
 /// Custom implementation of RdfGraphDecoder for testing purposes
@@ -273,6 +305,9 @@ class _CustomRdfGraphDecoder extends RdfGraphDecoder {
     );
     return graph.withTriple(triple);
   }
+
+  @override
+  RdfGraphDecoder withOptions(RdfGraphDecoderOptions options) => this;
 }
 
 /// Custom implementation of RdfGraphEncoder for testing purposes
@@ -285,4 +320,7 @@ class _CustomRdfGraphEncoder extends RdfGraphEncoder {
   }) {
     return 'CUSTOM-FORMAT:${graph.size} triple(s)';
   }
+
+  @override
+  RdfGraphEncoder withOptions(RdfGraphEncoderOptions options) => this;
 }

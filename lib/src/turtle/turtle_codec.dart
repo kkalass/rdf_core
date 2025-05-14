@@ -5,7 +5,6 @@
 /// syntax for encoding RDF graphs as text.
 library turtle_format;
 
-import 'package:rdf_core/src/turtle/turtle_tokenizer.dart';
 import 'package:rdf_core/src/vocab/namespaces.dart';
 
 import '../plugin/rdf_codec.dart';
@@ -73,14 +72,29 @@ final class TurtleCodec extends RdfGraphCodec {
   };
 
   final RdfNamespaceMappings _namespaceMappings;
-  final Set<TurtleParsingFlag> _parsingFlags;
+  final TurtleEncoderOptions _encoderOptions;
+  final TurtleDecoderOptions _decoderOptions;
 
   /// Creates a new Turtle format handler
   const TurtleCodec({
     RdfNamespaceMappings? namespaceMappings,
-    Set<TurtleParsingFlag> parsingFlags = const {},
+    TurtleEncoderOptions encoderOptions = const TurtleEncoderOptions(),
+    TurtleDecoderOptions decoderOptions = const TurtleDecoderOptions(),
   }) : _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings(),
-       _parsingFlags = parsingFlags;
+       _encoderOptions = encoderOptions,
+       _decoderOptions = decoderOptions;
+
+  @override
+  TurtleCodec withOptions({
+    RdfGraphEncoderOptions? encoder,
+    RdfGraphDecoderOptions? decoder,
+  }) {
+    return TurtleCodec(
+      namespaceMappings: _namespaceMappings,
+      encoderOptions: TurtleEncoderOptions.from(encoder ?? _encoderOptions),
+      decoderOptions: TurtleDecoderOptions.from(decoder ?? _decoderOptions),
+    );
+  }
 
   @override
   String get primaryMimeType => _primaryMimeType;
@@ -90,13 +104,15 @@ final class TurtleCodec extends RdfGraphCodec {
 
   @override
   RdfGraphDecoder get decoder => TurtleDecoder(
-    parsingFlags: _parsingFlags,
+    options: _decoderOptions,
     namespaceMappings: _namespaceMappings,
   );
 
   @override
-  RdfGraphEncoder get encoder =>
-      TurtleEncoder(namespaceMappings: _namespaceMappings);
+  RdfGraphEncoder get encoder => TurtleEncoder(
+    options: _encoderOptions,
+    namespaceMappings: _namespaceMappings,
+  );
 
   @override
   bool canParse(String content) {

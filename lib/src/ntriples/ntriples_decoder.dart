@@ -13,6 +13,16 @@ import '../graph/rdf_term.dart';
 import '../graph/triple.dart';
 import '../rdf_decoder.dart';
 
+class NTriplesDecoderOptions extends RdfGraphDecoderOptions {
+  const NTriplesDecoderOptions();
+
+  static NTriplesDecoderOptions from(RdfGraphDecoderOptions options) =>
+      switch (options) {
+        NTriplesDecoderOptions _ => options,
+        _ => NTriplesDecoderOptions(),
+      };
+}
+
 /// Decoder for the N-Triples format.
 ///
 /// N-Triples is a line-based, plain text serialization for RDF data.
@@ -27,8 +37,20 @@ final class NTriplesDecoder extends RdfGraphDecoder {
   final _logger = Logger('rdf.ntriples.parser');
   static const _formatName = 'application/n-triples';
 
+  // Decoders are always expected to have options, even if they are not used at
+  // the moment. But maybe the NTriplesDecoder will have options in the future.
+  //
+  // ignore: unused_field
+  final NTriplesDecoderOptions _options;
+
   /// Creates a new N-Triples parser
-  NTriplesDecoder();
+  NTriplesDecoder({
+    NTriplesDecoderOptions options = const NTriplesDecoderOptions(),
+  }) : _options = options;
+
+  @override
+  RdfGraphDecoder withOptions(RdfGraphDecoderOptions options) =>
+      NTriplesDecoder(options: NTriplesDecoderOptions.from(options));
 
   @override
   RdfGraph convert(String input, {String? documentUrl}) {

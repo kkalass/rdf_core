@@ -49,7 +49,7 @@ void main() {
 
           // Act & Assert
           expect(
-            () => rdfCore.codec(unsupportedType),
+            () => rdfCore.codec(contentType: unsupportedType),
             throwsA(isA<CodecNotSupportedException>()),
           );
         },

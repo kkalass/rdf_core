@@ -399,4 +399,23 @@ class RdfNamespaceMappings {
   /// @param prefix The prefix to check for
   /// @return true if the prefix exists, false otherwise
   bool containsKey(String prefix) => _mappings.containsKey(prefix);
+
+  /// Extracts the namespace and local part from an IRI
+  ///
+  /// @param iri The IRI to split into namespace and local part
+  /// @return A tuple containing (namespace, localPart)
+  static (String namespace, String localPart) extractNamespaceAndLocalPart(
+    String iri,
+  ) {
+    final hashIndex = iri.lastIndexOf('#');
+    final slashIndex = iri.lastIndexOf('/');
+
+    if (hashIndex > slashIndex && hashIndex != -1) {
+      return (iri.substring(0, hashIndex + 1), iri.substring(hashIndex + 1));
+    } else if (slashIndex != -1) {
+      return (iri.substring(0, slashIndex + 1), iri.substring(slashIndex + 1));
+    } else {
+      return (iri, '');
+    }
+  }
 }

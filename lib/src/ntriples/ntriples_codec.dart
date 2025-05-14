@@ -41,8 +41,26 @@ final class NTriplesCodec extends RdfGraphCodec {
   /// The file extensions associated with N-Triples files
   static const List<String> fileExtensions = ['.nt'];
 
+  final NTriplesEncoderOptions _encoderOptions;
+  final NTriplesDecoderOptions _decoderOptions;
+
   /// Creates a new N-Triples format definition
-  const NTriplesCodec();
+  const NTriplesCodec({
+    NTriplesEncoderOptions encoderOptions = const NTriplesEncoderOptions(),
+    NTriplesDecoderOptions decoderOptions = const NTriplesDecoderOptions(),
+  }) : _encoderOptions = encoderOptions,
+       _decoderOptions = decoderOptions;
+
+  @override
+  NTriplesCodec withOptions({
+    RdfGraphEncoderOptions? encoder,
+    RdfGraphDecoderOptions? decoder,
+  }) {
+    return NTriplesCodec(
+      encoderOptions: NTriplesEncoderOptions.from(encoder ?? _encoderOptions),
+      decoderOptions: NTriplesDecoderOptions.from(decoder ?? _decoderOptions),
+    );
+  }
 
   @override
   String get primaryMimeType => _primaryMimeType;

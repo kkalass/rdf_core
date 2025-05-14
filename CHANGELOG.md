@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0-dev] - 2025-05-14
+
+### Breaking Changes
+
+- **RdfCore API**: Changed signature for codec retrieval
+  - Modified how codecs are accessed and configured in the RdfCore class
+  - Users who directly access or modify codecs will need to update their code
+
+- **Codec Architecture**: Enhanced options support
+  - `RdfGraphCodec`, `RdfGraphEncoder`, and `RdfGraphDecoder` now support distinct `RdfGraphEncoderOptions` and `RdfGraphDecoderOptions`
+  - All codec implementations must now properly handle these options
+
+### Added
+
+- **TurtleEncoder**: Added support for automatic prefix generation
+  - New `generateMissingPrefixes` option in `TurtleEncoderOptions` (enabled by default)
+  - The encoder now automatically generates meaningful prefixes for IRIs that don't match existing prefixes
+  - Reuses generated prefixes consistently within the same serialization
+
+### Enhanced
+
+- **RdfNamespaceMappings**: Added static utility method for namespace manipulation
+  - New public static method `extractNamespaceAndLocalPart` for splitting IRIs into namespace and local part
+  - Can be used by clients to implement custom namespace-aware functionality
+
+- **TurtleEncoder**: Improved handling of base URIs and relative IRIs
+  - Properly writes base directive in Turtle output when baseUri is provided
+  - Correctly converts absolute IRIs to relative IRIs when they start with the base URI
+  - Ensures no prefix generation for IRIs that should be serialized as relative paths
+
+
+
 ## [0.8.2] - 2025-05-13
 
 ### Fixed

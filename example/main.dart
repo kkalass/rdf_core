@@ -3,6 +3,7 @@
 //
 
 import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_core/src/turtle/turtle_encoder.dart';
 
 void main() {
   // --- Manual Graph Construction ---
@@ -26,11 +27,14 @@ void main() {
     print('  ${triple.subject} ${triple.predicate} ${triple.object}');
   }
 
-  // --- Serialize to Turtle ---
+  // --- Serialize to Turtle with custom prefixes ---
   final turtleStr = turtle.encode(
     graph,
-    customPrefixes: {'ex': 'http://example.org/'},
+    options: TurtleEncoderOptions(
+      customPrefixes: {'ex': 'http://example.org/'},
+    ),
   );
+
   // Note that prefixes for well-known IRIs like https://xmlns.com/foaf/0.1/ will automatically
   // be introduced, using custom prefixes is optional. Expect an output like this:
   //
@@ -62,7 +66,7 @@ void main() {
   // the first registered codec as encoder (typically turtle).
   final contentType =
       'application/ld+json'; // or 'text/turtle', 'application/n-triples', etc.
-  final codec = rdf.codec(contentType);
+  final codec = rdf.codec(contentType: contentType);
 
   // --- Serialize to JSON-LD ---
   final encoded = codec.encode(graph);

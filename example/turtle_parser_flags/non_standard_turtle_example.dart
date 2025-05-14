@@ -2,6 +2,7 @@
 // This example showcases different parsing flags to make the Turtle parser more permissive
 
 import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_core/src/turtle/turtle_decoder.dart';
 
 void main() {
   print('RDF Core - Non-Standard Turtle Parsing Example');
@@ -47,11 +48,13 @@ ex:anotherResource ex:hasValue "test"
 
   // Create a custom TurtleFormat with specific parsing flags
   final customCodec = TurtleCodec(
-    parsingFlags: {
-      TurtleParsingFlag.allowIdentifiersWithoutColon,
-      TurtleParsingFlag.allowMissingFinalDot,
-      TurtleParsingFlag.allowMissingDotAfterPrefix,
-    },
+    decoderOptions: TurtleDecoderOptions(
+      parsingFlags: {
+        TurtleParsingFlag.allowIdentifiersWithoutColon,
+        TurtleParsingFlag.allowMissingFinalDot,
+        TurtleParsingFlag.allowMissingDotAfterPrefix,
+      },
+    ),
   );
 
   // We can now use this custom codec either directly with
@@ -83,19 +86,21 @@ ex:anotherResource ex:hasValue "test"
 
   // Create a format with all permissive flags
   final maxPermissiveFormat = TurtleCodec(
-    parsingFlags: {
-      TurtleParsingFlag.allowDigitInLocalName, // Allow numbers in local names
-      TurtleParsingFlag
-          .allowMissingDotAfterPrefix, // Allow prefix without trailing dot
-      TurtleParsingFlag
-          .autoAddCommonPrefixes, // Auto-add commonly used prefixes
-      TurtleParsingFlag
-          .allowPrefixWithoutAtSign, // Allow prefix without @ symbol
-      TurtleParsingFlag
-          .allowMissingFinalDot, // Allow missing dot in last triple
-      TurtleParsingFlag
-          .allowIdentifiersWithoutColon, // Allow bare identifiers without colon
-    },
+    decoderOptions: TurtleDecoderOptions(
+      parsingFlags: {
+        TurtleParsingFlag.allowDigitInLocalName, // Allow numbers in local names
+        TurtleParsingFlag
+            .allowMissingDotAfterPrefix, // Allow prefix without trailing dot
+        TurtleParsingFlag
+            .autoAddCommonPrefixes, // Auto-add commonly used prefixes
+        TurtleParsingFlag
+            .allowPrefixWithoutAtSign, // Allow prefix without @ symbol
+        TurtleParsingFlag
+            .allowMissingFinalDot, // Allow missing dot in last triple
+        TurtleParsingFlag
+            .allowIdentifiersWithoutColon, // Allow bare identifiers without colon
+      },
+    ),
   );
 
   final maxPermissiveRdf = RdfCore.withCodecs(codecs: [maxPermissiveFormat]);
@@ -145,10 +150,12 @@ wd:Q42 rdfs:label "Douglas Adams"@en ;
 ''';
 
   final wikidataFormat = TurtleCodec(
-    parsingFlags: {
-      TurtleParsingFlag
-          .allowDigitInLocalName, // Required for Wikidata's Q42, P31, etc.
-    },
+    decoderOptions: TurtleDecoderOptions(
+      parsingFlags: {
+        TurtleParsingFlag
+            .allowDigitInLocalName, // Required for Wikidata's Q42, P31, etc.
+      },
+    ),
   );
 
   final wikidataRdf = RdfCore.withCodecs(codecs: [wikidataFormat]);

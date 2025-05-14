@@ -79,10 +79,27 @@ final class JsonLdGraphCodec extends RdfGraphCodec {
   static const _supportedMimeTypes = {_primaryMimeType, 'application/json+ld'};
 
   final RdfNamespaceMappings _namespaceMappings;
+  final JsonLdEncoderOptions _encoderOptions;
+  final JsonLdDecoderOptions _decoderOptions;
 
   /// Creates a new JSON-LD codec
-  const JsonLdGraphCodec({RdfNamespaceMappings? namespaceMappings})
-    : _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings();
+  const JsonLdGraphCodec({
+    RdfNamespaceMappings? namespaceMappings,
+    JsonLdEncoderOptions encoderOptions = const JsonLdEncoderOptions(),
+    JsonLdDecoderOptions decoderOptions = const JsonLdDecoderOptions(),
+  }) : _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings(),
+       _decoderOptions = decoderOptions,
+       _encoderOptions = encoderOptions;
+
+  @override
+  JsonLdGraphCodec withOptions({
+    RdfGraphEncoderOptions? encoder,
+    RdfGraphDecoderOptions? decoder,
+  }) => JsonLdGraphCodec(
+    namespaceMappings: _namespaceMappings,
+    encoderOptions: JsonLdEncoderOptions.from(encoder ?? _encoderOptions),
+    decoderOptions: JsonLdDecoderOptions.from(decoder ?? _decoderOptions),
+  );
 
   @override
   String get primaryMimeType => _primaryMimeType;

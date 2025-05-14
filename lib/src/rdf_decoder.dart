@@ -9,6 +9,10 @@ import 'dart:convert';
 
 import 'graph/rdf_graph.dart';
 
+class RdfGraphDecoderOptions {
+  const RdfGraphDecoderOptions();
+}
+
 /// Base class for decoding RDF documents in various formats
 ///
 /// This base class abstracts the decoding process for different RDF string serializations
@@ -36,4 +40,6 @@ abstract class RdfGraphDecoder extends Converter<String, RdfGraph> {
   /// The specific decoding behavior depends on the implementation of this interface,
   /// which will handle format-specific details like prefix resolution, blank node handling, etc.
   RdfGraph convert(String input, {String? documentUrl});
+
+  RdfGraphDecoder withOptions(RdfGraphDecoderOptions options);
 }

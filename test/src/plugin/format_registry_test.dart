@@ -176,6 +176,12 @@ class _MockCodec extends RdfGraphCodec {
 
   @override
   Set<String> get supportedMimeTypes => {'application/test'};
+
+  @override
+  RdfGraphCodec withOptions({
+    RdfGraphEncoderOptions? encoder,
+    RdfGraphDecoderOptions? decoder,
+  }) => this;
 }
 
 class _MockCodec2 extends RdfGraphCodec {
@@ -193,6 +199,11 @@ class _MockCodec2 extends RdfGraphCodec {
 
   @override
   Set<String> get supportedMimeTypes => {'application/test2'};
+  @override
+  RdfGraphCodec withOptions({
+    RdfGraphEncoderOptions? encoder,
+    RdfGraphDecoderOptions? decoder,
+  }) => this;
 }
 
 class _UndetectableButParsableCodec extends RdfGraphCodec {
@@ -210,6 +221,11 @@ class _UndetectableButParsableCodec extends RdfGraphCodec {
 
   @override
   Set<String> get supportedMimeTypes => {'application/undetectable'};
+  @override
+  RdfGraphCodec withOptions({
+    RdfGraphEncoderOptions? encoder,
+    RdfGraphDecoderOptions? decoder,
+  }) => this;
 }
 
 class _UndetectableAndFailingCodec extends RdfGraphCodec {
@@ -227,6 +243,11 @@ class _UndetectableAndFailingCodec extends RdfGraphCodec {
 
   @override
   Set<String> get supportedMimeTypes => {'application/failing'};
+  @override
+  RdfGraphCodec withOptions({
+    RdfGraphEncoderOptions? encoder,
+    RdfGraphDecoderOptions? decoder,
+  }) => this;
 }
 
 class _AnotherFailingCodec extends RdfGraphCodec {
@@ -244,34 +265,41 @@ class _AnotherFailingCodec extends RdfGraphCodec {
 
   @override
   Set<String> get supportedMimeTypes => {'application/failing2'};
+  @override
+  RdfGraphCodec withOptions({
+    RdfGraphEncoderOptions? encoder,
+    RdfGraphDecoderOptions? decoder,
+  }) => this;
 }
 
 class _MockDecoder extends RdfGraphDecoder {
   @override
-  RdfGraph convert(String input, {String? documentUrl}) {
-    // Just return an empty graph
-    return RdfGraph();
-  }
+  RdfGraphDecoder withOptions(RdfGraphDecoderOptions options) => this;
+
+  @override
+  RdfGraph convert(String input, {String? documentUrl}) => RdfGraph();
 }
 
 class _FailingDecoder extends RdfGraphDecoder {
   final String errorMessage;
 
   _FailingDecoder(this.errorMessage);
+  @override
+  RdfGraphDecoder withOptions(RdfGraphDecoderOptions options) => this;
 
   @override
-  RdfGraph convert(String input, {String? documentUrl}) {
-    throw FormatException(errorMessage);
-  }
+  RdfGraph convert(String input, {String? documentUrl}) =>
+      throw FormatException(errorMessage);
 }
 
 class _MockEncoder extends RdfGraphEncoder {
+  @override
+  RdfGraphEncoder withOptions(RdfGraphEncoderOptions options) => this;
+
   @override
   String convert(
     RdfGraph graph, {
     String? baseUri,
     Map<String, String> customPrefixes = const {},
-  }) {
-    return 'mock serialized content';
-  }
+  }) => 'mock serialized content';
 }

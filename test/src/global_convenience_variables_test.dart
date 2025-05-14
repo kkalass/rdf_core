@@ -1,5 +1,6 @@
 // filepath: /Users/klaskalass/privat/rdf/rdf_core/test/src/global_convenience_variables_test.dart
 import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_core/src/turtle/turtle_encoder.dart';
 import 'package:test/test.dart';
 
 // Tests for the global convenience variables: rdf, turtle, jsonldGraph, ntriples
@@ -215,6 +216,30 @@ void main() {
       expect(turtle.primaryMimeType, equals('text/turtle'));
     });
 
+    test(
+      'turtle encoder serializes RDF graph to Turtle format without prefix gen.',
+      () {
+        // Arrange
+        final graph = RdfGraph().withTriple(
+          Triple(
+            IriTerm('http://example.org/subject'),
+            IriTerm('http://example.org/predicate'),
+            LiteralTerm.string('object'),
+          ),
+        );
+
+        // Act
+        final encoded = turtle.encoder
+            .withOptions(TurtleEncoderOptions(generateMissingPrefixes: false))
+            .convert(graph);
+
+        // Assert
+        expect(encoded, contains('<http://example.org/subject>'));
+        expect(encoded, contains('<http://example.org/predicate>'));
+        expect(encoded, contains('"object"'));
+      },
+    );
+
     test('turtle encoder serializes RDF graph to Turtle format', () {
       // Arrange
       final graph = RdfGraph().withTriple(
@@ -229,8 +254,8 @@ void main() {
       final encoded = turtle.encoder.convert(graph);
 
       // Assert
-      expect(encoded, contains('<http://example.org/subject>'));
-      expect(encoded, contains('<http://example.org/predicate>'));
+      expect(encoded, contains('ex:subject'));
+      expect(encoded, contains('ex:predicate'));
       expect(encoded, contains('"object"'));
     });
 
@@ -272,6 +297,29 @@ void main() {
         // Assert - subject should be relative
         expect(encoded, contains('<subject>'));
         expect(encoded, contains('@base <http://example.org/base/>'));
+      },
+    );
+    test(
+      'turtle encodes graphs with relative URIs when baseUri is provided and parses back correctly',
+      () {
+        // Arrange
+        final graph = RdfGraph().withTriple(
+          Triple(
+            IriTerm('http://example.org/base/subject'),
+            IriTerm('http://example.org/predicate'),
+            LiteralTerm.string('object'),
+          ),
+        );
+
+        // Act - encode with baseUri
+        final encoded = turtle.encoder.convert(
+          graph,
+          baseUri: 'http://example.org/base/',
+        );
+        final decoded = turtle.decoder.convert(encoded);
+
+        // Assert - subject should be relative
+        expect(graph, equals(decoded));
       },
     );
   });

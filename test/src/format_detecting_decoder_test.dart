@@ -284,7 +284,7 @@ pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
       // decode with explicit content type
       final graph = RdfCore(
         registry: registry,
-      ).codec('text/turtle').decode(input);
+      ).codec(contentType: 'text/turtle').decode(input);
 
       expect(graph.triples.length, equals(1));
     });

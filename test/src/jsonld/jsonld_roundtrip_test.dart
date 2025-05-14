@@ -134,15 +134,16 @@ void main() {
         ]);
 
         // Perform roundtrip conversion
-        final encoder = JsonLdEncoder();
-        final jsonLdOutput = encoder.convert(
-          graph,
-          customPrefixes: {
-            'foaf': 'http://xmlns.com/foaf/0.1/',
-            'schema': 'http://schema.org/',
-            'dcterms': 'http://purl.org/dc/terms/',
-          },
+        final encoder = JsonLdEncoder(
+          options: JsonLdEncoderOptions(
+            customPrefixes: {
+              'foaf': 'http://xmlns.com/foaf/0.1/',
+              'schema': 'http://schema.org/',
+              'dcterms': 'http://purl.org/dc/terms/',
+            },
+          ),
         );
+        final jsonLdOutput = encoder.convert(graph);
 
         // Print the JSON-LD for debugging if needed
         // print(jsonLdOutput);

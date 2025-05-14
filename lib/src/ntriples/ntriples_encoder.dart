@@ -12,6 +12,21 @@ import '../graph/triple.dart';
 import '../rdf_encoder.dart';
 import '../vocab/xsd.dart';
 
+class NTriplesEncoderOptions extends RdfGraphEncoderOptions {
+  const NTriplesEncoderOptions();
+
+  /// prefixes are not used in N-Triples, but the interface requires it because
+  /// most other formats do.
+  @override
+  Map<String, String> get customPrefixes => const {};
+
+  static NTriplesEncoderOptions from(RdfGraphEncoderOptions options) =>
+      switch (options) {
+        NTriplesEncoderOptions _ => options,
+        _ => NTriplesEncoderOptions(),
+      };
+}
+
 /// Encoder for the N-Triples format.
 ///
 /// This class extends the RdfGraphEncoder abstract class to convert RDF graphs into
@@ -26,15 +41,26 @@ import '../vocab/xsd.dart';
 final class NTriplesEncoder extends RdfGraphEncoder {
   final _logger = Logger('rdf.ntriples.serializer');
 
+  // Encoders are always expected to have options, even if they are not used at
+  // the moment. But maybe the NTriplesEncoder will have options in the future.
+  //
+  // ignore: unused_field
+  final NTriplesEncoderOptions _options;
+
   /// Creates a new N-Triples serializer
-  NTriplesEncoder();
+  NTriplesEncoder({
+    NTriplesEncoderOptions options = const NTriplesEncoderOptions(),
+  }) : _options = options;
 
   @override
-  String convert(
-    RdfGraph graph, {
-    String? baseUri,
-    Map<String, String> customPrefixes = const {},
-  }) {
+  RdfGraphEncoder withOptions(RdfGraphEncoderOptions options) =>
+      switch (options) {
+        NTriplesEncoderOptions _ => this,
+        _ => NTriplesEncoder(options: NTriplesEncoderOptions.from(options)),
+      };
+
+  @override
+  String convert(RdfGraph graph, {String? baseUri}) {
     _logger.fine('Serializing graph to N-Triples');
 
     // N-Triples ignores baseUri and customPrefixes as it doesn't support

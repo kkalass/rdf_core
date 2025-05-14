@@ -115,7 +115,9 @@ void main() {
       // Act
       final encoded = codec.encode(
         graph,
-        customPrefixes: {'ex': 'http://example.org/'},
+        options: RdfGraphEncoderOptions(
+          customPrefixes: {'ex': 'http://example.org/'},
+        ),
       );
 
       // Assert - should match what the default codec (Turtle) would produce
@@ -256,6 +258,12 @@ class _MockCodec extends RdfGraphCodec {
        _errorMessage = errorMessage;
 
   @override
+  RdfGraphCodec withOptions({
+    RdfGraphEncoderOptions? encoder,
+    RdfGraphDecoderOptions? decoder,
+  }) => this;
+
+  @override
   bool canParse(String content) => _canParse;
 
   @override
@@ -279,6 +287,9 @@ class _MockDecoder extends RdfGraphDecoder {
   _MockDecoder(this._willThrow, this._errorMessage);
 
   @override
+  RdfGraphDecoder withOptions(RdfGraphDecoderOptions options) => this;
+
+  @override
   RdfGraph convert(String input, {String? documentUrl}) {
     if (_willThrow) {
       throw FormatException(_errorMessage);
@@ -291,6 +302,9 @@ class _MockDecoder extends RdfGraphDecoder {
 
 /// Mock implementation of RdfGraphEncoder for testing
 class _MockEncoder extends RdfGraphEncoder {
+  @override
+  RdfGraphEncoder withOptions(RdfGraphEncoderOptions options) => this;
+
   @override
   String convert(
     RdfGraph graph, {

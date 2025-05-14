@@ -4,6 +4,7 @@
 // using the Schema.org vocabulary in RDF Core.
 
 import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_core/src/turtle/turtle_encoder.dart';
 
 void main() {
   // Create a graph with an organization that has a postal address
@@ -14,9 +15,11 @@ void main() {
   printGraph(graph);
 
   // Serialize to Turtle format for a nicer view
-
+  final encoderOptions = TurtleEncoderOptions(
+    customPrefixes: {'ex': 'http://example.org/'},
+  );
   final turtleStr = turtle // or use: rdf.codec('text/turtle')
-      .encode(graph, customPrefixes: {'ex': 'http://example.org/'});
+      .encode(graph, options: encoderOptions);
 
   print('\nTurtle serialization:\n$turtleStr');
 
@@ -30,7 +33,7 @@ void main() {
   // Print the updated graph
   print('\nUpdated Graph with Branch Office:');
   final updatedTurtle = turtle // or use: rdf.codec('text/turtle')
-      .encode(updatedGraph, customPrefixes: {'ex': 'http://example.org/'});
+      .encode(updatedGraph, options: encoderOptions);
 
   print('\n$updatedTurtle');
 }

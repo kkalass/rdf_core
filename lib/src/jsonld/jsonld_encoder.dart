@@ -25,6 +25,17 @@ import 'package:rdf_core/src/vocab/xsd.dart';
 
 final _log = Logger("rdf.jsonld");
 
+class JsonLdEncoderOptions extends RdfGraphEncoderOptions {
+  const JsonLdEncoderOptions({Map<String, String> customPrefixes = const {}})
+    : super(customPrefixes: customPrefixes);
+
+  static JsonLdEncoderOptions from(RdfGraphEncoderOptions options) =>
+      switch (options) {
+        JsonLdEncoderOptions _ => options,
+        _ => JsonLdEncoderOptions(customPrefixes: options.customPrefixes),
+      };
+}
+
 /// Encoder for converting RDF graphs to JSON-LD format.
 ///
 /// JSON-LD is a lightweight Linked Data format that is easy for humans to read
@@ -41,17 +52,23 @@ final _log = Logger("rdf.jsonld");
 final class JsonLdEncoder extends RdfGraphEncoder {
   /// Well-known common prefixes used for more readable JSON-LD output.
   final RdfNamespaceMappings _namespaceMappings;
+  final JsonLdEncoderOptions _options;
 
   /// Creates a new JSON-LD serializer.
-  const JsonLdEncoder({RdfNamespaceMappings? namespaceMappings})
-    : _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings();
+  const JsonLdEncoder({
+    RdfNamespaceMappings? namespaceMappings,
+    JsonLdEncoderOptions options = const JsonLdEncoderOptions(),
+  }) : _options = options,
+       _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings();
 
   @override
-  String convert(
-    RdfGraph graph, {
-    String? baseUri,
-    Map<String, String> customPrefixes = const {},
-  }) {
+  RdfGraphEncoder withOptions(RdfGraphEncoderOptions options) => JsonLdEncoder(
+    namespaceMappings: _namespaceMappings,
+    options: JsonLdEncoderOptions.from(options),
+  );
+
+  @override
+  String convert(RdfGraph graph, {String? baseUri}) {
     _log.info('Serializing graph to JSON-LD');
 
     // Return empty JSON object for empty graph
@@ -64,7 +81,7 @@ final class JsonLdEncoder extends RdfGraphEncoder {
     _generateBlankNodeLabels(graph, blankNodeLabels);
 
     // Create context with prefixes
-    final context = _createContext(graph, customPrefixes);
+    final context = _createContext(graph, _options.customPrefixes);
 
     // Group triples by subject
     final subjectGroups = _groupTriplesBySubject(graph.triples);

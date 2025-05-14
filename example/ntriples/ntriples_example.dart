@@ -69,10 +69,17 @@ void main() {
   final turtle = rdf.encode(
     graph,
     contentType: 'text/turtle',
-    customPrefixes: {
-      'ex': 'http://example.org/',
-      'foaf': 'http://xmlns.com/foaf/0.1/',
-    },
+
+    // Note that we can use explicitly TurtleEncoderOptions, but we can also use
+    // the more generic RdfGraphEncoderOptions which would work for all formats
+    // that support custom prefixes.
+    options: RdfGraphEncoderOptions(
+      // Custom prefixes for Turtle serialization
+      customPrefixes: {
+        'ex': 'http://example.org/',
+        'foaf': 'http://xmlns.com/foaf/0.1/',
+      },
+    ),
   );
   print(turtle);
 

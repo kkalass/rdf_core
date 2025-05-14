@@ -123,6 +123,8 @@
 /// library highly testable and extensible.
 library rdf;
 
+import 'package:rdf_core/src/rdf_decoder.dart';
+import 'package:rdf_core/src/rdf_encoder.dart';
 import 'package:rdf_core/src/vocab/namespaces.dart';
 
 import 'src/graph/rdf_graph.dart';
@@ -265,9 +267,15 @@ final class RdfCore {
   /// Throws:
   /// - Codec-specific exceptions for parsing errors
   /// - [CodecNotSupportedException] if the codec is not supported and cannot be detected
-  RdfGraph decode(String content, {String? contentType, String? documentUrl}) {
-    return codec(contentType).decode(content, documentUrl: documentUrl);
-  }
+  RdfGraph decode(
+    String content, {
+    String? contentType,
+    String? documentUrl,
+    RdfGraphDecoderOptions? options,
+  }) => codec(
+    contentType: contentType,
+    decoderOptions: options,
+  ).decode(content, documentUrl: documentUrl);
 
   /// Encode an RDF graph to a string representation
   ///
@@ -293,12 +301,11 @@ final class RdfCore {
     RdfGraph graph, {
     String? contentType,
     String? baseUri,
-    Map<String, String> customPrefixes = const {},
-  }) {
-    return codec(
-      contentType,
-    ).encode(graph, baseUri: baseUri, customPrefixes: customPrefixes);
-  }
+    RdfGraphEncoderOptions? options,
+  }) => codec(
+    contentType: contentType,
+    encoderOptions: options,
+  ).encode(graph, baseUri: baseUri);
 
   /// Get a codec for a specific content type
   ///
@@ -316,8 +323,19 @@ final class RdfCore {
   ///
   /// Throws:
   /// - [CodecNotSupportedException] if the requested format is not supported
-  RdfGraphCodec codec([String? contentType]) {
-    return _registry.getGraphCodec(contentType);
+  RdfGraphCodec codec({
+    String? contentType,
+    RdfGraphEncoderOptions? encoderOptions,
+    RdfGraphDecoderOptions? decoderOptions,
+  }) {
+    final codec = _registry.getGraphCodec(contentType);
+    if (encoderOptions != null || decoderOptions != null) {
+      return codec.withOptions(
+        encoder: encoderOptions,
+        decoder: decoderOptions,
+      );
+    }
+    return codec;
   }
 }
 

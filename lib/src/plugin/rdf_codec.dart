@@ -81,6 +81,11 @@ abstract class RdfGraphCodec extends Codec<RdfGraph, String> {
 
   const RdfGraphCodec();
 
+  RdfGraphCodec withOptions({
+    RdfGraphEncoderOptions? encoder,
+    RdfGraphDecoderOptions? decoder,
+  });
+
   /// Encodes an RDF graph to a string representation in this codec
   ///
   /// This is a convenience method that delegates to the codec's encoder.
@@ -106,12 +111,11 @@ abstract class RdfGraphCodec extends Codec<RdfGraph, String> {
   String encode(
     RdfGraph input, {
     String? baseUri,
-    Map<String, String> customPrefixes = const {},
+    RdfGraphEncoderOptions? options,
   }) {
-    return encoder.convert(
+    return (options == null ? encoder : encoder.withOptions(options)).convert(
       input,
       baseUri: baseUri,
-      customPrefixes: customPrefixes,
     );
   }
 
@@ -138,8 +142,15 @@ abstract class RdfGraphCodec extends Codec<RdfGraph, String> {
   ///
   /// Throws:
   /// - Codec-specific exceptions for syntax errors or other parsing problems
-  RdfGraph decode(String input, {String? documentUrl}) {
-    return decoder.convert(input, documentUrl: documentUrl);
+  RdfGraph decode(
+    String input, {
+    String? documentUrl,
+    RdfGraphDecoderOptions? options,
+  }) {
+    return (options == null ? decoder : decoder.withOptions(options)).convert(
+      input,
+      documentUrl: documentUrl,
+    );
   }
 
   /// Tests if the provided content is likely in this codec's format
@@ -325,12 +336,29 @@ final class AutoDetectingGraphCodec extends RdfGraphCodec {
   final RdfGraphCodec _defaultCodec;
 
   final RdfCodecRegistry _registry;
+  final RdfGraphEncoderOptions? _encoderOptions;
+  final RdfGraphDecoderOptions? _decoderOptions;
 
   AutoDetectingGraphCodec({
     required RdfGraphCodec defaultCodec,
     required RdfCodecRegistry registry,
+    RdfGraphEncoderOptions? encoderOptions,
+    RdfGraphDecoderOptions? decoderOptions,
   }) : _defaultCodec = defaultCodec,
-       _registry = registry;
+       _registry = registry,
+       _encoderOptions = encoderOptions,
+       _decoderOptions = decoderOptions;
+
+  @override
+  RdfGraphCodec withOptions({
+    RdfGraphEncoderOptions? encoder,
+    RdfGraphDecoderOptions? decoder,
+  }) => AutoDetectingGraphCodec(
+    defaultCodec: _defaultCodec,
+    registry: _registry,
+    encoderOptions: encoder ?? _encoderOptions,
+    decoderOptions: decoder ?? _decoderOptions,
+  );
 
   @override
   String get primaryMimeType => _defaultCodec.primaryMimeType;
@@ -339,10 +367,16 @@ final class AutoDetectingGraphCodec extends RdfGraphCodec {
   Set<String> get supportedMimeTypes => _registry.allGraphMimeTypes;
 
   @override
-  RdfGraphDecoder get decoder => AutoDetectingGraphDecoder(_registry);
+  RdfGraphDecoder get decoder =>
+      AutoDetectingGraphDecoder(_registry, options: _decoderOptions);
 
   @override
-  RdfGraphEncoder get encoder => _defaultCodec.encoder;
+  RdfGraphEncoder get encoder {
+    if (_encoderOptions != null) {
+      return _defaultCodec.encoder.withOptions(_encoderOptions);
+    }
+    return _defaultCodec.encoder;
+  }
 
   @override
   bool canParse(String content) {
@@ -362,11 +396,17 @@ final class AutoDetectingGraphCodec extends RdfGraphCodec {
 final class AutoDetectingGraphDecoder extends RdfGraphDecoder {
   final _logger = Logger('rdf.format_detecting_parser');
   final RdfCodecRegistry _registry;
+  final RdfGraphDecoderOptions? _decoderOptions;
 
   /// Creates a new auto-detecting decoder
   ///
   /// @param registry The format registry to use for detection and parser creation
-  AutoDetectingGraphDecoder(this._registry);
+  AutoDetectingGraphDecoder(this._registry, {RdfGraphDecoderOptions? options})
+    : _decoderOptions = options;
+
+  @override
+  RdfGraphDecoder withOptions(RdfGraphDecoderOptions options) =>
+      AutoDetectingGraphDecoder(_registry, options: options);
 
   @override
   RdfGraph convert(String input, {String? documentUrl}) {
@@ -376,7 +416,10 @@ final class AutoDetectingGraphDecoder extends RdfGraphDecoder {
     if (format != null) {
       _logger.fine('Using detected format: ${format.primaryMimeType}');
       try {
-        return format.decoder.convert(input, documentUrl: documentUrl);
+        return (_decoderOptions == null
+                ? format.decoder
+                : format.decoder.withOptions(_decoderOptions))
+            .convert(input, documentUrl: documentUrl);
       } catch (e) {
         _logger.fine(
           'Failed with detected format ${format.primaryMimeType}: $e',
@@ -396,7 +439,10 @@ final class AutoDetectingGraphDecoder extends RdfGraphDecoder {
     for (final codec in codecs) {
       try {
         _logger.fine('Trying codec: ${codec.primaryMimeType}');
-        return codec.decoder.convert(input, documentUrl: documentUrl);
+        return (_decoderOptions == null
+                ? codec.decoder
+                : codec.decoder.withOptions(_decoderOptions))
+            .convert(input, documentUrl: documentUrl);
       } catch (e) {
         _logger.fine('Failed with format ${codec.primaryMimeType}: $e');
         lastException = e is Exception ? e : Exception(e.toString());

@@ -178,7 +178,9 @@ void main() {
         'vocab': 'http://example.org/vocabulary/',
       };
 
-      final result = encoder.convert(graph, customPrefixes: customPrefixes);
+      final result = encoder
+          .withOptions(JsonLdEncoderOptions(customPrefixes: customPrefixes))
+          .convert(graph);
 
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
@@ -478,7 +480,9 @@ void main() {
         'nested': 'http://example.org/vocabulary/nested/',
       };
 
-      final result = encoder.convert(graph, customPrefixes: customPrefixes);
+      final result = encoder
+          .withOptions(JsonLdEncoderOptions(customPrefixes: customPrefixes))
+          .convert(graph);
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
       // The more specific prefix should be used for the nested predicate
@@ -497,7 +501,9 @@ void main() {
 
       final customPrefixes = {'vocab': 'http://example.org/vocabulary/'};
 
-      final result = encoder.convert(graph, customPrefixes: customPrefixes);
+      final result = encoder
+          .withOptions(JsonLdEncoderOptions(customPrefixes: customPrefixes))
+          .convert(graph);
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
       // When the predicate exactly matches a namespace, use the prefix with empty local part

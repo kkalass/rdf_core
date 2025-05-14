@@ -38,11 +38,12 @@ void main() {
       expect(codecs.length, greaterThanOrEqualTo(2));
 
       // Verify we can get a decoder for Turtle
-      final turtleDecoder = rdf.codec('text/turtle').decoder;
+      final turtleDecoder = rdf.codec(contentType: 'text/turtle').decoder;
       expect(turtleDecoder, isNotNull);
 
       // Verify we can get a decoder for JSON-LD
-      final jsonLdEncoder = rdf.codec('application/ld+json').encoder;
+      final jsonLdEncoder =
+          rdf.codec(contentType: 'application/ld+json').encoder;
       expect(jsonLdEncoder, isNotNull);
     });
 
@@ -53,11 +54,13 @@ void main() {
       registry.registerGraphCodec(customCodec);
 
       // Verify we can get a decoder for our custom codec
-      final customDecoder = rdf.codec('application/x-custom-rdf').decoder;
+      final customDecoder =
+          rdf.codec(contentType: 'application/x-custom-rdf').decoder;
       expect(customDecoder, isA<_CustomRdfDecoder>());
 
       // Verify we can get a encoder for our custom codec
-      final customEncoder = rdf.codec('application/x-custom-rdf').encoder;
+      final customEncoder =
+          rdf.codec(contentType: 'application/x-custom-rdf').encoder;
       expect(customEncoder, isA<_CustomRdfGraphEncoder>());
     });
 
@@ -111,6 +114,12 @@ class _CustomRdfGraphCodec extends RdfGraphCodec {
     'application/x-custom-rdf',
     'text/x-custom',
   };
+
+  @override
+  RdfGraphCodec withOptions({
+    RdfGraphEncoderOptions? encoder,
+    RdfGraphDecoderOptions? decoder,
+  }) => this;
 }
 
 class _CustomRdfDecoder extends RdfGraphDecoder {
@@ -123,6 +132,9 @@ class _CustomRdfDecoder extends RdfGraphDecoder {
 
     return RdfGraph(triples: [Triple(subject, predicate, object)]);
   }
+
+  @override
+  RdfGraphDecoder withOptions(RdfGraphDecoderOptions options) => this;
 }
 
 class _CustomRdfGraphEncoder extends RdfGraphEncoder {
@@ -135,4 +147,7 @@ class _CustomRdfGraphEncoder extends RdfGraphEncoder {
     // For testing, just return a simple string with the triple count
     return 'CUSTOM:${graph.size} triple(s)';
   }
+
+  @override
+  RdfGraphEncoder withOptions(RdfGraphEncoderOptions options) => this;
 }

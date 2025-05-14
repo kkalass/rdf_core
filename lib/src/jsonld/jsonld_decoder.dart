@@ -6,11 +6,36 @@ import 'package:rdf_core/rdf_core.dart';
 final _log = Logger("rdf.jsonld");
 const _format = "JSON-LD";
 
+class JsonLdDecoderOptions extends RdfGraphDecoderOptions {
+  const JsonLdDecoderOptions();
+
+  static JsonLdDecoderOptions from(RdfGraphDecoderOptions options) =>
+      switch (options) {
+        JsonLdDecoderOptions _ => options,
+        _ => JsonLdDecoderOptions(),
+      };
+}
+
 /// Decoder for JSON-LD format
 ///
 /// Adapter that bridges the RdfDecoder base class to the
 /// implementation-specific JsonLdParser.
 class JsonLdDecoder extends RdfGraphDecoder {
+  // Decoders are always expected to have options, even if they are not used at
+  // the moment. But maybe the JsonLdDecoder will have options in the future.
+  //
+  // ignore: unused_field
+  final JsonLdDecoderOptions _options;
+
+  const JsonLdDecoder({
+    JsonLdDecoderOptions options = const JsonLdDecoderOptions(),
+  }) : _options = options;
+
+  @override
+  RdfGraphDecoder withOptions(RdfGraphDecoderOptions options) {
+    return JsonLdDecoder(options: JsonLdDecoderOptions.from(options));
+  }
+
   @override
   RdfGraph convert(String input, {String? documentUrl}) {
     final parser = JsonLdParser(input, baseUri: documentUrl);

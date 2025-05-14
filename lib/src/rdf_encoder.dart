@@ -9,6 +9,12 @@ import 'dart:convert';
 
 import 'graph/rdf_graph.dart';
 
+class RdfGraphEncoderOptions {
+  final Map<String, String> customPrefixes;
+
+  const RdfGraphEncoderOptions({this.customPrefixes = const {}});
+}
+
 /// Interface for encoding RDF graphs to different serialization formats.
 ///
 /// This base class defines the contract for encoding RDF graphs into textual
@@ -40,9 +46,7 @@ abstract class RdfGraphEncoder extends Converter<RdfGraph, String> {
   ///
   /// Returns:
   /// - The serialized representation of the graph as a string.
-  String convert(
-    RdfGraph graph, {
-    String? baseUri,
-    Map<String, String> customPrefixes = const {},
-  });
+  String convert(RdfGraph graph, {String? baseUri});
+
+  RdfGraphEncoder withOptions(RdfGraphEncoderOptions options);
 }

@@ -9,6 +9,24 @@ import 'package:rdf_core/src/vocab/xsd.dart';
 
 final _log = Logger("rdf.turtle");
 
+class TurtleEncoderOptions extends RdfGraphEncoderOptions {
+  /// When set to true (which is the default), the encoder will generate missing prefixes for IRIs
+  /// automatically, even if there are no matching custom prefixes and no matching
+  /// entries in the namespace mappings.
+  final bool generateMissingPrefixes;
+
+  const TurtleEncoderOptions({
+    Map<String, String> customPrefixes = const {},
+    this.generateMissingPrefixes = true,
+  }) : super(customPrefixes: customPrefixes);
+
+  static TurtleEncoderOptions from(RdfGraphEncoderOptions options) =>
+      switch (options) {
+        TurtleEncoderOptions _ => options,
+        _ => TurtleEncoderOptions(customPrefixes: options.customPrefixes),
+      };
+}
+
 /// Turtle Encoder Implementation
 ///
 /// Extends the [RdfGraphEncoder] class for serializing RDF graphs to Turtle syntax.
@@ -28,16 +46,23 @@ class TurtleEncoder extends RdfGraphEncoder {
   /// These prefixes provide shorthand notation for commonly used RDF namespaces
   /// and do not need to be specified explicitly for serialization.
   final RdfNamespaceMappings _namespaceMappings;
+  final TurtleEncoderOptions _options;
 
-  TurtleEncoder({RdfNamespaceMappings? namespaceMappings})
-    : _namespaceMappings = namespaceMappings ?? RdfNamespaceMappings();
+  TurtleEncoder({
+    RdfNamespaceMappings? namespaceMappings,
+    TurtleEncoderOptions options = const TurtleEncoderOptions(),
+  }) : _options = options,
+       // Use default namespace mappings if none provided
+       _namespaceMappings = namespaceMappings ?? RdfNamespaceMappings();
 
   @override
-  String convert(
-    RdfGraph graph, {
-    String? baseUri,
-    Map<String, String> customPrefixes = const {},
-  }) {
+  RdfGraphEncoder withOptions(RdfGraphEncoderOptions options) => TurtleEncoder(
+    namespaceMappings: _namespaceMappings,
+    options: TurtleEncoderOptions.from(options),
+  );
+
+  @override
+  String convert(RdfGraph graph, {String? baseUri}) {
     _log.info('Serializing graph to Turtle');
 
     final buffer = StringBuffer();
@@ -56,9 +81,16 @@ class TurtleEncoder extends RdfGraphEncoder {
         _countBlankNodeOccurrences(graph);
 
     // 1. Write prefixes
-    final prefixCandidates = {..._namespaceMappings.asMap(), ...customPrefixes};
+    final prefixCandidates = {
+      ..._namespaceMappings.asMap(),
+      ..._options.customPrefixes,
+    };
     // Identify which prefixes are actually used in the graph
-    final prefixes = _extractUsedPrefixes(graph, prefixCandidates);
+    final prefixes = _extractUsedAndGenerateMissingPrefixes(
+      graph,
+      prefixCandidates,
+      baseUri,
+    );
 
     _writePrefixes(buffer, prefixes);
 
@@ -129,13 +161,16 @@ class TurtleEncoder extends RdfGraphEncoder {
   }
 
   /// Extracts only those prefixes that are actually used in the graph's triples.
+  /// Will generate missing prefixes using the namespace mappings if needed.
   ///
   /// @param graph The RDF graph containing triples to analyze
   /// @param prefixCandidates Map of potential prefixes to their IRIs
+  /// @param baseUri Optional base URI for relative IRI resolution
   /// @return A filtered map containing only the prefixes used in the graph
-  Map<String, String> _extractUsedPrefixes(
+  Map<String, String> _extractUsedAndGenerateMissingPrefixes(
     RdfGraph graph,
     Map<String, String> prefixCandidates,
+    String? baseUri,
   ) {
     final usedPrefixes = <String, String>{};
 
@@ -152,6 +187,7 @@ class TurtleEncoder extends RdfGraphEncoder {
           iriToPrefixMap,
           usedPrefixes,
           prefixCandidates,
+          baseUri,
         );
       }
 
@@ -162,6 +198,7 @@ class TurtleEncoder extends RdfGraphEncoder {
           iriToPrefixMap,
           usedPrefixes,
           prefixCandidates,
+          baseUri,
         );
       }
 
@@ -172,6 +209,7 @@ class TurtleEncoder extends RdfGraphEncoder {
           iriToPrefixMap,
           usedPrefixes,
           prefixCandidates,
+          baseUri,
         );
       } else if (triple.object is LiteralTerm) {
         final literal = triple.object as LiteralTerm;
@@ -185,6 +223,7 @@ class TurtleEncoder extends RdfGraphEncoder {
           iriToPrefixMap,
           usedPrefixes,
           prefixCandidates,
+          baseUri,
         );
       }
     }
@@ -193,19 +232,29 @@ class TurtleEncoder extends RdfGraphEncoder {
   }
 
   /// Checks if a term's IRI matches any prefix and adds it to the usedPrefixes if it does.
+  /// If no matching prefix is found, it will generate one using _namespaceMappings.getOrGeneratePrefix
+  /// and add it to all relevant maps.
   void _checkTermForPrefix(
     IriTerm term,
     Map<String, String> iriToPrefixMap,
     Map<String, String> usedPrefixes,
     Map<String, String> prefixCandidates,
+    String? baseUri,
   ) {
     if (term == Rdf.type) {
       // This IRI has special handling in Turtle besides the prefix stuff:
       // it will be rendered simply as "a" - no prefix needed
       return;
     }
-    // Warn if https:// is used and http:// is in the prefix map for the same path
+
     final iri = term.iri;
+
+    // Skip prefix generation for IRIs that will be rendered as relative URIs
+    if (baseUri != null && iri.startsWith(baseUri)) {
+      return;
+    }
+
+    // Warn if https:// is used and http:// is in the prefix map for the same path
     if (iri.startsWith('https://')) {
       final httpIri = 'http://' + iri.substring('https://'.length);
       if (prefixCandidates.containsValue(httpIri)) {
@@ -241,6 +290,24 @@ class TurtleEncoder extends RdfGraphEncoder {
     // Only add valid prefixes with non-empty namespaces
     if ((bestPrefix.isNotEmpty || bestPrefix == '') && bestMatch.isNotEmpty) {
       usedPrefixes[bestPrefix] = bestMatch;
+    } else if (bestMatch.isEmpty && _options.generateMissingPrefixes) {
+      // No existing prefix found, generate a new one using namespace mappings
+
+      // Extract namespace from IRI
+      final (namespace, _) = RdfNamespaceMappings.extractNamespaceAndLocalPart(
+        iri,
+      );
+
+      // Get or generate a prefix for this namespace
+      final (prefix, _) = _namespaceMappings.getOrGeneratePrefix(
+        namespace,
+        customMappings: prefixCandidates,
+      );
+
+      // Add the generated prefix to all relevant maps
+      usedPrefixes[prefix] = namespace;
+      prefixCandidates[prefix] = namespace;
+      iriToPrefixMap[namespace] = prefix;
     }
   }
 
@@ -864,23 +931,11 @@ class TurtleEncoder extends RdfGraphEncoder {
           return 'a';
         } else {
           // Check if the predicate is a known prefix
-          final String baseIri;
-          final String localPart;
-
           final iri = term.iri;
-          final hashIndex = iri.lastIndexOf('#');
-          final slashIndex = iri.lastIndexOf('/');
-
-          if (hashIndex > slashIndex && hashIndex != -1) {
-            baseIri = iri.substring(0, hashIndex + 1);
-            localPart = iri.substring(hashIndex + 1);
-          } else if (slashIndex != -1) {
-            baseIri = iri.substring(0, slashIndex + 1);
-            localPart = iri.substring(slashIndex + 1);
-          } else {
-            baseIri = iri;
-            localPart = '';
-          }
+          final (
+            baseIri,
+            localPart,
+          ) = RdfNamespaceMappings.extractNamespaceAndLocalPart(iri);
 
           final prefix = prefixesByIri[baseIri];
           if (prefix != null) {

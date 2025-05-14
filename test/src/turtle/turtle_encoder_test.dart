@@ -39,7 +39,9 @@ void main() {
       final prefixes = {'ex': 'http://example.org/'};
 
       // Act
-      final result = encoder.convert(graph, customPrefixes: prefixes);
+      final result = encoder
+          .withOptions(TurtleEncoderOptions(customPrefixes: prefixes))
+          .convert(graph);
 
       // Assert
       expect(
@@ -65,6 +67,29 @@ void main() {
       final result = encoder.convert(graph);
 
       // Assert
+      expect(result, contains('@prefix ex: <http://example.org/> .'));
+      expect(result, contains('ex:alice ex:knows ex:bob .'));
+    });
+
+    test('should serialize a simple triple, optionally without prefix', () {
+      // Arrange
+      final graph = RdfGraph(
+        triples: [
+          Triple(
+            IriTerm('http://example.org/alice'),
+            IriTerm('http://example.org/knows'),
+            IriTerm('http://example.org/bob'),
+          ),
+        ],
+      );
+
+      // Act
+      final result = encoder
+          .withOptions(TurtleEncoderOptions(generateMissingPrefixes: false))
+          .convert(graph);
+
+      // Assert
+      expect(result, isNot(contains('@prefix ex: <http://example.org/> .')));
       expect(
         result,
         contains(
@@ -89,10 +114,7 @@ void main() {
       final result = encoder.convert(graph);
 
       // Assert
-      expect(
-        result,
-        contains('<http://example.org/alice> a <http://example.org/Person> .'),
-      );
+      expect(result, contains('ex:alice a ex:Person .'));
       expect(
         result,
         isNot(contains('<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>')),
@@ -128,37 +150,17 @@ void main() {
       final result = encoder.convert(graph);
 
       // Assert
-      expect(
-        result,
-        contains('<http://example.org/alice> <http://example.org/age> 30;'),
-      );
-      expect(
-        result,
-        contains(
-          '<http://example.org/alice> <http://example.org/age> 30;\n    <http://example.org/name> "Alice" .',
-        ),
-      );
-      expect(
-        result,
-        contains('<http://example.org/bob> <http://example.org/name> "Bob" .'),
-      );
+      expect(result, contains('ex:alice ex:age 30;'));
+      expect(result, contains('ex:alice ex:age 30;\n    ex:name "Alice" .'));
+      expect(result, contains('ex:bob ex:name "Bob" .'));
 
       // Überprüfe die strukturellen Eigenschaften der Ausgabe statt fester Zeilenanzahlen
       final lines = result.split('\n');
       expect(lines.any((line) => line.contains('@prefix xsd:')), isTrue);
       expect(lines.any((line) => line.isEmpty), isTrue);
-      expect(
-        lines.any((line) => line.contains('<http://example.org/alice>')),
-        isTrue,
-      );
-      expect(
-        lines.any((line) => line.contains('<http://example.org/bob>')),
-        isTrue,
-      );
-      expect(
-        lines.any((line) => line.contains('<http://example.org/age>')),
-        isTrue,
-      );
+      expect(lines.any((line) => line.contains('ex:alice')), isTrue);
+      expect(lines.any((line) => line.contains('ex:bob')), isTrue);
+      expect(lines.any((line) => line.contains('ex:age')), isTrue);
     });
 
     test('should group multiple objects for the same predicate', () {
@@ -182,12 +184,7 @@ void main() {
       final result = encoder.convert(graph);
 
       // Assert
-      expect(
-        result,
-        contains(
-          '<http://example.org/alice> <http://example.org/likes> <http://example.org/chocolate>, <http://example.org/pizza> .',
-        ),
-      );
+      expect(result, contains('ex:alice ex:likes ex:chocolate, ex:pizza .'));
     });
 
     test('should handle blank nodes', () {
@@ -208,12 +205,7 @@ void main() {
 
       // Assert
       // We should have a blank node reference, but we can't check the exact label
-      expect(
-        result,
-        matches(
-          '<http://example.org/statement> <http://example.org/source> _:b[0-9]+ .',
-        ),
-      );
+      expect(result, matches('ex:statement ex:source _:b[0-9]+ .'));
     });
 
     test('should handle literals with language tags', () {
@@ -232,12 +224,7 @@ void main() {
       final result = encoder.convert(graph);
 
       // Assert
-      expect(
-        result,
-        contains(
-          '<http://example.org/book> <http://example.org/title> "Le Petit Prince"@fr .',
-        ),
-      );
+      expect(result, contains('ex:book ex:title "Le Petit Prince"@fr .'));
     });
 
     test('should handle literals with quotes and backslashes', () {
@@ -261,7 +248,7 @@ void main() {
       expect(
         result,
         contains(
-          '<http://example.org/book> <http://example.org/title> "Le \\"Petit\\" \\\\ Prince\\n hopes for a better world\\r" .',
+          'ex:book ex:title "Le \\"Petit\\" \\\\ Prince\\n hopes for a better world\\r" .',
         ),
       );
     });
@@ -305,7 +292,9 @@ void main() {
         final prefixes = {'ex': 'http://example.org/'};
 
         // Act
-        final result = encoder.convert(graph, customPrefixes: prefixes);
+        final result = encoder
+            .withOptions(TurtleEncoderOptions(customPrefixes: prefixes))
+            .convert(graph);
 
         // Assert
         expect(result, contains('@prefix ex: <http://example.org/> .'));
@@ -399,7 +388,9 @@ void main() {
       final prefixes = {'': 'http://example.org/default#'};
 
       // Act
-      final result = encoder.convert(graph, customPrefixes: prefixes);
+      final result = encoder
+          .withOptions(TurtleEncoderOptions(customPrefixes: prefixes))
+          .convert(graph);
 
       // Assert
       expect(result, contains('@prefix : <http://example.org/default#> .'));
@@ -441,7 +432,7 @@ void main() {
       expect(
         result,
         contains(
-          '<http://example.org/subject> <http://example.org/predicate1> "value1", "value2";\n    <http://example.org/predicate2> "value3", "value4" .',
+          'ex:subject ex:predicate1 "value1", "value2";\n    ex:predicate2 "value3", "value4" .',
         ),
       );
     });
@@ -475,7 +466,7 @@ void main() {
       expect(
         result,
         contains(
-          '<http://example.org/book> <http://example.org/title> "The Little Prince", "Le Petit Prince"@fr, "Der kleine Prinz"@de .',
+          'ex:book ex:title "The Little Prince", "Le Petit Prince"@fr, "Der kleine Prinz"@de .',
         ),
       );
     });
@@ -498,7 +489,9 @@ void main() {
       };
 
       // Act
-      final result = encoder.convert(graph, customPrefixes: customPrefixes);
+      final result = encoder
+          .withOptions(TurtleEncoderOptions(customPrefixes: customPrefixes))
+          .convert(graph);
 
       // Assert
       expect(result, contains('@prefix book: <http://example.org/book/> .'));
@@ -537,7 +530,7 @@ void main() {
         expect(result, contains('foaf:name "Alice"'));
         expect(result, isNot(contains('@prefix xsd: ')));
         expect(result, contains('foaf:name "Alice"'));
-        expect(result, contains('foaf:knows <http://example.org/bob>'));
+        expect(result, contains('foaf:knows ex:bob'));
       },
     );
 
@@ -559,7 +552,9 @@ void main() {
       };
 
       // Act
-      final result = encoder.convert(graph, customPrefixes: customPrefixes);
+      final result = encoder
+          .withOptions(TurtleEncoderOptions(customPrefixes: customPrefixes))
+          .convert(graph);
 
       // Assert
       expect(result, contains('@prefix book: <http://example.org/book/> .'));
@@ -586,7 +581,9 @@ void main() {
       };
 
       // Act
-      final result = encoder.convert(graph, customPrefixes: customPrefixes);
+      final result = encoder
+          .withOptions(TurtleEncoderOptions(customPrefixes: customPrefixes))
+          .convert(graph);
 
       // Assert
       expect(result, contains('@prefix ex: <http://example.org/> .'));
@@ -693,19 +690,16 @@ void main() {
 
       // Assert
       // Check for integer serialization (without quotes or datatype)
-      expect(result, contains('<http://example.org/hasInteger> 42'));
+      expect(result, contains('ex:hasInteger 42'));
 
       // Check for decimal serialization (without quotes or datatype)
-      expect(result, contains('<http://example.org/hasDecimal> 3.14'));
+      expect(result, contains('ex:hasDecimal 3.14'));
 
       // Check for boolean serialization (without quotes or datatype)
-      expect(result, contains('<http://example.org/isEnabled> true'));
+      expect(result, contains('ex:isEnabled true'));
 
       // Check for multiple literals with the same predicate
-      expect(
-        result,
-        contains('<http://example.org/hasValue> 123, 45.67, false'),
-      );
+      expect(result, contains('ex:hasValue 123, 45.67, false'));
 
       // These should NOT be serialized with quotes and datatype syntax
       expect(
@@ -728,12 +722,7 @@ void main() {
       );
 
       // Check for proper grouping of triples by subject
-      expect(
-        result,
-        contains(
-          '<http://example.org/resource1> <http://example.org/hasDecimal> 3.14',
-        ),
-      );
+      expect(result, contains('ex:resource1 ex:hasDecimal 3.14'));
     });
 
     test('should correctly serialize RDF collections', () {
@@ -791,9 +780,7 @@ void main() {
       // Assert
       expect(
         result,
-        contains(
-          '<http://example.org/subject> <http://example.org/predicate> ("item1" "item2" "item3") .',
-        ),
+        contains('ex:subject ex:predicate ("item1" "item2" "item3") .'),
         reason:
             'Collection should be serialized using compact Turtle notation ("item1" "item2" "item3")',
       );
@@ -896,7 +883,7 @@ void main() {
       expect(
         result,
         contains(
-          '<http://example.org/subject> <http://example.org/predicate> ("item1" ("nested1" "nested2") "item3") .',
+          'ex:subject ex:predicate ("item1" ("nested1" "nested2") "item3") .',
         ),
         reason:
             'Nested collection should be serialized as ("item1" ("nested1" "nested2") "item3")',
@@ -919,9 +906,7 @@ void main() {
       // Assert
       expect(
         result,
-        contains(
-          '<http://example.org/subject> <http://example.org/predicate> () .',
-        ),
+        contains('ex:subject ex:predicate () .'),
         reason: 'Empty collection should be serialized as ()',
       );
     });
@@ -994,9 +979,7 @@ void main() {
         // Assert
         expect(
           result,
-          contains(
-            '<http://example.org/subject> <http://example.org/predicate> ("string" 42 true <http://example.org/resource>) .',
-          ),
+          contains('ex:subject ex:predicate ("string" 42 true ex:resource) .'),
           reason:
               'Collection with mixed value types should serialize each value correctly',
         );
@@ -1080,7 +1063,7 @@ void main() {
       expect(
         result,
         contains(
-          '<http://example.org/subject1> <http://example.org/predicate1> ("collection1-item1" "collection1-item2") .',
+          'ex:subject1 ex:predicate1 ("collection1-item1" "collection1-item2") .',
         ),
         reason: 'First collection should be serialized correctly',
       );
@@ -1088,7 +1071,7 @@ void main() {
       expect(
         result,
         contains(
-          '<http://example.org/subject2> <http://example.org/predicate2> ("collection2-item1" "collection2-item2") .',
+          'ex:subject2 ex:predicate2 ("collection2-item1" "collection2-item2") .',
         ),
         reason: 'Second collection should be serialized correctly',
       );
@@ -1161,7 +1144,7 @@ void main() {
 
         // The blank node's properties should also be serialized
         final blankNodePropertiesPattern = RegExp(
-          r'_:b\d+ <http://example\.org/type> "BlankNodeInCollection" \.',
+          r'_:b\d+ ex:type "BlankNodeInCollection" \.',
         );
         expect(
           blankNodePropertiesPattern.hasMatch(result),
@@ -1249,17 +1232,13 @@ void main() {
         // Assert
         expect(
           result,
-          contains(
-            '<http://example.org/subject1> <http://example.org/predicate> ("A" "B") .',
-          ),
+          contains('ex:subject1 ex:predicate ("A" "B") .'),
           reason: 'First collection should be serialized correctly',
         );
 
         expect(
           result,
-          contains(
-            '<http://example.org/subject2> <http://example.org/predicate> ("B" "A") .',
-          ),
+          contains('ex:subject2 ex:predicate ("B" "A") .'),
           reason: 'Second collection should be serialized correctly',
         );
       },
@@ -1305,7 +1284,9 @@ void main() {
       final customPrefixes = {'ex': 'http://example.org/'};
 
       // Act - serialize the graph with the custom prefixes
-      final result = encoder.convert(graph, customPrefixes: customPrefixes);
+      final result = encoder
+          .withOptions(TurtleEncoderOptions(customPrefixes: customPrefixes))
+          .convert(graph);
       //print(result);
       // Define the expected Turtle output
       final expected = '''@prefix ex: <http://example.org/> .
@@ -1397,29 +1378,26 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
         // Check the collection is formatted correctly
         expect(
           result,
-          contains('<http://example.org/hasCollection> ("item1" "item2")'),
+          contains('ex:hasCollection ("item1" "item2")'),
           reason: 'Collection should be serialized correctly',
         );
 
         // Check the set is formatted correctly
         expect(
           result,
-          contains(
-            '<http://example.org/hasItem> "setItem1", "setItem2", "setItem3"',
-          ),
+          contains('ex:hasItem "setItem1", "setItem2", "setItem3"'),
           reason: 'Set should be serialized correctly',
         );
 
         // Check the single value predicate is formatted correctly
         expect(
           result,
-          contains('<http://example.org/name> "TestSubject"'),
+          contains('ex:name "TestSubject"'),
           reason: 'Single value property should be serialized correctly',
         );
 
         // All predicates should be grouped under the same subject
-        final subjectLineCount =
-            RegExp('<http://example.org/subject>').allMatches(result).length;
+        final subjectLineCount = RegExp('ex:subject').allMatches(result).length;
         expect(
           subjectLineCount,
           equals(1),
@@ -1460,7 +1438,9 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
         };
 
         // Act
-        final result = encoder.convert(graph, customPrefixes: customPrefixes);
+        final result = encoder
+            .withOptions(TurtleEncoderOptions(customPrefixes: customPrefixes))
+            .convert(graph);
 
         // Assert
         expect(
@@ -1512,7 +1492,9 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
       };
 
       // Act
-      final result = encoder.convert(graph, customPrefixes: customPrefixes);
+      final result = encoder
+          .withOptions(TurtleEncoderOptions(customPrefixes: customPrefixes))
+          .convert(graph);
 
       // Assert - should have nested inline blank nodes
       expect(
@@ -1560,7 +1542,9 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
         };
 
         // Act
-        final result = encoder.convert(graph, customPrefixes: customPrefixes);
+        final result = encoder
+            .withOptions(TurtleEncoderOptions(customPrefixes: customPrefixes))
+            .convert(graph);
 
         // Assert - should use labeled blank nodes, not inline syntax
         expect(
@@ -1629,7 +1613,9 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
       };
 
       // Act
-      final result = encoder.convert(graph, customPrefixes: customPrefixes);
+      final result = encoder
+          .withOptions(TurtleEncoderOptions(customPrefixes: customPrefixes))
+          .convert(graph);
 
       // Assert - should have a collection with an inline blank node
       expect(

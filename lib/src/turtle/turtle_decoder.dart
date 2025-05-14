@@ -8,30 +8,49 @@ import 'turtle_tokenizer.dart';
 final _log = Logger("rdf.turtle");
 const _format = "Turtle";
 
+class TurtleDecoderOptions extends RdfGraphDecoderOptions {
+  final Set<TurtleParsingFlag> parsingFlags;
+
+  const TurtleDecoderOptions({this.parsingFlags = const {}});
+
+  static TurtleDecoderOptions from(RdfGraphDecoderOptions options) =>
+      switch (options) {
+        TurtleDecoderOptions _ => options,
+        _ => TurtleDecoderOptions(),
+      };
+}
+
 /// Decoder for Turtle format
 ///
 /// Internal adapter that bridges the RdfDecoder interface to the
 /// implementation-specific TurtleParser.
 class TurtleDecoder extends RdfGraphDecoder {
-  final Set<TurtleParsingFlag> _parsingFlags;
+  final TurtleDecoderOptions _options;
   final RdfNamespaceMappings _namespaceMappings;
 
   TurtleDecoder({
-    required Set<TurtleParsingFlag> parsingFlags,
+    TurtleDecoderOptions options = const TurtleDecoderOptions(),
     required RdfNamespaceMappings namespaceMappings,
   }) : _namespaceMappings = namespaceMappings,
        // Pass the parsing flags to the TurtleParser
-       _parsingFlags = parsingFlags;
+       _options = options;
+
   @override
   RdfGraph convert(String input, {String? documentUrl}) {
     final parser = TurtleParser(
       input,
       baseUri: documentUrl,
-      parsingFlags: _parsingFlags,
+      parsingFlags: _options.parsingFlags,
       namespaceMappings: _namespaceMappings,
     );
     return RdfGraph.fromTriples(parser.parse());
   }
+
+  @override
+  RdfGraphDecoder withOptions(RdfGraphDecoderOptions options) => TurtleDecoder(
+    options: TurtleDecoderOptions.from(options),
+    namespaceMappings: _namespaceMappings,
+  );
 }
 
 /// A parser for Turtle syntax, which is a text-based format for representing RDF data.

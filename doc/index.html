@@ -127,7 +127,7 @@ final turtleData = '@prefix ex: <http://example.org/> . ex:subject ex:predicate 
 final graphFromTurtle = turtle.decode(turtleData);
 
 final jsonLdData = '{"@id": "http://example.org/subject", "http://example.org/predicate": "Hello, World!"}';
-final graphFromJsonLd = lsonldGraph.decode(jsonLdData);
+final graphFromJsonLd = jsonldGraph.decode(jsonLdData);
 
 // Or use the pre-configured RdfCore instance
 final rdfGraph = rdf.decode(turtleData, contentType: 'text/turtle');
@@ -179,13 +179,14 @@ import 'package:rdf_core/rdf_core.dart';
 
 // Configure a TurtleCodec with specific parsing flags
 final turtleCodec = TurtleCodec(
-  parsingFlags: {
-    TurtleParsingFlag.allowDigitInLocalName,
-    TurtleParsingFlag.allowMissingDotAfterPrefix,
-    TurtleParsingFlag.autoAddCommonPrefixes,
-    TurtleParsingFlag.allowPrefixWithoutAtSign,
-    TurtleParsingFlag.allowMissingFinalDot,
-  }
+  decoderOptions: TurtleDecoderOptions(
+    parsingFlags: {
+      TurtleParsingFlag.allowDigitInLocalName,        // Allow local names with digits (e.g., "resource123")
+      TurtleParsingFlag.allowMissingDotAfterPrefix,   // Allow prefix declarations without trailing dot
+      TurtleParsingFlag.allowIdentifiersWithoutColon, // Treat terms without colon as IRIs resolved against base URI
+      TurtleParsingFlag.allowMissingFinalDot,         // Allow missing dot at end of triple
+    }
+  )
 );
 
 // Create an RDF Core instance with the custom codec
@@ -193,8 +194,9 @@ final rdf = RdfCore.withCodecs(codecs: [turtleCodec]);
 
 // Decode a non-standard document that would fail with strict parsing
 final nonStandardTurtle = '''
+  @base <http://my.example.org/> .
   @prefix ex: <http://example.org/> // Missing dot after prefix declaration
-  ex:resource123 a ex:Type . // Digit in local name (123)
+  ex:resource123 a Type . // Digit in local name (123) and "Type" without prefix resolves to <http://my.example.org/Type>
 ''';
 
 final graph = rdf.decode(nonStandardTurtle, contentType: 'text/turtle');
@@ -268,8 +270,8 @@ final jsonLdDoc = '''
 ''';
 
 // Option 1: Use the global convenience variable
-final graph = lsonldGraph.decode(jsonLdDoc);
-final encodedJsonLd = lsonldGraph.encode(graph);
+final graph = jsonldGraph.decode(jsonLdDoc);
+final encodedJsonLd = jsonldGraph.encode(graph);
 
 // Option 2: Use the pre-configured RdfCore instance
 final rdf = RdfCore.withStandardCodecs();
@@ -334,7 +336,7 @@ print(encodedTurtle);
         <td style="padding:8px; border-bottom:1px solid #eee;">Global convenience variable for Turtle format</td>
       </tr>
       <tr>
-        <td style="padding:8px; border-bottom:1px solid #eee;"><code>jsonld</code></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><code>jsonldGraph</code></td>
         <td style="padding:8px; border-bottom:1px solid #eee;">Global convenience variable for JSON-LD format</td>
       </tr>
       <tr>

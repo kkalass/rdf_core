@@ -46,7 +46,7 @@ import 'package:rdf_core/rdf_core.dart';
 
 // Easy access to codecs through global variables
 final graphFromTurtle = turtle.decode(turtleData);
-final graphFromJsonLd = lsonldGraph.decode(jsonLdData);
+final graphFromJsonLd = jsonldGraph.decode(jsonLdData);
 final graphFromNTriples = ntriples.decode(ntriplesData);
 
 // Or use the pre-configured RdfCore instance
@@ -156,7 +156,7 @@ void main() {
   ''';
 
   // Using the convenience global variable
-  final graph = lsonldGraph.decode(jsonLdData);
+  final graph = jsonldGraph.decode(jsonLdData);
 
   // Print decoded triples
   for (final triple in graph.triples) {
@@ -164,7 +164,7 @@ void main() {
   }
 
   // Encode the graph back to JSON-LD
-  final serialized = lsonldGraph.encode(graph);
+  final serialized = jsonldGraph.encode(graph);
   print('\nEncoded JSON-LD:\n$serialized');
 }
 ```
@@ -227,17 +227,20 @@ import 'package:rdf_core/rdf_core.dart';
 
 // Configure a custom TurtleCodec with specific parsing flags
 final customTurtleCodec = TurtleCodec(
-  parsingFlags: {
-    TurtleParsingFlag.allowDigitInLocalName,
-    TurtleParsingFlag.allowMissingDotAfterPrefix,
-    TurtleParsingFlag.autoAddCommonPrefixes,
-  }
+  decoderOptions: TurtleDecoderOptions(
+    parsingFlags: {
+      TurtleParsingFlag.allowDigitInLocalName,       // Allow local names with digits like "resource123"
+      TurtleParsingFlag.allowMissingDotAfterPrefix,  // Allow prefix declarations without trailing dot
+      TurtleParsingFlag.allowIdentifiersWithoutColon, // Treat terms without colon as IRIs resolved against base URI
+    }
+  )
 );
 
 // Option 1: Use the custom codec directly
 final nonStandardTurtle = '''
-  @prefix ex: <http://example.org/> // Missing dot after prefix
-  ex:resource123 a ex:Type . // Digit in local name
+@base <http://my.example.org/> .
+@prefix ex: <http://example.org/> 
+ex:resource123 a Type . // "Type" without prefix is resolved to <http://my.example.org/Type>
 ''';
 
 final graph = customTurtleCodec.decode(nonStandardTurtle);
@@ -279,7 +282,7 @@ final graph2 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 | `RdfGraphDecoder`   | Base class for decoding RDF Graphs                   |
 | `RdfGraphEncoder`   | Base class for encoding RDF Graphs                   |
 | `turtle`       | Global convenience variable for Turtle codec |
-| `jsonld`       | Global convenience variable for JSON-LD codec |
+| `jsonldGraph`       | Global convenience variable for JSON-LD codec |
 | `ntriples`     | Global convenience variable for N-Triples codec |
 | `rdf`          | Global RdfCore instance with standard codecs  |
 

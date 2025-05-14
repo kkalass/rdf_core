@@ -55,7 +55,7 @@ void main() {
 
   // --- Serialize to JSON-LD ---
   final encoded = codec.encode(graph);
-  print('\nJSON-LD serialization:\n$jsonldGraph');
+  print('\nJSON-LD serialization:\n$encoded');
 
   // --- Parse from JSON-LD ---
   final decoded = codec.decode(encoded);

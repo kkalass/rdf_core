@@ -50,7 +50,17 @@ enum TurtleParsingFlag {
   allowMissingFinalDot,
 
   /// Allows simple identifiers without colons to be treated as prefixed names.
-  /// E.g., allows `abc` to be treated as a prefixed name without requiring a colon.
+  /// E.g., allows `abc` to be treated as an IRI that is resolved against the base URI.
+  ///
+  /// Note: This requires that a base URI is set, either through an @base directive
+  /// in the document or provided as the documentUrl parameter when decoding.
+  ///
+  /// Example:
+  /// ```
+  /// @base <http://example.org/> .
+  /// <http://example.org/subject> a Type .
+  /// ```
+  /// Here "Type" will be resolved to <http://example.org/Type>
   allowIdentifiersWithoutColon,
 }
 

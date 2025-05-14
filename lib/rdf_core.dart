@@ -101,10 +101,12 @@
 ///   'foaf': 'http://xmlns.com/foaf/0.1/'
 /// };
 ///
-/// final turtle = rdf.serialize(
+/// final turtle = rdf.encode(
 ///   graph,
 ///   contentType: 'text/turtle',
-///   customPrefixes: customPrefixes
+///   options: TurtleEncoderOptions(
+///     customPrefixes: customPrefixes
+///   )
 /// );
 /// ```
 ///
@@ -260,6 +262,7 @@ final class RdfCore {
   /// - [content]: The RDF content to parse as a string
   /// - [contentType]: Optional MIME type to specify the format (e.g., "text/turtle")
   /// - [documentUrl]: Optional base URI for resolving relative references in the document
+  /// - [options]: Optional format-specific decoder options (e.g., TurtleDecoderOptions)
   ///
   /// Returns:
   /// - An [RdfGraph] containing the parsed triples
@@ -288,8 +291,7 @@ final class RdfCore {
   /// - [contentType]: Optional MIME type to specify the output format
   /// - [baseUri]: Optional base URI for the serialized output, which may enable
   ///   more compact representations with relative URIs
-  /// - [customPrefixes]: Optional custom namespace prefix mappings to use in
-  ///   formats that support prefixes (like Turtle)
+  /// - [options]: Optional format-specific encoder options (e.g., TurtleEncoderOptions)
   ///
   /// Returns:
   /// - A string containing the serialized RDF data

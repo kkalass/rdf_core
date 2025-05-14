@@ -4,10 +4,14 @@
 /// format for serializing RDF graphs.
 library ntriples_format;
 
-import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_core/src/ntriples/ntriples_decoder.dart';
+import 'package:rdf_core/src/ntriples/ntriples_encoder.dart';
+import 'package:rdf_core/src/plugin/rdf_codec.dart';
+import 'package:rdf_core/src/rdf_decoder.dart';
+import 'package:rdf_core/src/rdf_encoder.dart';
 
-import 'ntriples_decoder.dart';
-import 'ntriples_encoder.dart';
+export 'ntriples_decoder.dart' show NTriplesDecoderOptions, NTriplesDecoder;
+export 'ntriples_encoder.dart' show NTriplesEncoderOptions, NTriplesEncoder;
 
 /// Format definition for the N-Triples RDF serialization format.
 ///
@@ -72,10 +76,10 @@ final class NTriplesCodec extends RdfGraphCodec {
   };
 
   @override
-  RdfGraphDecoder get decoder => NTriplesDecoder();
+  RdfGraphDecoder get decoder => NTriplesDecoder(options: _decoderOptions);
 
   @override
-  RdfGraphEncoder get encoder => NTriplesEncoder();
+  RdfGraphEncoder get encoder => NTriplesEncoder(options: _encoderOptions);
 
   @override
   bool canParse(String content) {

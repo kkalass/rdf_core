@@ -13,6 +13,9 @@ import '../rdf_encoder.dart';
 import 'jsonld_decoder.dart';
 import 'jsonld_encoder.dart';
 
+export 'jsonld_decoder.dart' show JsonLdDecoderOptions, JsonLdDecoder;
+export 'jsonld_encoder.dart' show JsonLdEncoderOptions, JsonLdEncoder;
+
 /// RDF Format implementation for the JSON-LD serialization format.
 ///
 /// JSON-LD (JavaScript Object Notation for Linked Data) is a method of encoding

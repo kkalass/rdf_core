@@ -13,6 +13,9 @@ import '../rdf_encoder.dart';
 import 'turtle_decoder.dart';
 import 'turtle_encoder.dart';
 
+export 'turtle_decoder.dart' show TurtleDecoderOptions, TurtleDecoder;
+export 'turtle_encoder.dart' show TurtleEncoderOptions, TurtleEncoder;
+
 /// RDF Codec implementation for the Turtle serialization format.
 ///
 /// Turtle (Terse RDF Triple Language) is a textual syntax for RDF that is

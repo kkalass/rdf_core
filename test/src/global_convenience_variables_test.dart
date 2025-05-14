@@ -1,6 +1,5 @@
 // filepath: /Users/klaskalass/privat/rdf/rdf_core/test/src/global_convenience_variables_test.dart
 import 'package:rdf_core/rdf_core.dart';
-import 'package:rdf_core/src/turtle/turtle_encoder.dart';
 import 'package:test/test.dart';
 
 // Tests for the global convenience variables: rdf, turtle, jsonldGraph, ntriples

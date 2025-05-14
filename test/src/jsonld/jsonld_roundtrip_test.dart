@@ -1,6 +1,5 @@
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_core/src/jsonld/jsonld_decoder.dart';
-import 'package:rdf_core/src/jsonld/jsonld_encoder.dart';
 import 'package:rdf_core/src/vocab/rdf.dart';
 import 'package:test/test.dart';
 

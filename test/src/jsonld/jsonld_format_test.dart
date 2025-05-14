@@ -1,5 +1,4 @@
 import 'package:rdf_core/src/jsonld/jsonld_codec.dart';
-import 'package:rdf_core/src/jsonld/jsonld_encoder.dart';
 import 'package:test/test.dart';
 
 void main() {

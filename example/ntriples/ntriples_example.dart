@@ -65,9 +65,9 @@ void main() {
   print(serializedNTriples);
 
   // Convert between formats - serialize to Turtle
-  print('\nConverting to Turtle format:');
+  print('---\nConverting to Turtle format:');
   final turtle = rdf.encode(graph, contentType: 'text/turtle');
-  print(turtle);
+  print('\n```turtle\n$turtle\n```');
 
   // Working with different types of terms in N-Triples
   print('\nDifferent types of terms in N-Triples:');

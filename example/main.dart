@@ -26,26 +26,17 @@ void main() {
     print('  ${triple.subject} ${triple.predicate} ${triple.object}');
   }
 
-  // --- Serialize to Turtle with custom prefixes ---
+  // --- Serialize to Turtle ---
   final turtleStr = turtle.encode(graph);
 
   // Note that prefixes for well-known IRIs like https://xmlns.com/foaf/0.1/ will automatically
-  // be introduced, using custom prefixes is optional. Expect an output like this:
-  //
-  // ```turtle
-  // @prefix ex: <http://example.org/> .
-  // @prefix foaf: <http://xmlns.com/foaf/0.1/> .
-  //
-  // ex:alice foaf:knows ex:bob;
-  //     foaf:name "Alice" .
-  // ex:bob foaf:name "Bob" .
-  // ```
-  print('\nTurtle serialization:\n$turtleStr');
+  // be introduced (if needed). Other prefixes for the IRI terms in the graph will be generated automatically.
+  print('\nTurtle encoding:\n$turtleStr');
 
   // --- Parse from Turtle ---
   final parsedGraph = turtle.decode(turtleStr);
 
-  print('\nParsed from Turtle:');
+  print('\nDecoded from Turtle:');
   for (final triple in parsedGraph.triples) {
     print('  ${triple.subject} ${triple.predicate} ${triple.object}');
   }

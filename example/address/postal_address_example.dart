@@ -14,7 +14,7 @@ void main() {
   printGraph(graph);
 
   // Serialize to Turtle format for a nicer view
-  final turtleStr = turtle // or use: rdf.codec('text/turtle')
+  final turtleStr = turtle // or use: rdf.codec(contentType: 'text/turtle')
       .encode(graph);
 
   print('\nTurtle serialization:\n\n```turtle\n$turtleStr\n```');
@@ -28,7 +28,7 @@ void main() {
 
   // Print the updated graph
   print('\nUpdated Graph with Branch Office:');
-  final updatedTurtle = turtle // or use: rdf.codec('text/turtle')
+  final updatedTurtle = turtle // or use: rdf.codec(contentType: 'text/turtle')
       .encode(updatedGraph);
 
   print('\n```turtle\n$updatedTurtle\n```');

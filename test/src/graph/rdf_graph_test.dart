@@ -345,6 +345,7 @@ void main() {
 
       test('equality should be false for different types', () {
         final graph = RdfGraph();
+        // ignore: unrelated_type_equality_checks
         expect(graph == 'not a graph', isFalse);
       });
 

@@ -1,7 +1,4 @@
 import 'package:rdf_core/rdf_core.dart';
-import 'package:rdf_core/src/ntriples/ntriples_codec.dart';
-import 'package:rdf_core/src/rdf_decoder.dart';
-import 'package:rdf_core/src/rdf_encoder.dart';
 import 'package:test/test.dart';
 
 void main() {

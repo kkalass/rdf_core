@@ -299,9 +299,8 @@ final graph2 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 
 ## 🛣️ Roadmap / Next Steps
 
-- Support base uri in jsonld and turtle encoding
 - RDF 1.1: Datasets with Named Graphs 
-- Improve jsonld decoder/encoder (full RdfDataset support and include realworld tests for e.g. foaf.jsonld)
+- Improve jsonld decoder/encoder (full RdfDataset support, better support for base uri, include realworld tests for e.g. foaf.jsonld)
 - RDF 1.2: Rdf-Star
 - SHACL and schema validation
 - Performance optimizations for large graphs

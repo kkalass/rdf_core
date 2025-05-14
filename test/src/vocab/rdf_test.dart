@@ -41,5 +41,12 @@ void main() {
         typeIri.iri = 'modified';
       }, throwsNoSuchMethodError);
     });
+
+    test('all RDF terms are correctly constructed from namespace', () {
+      // Test a few random RDF vocabulary terms to ensure they're constructed correctly
+      expect(Rdf.first, equals(IriTerm('${Rdf.namespace}first')));
+      expect(Rdf.rest, equals(IriTerm('${Rdf.namespace}rest')));
+      expect(Rdf.nil, equals(IriTerm('${Rdf.namespace}nil')));
+    });
   });
 }

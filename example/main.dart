@@ -63,4 +63,12 @@ void main() {
   for (final triple in decoded.triples) {
     print('  ${triple.subject} ${triple.predicate} ${triple.object}');
   }
+  turtle.withOptions(
+    encoder: RdfGraphEncoderOptions(
+      customPrefixes: {
+        'ex': 'http://example.org/',
+        'foaf': 'http://xmlns.com/foaf/0.1/',
+      },
+    ),
+  );
 }

@@ -1287,7 +1287,7 @@ void main() {
       final result = encoder
           .withOptions(TurtleEncoderOptions(customPrefixes: customPrefixes))
           .convert(graph);
-      //print(result);
+
       // Define the expected Turtle output
       final expected = '''@prefix ex: <http://example.org/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -1698,7 +1698,7 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
 
       // Act
       final result = encoder.convert(graph);
-      print(result);
+
       // Assert
       // Verify each namespace has a proper prefix (exact prefix name may vary)
       expect(result, contains('@prefix '));

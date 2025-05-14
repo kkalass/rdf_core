@@ -587,5 +587,61 @@ literal"""
         },
       );
     });
+
+    test('should handle relaxed parsing with allowDigitInLocalName', () {
+      final tokenizer = TurtleTokenizer(
+        'ex123:test',
+        parsingFlags: {TurtleParsingFlag.allowDigitInLocalName},
+      );
+      final token = tokenizer.nextToken();
+      expect(token.type, equals(TokenType.prefixedName));
+      expect(token.value, equals('ex123:test'));
+      expect(tokenizer.nextToken().type, equals(TokenType.eof));
+    });
+
+    test('should handle relaxed parsing with allowIdentifiersWithoutColon', () {
+      final tokenizer = TurtleTokenizer(
+        'standalone',
+        parsingFlags: {TurtleParsingFlag.allowIdentifiersWithoutColon},
+      );
+      final token = tokenizer.nextToken();
+      expect(token.type, equals(TokenType.prefixedName));
+      expect(token.value, equals('standalone'));
+      expect(tokenizer.nextToken().type, equals(TokenType.eof));
+    });
+
+    test('should throw on identifiers without colon in strict mode', () {
+      final tokenizer = TurtleTokenizer('standalone');
+      expect(
+        () => tokenizer.nextToken(),
+        throwsA(
+          isA<FormatException>().having(
+            (e) => e.message,
+            'message',
+            contains('Invalid prefixed name format without colon'),
+          ),
+        ),
+      );
+    });
+
+    test('should handle allowPrefixWithoutAtSign flag', () {
+      final tokenizer = TurtleTokenizer(
+        'prefix p: <http://example.org/>',
+        parsingFlags: {TurtleParsingFlag.allowPrefixWithoutAtSign},
+      );
+
+      var token = tokenizer.nextToken();
+      expect(token.type, equals(TokenType.prefix));
+
+      token = tokenizer.nextToken();
+      expect(token.type, equals(TokenType.prefixedName));
+      expect(token.value, equals('p:'));
+
+      token = tokenizer.nextToken();
+      expect(token.type, equals(TokenType.iri));
+
+      token = tokenizer.nextToken();
+      expect(token.type, equals(TokenType.eof));
+    });
   });
 }

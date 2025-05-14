@@ -342,6 +342,16 @@ void main() {
         final graph3 = RdfGraph().withTriple(triple1);
         expect(graph1 == graph3, isFalse);
       });
+
+      test('equality should be false for different types', () {
+        final graph = RdfGraph();
+        expect(graph == 'not a graph', isFalse);
+      });
+
+      test('identical graphs should be equal', () {
+        final graph = RdfGraph();
+        expect(graph == graph, isTrue);
+      });
     });
 
     // Legacy tests for compatibility verification

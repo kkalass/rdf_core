@@ -1,4 +1,6 @@
 import 'package:rdf_core/src/jsonld/jsonld_codec.dart';
+import 'package:rdf_core/src/rdf_decoder.dart';
+import 'package:rdf_core/src/rdf_encoder.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -32,6 +34,28 @@ void main() {
     test('codec.encoder returns a JsonLdSerializer', () {
       final serializer = codec.encoder;
       expect(serializer, isA<JsonLdEncoder>());
+    });
+
+    test('withOptions creates a new codec with the provided options', () {
+      // Arrange
+      final encoderOptions = RdfGraphEncoderOptions(
+        customPrefixes: {'ex': 'http://example.org/'},
+      );
+      final decoderOptions = RdfGraphDecoderOptions();
+
+      // Act
+      final newCodec = codec.withOptions(
+        encoder: encoderOptions,
+        decoder: decoderOptions,
+      );
+
+      // Assert
+      expect(newCodec, isA<JsonLdGraphCodec>());
+      expect(identical(newCodec, codec), isFalse); // Should be a new instance
+
+      // Test that core properties are maintained
+      expect(newCodec.primaryMimeType, equals(codec.primaryMimeType));
+      expect(newCodec.supportedMimeTypes, equals(codec.supportedMimeTypes));
     });
 
     group('canParse', () {

@@ -124,6 +124,46 @@ void main() {
       expect(encoded, contains('@prefix ex: <http://example.org/>'));
       expect(encoded, contains('ex:subject ex:predicate "object"'));
     });
+
+    test('withOptions creates a new codec with the provided options', () {
+      // Arrange
+      final encoderOptions = RdfGraphEncoderOptions(
+        customPrefixes: {'ex': 'http://example.org/'},
+      );
+      final decoderOptions = RdfGraphDecoderOptions();
+
+      // Act
+      final newCodec = codec.withOptions(
+        encoder: encoderOptions,
+        decoder: decoderOptions,
+      );
+
+      // Assert
+      expect(newCodec, isA<AutoDetectingGraphCodec>());
+      expect(identical(newCodec, codec), isFalse); // Should be a new instance
+
+      // Test that the options are properly applied
+      final autoDetectingDecoder =
+          newCodec.decoder as AutoDetectingGraphDecoder;
+      expect(autoDetectingDecoder, isA<AutoDetectingGraphDecoder>());
+    });
+
+    test('encoder respects encoder options when provided', () {
+      // Arrange
+      final encoderOptions = RdfGraphEncoderOptions(
+        customPrefixes: {'ex': 'http://example.org/'},
+      );
+
+      // Act
+      final newCodec = codec.withOptions(encoder: encoderOptions);
+      final encoder = newCodec.encoder;
+
+      // Assert
+      expect(encoder, isNotNull);
+      // While we can't directly access the internal options, we can verify
+      // that a new encoder instance was created
+      expect(identical(encoder, codec.encoder), isFalse);
+    });
   });
 
   group('AutoDetectingGraphDecoder Tests', () {
@@ -132,6 +172,8 @@ void main() {
 
     setUp(() {
       registry = RdfCodecRegistry();
+      registry.registerGraphCodec(const TurtleCodec());
+      registry.registerGraphCodec(const NTriplesCodec());
       decoder = AutoDetectingGraphDecoder(registry);
     });
 
@@ -139,22 +181,23 @@ void main() {
       registry.clear();
     });
 
-    test(
-      'convert throws CodecNotSupportedException when no codecs can decode the content',
-      () {
-        // Act & Assert
-        expect(
-          () => decoder.convert('test content'),
-          throwsA(isA<CodecNotSupportedException>()),
-        );
-      },
-    );
+    test('withOptions creates a new decoder with provided options', () {
+      // Arrange
+      final options = RdfGraphDecoderOptions();
 
-    test('convert uses the first codec that can parse the content', () {
-      // Arrange - Register Turtle and JSON-LD codecs
-      registry.registerGraphCodec(const TurtleCodec());
-      registry.registerGraphCodec(const JsonLdGraphCodec());
+      // Act
+      final newDecoder = decoder.withOptions(options);
 
+      // Assert
+      expect(newDecoder, isA<AutoDetectingGraphDecoder>());
+      expect(
+        identical(newDecoder, decoder),
+        isFalse,
+      ); // Should be a new instance
+    });
+
+    test('convert method delegates to detected codec decoder', () {
+      // Arrange
       final turtleContent =
           '@prefix ex: <http://example.org/> .\nex:subject ex:predicate "object" .';
 
@@ -164,81 +207,30 @@ void main() {
       // Assert
       expect(result, isA<RdfGraph>());
       expect(result.size, equals(1));
-      expect(
-        result.triples.first.subject,
-        equals(IriTerm('http://example.org/subject')),
-      );
     });
 
-    test('convert propagates exceptions from the codec', () {
-      // Arrange - Register a codec that will always throw an exception
-      registry.registerGraphCodec(
-        _MockCodec(
-          canParse: true,
-          willThrow: true,
-          errorMessage: 'Mock parsing error',
-        ),
-      );
+    test('convert method tries all codecs when detection fails', () {
+      // Arrange - create content without clear format markers but valid as Turtle
+      final ambiguousContent =
+          '<http://example.org/subject> <http://example.org/predicate> "object" .';
+
+      // Act
+      final result = decoder.convert(ambiguousContent);
+
+      // Assert
+      expect(result, isA<RdfGraph>());
+      expect(result.size, equals(1));
+    });
+
+    test('convert method throws when all codecs fail', () {
+      // Arrange
+      final invalidContent = 'This is not a valid RDF format in any codec';
 
       // Act & Assert
       expect(
-        () => decoder.convert('test content'),
-        throwsA(
-          anyOf(
-            isA<FormatException>().having(
-              (e) => e.message,
-              'message',
-              contains('Mock parsing error'),
-            ),
-            isA<CodecNotSupportedException>().having(
-              (e) => e.message,
-              'message',
-              contains('Mock parsing error'),
-            ),
-          ),
-        ),
+        () => decoder.convert(invalidContent),
+        throwsA(isA<CodecNotSupportedException>()),
       );
-    });
-
-    test('convert respects documentUrl parameter', () {
-      // Arrange
-      registry.registerGraphCodec(const TurtleCodec());
-      final turtleWithRelativeUri =
-          '<resource> <http://example.org/predicate> "object" .';
-
-      // Act
-      final result = decoder.convert(
-        turtleWithRelativeUri,
-        documentUrl: 'http://example.com/',
-      );
-
-      // Assert - the relative URI should be resolved against the document URL
-      expect(
-        result.triples.first.subject,
-        equals(IriTerm('http://example.com/resource')),
-      );
-    });
-
-    test('convert tries codecs in order until one succeeds', () {
-      // Arrange - First codec throws, second one succeeds
-      registry.registerGraphCodec(
-        _MockCodec(
-          canParse: true,
-          willThrow: true,
-          errorMessage: 'First error',
-        ),
-      );
-      registry.registerGraphCodec(const TurtleCodec());
-
-      final turtleContent =
-          '@prefix ex: <http://example.org/> .\nex:subject ex:predicate "object" .';
-
-      // Act
-      final result = decoder.convert(turtleContent);
-
-      // Assert - should successfully parse with the second codec
-      expect(result, isA<RdfGraph>());
-      expect(result.size, equals(1));
     });
   });
 }

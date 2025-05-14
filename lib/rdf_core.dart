@@ -74,7 +74,7 @@
 /// final newGraph = graph.withTriple(Triple(subject, predicate, object));
 ///
 /// // Query the graph
-/// final nameTriples = graph.findBySubjectAndPredicate(
+/// final nameTriples = graph.getObjects(
 ///   subject,
 ///   predicate
 /// );
@@ -94,10 +94,13 @@
 /// ```
 ///
 /// ### Using Custom Prefixes in Serialization
+/// Note that this is rarely needed, as the library knows some well-known
+/// prefixes and will automatically generate missing prefixes for you.
+/// However, this gives you more control over the output.
 ///
 /// ```dart
 /// final customPrefixes = {
-///   'ex': 'http://example.org/',
+///   'example': 'http://example.org/',
 ///   'foaf': 'http://xmlns.com/foaf/0.1/'
 /// };
 ///

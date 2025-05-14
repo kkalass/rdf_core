@@ -63,12 +63,16 @@ void main() {
   for (final triple in decoded.triples) {
     print('  ${triple.subject} ${triple.predicate} ${triple.object}');
   }
-  turtle.withOptions(
+
+  // -- Serialize to Turtle with custom codec that has specific prefixes --
+  final customCodec = turtle.withOptions(
     encoder: RdfGraphEncoderOptions(
       customPrefixes: {
-        'ex': 'http://example.org/',
+        'exam': 'http://example.org/',
         'foaf': 'http://xmlns.com/foaf/0.1/',
       },
     ),
   );
+  final decoded2 = customCodec.encode(graph);
+  print('\nCustom Turtle serialization:\n$decoded2');
 }

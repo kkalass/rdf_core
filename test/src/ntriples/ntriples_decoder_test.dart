@@ -199,10 +199,12 @@ _:b1 <http://example.org/predicate> <http://example.org/object> .
       final value3 = (triple3.object as LiteralTerm).value;
       final value4 = (triple4.object as LiteralTerm).value;
 
+      /*
       print('Value1: $value1');
       print('Value2: $value2');
       print('Value3: $value3');
       print('Value4: $value4');
+      */
 
       // Prüfen, dass die Werte nicht leer sind und zumindest teilweise erhalten bleiben
       expect(value1.isNotEmpty, isTrue);

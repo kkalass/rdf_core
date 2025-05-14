@@ -225,31 +225,37 @@ final newGraph = graph.withTriple(Triple(bnode, predicate, object));
 ```dart
 import 'package:rdf_core/rdf_core.dart';
 
-// Configure a custom TurtleCodec with specific parsing flags
-final customTurtleCodec = TurtleCodec(
-  decoderOptions: TurtleDecoderOptions(
-    parsingFlags: {
-      TurtleParsingFlag.allowDigitInLocalName,       // Allow local names with digits like "resource123"
-      TurtleParsingFlag.allowMissingDotAfterPrefix,  // Allow prefix declarations without trailing dot
-      TurtleParsingFlag.allowIdentifiersWithoutColon, // Treat terms without colon as IRIs resolved against base URI
-    }
-  )
-);
-
-// Option 1: Use the custom codec directly
 final nonStandardTurtle = '''
 @base <http://my.example.org/> .
 @prefix ex: <http://example.org/> 
 ex:resource123 a Type . // "Type" without prefix is resolved to <http://my.example.org/Type>
 ''';
 
-final graph = customTurtleCodec.decode(nonStandardTurtle);
+// Create an options instance with the appropriate configuration
+final options = TurtleDecoderOptions(
+  parsingFlags: {
+    TurtleParsingFlag.allowDigitInLocalName,       // Allow local names with digits like "resource123"
+    TurtleParsingFlag.allowMissingDotAfterPrefix,  // Allow prefix declarations without trailing dot
+    TurtleParsingFlag.allowIdentifiersWithoutColon, // Treat terms without colon as IRIs resolved against base URI
+  }
+);
 
-// Option 2: Register the custom codec with an RdfCore instance - note that this 
+// Option 1: Use the options with the global rdf variable
+final graph = rdf.decode(nonStandardTurtle, options: options);
+
+// Option 2: Use the options to derive a new codec from the global turtle variable
+final configuredTurtle = turtle.withOptions(decoder: options);
+final graph2 = configuredTurtle.decode(nonStandardTurtle);
+
+// Option 3: Configure a custom TurtleCodec with specific parsing flags
+final customTurtleCodec = TurtleCodec(decoderOptions: options);
+final graph3 = customTurtleCodec.decode(nonStandardTurtle);
+
+// Option 4: Register the custom codec with an RdfCore instance - note that this 
 // time we register only the specified codecs here. If we want jsonld, we have to 
 // add it to the list as well.
 final customRdf = RdfCore.withCodecs(codecs: [customTurtleCodec]);
-final graph2 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
+final graph4 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 ```
 
 ---

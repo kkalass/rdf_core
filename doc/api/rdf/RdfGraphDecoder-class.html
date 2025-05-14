@@ -58,12 +58,18 @@
 
     
 <section class="desc markdown">
-  <p>Base class for decoding RDF documents in various formats</p>
-<p>This base class abstracts the decoding process for different RDF string serializations
-(such as Turtle, JSON-LD, RDF/XML, etc.) to provide a common decoding API.
-Each format implements this interface to handle its specific syntax rules.</p>
-<p>Format-specific decoders should implement this base class to be used with the
-RDF library's parsing framework.</p>
+  <p>Base class for decoding RDF documents in various serialization formats</p>
+<p>This abstract class extends the standard <code>Converter</code> interface to provide
+a common API for decoding different RDF string serializations (such as Turtle,
+JSON-LD, RDF/XML, N-Triples, etc.). Each format implements this interface to
+handle its specific syntax rules and parsing behavior.</p>
+<p>Format-specific decoders should implement this base class to be compatible with
+the RDF library's parsing framework and to ensure consistent behavior across
+different formats.</p>
+<p>Example:</p>
+<pre class="language-dart"><code class="language-dart">final turtleDecoder = TurtleDecoder();
+final graph = turtleDecoder.convert('@prefix ex: &lt;http://example.org/&gt; . ex:subject ex:predicate "object" .');
+</code></pre>
 </section>
 
 
@@ -183,7 +189,7 @@ RDF library's parsing framework.</p>
 
 </dt>
 <dd>
-  Decodes an RDF document and return an RDF graph
+  Decodes an RDF document and returns an RDF graph
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -248,7 +254,7 @@ RDF library's parsing framework.</p>
 
 </dt>
 <dd>
-  
+  Creates a new decoder with the specified options
   
 
 </dd>

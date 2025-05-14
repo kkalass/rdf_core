@@ -69,10 +69,12 @@
   <p>Retrieves a codec instance by MIME type</p>
 <p>This method retrieves the appropriate codec for processing RDF data
 in the format specified by the given MIME type.</p>
-<p>@param mimeType The MIME type for which to retrieve a codec. Can be null.
-@return The appropriate <a href="../../rdf/RdfGraphCodec-class.html">RdfGraphCodec</a> for the given MIME type. If you pass in null as mimeType then a special
-one that auto-detects the format for the decoder, but encodes to the first registered codec
-@throws UnsupportedCodecException If no codec is found for the given MIME type.</p>
+<p>The <code>mimeType</code> parameter is the MIME type for which to retrieve a codec. Can be null.</p>
+<p>Returns the appropriate <a href="../../rdf/RdfGraphCodec-class.html">RdfGraphCodec</a> for the given MIME type. If mimeType is null,
+returns a special codec that auto-detects the format for decoding, but encodes
+to the format of the first registered codec.</p>
+<p>Throws <a href="../../rdf/CodecNotSupportedException-class.html">CodecNotSupportedException</a> if no codec is found for the given MIME type
+or if no codecs are registered.</p>
 </section>
 
 

@@ -67,12 +67,9 @@
 <p>This convenience constructor sets up an RDF library with Turtle, JSON-LD and
 N-Triples codecs ready to use. It's the recommended way to create an instance
 for most applications.</p>
-<p>Parameters:</p>
-<ul>
-<li><code>namespaceMappings</code>: Optional custom namespace mappings for all codecs</li>
-<li><code>additionalCodecs</code>: Optional list of additional codecs to register beyond
-the standard ones</li>
-</ul>
+<p>The <code>namespaceMappings</code> parameter provides optional custom namespace mappings for all codecs.</p>
+<p>The <code>additionalCodecs</code> parameter is an optional list of additional codecs to register beyond
+the standard ones.</p>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">final rdf = RdfCore.withStandardCodecs();
 final graph = rdf.decode(turtleData, contentType: 'text/turtle');

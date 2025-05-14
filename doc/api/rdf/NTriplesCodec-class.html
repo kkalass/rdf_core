@@ -130,7 +130,7 @@ W3C Recommendation.</p>
 
 </dt>
 <dd>
-  Creates a decoder instance for this codec
+  Returns a decoder configured with the current decoder options
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -142,7 +142,7 @@ W3C Recommendation.</p>
 
 </dt>
 <dd>
-  Creates an encoder instance for this codec
+  Returns an encoder configured with the current encoder options
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -178,7 +178,7 @@ W3C Recommendation.</p>
 
 </dt>
 <dd>
-  The primary MIME type for this codec
+  Returns the primary MIME type for N-Triples: 'application/n-triples'
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -202,7 +202,7 @@ W3C Recommendation.</p>
 
 </dt>
 <dd>
-  All MIME types supported by this codec
+  Returns the set of all supported MIME types for N-Triples
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -224,7 +224,7 @@ W3C Recommendation.</p>
 
 </dt>
 <dd>
-  Tests if the provided content is likely in this codec's format
+  Determines if the given content is likely in N-Triples format.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -289,7 +289,7 @@ W3C Recommendation.</p>
 
 </dt>
 <dd>
-  A string representation of this object.
+  Returns a string representation of this codec
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -302,7 +302,7 @@ W3C Recommendation.</p>
 
 </dt>
 <dd>
-  
+  Creates a new codec instance with the specified options
   <div class="features"><span class="feature">override</span></div>
 
 </dd>

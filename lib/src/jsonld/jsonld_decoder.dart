@@ -1,3 +1,25 @@
+/// JSON-LD Parser Implementation
+///
+/// This library provides the implementation for parsing JSON-LD (JavaScript Object Notation
+/// for Linked Data) into RDF graphs. It includes a complete JSON-LD parser that handles
+/// the core features of the JSON-LD 1.1 specification.
+///
+/// The implementation provides:
+/// - Parsing of JSON-LD documents into RDF triples
+/// - Support for JSON-LD context resolution and compact IRIs
+/// - Handling of nested objects and arrays
+/// - Blank node normalization and consistent identity
+/// - Processing of typed literals and language-tagged strings
+/// - Support for @graph structures (without preserving graph names)
+///
+/// This library is part of the RDF Core package and uses the common RDF data model
+/// defined in the graph module.
+///
+/// See:
+/// - [JSON-LD 1.1 Specification](https://www.w3.org/TR/json-ld11/)
+/// - [JSON-LD 1.1 Processing Algorithms and API](https://www.w3.org/TR/json-ld11-api/)
+library jsonld_parser;
+
 import 'dart:convert';
 
 import 'package:logging/logging.dart';
@@ -6,9 +28,30 @@ import 'package:rdf_core/rdf_core.dart';
 final _log = Logger("rdf.jsonld");
 const _format = "JSON-LD";
 
+/// Configuration options for JSON-LD decoding
+///
+/// This class provides configuration options for customizing the behavior of the
+/// JSON-LD decoder. While the current implementation doesn't define specific options,
+/// this class serves as an extension point for future enhancements to the JSON-LD parser.
+///
+/// Potential future options might include:
+/// - Controlling how JSON-LD @graph structures are processed
+/// - Customizing blank node generation behavior
+/// - Specifying custom datatype handling
+///
+/// This class follows the pattern used throughout the RDF Core library
+/// where decoders accept options objects to configure their behavior.
 class JsonLdDecoderOptions extends RdfGraphDecoderOptions {
+  /// Creates a new JSON-LD decoder options object with default settings
   const JsonLdDecoderOptions();
 
+  /// Creates a JSON-LD decoder options object from generic RDF decoder options
+  ///
+  /// This factory method ensures that when generic [RdfGraphDecoderOptions] are provided
+  /// to a method expecting JSON-LD-specific options, they are properly converted.
+  ///
+  /// If the provided options are already a [JsonLdDecoderOptions] instance, they are
+  /// returned as-is. Otherwise, a new instance with default settings is created.
   static JsonLdDecoderOptions from(RdfGraphDecoderOptions options) =>
       switch (options) {
         JsonLdDecoderOptions _ => options,
@@ -19,7 +62,22 @@ class JsonLdDecoderOptions extends RdfGraphDecoderOptions {
 /// Decoder for JSON-LD format
 ///
 /// Adapter that bridges the RdfDecoder base class to the
-/// implementation-specific JsonLdParser.
+/// implementation-specific JsonLdParser. This class is responsible for:
+///
+/// 1. Adapting the RDF Core decoder interface to the JSON-LD parser
+/// 2. Converting parsed triples into an RdfGraph
+/// 3. Managing configuration options for the parsing process
+///
+/// The decoder creates a flat RDF Graph from the JSON-LD input. When the
+/// input contains a top-level `@graph` property (representing a named graph
+/// in JSON-LD), all triples from the graph are extracted into the same RDF Graph,
+/// losing the graph name information but preserving the triple data.
+///
+/// Example usage:
+/// ```dart
+/// final decoder = JsonLdDecoder();
+/// final graph = decoder.convert(jsonLdString);
+/// ```
 class JsonLdDecoder extends RdfGraphDecoder {
   // Decoders are always expected to have options, even if they are not used at
   // the moment. But maybe the JsonLdDecoder will have options in the future.
@@ -54,9 +112,18 @@ class JsonLdDecoder extends RdfGraphDecoder {
 /// - Context resolution for compact IRIs
 /// - Graph structure parsing (@graph)
 /// - Type coercion
+/// - Blank node handling
 ///
-/// Example usage:
+/// ## Named Graph Handling
+///
+/// When a JSON-LD document contains a top-level `@graph` property, this parser will
+/// extract all triples from the named graph into a flat list of triples. The graph
+/// name information itself is not preserved in the current implementation, as the
+/// focus is on generating a single RDF Graph from the input.
+///
+/// ## Example usage:
 /// ```dart
+/// // Basic JSON-LD document
 /// final parser = JsonLdParser('''
 ///   {
 ///     "@context": {
@@ -66,6 +133,22 @@ class JsonLdDecoder extends RdfGraphDecoder {
 ///     "name": "John Doe"
 ///   }
 /// ''', baseUri: 'http://example.com/');
+///
+/// // JSON-LD document with @graph structure
+/// final graphParser = JsonLdParser('''
+///   {
+///     "@context": {
+///       "name": "http://xmlns.com/foaf/0.1/name"
+///     },
+///     "@graph": [
+///       { "@id": "http://example.com/alice", "name": "Alice" },
+///       { "@id": "http://example.com/bob", "name": "Bob" }
+///     ]
+///   }
+/// ''', baseUri: 'http://example.com/');
+///
+/// // All triples from both objects in the @graph will be extracted into a
+/// // single flat list and merged into one RDF Graph.
 /// ```
 ///
 /// See: [JSON-LD 1.1 Processing Algorithms and API](https://www.w3.org/TR/json-ld11-api/)
@@ -107,7 +190,14 @@ class JsonLdParser {
   /// 2. Extracting the @context if present
   /// 3. Processing the document structure to generate RDF triples
   ///
+  /// The method handles both single JSON objects and arrays of JSON objects.
+  /// It also processes the `@graph` property if present, extracting all contained
+  /// nodes as separate entities in the resulting RDF graph.
+  ///
   /// Throws [RdfSyntaxException] if the input is not valid JSON-LD.
+  ///
+  /// Returns a flat list of [Triple] objects that can be used to construct an
+  /// RDF Graph. Graph names are not preserved in the current implementation.
   List<Triple> parse() {
     try {
       _log.info('Starting JSON-LD parsing');
@@ -169,6 +259,18 @@ class JsonLdParser {
   }
 
   /// Process a JSON-LD node and extract triples
+  ///
+  /// Takes a JSON-LD node (a JSON object with potential "@" keywords) and converts
+  /// it to a list of RDF triples. This method:
+  ///
+  /// 1. Extracts the context definitions
+  /// 2. Processes any `@graph` property if present
+  /// 3. For each node in the graph (or the node itself), extracts subject, predicates and objects
+  ///
+  /// Special handling is performed for the `@graph` property, which contains an array
+  /// of nodes. Each node in the `@graph` is processed independently, and all resulting
+  /// triples are merged into a single flat list. The graph name itself is not preserved
+  /// in the current implementation.
   List<Triple> _processNode(Map<String, dynamic> node) {
     final triples = <Triple>[];
     final context = _extractContext(node);
@@ -196,6 +298,19 @@ class JsonLdParser {
   }
 
   /// Extract context from JSON-LD node
+  ///
+  /// Builds a context mapping from prefixes to namespace IRIs by:
+  ///
+  /// 1. Starting with common well-known prefixes as defaults
+  /// 2. Extracting JSON-LD @context entries if present
+  /// 3. Handling both simple string mappings and complex object mappings with @id
+  ///
+  /// The context is used for expanding compact IRIs and term definitions
+  /// in the JSON-LD document. For example, with a context mapping "foaf" to
+  /// "http://xmlns.com/foaf/0.1/", a property "foaf:name" would expand to
+  /// "http://xmlns.com/foaf/0.1/name".
+  ///
+  /// Returns a map from prefix to namespace IRI.
   Map<String, String> _extractContext(Map<String, dynamic> node) {
     final context = <String, String>{};
 
@@ -229,6 +344,25 @@ class JsonLdParser {
   }
 
   /// Extract triples from a JSON-LD node
+  ///
+  /// This method takes a JSON-LD node and converts it to a collection of RDF triples by:
+  ///
+  /// 1. Determining the subject (using @id if present, or generating a blank node)
+  /// 2. Processing all properties of the node
+  /// 3. Handling @type specially, converting it to rdf:type triples
+  /// 4. Processing other properties based on their values (literals, IRIs, objects)
+  ///
+  /// The method uses the provided context to expand compact IRIs and property names.
+  /// It handles different value types appropriately:
+  /// - String values may be converted to literals or IRIs depending on their format
+  /// - Numbers are converted to typed literals with xsd:integer or xsd:decimal
+  /// - Booleans are converted to xsd:boolean literals
+  /// - Object values are processed recursively, potentially creating blank nodes
+  ///
+  /// [node] The JSON-LD node to process
+  /// [context] The context containing prefix mappings for IRI expansion
+  ///
+  /// Returns a list of RDF triples extracted from the node
   List<Triple> _extractTriples(
     Map<String, dynamic> node,
     Map<String, String> context,
@@ -387,6 +521,31 @@ class JsonLdParser {
   }
 
   /// Add a triple for a given value
+  ///
+  /// This method creates appropriate RDF triples based on the type and structure of the value.
+  /// It handles the various ways values can be represented in JSON-LD:
+  ///
+  /// - **String values**: Interpreted as IRIs if they start with http:// or https://,
+  ///   or if they can be expanded using the context. Otherwise treated as string literals.
+  ///
+  /// - **Numeric values**: Converted to typed literals with appropriate XSD datatype
+  ///   (integer or decimal)
+  ///
+  /// - **Boolean values**: Converted to typed literals with xsd:boolean datatype
+  ///
+  /// - **Object values**: Processed according to their structure:
+  ///   * Objects with @id: Treated as references to other resources
+  ///   * Objects with @value: Treated as literal values, possibly with datatype or language
+  ///   * Other objects: Treated as blank nodes and processed recursively
+  ///
+  /// This versatile handling allows for the full range of JSON-LD value representations
+  /// to be properly converted to RDF triples.
+  ///
+  /// The [subject] is the subject of the triple.
+  /// The [predicate] is the predicate of the triple.
+  /// The [value] is the value to convert to an RDF object term.
+  /// The [triples] is the list to add the created triple(s) to.
+  /// The [context] is the context for IRI expansion.
   void _addTripleForValue(
     RdfSubject subject,
     RdfPredicate predicate,
@@ -504,6 +663,21 @@ class JsonLdParser {
   }
 
   /// Expand a predicate using the context
+  ///
+  /// This method expands a predicate term (key in the JSON-LD document) to its full IRI form
+  /// using the provided context. It handles several expansion patterns:
+  ///
+  /// 1. Direct term definitions - where a term like "name" is mapped directly to an IRI
+  /// 2. Prefixed IRIs - where a term like "foaf:name" uses a prefix defined in the context
+  /// 3. Chained expansions - where an expansion might need to be expanded again
+  ///
+  /// For example:
+  /// - With context {"name": "http://xmlns.com/foaf/0.1/name"}, the key "name" expands to "http://xmlns.com/foaf/0.1/name"
+  /// - With context {"foaf": "http://xmlns.com/foaf/0.1/"}, the key "foaf:name" expands to "http://xmlns.com/foaf/0.1/name"
+  ///
+  /// The [key] parameter is the predicate key to expand.
+  /// The [context] parameter contains prefix mappings.
+  /// Returns the expanded IRI for the predicate.
   String _expandPredicate(String key, Map<String, String> context) {
     // Check direct match in context first - this is for cases like
     // where "name" is defined to be "schema:name" or a full IRI

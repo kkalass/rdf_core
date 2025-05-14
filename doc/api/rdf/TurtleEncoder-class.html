@@ -57,16 +57,37 @@
 
     
 <section class="desc markdown">
-  <p>Turtle Encoder Implementation</p>
-<p>Extends the <a href="../rdf/RdfGraphEncoder-class.html">RdfGraphEncoder</a> class for serializing RDF graphs to Turtle syntax.</p>
+  <p>Encoder for serializing RDF graphs to Turtle syntax.</p>
+<p>The Turtle format (Terse RDF Triple Language) is a textual syntax for RDF that allows
+writing down RDF graphs in a compact and natural text form. This encoder implements
+the W3C Turtle recommendation, with additional optimizations for readability and compactness.</p>
+<p>Features:</p>
+<ul>
+<li>Automatic namespace prefix generation</li>
+<li>Compact representation for blank nodes and collections</li>
+<li>Proper indentation and formatting for readability</li>
+<li>Support for base URI relative references</li>
+<li>Special handling for common datatypes (integers, decimals, booleans)</li>
+</ul>
 <p>Example usage:</p>
-<pre class="language-dart"><code class="language-dart">import 'package:rdf_core/src/turtle/turtle_encoder.dart';
+<pre class="language-dart"><code class="language-dart">import 'package:rdf_core/rdf_core.dart';
+
+final graph = RdfGraph();
+graph.add(Triple(
+  IriTerm('http://example.org/subject'),
+  IriTerm('http://example.org/predicate'),
+  LiteralTerm('object')
+));
+
 final encoder = TurtleEncoder();
 final turtle = encoder.convert(graph);
+// Outputs: @prefix ex: &lt;http://example.org/&gt; .
+//
+// ex:subject ex:predicate "object" .
 </code></pre>
-<p>See: <a href="https://www.w3.org/TR/turtle/">Turtle - Terse RDF Triple Language</a>
-NOTE: Always use canonical RDF vocabularies (e.g., <a href="http://xmlns.com/foaf/0.1/">http://xmlns.com/foaf/0.1/</a>) with http://, not https://
-This serializer will warn if it detects use of https:// for a namespace that is canonical as http://.</p>
+<p>See: <a href="https://www.w3.org/TR/turtle/">Turtle - Terse RDF Triple Language</a></p>
+<p>NOTE: Always use canonical RDF vocabularies (e.g., <a href="http://xmlns.com/foaf/0.1/">http://xmlns.com/foaf/0.1/</a>) with http://, not https://
+This encoder will warn if it detects use of https:// for a namespace that is canonical as http://.</p>
 </section>
 
 
@@ -102,7 +123,7 @@ This serializer will warn if it detects use of https:// for a namespace that is 
           <span class="name"><a href="../rdf/TurtleEncoder/TurtleEncoder.html">TurtleEncoder</a></span><span class="signature">({<span class="parameter" id="-param-namespaceMappings"><span class="type-annotation"><a href="../rdf/RdfNamespaceMappings-class.html">RdfNamespaceMappings</a>?</span> <span class="parameter-name">namespaceMappings</span>, </span><span class="parameter" id="-param-options"><span class="type-annotation"><a href="../rdf/TurtleEncoderOptions-class.html">TurtleEncoderOptions</a></span> <span class="parameter-name">options</span> = <span class="default-value">const TurtleEncoderOptions()</span></span>})</span>
         </dt>
         <dd>
-          
+          Creates a new Turtle encoder with the specified options.
         </dd>
     </dl>
   </section>
@@ -179,7 +200,7 @@ This serializer will warn if it detects use of https:// for a namespace that is 
 
 </dt>
 <dd>
-  Encodes an RDF graph to a string representation in a specific format.
+  Converts an RDF graph to a Turtle string representation.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -244,7 +265,7 @@ This serializer will warn if it detects use of https:// for a namespace that is 
 
 </dt>
 <dd>
-  
+  Creates a new encoder with the specified options, preserving the current namespace mappings.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>

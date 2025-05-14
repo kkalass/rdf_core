@@ -123,7 +123,7 @@ final exUri = customMappings['ex']; // http://example.org/
 
 </dt>
 <dd>
-  Returns the number of mappings.
+  Returns the number of mappings in this instance.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -184,8 +184,6 @@ final exUri = customMappings['ex']; // http://example.org/
 </dt>
 <dd>
   Returns the Prefix for a given namespace URI, generating a new one if not found.
-Note that this will not change the immutable RdfNamespaceMappings instance.
-Instead, it will return a new prefix that can be used for custom mappings.
   
 
 </dd>
@@ -198,7 +196,7 @@ Instead, it will return a new prefix that can be used for custom mappings.
 
 </dt>
 <dd>
-  Returns the Prefix for a given namespace URI.
+  Returns the prefix for a given namespace URI.
   
 
 </dd>

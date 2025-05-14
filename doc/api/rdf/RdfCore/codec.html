@@ -72,20 +72,14 @@
 <p>Returns a codec that can handle the specified content type.
 If no content type is specified, returns the default codec
 (typically for Turtle).</p>
-<p>Parameters:</p>
-<ul>
-<li><code>contentType</code>: Optional MIME type to specify the format. If not specified,
-then the encoding will be with the default codec (the first codec registered,
-typically turtle) and the decoding codec will be automatically detected.</li>
-</ul>
-<p>Returns:</p>
-<ul>
-<li>An <a href="../../rdf/RdfGraphCodec-class.html">RdfGraphCodec</a> that can handle the specified content type</li>
-</ul>
-<p>Throws:</p>
-<ul>
-<li><a href="../../rdf/CodecNotSupportedException-class.html">CodecNotSupportedException</a> if the requested format is not supported</li>
-</ul>
+<p>The <code>contentType</code> parameter is an optional MIME type to specify the format.
+If not specified, then the encoding will be with the default codec (the first
+codec registered, typically turtle) and the decoding codec will be automatically
+detected.</p>
+<p>The <code>encoderOptions</code> parameter allows for format-specific encoder options.</p>
+<p>The <code>decoderOptions</code> parameter allows for format-specific decoder options.</p>
+<p>Returns an <a href="../../rdf/RdfGraphCodec-class.html">RdfGraphCodec</a> that can handle the specified content type.</p>
+<p>Throws <a href="../../rdf/CodecNotSupportedException-class.html">CodecNotSupportedException</a> if the requested format is not supported.</p>
 </section>
 
 

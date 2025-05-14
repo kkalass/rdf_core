@@ -70,16 +70,26 @@
     </section>
     
 <section class="desc markdown">
-  <p>A string representation of this object.</p>
-<p>Some classes have a default textual representation,
-often paired with a static <code>parse</code> function (like <a href="https://api.flutter.dev/flutter/dart-core/int/parse.html">int.parse</a>).
-These classes will provide the textual representation as
-their string representation.</p>
-<p>Other classes have no meaningful textual representation
-that a program will care about.
-Such classes will typically override <code>toString</code> to provide
-useful information when inspecting the object,
-mainly for debugging or logging.</p>
+  <p>Returns a string representation of this literal term in a Turtle-like syntax.</p>
+<p>The output format follows Turtle serialization rules:</p>
+<ul>
+<li>Plain string literals (xsd:string): <code>"value"</code></li>
+<li>Language-tagged literals: <code>"value"@language</code></li>
+<li>Other typed literals: <code>"value"^^&lt;datatype&gt;</code></li>
+</ul>
+<p>This representation is useful for debugging and logging purposes.
+Note that the actual format in serialized RDF will depend on the
+specific serialization format being used.</p>
+<p>Example:</p>
+<pre class="language-dart"><code class="language-dart">final plainLiteral = LiteralTerm.string("Hello");
+print(plainLiteral); // Prints: "Hello"
+
+final langLiteral = LiteralTerm.withLanguage("Bonjour", "fr");
+print(langLiteral); // Prints: "Bonjour"@fr
+
+final typedLiteral = LiteralTerm.integer(42);
+print(typedLiteral); // Prints: "42"^^&lt;http://www.w3.org/2001/XMLSchema#integer&gt;
+</code></pre>
 </section>
 
 

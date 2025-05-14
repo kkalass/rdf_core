@@ -37,15 +37,26 @@ export 'ntriples_encoder.dart' show NTriplesEncoderOptions, NTriplesEncoder;
 /// ```
 final class NTriplesCodec extends RdfGraphCodec {
   /// The primary MIME type for N-Triples: application/n-triples
+  ///
+  /// This MIME type is used for content negotiation and format identification
+  /// according to the W3C standards.
   static const String _primaryMimeType = 'application/n-triples';
 
   /// The additional MIME types that should be recognized as N-Triples
+  ///
+  /// Currently, there are no alternative MIME types standardized for N-Triples.
+  /// This list is provided for future extensibility if needed.
   static const List<String> alternativeMimeTypes = [];
 
   /// The file extensions associated with N-Triples files
+  ///
+  /// The standard file extension for N-Triples documents is '.nt'.
   static const List<String> fileExtensions = ['.nt'];
 
+  /// The encoder options used to configure the serialization behavior
   final NTriplesEncoderOptions _encoderOptions;
+
+  /// The decoder options used to configure the parsing behavior
   final NTriplesDecoderOptions _decoderOptions;
 
   /// Creates a new N-Triples format definition
@@ -66,21 +77,54 @@ final class NTriplesCodec extends RdfGraphCodec {
     );
   }
 
+  /// Returns the primary MIME type for N-Triples: 'application/n-triples'
+  ///
+  /// This is the standard MIME type used for content negotiation when
+  /// requesting or sending N-Triples data over HTTP.
   @override
   String get primaryMimeType => _primaryMimeType;
 
+  /// Returns the set of all supported MIME types for N-Triples
+  ///
+  /// Currently this includes only the primary MIME type 'application/n-triples',
+  /// as there are no standardized alternative MIME types for this format.
   @override
   Set<String> get supportedMimeTypes => {
     ...alternativeMimeTypes,
     _primaryMimeType,
   };
 
+  /// Returns a decoder configured with the current decoder options
+  ///
+  /// The decoder is used to parse N-Triples format into an RDF graph.
   @override
   RdfGraphDecoder get decoder => NTriplesDecoder(options: _decoderOptions);
 
+  /// Returns an encoder configured with the current encoder options
+  ///
+  /// The encoder is used to serialize an RDF graph into N-Triples format.
   @override
   RdfGraphEncoder get encoder => NTriplesEncoder(options: _encoderOptions);
 
+  /// Determines if the given content is likely in N-Triples format.
+  ///
+  /// This method implements a heuristic approach to detect N-Triples content
+  /// by analyzing its structure. It uses the following criteria:
+  ///
+  /// 1. The content must not be empty
+  /// 2. Each non-empty line that is not a comment (doesn't start with #) should:
+  ///    - Start with either '<' (for IRI subjects) or '_:' (for blank nodes)
+  ///    - End with a period '.'
+  ///    - Contain at least 3 non-empty segments (representing subject, predicate, object)
+  ///
+  /// If more than 80% of non-empty lines match these criteria, the content is
+  /// considered to be in N-Triples format.
+  ///
+  /// This approach balances accuracy with performance, making it suitable for
+  /// auto-detection scenarios where complete parsing would be too expensive.
+  ///
+  /// The [content] parameter contains the string content to check.
+  /// Returns true if the content is likely N-Triples, false otherwise.
   @override
   bool canParse(String content) {
     // A heuristic to detect if content is likely N-Triples
@@ -113,6 +157,9 @@ final class NTriplesCodec extends RdfGraphCodec {
     return totalNonEmptyLines > 0 && validLines / totalNonEmptyLines > 0.8;
   }
 
+  /// Returns a string representation of this codec
+  ///
+  /// This is primarily used for debugging and logging purposes.
   @override
   String toString() => 'NTriplesFormat()';
 }

@@ -64,7 +64,16 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates a new Turtle format handler</p>
+  <p>Creates a new Turtle codec</p>
+<p>Parameters:</p>
+<ul>
+<li><code>namespaceMappings</code> Optional namespace prefixes to use for encoding and decoding.
+If not provided, defaults to standard RDF namespace mappings.</li>
+<li><code>encoderOptions</code> Configuration options for the Turtle encoder.
+Default settings use standard formatting with common prefixes.</li>
+<li><code>decoderOptions</code> Configuration options for the Turtle decoder.
+Default settings handle standard Turtle syntax with no special configurations.</li>
+</ul>
 </section>
 
 

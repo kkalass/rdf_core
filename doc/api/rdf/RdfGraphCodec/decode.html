@@ -72,25 +72,17 @@
 <p>This is a convenience method that delegates to the codec's decoder.
 It transforms a textual RDF document into a structured RdfGraph object
 containing triples parsed from the input.</p>
-<p>Parameters:</p>
-<ul>
-<li><code>input</code> The RDF content to decode as a string</li>
-<li><code>documentUrl</code> Optional base URI for resolving relative references in the document.
+<p>The <code>input</code> parameter is the RDF content to decode as a string.
+The <code>documentUrl</code> parameter is an optional base URI for resolving relative references in the document.
 If not provided, relative IRIs will be kept as-is or handled according to
-codec-specific rules.</li>
-</ul>
-<p>Returns:</p>
-<ul>
-<li>An <a href="../../rdf/RdfGraph-class.html">RdfGraph</a> containing the parsed triples</li>
-</ul>
+codec-specific rules.
+The <code>options</code> parameter contains optional decoder options for this operation.</p>
+<p>Returns an <a href="../../rdf/RdfGraph-class.html">RdfGraph</a> containing the parsed triples.</p>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">final turtle = TurtleCodec();
 final graph = turtle.decode(turtleString);
 </code></pre>
-<p>Throws:</p>
-<ul>
-<li>Codec-specific exceptions for syntax errors or other parsing problems</li>
-</ul>
+<p>Throws codec-specific exceptions for syntax errors or other parsing problems.</p>
 </section>
 
 

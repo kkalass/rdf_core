@@ -65,9 +65,26 @@
       </section>
       
 <section class="desc markdown">
-  <p>When set to true (which is the default), the encoder will generate missing prefixes for IRIs
-automatically, even if there are no matching custom prefixes and no matching
-entries in the namespace mappings.</p>
+  <p>Controls automatic generation of namespace prefixes for IRIs without matching prefixes.</p>
+<p>When set to <code>true</code> (default), the encoder will automatically generate namespace
+prefixes for IRIs that don't have a matching prefix in either the custom prefixes
+or the standard namespace mappings.</p>
+<p>The prefix generation process:</p>
+<ol>
+<li>Attempts to extract a meaningful namespace from the IRI (splitting at '/' or '#')</li>
+<li>Skips IRIs with only protocol specifiers (e.g., "http://")</li>
+<li>Only generates prefixes for namespaces ending with '/' or '#'
+(proper RDF namespace delimiters)</li>
+<li>Uses RdfNamespaceMappings.getOrGeneratePrefix to create a compact, unique prefix</li>
+</ol>
+<p>Setting this to <code>false</code> will result in all IRIs without matching prefixes being
+written as full IRIs in angle brackets (e.g., <code>&lt;http://example.org/term&gt;</code>).</p>
+<p>This option is particularly useful for:</p>
+<ul>
+<li>Reducing the verbosity of the Turtle output</li>
+<li>Making the serialized data more human-readable</li>
+<li>Automatically handling unknown namespaces without manual prefix declaration</li>
+</ul>
 </section>
 
       

@@ -65,6 +65,22 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Creates a TurtleEncoderOptions instance from generic RdfGraphEncoderOptions.</p>
+<p>This factory method enables proper type conversion when using the
+generic codec/encoder API with Turtle-specific options.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>options</code> The options object to convert, which may or may not be
+already a TurtleEncoderOptions instance.</li>
+</ul>
+<p>Returns:</p>
+<ul>
+<li>The input as-is if it's already a TurtleEncoderOptions instance,
+or a new instance with the input's customPrefixes and default
+Turtle-specific settings.</li>
+</ul>
+</section>
 
 
     

@@ -64,13 +64,34 @@
     
 <section class="desc markdown">
   <p>Create a typed literal with XSD datatype</p>
-<p>This is a convenience factory for creating literals with common XSD types.</p>
+<p>This is a convenience factory for creating literals with XSD datatypes.
+It accepts any XSD type name and uses the <code>Xsd.makeIri</code> method to resolve
+the full datatype IRI.</p>
+<p>Common XSD types include:</p>
+<ul>
+<li><code>string</code> - String values</li>
+<li><code>integer</code> - Integer values</li>
+<li><code>decimal</code> - Decimal numbers</li>
+<li><code>boolean</code> - Boolean values (true/false)</li>
+<li><code>date</code> - ISO date (YYYY-MM-DD)</li>
+<li><code>dateTime</code> - ISO date and time with timezone</li>
+<li><code>time</code> - ISO time</li>
+<li><code>anyURI</code> - URI values</li>
+</ul>
+<p>Parameters:</p>
+<ul>
+<li><code>value</code> The lexical value as a string</li>
+<li><code>xsdType</code> The XSD type name (without the xsd: prefix)</li>
+</ul>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">// Create an integer literal
 final intLiteral = LiteralTerm.typed("42", "integer");
 
 // Create a date literal
 final dateLiteral = LiteralTerm.typed("2023-04-01", "date");
+
+// Create a boolean literal
+final boolLiteral = LiteralTerm.typed("true", "boolean");
 </code></pre>
 </section>
 

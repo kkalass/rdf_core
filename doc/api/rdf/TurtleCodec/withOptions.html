@@ -71,6 +71,25 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Creates a new instance with the specified options</p>
+<p>This method returns a new Turtle codec configured with the provided
+encoder and decoder options. The original codec instance remains unchanged.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>encoder</code> Optional encoder options to customize encoding behavior.
+Will be properly cast to TurtleEncoderOptions if possible, else we use
+just the options from the <a href="../../rdf/RdfGraphEncoderOptions-class.html">RdfGraphEncoderOptions</a> class.</li>
+<li><code>decoder</code> Optional decoder options to customize decoding behavior.
+Will be properly cast to TurtleDecoderOptions if possible, else we use
+just the options from the <a href="../../rdf/RdfGraphDecoderOptions-class.html">RdfGraphDecoderOptions</a> class.</li>
+</ul>
+<p>Returns:</p>
+<ul>
+<li>A new <a href="../../rdf/TurtleCodec-class.html">TurtleCodec</a> instance with the specified options applied,
+while preserving the original namespace mappings.</li>
+</ul>
+</section>
 
 
     

@@ -72,13 +72,14 @@
     </section>
     
 <section class="desc markdown">
-  <p>Decodes an RDF document and return an RDF graph</p>
-<p>This method transforms a textual RDF document into a structured RdfGraph object
-containing triples parsed from the input.</p>
+  <p>Decodes an RDF document and returns an RDF graph</p>
+<p>This method transforms a textual RDF document into a structured <code>RdfGraph</code> object
+containing triples parsed from the input. It implements the <code>convert</code> method
+from the <code>Converter</code> interface.</p>
 <p>Parameters:</p>
 <ul>
-<li><code>input</code> is the RDF document to decode, as a string.</li>
-<li><code>documentUrl</code> is the absolute URL of the document, used for resolving relative IRIs.
+<li><code>input</code> The RDF document to decode, as a string.</li>
+<li><code>documentUrl</code> The absolute URL of the document, used for resolving relative IRIs.
 If not provided, relative IRIs will be kept as-is or handled according to format-specific rules.</li>
 </ul>
 <p>Returns:</p>
@@ -87,6 +88,7 @@ If not provided, relative IRIs will be kept as-is or handled according to format
 </ul>
 <p>The specific decoding behavior depends on the implementation of this interface,
 which will handle format-specific details like prefix resolution, blank node handling, etc.</p>
+<p>May throw format-specific parsing exceptions if the input is malformed.</p>
 </section>
 
 

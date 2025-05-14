@@ -67,9 +67,20 @@
     </section>
     
 <section class="desc markdown">
-  <p>Returns the Prefix for a given namespace URI, generating a new one if not found.
-Note that this will not change the immutable RdfNamespaceMappings instance.
+  <p>Returns the Prefix for a given namespace URI, generating a new one if not found.</p>
+<p>This method first tries to find an existing prefix for the given namespace URI
+by checking the provided custom mappings and then the standard mappings.
+If no existing prefix is found, it attempts to generate a meaningful prefix
+based on the structure of the namespace URI.</p>
+<p>Note that this will not change the immutable RdfNamespaceMappings instance.
 Instead, it will return a new prefix that can be used for custom mappings.</p>
+<p>The returned tuple contains:</p>
+<ul>
+<li>The prefix: either an existing one or a newly generated one</li>
+<li>A boolean indicating whether the prefix was generated (true) or found (false)</li>
+</ul>
+<p>The <code>namespace</code> is the URI to look up or generate a prefix for, and
+<code>customMappings</code> are additional mappings to check before the standard ones.</p>
 </section>
 
 

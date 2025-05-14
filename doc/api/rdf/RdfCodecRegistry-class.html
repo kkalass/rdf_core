@@ -68,14 +68,14 @@ with additional serialization formats.</p>
 final registry = RdfCodecRegistry();
 
 // Register format plugins
-registry.registerCodec(const TurtleCodec());
-registry.registerCodec(const JsonLdCodec());
+registry.registerGraphCodec(const TurtleCodec());
+registry.registerGraphCodec(const JsonLdGraphCodec());
 
 // Get a codec for a specific MIME type
-final turtleCodec = registry.codec('text/turtle');
+final turtleCodec = registry.getGraphCodec('text/turtle');
 
 // Or let the system detect the format
-final autoCodec = registry.codec(); // Will auto-detect
+final autoCodec = registry.getGraphCodec(); // Will auto-detect
 </code></pre>
 </section>
 
@@ -106,7 +106,7 @@ final autoCodec = registry.codec(); // Will auto-detect
 
 </dt>
 <dd>
-  
+  Returns all MIME types supported by all registered codecs
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>

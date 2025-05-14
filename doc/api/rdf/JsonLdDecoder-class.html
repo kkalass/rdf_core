@@ -59,7 +59,20 @@
 <section class="desc markdown">
   <p>Decoder for JSON-LD format</p>
 <p>Adapter that bridges the RdfDecoder base class to the
-implementation-specific JsonLdParser.</p>
+implementation-specific JsonLdParser. This class is responsible for:</p>
+<ol>
+<li>Adapting the RDF Core decoder interface to the JSON-LD parser</li>
+<li>Converting parsed triples into an RdfGraph</li>
+<li>Managing configuration options for the parsing process</li>
+</ol>
+<p>The decoder creates a flat RDF Graph from the JSON-LD input. When the
+input contains a top-level <code>@graph</code> property (representing a named graph
+in JSON-LD), all triples from the graph are extracted into the same RDF Graph,
+losing the graph name information but preserving the triple data.</p>
+<p>Example usage:</p>
+<pre class="language-dart"><code class="language-dart">final decoder = JsonLdDecoder();
+final graph = decoder.convert(jsonLdString);
+</code></pre>
 </section>
 
 
@@ -173,7 +186,7 @@ implementation-specific JsonLdParser.</p>
 
 </dt>
 <dd>
-  Decodes an RDF document and return an RDF graph
+  Decodes an RDF document and returns an RDF graph
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -238,7 +251,7 @@ implementation-specific JsonLdParser.</p>
 
 </dt>
 <dd>
-  
+  Creates a new decoder with the specified options
   <div class="features"><span class="feature">override</span></div>
 
 </dd>

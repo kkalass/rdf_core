@@ -69,15 +69,19 @@
   <p>Creates a new graph with all the specified triples added</p>
 <p>Since RdfGraph is immutable, this returns a new instance with
 all existing and new triples. The original graph remains unchanged.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>triples</code> The list of triples to add to the graph</li>
+</ul>
+<p>Returns:
+A new graph instance with the added triples</p>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">// Add multiple statements about Jane
 final newGraph = graph.withTriples([
   Triple(jane, email, LiteralTerm.string('jane@example.com')),
-  Triple(jane, age, LiteralTerm.typed('28', 'integer'))
+  Triple(jane, age, LiteralTerm.integer(28))
 ]);
 </code></pre>
-<p>@param triples The triples to add to the graph
-@return A new graph instance with the added triples</p>
 </section>
 
 

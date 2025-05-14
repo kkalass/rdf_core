@@ -90,6 +90,14 @@ class RdfNamespaceMappings {
   /// The standard mappings include common RDF vocabularies like RDF, RDFS, OWL, etc.
   const RdfNamespaceMappings() : _mappings = _rdfNamespaceMappings;
 
+  /// Helper method to find a key in a map based on its value.
+  ///
+  /// This utility method performs a reverse lookup in a map, finding the
+  /// first key that maps to the specified value. It's used internally for
+  /// finding prefixes given a namespace URI.
+  ///
+  /// The [map] is the map to search in, and [value] is the value to look for.
+  /// Returns the first key that maps to the value, or null if not found.
   K? _getKeyByValue<K, V>(Map<K, V> map, V value) {
     for (final entry in map.entries) {
       if (entry.value == value) {
@@ -103,8 +111,8 @@ class RdfNamespaceMappings {
   ///
   /// Custom mappings take precedence over standard mappings when there are conflicts.
   ///
-  /// @param customMappings The custom mappings to add to the standard ones
-  /// @param useDefaults Whether to include standard mappings (default: true)
+  /// The [customMappings] parameter specifies the mappings to add to the standard ones.
+  /// If [useDefaults] is true (default), the standard mappings are included as well.
   RdfNamespaceMappings.custom(
     Map<String, String> customMappings, {
     useDefaults = true,
@@ -113,16 +121,28 @@ class RdfNamespaceMappings {
                ? {..._rdfNamespaceMappings, ...customMappings}
                : customMappings;
 
-  /// Returns the number of mappings.
+  /// Returns the number of mappings in this instance.
+  ///
+  /// This property provides a convenient way to determine how many prefix-to-URI
+  /// mappings are defined in this instance, which is useful for debugging and
+  /// for determining if custom mappings have been added.
   get length => _mappings.length;
 
   /// Operator for retrieving a namespace URI by its prefix.
   ///
-  /// @param key The prefix to look up
-  /// @return The namespace URI for the prefix, or null if not found
+  /// The [key] is the prefix to look up. Returns the namespace URI for the
+  /// prefix, or null if not found.
   String? operator [](Object? key) => _mappings[key];
 
-  /// Returns the Prefix for a given namespace URI.
+  /// Returns the prefix for a given namespace URI.
+  ///
+  /// This method performs a reverse lookup in the mappings to find the first prefix
+  /// that corresponds to the given namespace URI. Custom mappings are checked first,
+  /// followed by the standard mappings.
+  ///
+  /// The [namespace] is the URI to look up, and [customMappings] are additional
+  /// mappings to check before the standard ones. Returns the prefix for the namespace,
+  /// or null if not found.
   String? getPrefix(
     String namespace, {
     Map<String, String> customMappings = const {},
@@ -133,8 +153,21 @@ class RdfNamespaceMappings {
   }
 
   /// Returns the Prefix for a given namespace URI, generating a new one if not found.
+  ///
+  /// This method first tries to find an existing prefix for the given namespace URI
+  /// by checking the provided custom mappings and then the standard mappings.
+  /// If no existing prefix is found, it attempts to generate a meaningful prefix
+  /// based on the structure of the namespace URI.
+  ///
   /// Note that this will not change the immutable RdfNamespaceMappings instance.
   /// Instead, it will return a new prefix that can be used for custom mappings.
+  ///
+  /// The returned tuple contains:
+  /// - The prefix: either an existing one or a newly generated one
+  /// - A boolean indicating whether the prefix was generated (true) or found (false)
+  ///
+  /// The [namespace] is the URI to look up or generate a prefix for, and
+  /// [customMappings] are additional mappings to check before the standard ones.
   (String prefix, bool generated) getOrGeneratePrefix(
     String namespace, {
     Map<String, String> customMappings = const {},
@@ -339,6 +372,17 @@ class RdfNamespaceMappings {
     return null;
   }
 
+  /// Determines if a string component makes a good prefix for a namespace.
+  ///
+  /// A good prefix must satisfy three conditions:
+  /// 1. Not be in the predefined set of generic terms
+  /// 2. Not match patterns for version numbers or dates
+  /// 3. Be a valid prefix according to naming rules
+  ///
+  /// The [genericTerms] parameter contains common generic terms that would make poor prefixes.
+  /// The [component] is the string component to evaluate, and [versionOrDatePattern] is a
+  /// regular expression for identifying version numbers or dates.
+  /// Returns true if the component makes a good prefix, false otherwise.
   bool _isGoodPrefix(
     Set<String> genericTerms,
     String component,
@@ -349,6 +393,18 @@ class RdfNamespaceMappings {
         _isValidPrefix(component);
   }
 
+  /// Checks if a string is valid for use as an RDF namespace prefix.
+  ///
+  /// A valid prefix must follow these rules:
+  /// 1. Must not be empty
+  /// 2. First character must be a letter (A-Z, a-z) or underscore (_)
+  /// 3. Subsequent characters can be letters, digits, underscore (_), hyphen (-), or period (.)
+  ///
+  /// These rules align with XML namespace prefix naming conventions and common
+  /// practices in RDF serialization formats.
+  ///
+  /// The [name] parameter is the string to validate as a potential prefix.
+  /// Returns true if the string is a valid prefix, false otherwise.
   bool _isValidPrefix(String name) {
     if (name.isEmpty) {
       return false;
@@ -391,13 +447,13 @@ class RdfNamespaceMappings {
   /// };
   /// ```
   ///
-  /// @return An unmodifiable map of the prefix-to-URI mappings
+  /// Returns an unmodifiable map of the prefix-to-URI mappings.
   Map<String, String> asMap() => Map.unmodifiable(_mappings);
 
   /// Checks if the mappings contain a specific prefix.
   ///
-  /// @param prefix The prefix to check for
-  /// @return true if the prefix exists, false otherwise
+  /// The [prefix] is the prefix to check for.
+  /// Returns true if the prefix exists, false otherwise.
   bool containsKey(String prefix) => _mappings.containsKey(prefix);
 
   /// Extracts the namespace and local part from an IRI
@@ -407,8 +463,8 @@ class RdfNamespaceMappings {
   /// However, if the resulting namespace would be a protocol-only URI (like 'http://' or 'https://'),
   /// the entire IRI is treated as the namespace to avoid generating invalid or meaningless prefixes.
   ///
-  /// @param iri The IRI to split into namespace and local part
-  /// @return A tuple containing (namespace, localPart)
+  /// The [iri] is the IRI to split into namespace and local part.
+  /// Returns a tuple containing (namespace, localPart).
   static (String namespace, String localPart) extractNamespaceAndLocalPart(
     String iri,
   ) {

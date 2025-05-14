@@ -56,6 +56,20 @@
 </h1></div>
 
     
+<section class="desc markdown">
+  <p>Configuration options for JSON-LD decoding</p>
+<p>This class provides configuration options for customizing the behavior of the
+JSON-LD decoder. While the current implementation doesn't define specific options,
+this class serves as an extension point for future enhancements to the JSON-LD parser.</p>
+<p>Potential future options might include:</p>
+<ul>
+<li>Controlling how JSON-LD @graph structures are processed</li>
+<li>Customizing blank node generation behavior</li>
+<li>Specifying custom datatype handling</li>
+</ul>
+<p>This class follows the pattern used throughout the RDF Core library
+where decoders accept options objects to configure their behavior.</p>
+</section>
 
 
     <section>
@@ -89,7 +103,7 @@
           <span class="name"><a href="../rdf/JsonLdDecoderOptions/JsonLdDecoderOptions.html">JsonLdDecoderOptions</a></span><span class="signature">()</span>
         </dt>
         <dd>
-          
+          Creates a new JSON-LD decoder options object with default settings
             <div class="constructor-modifier features">const</div>
         </dd>
     </dl>
@@ -195,7 +209,7 @@
 
 </dt>
 <dd>
-  
+  Creates a JSON-LD decoder options object from generic RDF decoder options
   
 
 </dd>

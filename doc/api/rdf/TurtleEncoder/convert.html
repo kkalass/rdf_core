@@ -72,19 +72,32 @@
     </section>
     
 <section class="desc markdown">
-  <p>Encodes an RDF graph to a string representation in a specific format.</p>
-<p>Transforms an in-memory RDF graph into an encoded text format that can be
-stored or transmitted. The exact output format depends on the implementing class.</p>
+  <p>Converts an RDF graph to a Turtle string representation.</p>
+<p>This method serializes the given RDF graph to the Turtle format with
+advanced formatting features including:</p>
+<ul>
+<li>Automatically detecting and writing prefix declarations</li>
+<li>Grouping triples by subject for more compact output</li>
+<li>Proper indentation and formatting for readability</li>
+<li>Optimizing blank nodes that appear only once as objects by inlining them</li>
+<li>Serializing RDF collections (lists) in the compact Turtle '(item1 item2)' notation</li>
+</ul>
 <p>Parameters:</p>
 <ul>
-<li><code>graph</code> The RDF graph to encode.</li>
-<li><code>baseUri</code> Optional base URI for resolving/shortening IRIs in the output.
-When provided, the encoder may use this to produce more compact output.</li>
+<li><code>graph</code> The RDF graph to serialize to Turtle</li>
+<li><code>baseUri</code> Optional base URI to use for resolving relative IRIs and
+generating shorter references. If provided, a @base directive will be
+included in the output.</li>
 </ul>
 <p>Returns:</p>
 <ul>
-<li>The serialized representation of the graph as a string.</li>
+<li>A properly formatted Turtle string representation of the input graph.</li>
 </ul>
+<p>Example:</p>
+<pre class="language-dart"><code class="language-dart">final graph = RdfGraph();
+// Add some triples to the graph
+final turtle = encoder.convert(graph, baseUri: 'http://example.org/');
+</code></pre>
 </section>
 
 
@@ -92,6 +105,31 @@ When provided, the encoder may use this to produce more compact output.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
+&#47;&#47;&#47; Converts an RDF graph to a Turtle string representation.
+&#47;&#47;&#47;
+&#47;&#47;&#47; This method serializes the given RDF graph to the Turtle format with
+&#47;&#47;&#47; advanced formatting features including:
+&#47;&#47;&#47; - Automatically detecting and writing prefix declarations
+&#47;&#47;&#47; - Grouping triples by subject for more compact output
+&#47;&#47;&#47; - Proper indentation and formatting for readability
+&#47;&#47;&#47; - Optimizing blank nodes that appear only once as objects by inlining them
+&#47;&#47;&#47; - Serializing RDF collections (lists) in the compact Turtle &#39;(item1 item2)&#39; notation
+&#47;&#47;&#47;
+&#47;&#47;&#47; Parameters:
+&#47;&#47;&#47; - [graph] The RDF graph to serialize to Turtle
+&#47;&#47;&#47; - [baseUri] Optional base URI to use for resolving relative IRIs and
+&#47;&#47;&#47;   generating shorter references. If provided, a @base directive will be
+&#47;&#47;&#47;   included in the output.
+&#47;&#47;&#47;
+&#47;&#47;&#47; Returns:
+&#47;&#47;&#47; - A properly formatted Turtle string representation of the input graph.
+&#47;&#47;&#47;
+&#47;&#47;&#47; Example:
+&#47;&#47;&#47; ```dart
+&#47;&#47;&#47; final graph = RdfGraph();
+&#47;&#47;&#47; &#47;&#47; Add some triples to the graph
+&#47;&#47;&#47; final turtle = encoder.convert(graph, baseUri: &#39;http:&#47;&#47;example.org&#47;&#39;);
+&#47;&#47;&#47; ```
 String convert(RdfGraph graph, {String? baseUri}) {
   _log.info(&#39;Serializing graph to Turtle&#39;);
 

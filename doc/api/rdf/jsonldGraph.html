@@ -65,14 +65,79 @@
         
 <section class="desc markdown">
   <p>Global convenience variable for working with JSON-LD format</p>
-<p>This variable provides direct access to JSON-LD codec for easy
-encoding and decoding of JSON-LD data. Note that this is the variant
-of JSON-LD that is used for RdfGraph only, for the full RdfDataset use
-JsonLdDatasetCodec.</p>
-<p>Example:</p>
-<pre class="language-dart"><code class="language-dart">final graph = jsonldGraph.decode(jsonLdString);
+<p>This variable provides direct access to the JSON-LD codec for easy
+encoding and decoding of RDF data in JSON-LD format. It uses the default
+configuration of <a href="../rdf/JsonLdGraphCodec-class.html">JsonLdGraphCodec</a> with standard namespace mappings and
+default encoder/decoder options.</p>
+<p>Using this global instance is recommended for most common JSON-LD operations
+where custom configuration is not needed.</p>
+<h2 id="dataset-and-named-graph-handling">Dataset and Named Graph Handling</h2>
+<p>JSON-LD provides native support for RDF datasets through the <code>@graph</code> keyword.
+When converting between JSON-LD and RDF Graphs:</p>
+<ul>
+<li>
+<p><strong>Decoding</strong>: When a JSON-LD document contains a top-level <code>@graph</code> property,
+all triples from the named graphs are imported into a single <a href="../rdf/RdfGraph-class.html">RdfGraph</a>,
+losing the graph names but preserving the triple data.</p>
+</li>
+<li>
+<p><strong>Encoding</strong>: When an <a href="../rdf/RdfGraph-class.html">RdfGraph</a> contains multiple independent subjects,
+it is serialized as a JSON-LD document with a top-level <code>@graph</code> array,
+which groups the data for better readability but doesn't create separate
+named graphs in the RDF sense.</p>
+</li>
+</ul>
+<p>Note that the full RDF Dataset support (with multiple named graphs) is planned
+for a future release.</p>
+<h2 id="configuration">Configuration</h2>
+<p>Parameters:</p>
+<ul>
+<li>Uses default <a href="../rdf/RdfNamespaceMappings-class.html">RdfNamespaceMappings</a> for standard namespace prefixes</li>
+<li>Uses default <a href="../rdf/JsonLdEncoderOptions-class.html">JsonLdEncoderOptions</a> for serialization</li>
+<li>Uses default <a href="../rdf/JsonLdDecoderOptions-class.html">JsonLdDecoderOptions</a> for parsing</li>
+</ul>
+<h2 id="examples">Examples</h2>
+<p>Basic usage:</p>
+<pre class="language-dart"><code class="language-dart">// Decode JSON-LD string into an RDF graph
+final jsonLdString = '''
+{
+  "@context": {
+    "name": "http://xmlns.com/foaf/0.1/name"
+  },
+  "@id": "http://example.org/person/1",
+  "name": "John Smith"
+}
+''';
+final graph = jsonldGraph.decode(jsonLdString);
+
+// Encode an RDF graph to JSON-LD string
 final serialized = jsonldGraph.encode(graph);
 </code></pre>
+<p>Working with <code>@graph</code>:</p>
+<pre class="language-dart"><code class="language-dart">// JSON-LD with @graph containing multiple subjects
+final jsonWithGraph = '''
+{
+  "@context": {
+    "name": "http://xmlns.com/foaf/0.1/name"
+  },
+  "@graph": [
+    {
+      "@id": "http://example.org/person/1",
+      "name": "Alice"
+    },
+    {
+      "@id": "http://example.org/person/2",
+      "name": "Bob"
+    }
+  ]
+}
+''';
+
+// Decodes into a single RDF graph with multiple subjects
+final multiSubjectGraph = jsonldGraph.decode(jsonWithGraph);
+</code></pre>
+<p>For custom JSON-LD processing options, create a specific instance of
+<a href="../rdf/JsonLdGraphCodec-class.html">JsonLdGraphCodec</a> with the desired configuration.</p>
 </section>
 
         

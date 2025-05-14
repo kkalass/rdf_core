@@ -58,30 +58,53 @@
     <section class="multi-line-signature">
       const
       <span class="name ">LiteralTerm</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">value</span>, {</span></li>
-<li><span class="parameter" id="-param-datatype"><span>required</span> <span class="type-annotation"><a href="../../rdf/IriTerm-class.html">IriTerm</a></span> <span class="parameter-name">datatype</span>, </span></li>
+<li><span class="parameter" id="-param-datatype"><span class="type-annotation"><a href="../../rdf/IriTerm-class.html">IriTerm</a>?</span> <span class="parameter-name">datatype</span>, </span></li>
 <li><span class="parameter" id="-param-language"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">language</span>, </span></li>
 </ol>})
     </section>
     
 <section class="desc markdown">
-  <p>Create a literal with optional datatype or language tag</p>
+  <p>Creates a literal with an optional datatype or language tag</p>
+<p>This is the primary constructor for creating RDF literals. It handles
+the complex rules of the RDF 1.1 specification regarding datatypes and language tags:</p>
+<ul>
+<li>If <code>datatype</code> is provided, it is used as the literal's datatype</li>
+<li>If <code>language</code> is provided but no datatype, rdf:langString is used automatically</li>
+<li>If neither datatype nor language is provided, xsd:string is used by default</li>
+</ul>
 <p>According to the RDF 1.1 specification:</p>
 <ul>
 <li>A literal with a language tag must use rdf:langString datatype</li>
 <li>A literal with rdf:langString datatype must have a language tag</li>
 </ul>
-<p>This constructor enforces those constraints with an assertion.</p>
+<p>This constructor enforces these constraints with an assertion.</p>
+<p>Example:</p>
+<pre class="language-dart"><code class="language-dart">// Simple string literal (implicit xsd:string datatype)
+final plainLiteral = LiteralTerm('Hello');
+
+// Typed literal
+final intLiteral = LiteralTerm('42', datatype: Xsd.integer);
+
+// Language-tagged string (implicit rdf:langString datatype)
+final langLiteral = LiteralTerm('Bonjour', language: 'fr');
+</code></pre>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">const LiteralTerm(this.value, {required this.datatype, this.language})
+  <pre class="language-dart"><code class="language-dart">const LiteralTerm(this.value, {IriTerm? datatype, this.language})
   : assert(
-      (language == null) != (datatype == Rdf.langString),
+      datatype == null ||
+          (language == null &amp;&amp; datatype != Rdf.langString) ||
+          (language != null &amp;&amp; datatype == Rdf.langString),
       &#39;Language-tagged literals must use rdf:langString datatype, and rdf:langString must have a language tag&#39;,
-    );</code></pre>
+    ),
+    datatype =
+        datatype != null
+            ? datatype
+            : (language == null ? Xsd.string : Rdf.langString);</code></pre>
 </section>
 
 

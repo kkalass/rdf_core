@@ -57,6 +57,15 @@
 </h1></div>
 
     
+<section class="desc markdown">
+  <p>A specialized codec that auto-detects the format during decoding</p>
+<p>This codec implementation automatically detects the appropriate format for decoding
+based on content inspection, while using a specified default codec for encoding.
+It works in conjunction with the <a href="../rdf/RdfCodecRegistry-class.html">RdfCodecRegistry</a> to identify the correct format.</p>
+<p>This class is primarily used internally by the RDF library when the format is
+not explicitly specified, but can also be used directly when working with content
+of unknown format.</p>
+</section>
 
 
     <section>
@@ -91,7 +100,7 @@
           <span class="name"><a href="../rdf/AutoDetectingGraphCodec/AutoDetectingGraphCodec.html">AutoDetectingGraphCodec</a></span><span class="signature">({<span class="parameter" id="-param-defaultCodec"><span>required</span> <span class="type-annotation"><a href="../rdf/RdfGraphCodec-class.html">RdfGraphCodec</a></span> <span class="parameter-name">defaultCodec</span>, </span><span class="parameter" id="-param-registry"><span>required</span> <span class="type-annotation"><a href="../rdf/RdfCodecRegistry-class.html">RdfCodecRegistry</a></span> <span class="parameter-name">registry</span>, </span><span class="parameter" id="-param-encoderOptions"><span class="type-annotation"><a href="../rdf/RdfGraphEncoderOptions-class.html">RdfGraphEncoderOptions</a>?</span> <span class="parameter-name">encoderOptions</span>, </span><span class="parameter" id="-param-decoderOptions"><span class="type-annotation"><a href="../rdf/RdfGraphDecoderOptions-class.html">RdfGraphDecoderOptions</a>?</span> <span class="parameter-name">decoderOptions</span></span>})</span>
         </dt>
         <dd>
-          
+          Creates a new auto-detecting codec
         </dd>
     </dl>
   </section>
@@ -108,7 +117,7 @@
 
 </dt>
 <dd>
-  Creates a decoder instance for this codec
+  Returns an auto-detecting decoder
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -120,7 +129,7 @@
 
 </dt>
 <dd>
-  Creates an encoder instance for this codec
+  Returns the default codec's encoder
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -156,7 +165,7 @@
 
 </dt>
 <dd>
-  The primary MIME type for this codec
+  Returns the primary MIME type of the default codec
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -180,7 +189,7 @@
 
 </dt>
 <dd>
-  All MIME types supported by this codec
+  Returns all MIME types supported by the registry
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -202,7 +211,7 @@
 
 </dt>
 <dd>
-  Tests if the provided content is likely in this codec's format
+  Determines if the content can be parsed by any registered codec
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -280,7 +289,7 @@
 
 </dt>
 <dd>
-  
+  Creates a new instance with the specified options
   <div class="features"><span class="feature">override</span></div>
 
 </dd>

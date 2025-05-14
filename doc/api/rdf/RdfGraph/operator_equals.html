@@ -73,6 +73,11 @@
 <section class="desc markdown">
   <p>We are implementing equals ourselves instead of using equatable,
 because we want to compare the sets of triples, not the order</p>
+<p>Compares this graph to another object for equality.
+Two RDF graphs are equal if they contain the same set of triples,
+regardless of the order in which they were added.</p>
+<p>This implementation treats RDF graphs as sets rather than lists,
+which aligns with the semantic definition of RDF graphs in the specification.</p>
 </section>
 
 

@@ -70,12 +70,55 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Creates a new encoder with the specified options, preserving the current namespace mappings.</p>
+<p>This method allows changing encoding options without creating a completely new
+encoder instance. It returns a new encoder that shares the same namespace mappings
+but uses the provided options.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>options</code> New encoder options to use. If this is already a TurtleEncoderOptions
+instance, it will be used directly. Otherwise, it will be converted to
+TurtleEncoderOptions using the from() factory method.</li>
+</ul>
+<p>Returns:</p>
+<ul>
+<li>A new TurtleEncoder instance with the updated options</li>
+</ul>
+<p>Example:</p>
+<pre class="language-dart"><code class="language-dart">// Create a new encoder with modified options
+final newEncoder = encoder.withOptions(
+  TurtleEncoderOptions(generateMissingPrefixes: false)
+);
+</code></pre>
+</section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
+&#47;&#47;&#47; Creates a new encoder with the specified options, preserving the current namespace mappings.
+&#47;&#47;&#47;
+&#47;&#47;&#47; This method allows changing encoding options without creating a completely new
+&#47;&#47;&#47; encoder instance. It returns a new encoder that shares the same namespace mappings
+&#47;&#47;&#47; but uses the provided options.
+&#47;&#47;&#47;
+&#47;&#47;&#47; Parameters:
+&#47;&#47;&#47; - [options] New encoder options to use. If this is already a TurtleEncoderOptions
+&#47;&#47;&#47;   instance, it will be used directly. Otherwise, it will be converted to
+&#47;&#47;&#47;   TurtleEncoderOptions using the from() factory method.
+&#47;&#47;&#47;
+&#47;&#47;&#47; Returns:
+&#47;&#47;&#47; - A new TurtleEncoder instance with the updated options
+&#47;&#47;&#47;
+&#47;&#47;&#47; Example:
+&#47;&#47;&#47; ```dart
+&#47;&#47;&#47; &#47;&#47; Create a new encoder with modified options
+&#47;&#47;&#47; final newEncoder = encoder.withOptions(
+&#47;&#47;&#47;   TurtleEncoderOptions(generateMissingPrefixes: false)
+&#47;&#47;&#47; );
+&#47;&#47;&#47; ```
 RdfGraphEncoder withOptions(RdfGraphEncoderOptions options) =&gt; TurtleEncoder(
   namespaceMappings: _namespaceMappings,
   options: TurtleEncoderOptions.from(options),

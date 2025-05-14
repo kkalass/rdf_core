@@ -71,21 +71,25 @@
     </section>
     
 <section class="desc markdown">
-  <p>Tests if the provided content is likely in this codec's format</p>
-<p>This method is used for codec auto-detection when no explicit MIME type
-is available. It should perform quick heuristic checks to determine if
-the content appears to be in the format supported by this codec.</p>
-<p>The method should balance accuracy with performance - it should not
-perform a full parse, but should do enough checking to make a reasonable
-determination.</p>
-<p>Parameters:</p>
+  <p>Determines if the given content is likely in N-Triples format.</p>
+<p>This method implements a heuristic approach to detect N-Triples content
+by analyzing its structure. It uses the following criteria:</p>
+<ol>
+<li>The content must not be empty</li>
+<li>Each non-empty line that is not a comment (doesn't start with #) should:
 <ul>
-<li><code>content</code> The string content to check</li>
+<li>Start with either '&lt;' (for IRI subjects) or '_:' (for blank nodes)</li>
+<li>End with a period '.'</li>
+<li>Contain at least 3 non-empty segments (representing subject, predicate, object)</li>
 </ul>
-<p>Returns:</p>
-<ul>
-<li>true if the content appears to be in this codec's format</li>
-</ul>
+</li>
+</ol>
+<p>If more than 80% of non-empty lines match these criteria, the content is
+considered to be in N-Triples format.</p>
+<p>This approach balances accuracy with performance, making it suitable for
+auto-detection scenarios where complete parsing would be too expensive.</p>
+<p>The <code>content</code> parameter contains the string content to check.
+Returns true if the content is likely N-Triples, false otherwise.</p>
 </section>
 
 

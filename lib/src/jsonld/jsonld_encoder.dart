@@ -1,15 +1,43 @@
 /// JSON-LD Serializer Implementation
 ///
 /// Implements the [JsonLdEncoder] class to convert RDF graphs to JSON-LD format.
+/// JSON-LD (JavaScript Object Notation for Linked Data) allows the representation
+/// of RDF data in a human-readable and machine-processable format,
+/// based on the widely used JSON standard.
 ///
-/// Example usage:
+/// This implementation supports:
+/// - Compact JSON-LD documents with meaningful prefixes
+/// - Automatic detection and generation of appropriate `@context` definitions
+/// - Grouping of data by subjects for better readability
+/// - Special handling of Blank Nodes with consistent identifiers
+/// - Generation of `@graph` for graphs with multiple subjects
+/// - Conversion of typed literals to appropriate JSON representations
+///
+/// ## Graph Structure Detection
+///
+/// The encoder automatically analyzes the structure of the input graph:
+/// - For single-subject graphs, it creates a simple JSON-LD object
+/// - For multi-subject graphs, it uses a top-level `@graph` array
+///
+/// The current implementation does not maintain named graph information
+/// when serializing RDF graphs. The use of `@graph` in the output is purely
+/// for structural organization, not for representing true RDF Dataset named graphs.
+///
+/// ## Example usage:
 /// ```dart
-/// import 'package:rdf_core/src/jsonld/jsonld_serializer.dart';
-/// final serializer = JsonLdSerializer();
-/// final jsonld = serializer.write(graph);
+/// import 'package:rdf_core/rdf_core.dart';
+///
+/// // Using the global encoder
+/// final jsonld = jsonldGraph.encode(graph);
+///
+/// // Or directly with the encoder
+/// final encoder = JsonLdEncoder();
+/// final jsonld = encoder.convert(graph);
 /// ```
 ///
-/// See: [JSON-LD 1.1 Specification](https://www.w3.org/TR/json-ld11/)
+/// See also:
+/// - [JSON-LD 1.1 Specification](https://www.w3.org/TR/json-ld11/)
+/// - [JSON-LD Website](https://json-ld.org/)
 library jsonld_serializer;
 
 import 'dart:convert';
@@ -25,10 +53,50 @@ import 'package:rdf_core/src/vocab/xsd.dart';
 
 final _log = Logger("rdf.jsonld");
 
+/// Configuration options for JSON-LD encoding
+///
+/// This class provides configuration options for customizing the behavior of the
+/// JSON-LD encoder. It extends the base RDF encoder options to add JSON-LD specific
+/// functionality.
+///
+/// Currently, the main customization is the ability to provide custom prefixes
+/// for the JSON-LD context, allowing for more readable and application-specific
+/// compact IRIs in the output.
+///
+/// Potential future options might include:
+/// - Control over formatting (compact vs. expanded form)
+/// - Custom handling of complex datatypes
+/// - Options for including/excluding @context
+/// - Named graph serialization settings
+///
+/// Example usage:
+/// ```dart
+/// final options = JsonLdEncoderOptions(
+///   customPrefixes: {
+///     'ex': 'http://example.org/',
+///     'app': 'http://myapp.com/terms#'
+///   }
+/// );
+///
+/// final encoder = JsonLdEncoder(options: options);
+/// ```
 class JsonLdEncoderOptions extends RdfGraphEncoderOptions {
+  /// Creates a new JSON-LD encoder options object
+  ///
+  /// [customPrefixes] A map of prefix to namespace URI pairs that will be used
+  /// in the JSON-LD @context. These prefixes take precedence over standard prefixes
+  /// if there are conflicts.
   const JsonLdEncoderOptions({Map<String, String> customPrefixes = const {}})
     : super(customPrefixes: customPrefixes);
 
+  /// Creates a JSON-LD encoder options object from generic RDF encoder options
+  ///
+  /// This factory method ensures that when generic [RdfGraphEncoderOptions] are provided
+  /// to a method expecting JSON-LD-specific options, they are properly converted.
+  ///
+  /// If the provided options are already a [JsonLdEncoderOptions] instance, they are
+  /// returned as-is. Otherwise, a new instance is created with the custom prefixes
+  /// from the generic options.
   static JsonLdEncoderOptions from(RdfGraphEncoderOptions options) =>
       switch (options) {
         JsonLdEncoderOptions _ => options,
@@ -47,8 +115,44 @@ class JsonLdEncoderOptions extends RdfGraphEncoderOptions {
 /// - Nesting objects for more readable representation
 /// - Handling different RDF term types appropriately
 ///
+/// ## Graph Structure Handling
+///
+/// The encoder automatically detects the structure of the input graph:
+///
+/// - **Single Subject**: When the graph contains triples with only one subject,
+///   the output is a single JSON-LD object with properties representing predicates.
+///
+/// - **Multiple Subjects**: When the graph contains triples with multiple subjects,
+///   the encoder generates a JSON-LD document with a top-level `@graph` array
+///   containing all subject nodes. This produces more readable output by
+///   structuring the data naturally.
+///
+/// ## @graph and Named Graphs
+///
+/// Note that the current implementation does not support true RDF Datasets with
+/// named graphs. When outputting a graph with multiple subjects as `@graph`,
+/// this does not represent different named graphs but rather is a structural
+/// device for organizing multiple nodes in the default graph.
+///
+/// In JSON-LD, a top-level `@graph` array can be used for two different purposes:
+/// 1. As a way to organize multiple unrelated nodes (current implementation)
+/// 2. As a way to represent named graphs in an RDF dataset (future enhancement)
+///
+/// ## Datatype Handling
+///
+/// The encoder handles various RDF literal types and automatically converts them
+/// to appropriate JSON representations:
+///
+/// - String literals are represented as JSON strings
+/// - Integer literals are converted to JSON numbers when possible
+/// - Boolean literals are converted to JSON booleans when possible
+/// - Other datatypes use the `@value` and `@type` syntax
+///
+/// ## Configuration Options
+///
 /// The serializer produces compacted JSON-LD by default, using prefixes
-/// to make property names more readable.
+/// to make property names more readable. Customizations are possible
+/// through namespace mappings and encoder options.
 final class JsonLdEncoder extends RdfGraphEncoder {
   /// Well-known common prefixes used for more readable JSON-LD output.
   final RdfNamespaceMappings _namespaceMappings;
@@ -67,6 +171,27 @@ final class JsonLdEncoder extends RdfGraphEncoder {
     options: JsonLdEncoderOptions.from(options),
   );
 
+  /// Converts an RDF graph to a JSON-LD string representation.
+  ///
+  /// This method analyzes the graph structure and automatically determines
+  /// the most appropriate JSON-LD representation:
+  ///
+  /// - For empty graphs, it returns an empty JSON object `{}`
+  /// - For graphs with a single subject, it creates a single JSON-LD object
+  ///   with all properties of that subject
+  /// - For graphs with multiple subjects, it creates a JSON-LD document with
+  ///   a top-level `@graph` array containing all subject nodes
+  ///
+  /// The method also:
+  /// - Generates consistent labels for blank nodes
+  /// - Creates a `@context` object with meaningful prefixes based on the graph content
+  /// - Groups triples by subject for better structure
+  /// - Handles typed literals appropriately
+  ///
+  /// [graph] The RDF graph to convert to JSON-LD.
+  /// [baseUri] Optional base URI for relative IRIs (not currently used).
+  ///
+  /// Returns a formatted JSON-LD string with 2-space indentation.
   @override
   String convert(RdfGraph graph, {String? baseUri}) {
     _log.info('Serializing graph to JSON-LD');
@@ -149,6 +274,18 @@ final class JsonLdEncoder extends RdfGraphEncoder {
   }
 
   /// Creates the @context object with prefix mappings.
+  ///
+  /// The context is a key part of JSON-LD that defines how predicates and types
+  /// are expanded to full IRIs. This method:
+  ///
+  /// 1. Starts with any custom prefixes provided by the user
+  /// 2. Analyzes the graph to determine which standard prefixes are actually used
+  /// 3. Adds only those namespaces that are referenced by IRIs in the graph
+  ///
+  /// This produces a minimal, relevant context that makes the JSON-LD more compact
+  /// and readable while still maintaining the complete semantic information.
+  ///
+  /// Custom prefixes always take precedence over standard ones if there's a conflict.
   Map<String, String> _createContext(
     RdfGraph graph,
     Map<String, String> customPrefixes,
@@ -173,6 +310,21 @@ final class JsonLdEncoder extends RdfGraphEncoder {
   }
 
   /// Extracts only those prefixes that are actually used in the graph's triples.
+  ///
+  /// This optimization method analyzes the graph to determine which namespace
+  /// prefixes are actually referenced by IRIs within the triples. It:
+  ///
+  /// 1. Examines all subjects, predicates, objects, and datatype IRIs in the graph
+  /// 2. Finds matching prefixes for each IRI encountered
+  /// 3. Selects the most specific (longest) prefix when multiple prefixes match an IRI
+  ///
+  /// This ensures the resulting JSON-LD context only contains prefixes that are
+  /// actually used in the document, reducing the size of the context and making
+  /// the output more concise and relevant.
+  ///
+  /// The [graph] parameter is the RDF graph to analyze.
+  /// The [prefixCandidates] parameter provides map of prefix-to-namespace pairs to consider.
+  /// Returns map of used prefixes to their namespace IRIs.
   Map<String, String> _extractUsedPrefixes(
     RdfGraph graph,
     Map<String, String> prefixCandidates,
@@ -230,6 +382,23 @@ final class JsonLdEncoder extends RdfGraphEncoder {
   }
 
   /// Checks if a term's IRI matches any prefix and adds it to the usedPrefixes if it does.
+  ///
+  /// This method performs two types of matching for each IRI:
+  ///
+  /// 1. **Exact match**: First checks if the IRI exactly matches a namespace (e.g., http://schema.org/)
+  ///    This handles cases where a namespace itself is used as an IRI.
+  ///
+  /// 2. **Prefix match**: If no exact match is found, looks for namespaces that are prefixes
+  ///    of the IRI and selects the longest (most specific) match. For example, with the IRI
+  ///    "http://example.org/vocabulary/term", it would match "http://example.org/vocabulary/"
+  ///    rather than just "http://example.org/".
+  ///
+  /// When a match is found, the corresponding prefix is added to the usedPrefixes map.
+  ///
+  /// The [term] parameter is the IRI term to check.
+  /// The [iriToPrefixMap] parameter is an inverted map from namespace IRIs to prefixes (for quick lookup).
+  /// The [usedPrefixes] parameter is an output map where matching prefixes are added.
+  /// The [prefixCandidates] parameter is a map of prefix-to-namespace pairs to consider for prefix matches.
   void _checkTermForPrefix(
     IriTerm term,
     Map<String, String> iriToPrefixMap,
@@ -264,6 +433,26 @@ final class JsonLdEncoder extends RdfGraphEncoder {
   }
 
   /// Groups triples by their subject for easier JSON-LD structure creation.
+  ///
+  /// This method organizes triples into a map where each subject is associated with
+  /// all of its triples. This grouping is essential for the JSON-LD structure, which
+  /// naturally organizes data by subject rather than as flat triples.
+  ///
+  /// For example, if we have triples:
+  /// - (subject1, predicate1, object1)
+  /// - (subject1, predicate2, object2)
+  /// - (subject2, predicate1, object3)
+  ///
+  /// The resulting map would be:
+  /// - subject1 → [(subject1, predicate1, object1), (subject1, predicate2, object2)]
+  /// - subject2 → [(subject2, predicate1, object3)]
+  ///
+  /// This structure makes it easy to create JSON-LD objects for each subject with
+  /// all its properties, whether converting to a single object or a @graph array
+  /// of multiple subject nodes.
+  ///
+  /// The [triples] parameter is a list of RDF triples to group.
+  /// Returns a map from subjects to lists of triples with that subject.
   Map<RdfSubject, List<Triple>> _groupTriplesBySubject(List<Triple> triples) {
     final Map<RdfSubject, List<Triple>> result = {};
 
@@ -275,6 +464,25 @@ final class JsonLdEncoder extends RdfGraphEncoder {
   }
 
   /// Creates a JSON object representing an RDF node with all its properties.
+  ///
+  /// This method transforms an RDF subject and its associated triples into a
+  /// structured JSON-LD object by:
+  ///
+  /// 1. Setting the `@id` property to identify the subject
+  /// 2. Handling `rdf:type` statements specially by converting them to `@type` properties
+  /// 3. Grouping remaining triples by predicate to create JSON-LD properties
+  /// 4. Rendering single values directly and multiple values as arrays
+  /// 5. Properly encoding IRIs, blank nodes, and literals according to JSON-LD rules
+  ///
+  /// For example, an RDF resource with multiple types and properties will be converted
+  /// into a JSON object with the appropriate structure and compaction based on the context.
+  ///
+  /// [subject] The RDF subject to convert
+  /// [triples] The list of triples where this subject is the subject
+  /// [context] The JSON-LD context for compaction
+  /// [blankNodeLabels] Mapping of blank nodes to consistent labels
+  ///
+  /// Returns a JSON-LD object representing the RDF node
   Map<String, dynamic> _createNodeObject(
     RdfSubject subject,
     List<Triple> triples,
@@ -412,6 +620,30 @@ final class JsonLdEncoder extends RdfGraphEncoder {
   }
 
   /// Converts an RDF literal to its appropriate JSON-LD representation.
+  ///
+  /// This method transforms RDF literals into the correct JSON-LD format based on their
+  /// datatype and language tag. It implements JSON-LD's type coercion rules to produce
+  /// native JSON values where possible, and uses the expanded @value/@type syntax when necessary.
+  ///
+  /// The conversion follows these rules:
+  ///
+  /// 1. **Language-tagged strings**: Represented as `{"@value": "value", "@language": "lang"}`
+  ///
+  /// 2. **Simple strings** (xsd:string): Represented as plain JSON strings
+  ///
+  /// 3. **Numbers**:
+  ///    - xsd:integer → JSON number if parseable, otherwise expanded form
+  ///    - xsd:decimal/xsd:double → JSON number if parseable, otherwise expanded form
+  ///
+  /// 4. **Booleans**: JSON true/false for "true"/"false" literals, expanded form otherwise
+  ///
+  /// 5. **Other datatypes**: Always use the expanded form `{"@value": "value", "@type": "datatype"}`
+  ///
+  /// This handling ensures the JSON-LD output is as natural as possible for JavaScript
+  /// processing while preserving the RDF semantics.
+  ///
+  /// The [literal] parameter is the RDF literal to convert.
+  /// Returns a JSON-compatible representation of the literal (string, number, boolean, or object).
   dynamic _getLiteralValue(LiteralTerm literal) {
     final value = literal.value;
 

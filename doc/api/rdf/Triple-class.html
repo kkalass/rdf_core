@@ -65,7 +65,13 @@
 <li>object: The value or related resource (IRI, BlankNode, or Literal)</li>
 </ul>
 <p>Triple data structures implement the constraints of the RDF data model using
-Dart's type system to ensure that only valid RDF statements can be created.</p>
+Dart's type system to ensure that only valid RDF statements can be created.
+The type system enforces that:</p>
+<ul>
+<li>Subjects can only be IRIs or blank nodes</li>
+<li>Predicates can only be IRIs</li>
+<li>Objects can be IRIs, blank nodes, or literals</li>
+</ul>
 <p>Example in Turtle syntax:</p>
 <pre class="language-turtle"><code class="language-turtle"># A triple stating that "John has the name 'John Smith'"
 &lt;http://example.com/john&gt; &lt;http://xmlns.com/foaf/0.1/name&gt; "John Smith" .
@@ -115,7 +121,6 @@ Dart's type system to ensure that only valid RDF statements can be created.</p>
 </dt>
 <dd>
   The object of the triple, representing the value or related resource.
-Can be an IRI, a blank node, or a literal.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -128,7 +133,6 @@ Can be an IRI, a blank node, or a literal.
 </dt>
 <dd>
   The predicate of the triple, representing the property or relationship.
-Must be an IRI.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -153,7 +157,6 @@ Must be an IRI.
 </dt>
 <dd>
   The subject of the triple, representing the resource being described.
-Must be either an IRI or a blank node.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -188,7 +191,7 @@ Must be either an IRI or a blank node.
 
 </dt>
 <dd>
-  A string representation of this object.
+  Returns a string representation of the triple in a Turtle-like syntax.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>

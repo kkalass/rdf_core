@@ -9,9 +9,28 @@ import 'dart:convert';
 
 import 'graph/rdf_graph.dart';
 
+/// Configuration options for RDF graph encoders.
+///
+/// This class provides configuration parameters that can be used to customize
+/// the behavior of RDF graph encoders. It follows the Options pattern to encapsulate
+/// encoder-specific settings.
 class RdfGraphEncoderOptions {
+  /// Custom namespace prefixes to use during encoding.
+  ///
+  /// A mapping of prefix strings (without colon) to namespace URIs.
+  /// These prefixes will be used when possible to produce more readable
+  /// and compact output. For example, {'foaf': 'http://xmlns.com/foaf/0.1/'}.
+  ///
+  /// But note that there is a set of well-known prefixes managed by
+  /// [RdfNamespaceMappings] that will be used for well-known IRIs, so you
+  /// will need this only rarely and not for well-known IRIs like foaf.
   final Map<String, String> customPrefixes;
 
+  /// Creates a new encoder options instance.
+  ///
+  /// Parameters:
+  /// - [customPrefixes] Custom namespace prefixes to use during encoding.
+  ///   Defaults to an empty map if not provided.
   const RdfGraphEncoderOptions({this.customPrefixes = const {}});
 }
 
@@ -53,7 +72,7 @@ abstract class RdfGraphEncoder extends Converter<RdfGraph, String> {
   /// modifying the original encoder instance.
   ///
   /// Parameters:
-  /// - [options] The encoder options to apply, including [customPrefixes] for
+  /// - [options] The encoder options to apply, including [RdfGraphEncoderOptions.customPrefixes] for
   ///   namespace handling.
   ///
   /// Returns:

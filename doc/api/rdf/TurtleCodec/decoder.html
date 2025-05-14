@@ -75,9 +75,14 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates a decoder instance for this codec</p>
-<p>Returns a new instance of a decoder that can convert text in this codec's format
-to an RdfGraph object.</p>
+  <p>Returns a Turtle decoder instance</p>
+<p>Creates a new decoder that can parse Turtle syntax into an RDF graph.
+The decoder will be initialized with this codec's namespace mappings
+and decoder options.</p>
+<p>Returns:</p>
+<ul>
+<li>A <a href="../../rdf/TurtleDecoder-class.html">TurtleDecoder</a> configured with this codec's settings</li>
+</ul>
 </section>
 
     

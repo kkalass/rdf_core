@@ -12,14 +12,34 @@ import '../graph/triple.dart';
 import '../rdf_encoder.dart';
 import '../vocab/xsd.dart';
 
+/// Options for configuring the N-Triples encoder behavior.
+///
+/// N-Triples has a very simple serialization format with minimal configurable options
+/// compared to other RDF serialization formats.
+///
+/// The N-Triples format specification doesn't support namespace prefixes, so the
+/// [customPrefixes] property is implemented to return an empty map to satisfy the
+/// interface requirement.
 class NTriplesEncoderOptions extends RdfGraphEncoderOptions {
+  /// Creates a new instance of NTriplesEncoderOptions with default settings.
+  ///
+  /// Since N-Triples is a simple format, there are currently no configurable options.
   const NTriplesEncoderOptions();
 
-  /// prefixes are not used in N-Triples, but the interface requires it because
-  /// most other formats do.
+  /// Custom namespace prefixes to use during encoding.
+  ///
+  /// This implementation returns an empty map because prefixes are not used in N-Triples format,
+  /// but the interface requires it as most other formats do use prefixes.
   @override
   Map<String, String> get customPrefixes => const {};
 
+  /// Creates an instance of NTriplesEncoderOptions from generic encoder options.
+  ///
+  /// This factory method ensures that when generic [RdfGraphEncoderOptions] are provided
+  /// to a method expecting N-Triples-specific options, they are properly converted.
+  ///
+  /// The [options] parameter contains the generic encoder options to convert.
+  /// Returns an instance of NTriplesEncoderOptions.
   static NTriplesEncoderOptions from(RdfGraphEncoderOptions options) =>
       switch (options) {
         NTriplesEncoderOptions _ => options,

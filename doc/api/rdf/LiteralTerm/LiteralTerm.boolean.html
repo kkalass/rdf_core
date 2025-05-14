@@ -63,10 +63,24 @@
     
 <section class="desc markdown">
   <p>Create a boolean literal</p>
-<p>This is a convenience factory for creating literals with xsd:boolean datatype.</p>
+<p>This is a convenience factory for creating literals with xsd:boolean datatype.
+Boolean literals in RDF represent truth values (true or false).</p>
+<p>Parameters:</p>
+<ul>
+<li><code>value</code> The boolean value to encode as a literal</li>
+</ul>
+<p>Returns:
+A new <a href="../../rdf/LiteralTerm-class.html">LiteralTerm</a> with value converted to string and datatype set to xsd:boolean</p>
+<p>Note:
+The value will be serialized as the string "true" or "false" as per XSD boolean
+representation rules.</p>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">// Create a boolean literal
-final boolLiteral = LiteralTerm.boolean("true");
+final trueLiteral = LiteralTerm.boolean(true);
+final falseLiteral = LiteralTerm.boolean(false);
+
+// Equivalent to manually creating a typed literal
+final manualBool = LiteralTerm("true", datatype: Xsd.boolean);
 </code></pre>
 </section>
 

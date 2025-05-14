@@ -65,11 +65,18 @@
         
 <section class="desc markdown">
   <p>Global convenience variable for working with Turtle format</p>
-<p>This variable provides direct access to Turtle codec for easy
-encoding and decoding of Turtle data.</p>
+<p>This variable provides direct access to a pre-configured Turtle codec
+for easy encoding and decoding of Turtle data without needing to create
+a codec instance manually.</p>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">final graph = turtle.decode(turtleString);
 final serialized = turtle.encode(graph);
+</code></pre>
+<p>For custom configuration, you can create a new codec with specific options:</p>
+<pre class="language-dart"><code class="language-dart">final customTurtle = TurtleCodec(
+  namespaceMappings: myNamespaces,
+  encoderOptions: TurtleEncoderOptions(generateMissingPrefixes: false),
+);
 </code></pre>
 </section>
 

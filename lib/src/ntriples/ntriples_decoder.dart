@@ -13,9 +13,27 @@ import '../graph/rdf_term.dart';
 import '../graph/triple.dart';
 import '../rdf_decoder.dart';
 
+/// Options for configuring the N-Triples decoder behavior.
+///
+/// N-Triples has a straightforward format with minimal configuration options
+/// compared to more complex RDF serialization formats. This class provides a
+/// placeholder for future extension points if needed.
+///
+/// The current implementation uses default parsing behavior as defined by
+/// the N-Triples specification, without additional configuration options.
 class NTriplesDecoderOptions extends RdfGraphDecoderOptions {
+  /// Creates a new instance of NTriplesDecoderOptions with default settings.
+  ///
+  /// Since N-Triples is a simple format, there are currently no configurable options.
   const NTriplesDecoderOptions();
 
+  /// Creates an instance of NTriplesDecoderOptions from generic decoder options.
+  ///
+  /// This factory method ensures that when generic [RdfGraphDecoderOptions] are provided
+  /// to a method expecting N-Triples-specific options, they are properly converted.
+  ///
+  /// The [options] parameter contains the generic decoder options to convert.
+  /// Returns an instance of NTriplesDecoderOptions.
   static NTriplesDecoderOptions from(RdfGraphDecoderOptions options) =>
       switch (options) {
         NTriplesDecoderOptions _ => options,

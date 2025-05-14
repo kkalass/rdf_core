@@ -71,20 +71,19 @@
     </section>
     
 <section class="desc markdown">
-  <p>Tests if the provided content is likely in this codec's format</p>
-<p>This method is used for codec auto-detection when no explicit MIME type
-is available. It should perform quick heuristic checks to determine if
-the content appears to be in the format supported by this codec.</p>
-<p>The method should balance accuracy with performance - it should not
-perform a full parse, but should do enough checking to make a reasonable
-determination.</p>
+  <p>Determines if the content is likely in Turtle format</p>
+<p>This method performs a heuristic analysis of the content to check if it
+appears to be in Turtle format. It looks for common Turtle syntax markers
+such as prefix declarations, common RDF prefixes, and triple patterns.</p>
+<p>The method uses a lightweight approach that balances accuracy with performance,
+avoiding a full parse while still providing reasonable detection capability.</p>
 <p>Parameters:</p>
 <ul>
-<li><code>content</code> The string content to check</li>
+<li><code>content</code> The string content to analyze</li>
 </ul>
 <p>Returns:</p>
 <ul>
-<li>true if the content appears to be in this codec's format</li>
+<li>true if the content appears to be in Turtle format</li>
 </ul>
 </section>
 

@@ -71,8 +71,8 @@
 or the part up to and including the last '/' character if there is no '#'.
 However, if the resulting namespace would be a protocol-only URI (like 'http://' or 'https://'),
 the entire IRI is treated as the namespace to avoid generating invalid or meaningless prefixes.</p>
-<p>@param iri The IRI to split into namespace and local part
-@return A tuple containing (namespace, localPart)</p>
+<p>The <code>iri</code> is the IRI to split into namespace and local part.
+Returns a tuple containing (namespace, localPart).</p>
 </section>
 
 

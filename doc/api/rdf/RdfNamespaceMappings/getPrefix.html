@@ -67,7 +67,13 @@
     </section>
     
 <section class="desc markdown">
-  <p>Returns the Prefix for a given namespace URI.</p>
+  <p>Returns the prefix for a given namespace URI.</p>
+<p>This method performs a reverse lookup in the mappings to find the first prefix
+that corresponds to the given namespace URI. Custom mappings are checked first,
+followed by the standard mappings.</p>
+<p>The <code>namespace</code> is the URI to look up, and <code>customMappings</code> are additional
+mappings to check before the standard ones. Returns the prefix for the namespace,
+or null if not found.</p>
 </section>
 
 

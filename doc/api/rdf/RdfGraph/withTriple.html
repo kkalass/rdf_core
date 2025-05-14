@@ -70,14 +70,18 @@
 <p>Since RdfGraph is immutable, this returns a new instance with
 all the existing triples plus the new one. The original graph
 remains unchanged.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>triple</code> The triple to add to the graph</li>
+</ul>
+<p>Returns:
+A new graph instance with the added triple</p>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">// Add a statement that John has email john@example.com
 final newGraph = graph.withTriple(
   Triple(john, email, LiteralTerm.string('john@example.com'))
 );
 </code></pre>
-<p>@param triple The triple to add to the graph
-@return A new graph instance with the added triple</p>
 </section>
 
 

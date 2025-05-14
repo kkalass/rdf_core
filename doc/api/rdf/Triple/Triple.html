@@ -68,6 +68,12 @@
 <p>The constructor accepts any values that conform to the RDF term types
 that are allowed in each position, ensuring that only valid RDF triples
 can be created.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>subject</code> The subject of the triple (must be an IRI or blank node)</li>
+<li><code>predicate</code> The predicate of the triple (must be an IRI)</li>
+<li><code>object</code> The object of the triple (can be an IRI, blank node, or literal)</li>
+</ul>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">// Create a triple: &lt;http://example.org/john&gt; &lt;http://xmlns.com/foaf/0.1/name&gt; "John Smith"
 final john = IriTerm('http://example.org/john');

@@ -62,6 +62,16 @@
 </ol>})
     </section>
     
+<section class="desc markdown">
+  <p>Creates a new Turtle decoder</p>
+<p>Parameters:</p>
+<ul>
+<li><code>options</code> Configuration options that control parsing behavior.
+Default is standard Turtle parsing with no special settings.</li>
+<li><code>namespaceMappings</code> Required namespace mappings to use when expanding
+prefixed names encountered during parsing.</li>
+</ul>
+</section>
 
 
     
@@ -71,7 +81,6 @@
   TurtleDecoderOptions options = const TurtleDecoderOptions(),
   required RdfNamespaceMappings namespaceMappings,
 }) : _namespaceMappings = namespaceMappings,
-     &#47;&#47; Pass the parsing flags to the TurtleParser
      _options = options;</code></pre>
 </section>
 

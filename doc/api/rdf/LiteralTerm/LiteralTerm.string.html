@@ -63,10 +63,22 @@
     
 <section class="desc markdown">
   <p>Create a plain string literal</p>
-<p>This is a convenience factory for creating literals with xsd:string datatype.</p>
+<p>This is a convenience factory for creating literals with xsd:string datatype.
+In RDF, plain string literals use the xsd:string datatype, which is also
+the default when no datatype is specified.</p>
+<p>Note: This factory is equivalent to using the primary constructor without
+any datatype or language parameters, but makes the intent clearer in the code.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>value</code> The string value</li>
+</ul>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">// Create a string literal
 final stringLiteral = LiteralTerm.string("Hello, World!");
+
+// The following two literals are equivalent
+final a = LiteralTerm.string("Hello");
+final b = LiteralTerm("Hello");
 </code></pre>
 </section>
 

@@ -68,10 +68,11 @@
 <section class="desc markdown">
   <p>Detect codec from content when no MIME type is available</p>
 <p>Attempts to identify the codec by examining the content structure.
-Each registered codec is asked if it can parse the content, and the
+Each registered codec is asked if it can parse the content in
+the order in which they were registered, and the
 first one that responds positively is returned.</p>
-<p>@param content The content string to analyze
-@return The first codec that claims it can parse the content, or null if none found</p>
+<p>The <code>content</code> parameter is the content string to analyze.</p>
+<p>Returns the first codec that claims it can parse the content, or null if none found.</p>
 </section>
 
 

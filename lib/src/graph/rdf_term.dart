@@ -176,6 +176,11 @@ class BlankNodeTerm extends RdfSubject {
 /// Literals can only appear in the object position of a triple, never as subjects
 /// or predicates.
 ///
+/// In RDF 1.1, all literals have a datatype:
+/// - Plain literals use xsd:string by default
+/// - Language-tagged literals use rdf:langString
+/// - Typed literals use an explicit datatype IRI (typically an XSD datatype)
+///
 /// Examples in Turtle syntax:
 /// - Simple string: `"Hello World"`
 /// - Typed number: `"42"^^xsd:integer`
@@ -190,22 +195,63 @@ class LiteralTerm extends RdfObject {
   /// Optional language tag for language-tagged string literals
   final String? language;
 
-  /// Create a literal with optional datatype or language tag
+  /// Creates a literal with an optional datatype or language tag
+  ///
+  /// This is the primary constructor for creating RDF literals. It handles
+  /// the complex rules of the RDF 1.1 specification regarding datatypes and language tags:
+  ///
+  /// - If [datatype] is provided, it is used as the literal's datatype
+  /// - If [language] is provided but no datatype, rdf:langString is used automatically
+  /// - If neither datatype nor language is provided, xsd:string is used by default
   ///
   /// According to the RDF 1.1 specification:
   /// - A literal with a language tag must use rdf:langString datatype
   /// - A literal with rdf:langString datatype must have a language tag
   ///
-  /// This constructor enforces those constraints with an assertion.
-  const LiteralTerm(this.value, {required this.datatype, this.language})
+  /// This constructor enforces these constraints with an assertion.
+  ///
+  /// Example:
+  /// ```dart
+  /// // Simple string literal (implicit xsd:string datatype)
+  /// final plainLiteral = LiteralTerm('Hello');
+  ///
+  /// // Typed literal
+  /// final intLiteral = LiteralTerm('42', datatype: Xsd.integer);
+  ///
+  /// // Language-tagged string (implicit rdf:langString datatype)
+  /// final langLiteral = LiteralTerm('Bonjour', language: 'fr');
+  /// ```
+  const LiteralTerm(this.value, {IriTerm? datatype, this.language})
     : assert(
-        (language == null) != (datatype == Rdf.langString),
+        datatype == null ||
+            (language == null && datatype != Rdf.langString) ||
+            (language != null && datatype == Rdf.langString),
         'Language-tagged literals must use rdf:langString datatype, and rdf:langString must have a language tag',
-      );
+      ),
+      datatype =
+          datatype != null
+              ? datatype
+              : (language == null ? Xsd.string : Rdf.langString);
 
   /// Create a typed literal with XSD datatype
   ///
-  /// This is a convenience factory for creating literals with common XSD types.
+  /// This is a convenience factory for creating literals with XSD datatypes.
+  /// It accepts any XSD type name and uses the [Xsd.makeIri] method to resolve
+  /// the full datatype IRI.
+  ///
+  /// Common XSD types include:
+  /// - `string` - String values
+  /// - `integer` - Integer values
+  /// - `decimal` - Decimal numbers
+  /// - `boolean` - Boolean values (true/false)
+  /// - `date` - ISO date (YYYY-MM-DD)
+  /// - `dateTime` - ISO date and time with timezone
+  /// - `time` - ISO time
+  /// - `anyURI` - URI values
+  ///
+  /// Parameters:
+  /// - [value] The lexical value as a string
+  /// - [xsdType] The XSD type name (without the xsd: prefix)
   ///
   /// Example:
   /// ```dart
@@ -214,6 +260,9 @@ class LiteralTerm extends RdfObject {
   ///
   /// // Create a date literal
   /// final dateLiteral = LiteralTerm.typed("2023-04-01", "date");
+  ///
+  /// // Create a boolean literal
+  /// final boolLiteral = LiteralTerm.typed("true", "boolean");
   /// ```
   factory LiteralTerm.typed(String value, String xsdType) {
     return LiteralTerm(value, datatype: Xsd.makeIri(xsdType));
@@ -222,11 +271,23 @@ class LiteralTerm extends RdfObject {
   /// Create a plain string literal
   ///
   /// This is a convenience factory for creating literals with xsd:string datatype.
+  /// In RDF, plain string literals use the xsd:string datatype, which is also
+  /// the default when no datatype is specified.
+  ///
+  /// Note: This factory is equivalent to using the primary constructor without
+  /// any datatype or language parameters, but makes the intent clearer in the code.
+  ///
+  /// Parameters:
+  /// - [value] The string value
   ///
   /// Example:
   /// ```dart
   /// // Create a string literal
   /// final stringLiteral = LiteralTerm.string("Hello, World!");
+  ///
+  /// // The following two literals are equivalent
+  /// final a = LiteralTerm.string("Hello");
+  /// final b = LiteralTerm("Hello");
   /// ```
   factory LiteralTerm.string(String value) {
     return LiteralTerm(value, datatype: Xsd.string);
@@ -235,11 +296,21 @@ class LiteralTerm extends RdfObject {
   /// Create an integer literal
   ///
   /// This is a convenience factory for creating literals with xsd:integer datatype.
+  /// Integer literals in RDF represent whole numbers without fractional components.
+  ///
+  /// Parameters:
+  /// - [value] The integer value to encode as a literal
+  ///
+  /// Returns:
+  /// A new [LiteralTerm] with value converted to string and datatype set to xsd:integer
   ///
   /// Example:
   /// ```dart
   /// // Create an integer literal
-  /// final intLiteral = LiteralTerm.integer("42");
+  /// final intLiteral = LiteralTerm.integer(42);
+  ///
+  /// // Equivalent to manually creating a typed literal
+  /// final manualInt = LiteralTerm("42", datatype: Xsd.integer);
   /// ```
   factory LiteralTerm.integer(int value) {
     return LiteralTerm(value.toString(), datatype: Xsd.integer);
@@ -248,11 +319,26 @@ class LiteralTerm extends RdfObject {
   /// Create a decimal literal
   ///
   /// This is a convenience factory for creating literals with xsd:decimal datatype.
+  /// Decimal literals in RDF represent numeric values that can have fractional parts.
+  ///
+  /// Parameters:
+  /// - [value] The double value to encode as a decimal literal
+  ///
+  /// Returns:
+  /// A new [LiteralTerm] with value converted to string and datatype set to xsd:decimal
+  ///
+  /// Note:
+  /// Be aware that floating-point representation may lead to precision issues in
+  /// some cases. For exact decimal representation, consider converting the value
+  /// to a string with the desired precision before creating the literal.
   ///
   /// Example:
   /// ```dart
   /// // Create a decimal literal
-  /// final decimalLiteral = LiteralTerm.decimal("3.14");
+  /// final decimalLiteral = LiteralTerm.decimal(3.14);
+  ///
+  /// // Equivalent to manually creating a typed literal
+  /// final manualDecimal = LiteralTerm("3.14", datatype: Xsd.decimal);
   /// ```
   factory LiteralTerm.decimal(double value) {
     return LiteralTerm(value.toString(), datatype: Xsd.decimal);
@@ -261,11 +347,26 @@ class LiteralTerm extends RdfObject {
   /// Create a boolean literal
   ///
   /// This is a convenience factory for creating literals with xsd:boolean datatype.
+  /// Boolean literals in RDF represent truth values (true or false).
+  ///
+  /// Parameters:
+  /// - [value] The boolean value to encode as a literal
+  ///
+  /// Returns:
+  /// A new [LiteralTerm] with value converted to string and datatype set to xsd:boolean
+  ///
+  /// Note:
+  /// The value will be serialized as the string "true" or "false" as per XSD boolean
+  /// representation rules.
   ///
   /// Example:
   /// ```dart
   /// // Create a boolean literal
-  /// final boolLiteral = LiteralTerm.boolean("true");
+  /// final trueLiteral = LiteralTerm.boolean(true);
+  /// final falseLiteral = LiteralTerm.boolean(false);
+  ///
+  /// // Equivalent to manually creating a typed literal
+  /// final manualBool = LiteralTerm("true", datatype: Xsd.boolean);
   /// ```
   factory LiteralTerm.boolean(bool value) {
     return LiteralTerm(value.toString(), datatype: Xsd.boolean);
@@ -274,7 +375,19 @@ class LiteralTerm extends RdfObject {
   /// Create a language-tagged literal
   ///
   /// This is a convenience factory for creating literals with language tags.
-  /// These literals use the rdf:langString datatype.
+  /// These literals use the rdf:langString datatype as required by the RDF 1.1 specification.
+  ///
+  /// Parameters:
+  /// - [value] The string value of the literal
+  /// - [langTag] The language tag (e.g., "en", "de", "fr-CA") following BCP 47 format
+  ///
+  /// Returns:
+  /// A new [LiteralTerm] with the specified value, rdf:langString datatype, and language tag
+  ///
+  /// Note:
+  /// Language tags are case-insensitive according to the RDF specification, but it's
+  /// recommended to use lowercase for language subtags (e.g., "en-us" rather than "en-US")
+  /// for maximum compatibility.
   ///
   /// Example:
   /// ```dart
@@ -283,11 +396,23 @@ class LiteralTerm extends RdfObject {
   ///
   /// // Create a German language literal
   /// final deLiteral = LiteralTerm.withLanguage("Hallo", "de");
+  ///
+  /// // Create a Canadian French literal with region subtag
+  /// final frCALiteral = LiteralTerm.withLanguage("Bonjour", "fr-ca");
   /// ```
   factory LiteralTerm.withLanguage(String value, String langTag) {
     return LiteralTerm(value, datatype: Rdf.langString, language: langTag);
   }
 
+  /// Compares this literal term with another object for equality.
+  ///
+  /// Two literal terms are equal if they have the same lexical value,
+  /// the same datatype, and the same language tag (if present).
+  ///
+  /// This follows the RDF 1.1 specification's definition of literal equality,
+  /// which is based on the lexical value rather than any derived value.
+  /// For example, "01"^^xsd:integer and "1"^^xsd:integer are not equal
+  /// even though they represent the same number.
   @override
   bool operator ==(Object other) {
     return other is LiteralTerm &&
@@ -296,9 +421,37 @@ class LiteralTerm extends RdfObject {
         language == other.language;
   }
 
+  /// Provides a consistent hash code for this literal term based on its components.
+  ///
+  /// The hash code is calculated from the combined hash of the value, datatype,
+  /// and language (if present), ensuring that two equal literal terms will have
+  /// the same hash code, which is required for proper behavior when used in hash-based
+  /// collections like sets and maps.
   @override
   int get hashCode => Object.hash(value, datatype, language);
 
+  /// Returns a string representation of this literal term in a Turtle-like syntax.
+  ///
+  /// The output format follows Turtle serialization rules:
+  /// - Plain string literals (xsd:string): `"value"`
+  /// - Language-tagged literals: `"value"@language`
+  /// - Other typed literals: `"value"^^<datatype>`
+  ///
+  /// This representation is useful for debugging and logging purposes.
+  /// Note that the actual format in serialized RDF will depend on the
+  /// specific serialization format being used.
+  ///
+  /// Example:
+  /// ```dart
+  /// final plainLiteral = LiteralTerm.string("Hello");
+  /// print(plainLiteral); // Prints: "Hello"
+  ///
+  /// final langLiteral = LiteralTerm.withLanguage("Bonjour", "fr");
+  /// print(langLiteral); // Prints: "Bonjour"@fr
+  ///
+  /// final typedLiteral = LiteralTerm.integer(42);
+  /// print(typedLiteral); // Prints: "42"^^<http://www.w3.org/2001/XMLSchema#integer>
+  /// ```
   @override
   String toString() =>
       language != null

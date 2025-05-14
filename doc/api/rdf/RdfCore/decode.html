@@ -73,22 +73,13 @@
 <p>Converts a string containing serialized RDF data into an in-memory RDF graph.
 The format can be explicitly specified using the contentType parameter,
 or automatically detected from the content if not specified.</p>
-<p>Parameters:</p>
-<ul>
-<li><code>content</code>: The RDF content to parse as a string</li>
-<li><code>contentType</code>: Optional MIME type to specify the format (e.g., "text/turtle")</li>
-<li><code>documentUrl</code>: Optional base URI for resolving relative references in the document</li>
-<li><code>options</code>: Optional format-specific decoder options (e.g., TurtleDecoderOptions)</li>
-</ul>
-<p>Returns:</p>
-<ul>
-<li>An <a href="../../rdf/RdfGraph-class.html">RdfGraph</a> containing the parsed triples</li>
-</ul>
-<p>Throws:</p>
-<ul>
-<li>Codec-specific exceptions for parsing errors</li>
-<li><a href="../../rdf/CodecNotSupportedException-class.html">CodecNotSupportedException</a> if the codec is not supported and cannot be detected</li>
-</ul>
+<p>The <code>content</code> parameter is the RDF content to parse as a string.</p>
+<p>The <code>contentType</code> parameter is an optional MIME type to specify the format (e.g., "text/turtle").</p>
+<p>The <code>documentUrl</code> parameter is an optional base URI for resolving relative references in the document.</p>
+<p>The <code>options</code> parameter contains optional format-specific decoder options (e.g., TurtleDecoderOptions).</p>
+<p>Returns an <a href="../../rdf/RdfGraph-class.html">RdfGraph</a> containing the parsed triples.</p>
+<p>Throws codec-specific exceptions for parsing errors.
+Throws <a href="../../rdf/CodecNotSupportedException-class.html">CodecNotSupportedException</a> if the codec is not supported and cannot be detected.</p>
 </section>
 
 

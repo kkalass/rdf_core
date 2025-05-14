@@ -132,7 +132,7 @@ The primary MIME type is <code>text/turtle</code>.</p>
           <span class="name"><a href="../rdf/TurtleCodec/TurtleCodec.html">TurtleCodec</a></span><span class="signature">({<span class="parameter" id="-param-namespaceMappings"><span class="type-annotation"><a href="../rdf/RdfNamespaceMappings-class.html">RdfNamespaceMappings</a>?</span> <span class="parameter-name">namespaceMappings</span>, </span><span class="parameter" id="-param-encoderOptions"><span class="type-annotation"><a href="../rdf/TurtleEncoderOptions-class.html">TurtleEncoderOptions</a></span> <span class="parameter-name">encoderOptions</span> = <span class="default-value">const TurtleEncoderOptions()</span>, </span><span class="parameter" id="-param-decoderOptions"><span class="type-annotation"><a href="../rdf/TurtleDecoderOptions-class.html">TurtleDecoderOptions</a></span> <span class="parameter-name">decoderOptions</span> = <span class="default-value">const TurtleDecoderOptions()</span></span>})</span>
         </dt>
         <dd>
-          Creates a new Turtle format handler
+          Creates a new Turtle codec
             <div class="constructor-modifier features">const</div>
         </dd>
     </dl>
@@ -150,7 +150,7 @@ The primary MIME type is <code>text/turtle</code>.</p>
 
 </dt>
 <dd>
-  Creates a decoder instance for this codec
+  Returns a Turtle decoder instance
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -162,7 +162,7 @@ The primary MIME type is <code>text/turtle</code>.</p>
 
 </dt>
 <dd>
-  Creates an encoder instance for this codec
+  Returns a Turtle encoder instance
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -198,7 +198,7 @@ The primary MIME type is <code>text/turtle</code>.</p>
 
 </dt>
 <dd>
-  The primary MIME type for this codec
+  Returns the primary MIME type for Turtle format
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -222,7 +222,7 @@ The primary MIME type is <code>text/turtle</code>.</p>
 
 </dt>
 <dd>
-  All MIME types supported by this codec
+  Returns all MIME types supported by this Turtle codec
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -244,7 +244,7 @@ The primary MIME type is <code>text/turtle</code>.</p>
 
 </dt>
 <dd>
-  Tests if the provided content is likely in this codec's format
+  Determines if the content is likely in Turtle format
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -322,7 +322,7 @@ The primary MIME type is <code>text/turtle</code>.</p>
 
 </dt>
 <dd>
-  
+  Creates a new instance with the specified options
   <div class="features"><span class="feature">override</span></div>
 
 </dd>

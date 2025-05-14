@@ -57,9 +57,17 @@
 
     
 <section class="desc markdown">
-  <p>Decoder for Turtle format</p>
-<p>Internal adapter that bridges the RdfDecoder interface to the
-implementation-specific TurtleParser.</p>
+  <p>Decoder for Turtle format RDF documents</p>
+<p>This decoder implements the RdfGraphDecoder interface for parsing Turtle syntax
+into RDF graphs. It acts as an adapter that bridges the RdfDecoder interface
+to the implementation-specific TurtleParser.</p>
+<p>The Turtle format (Terse RDF Triple Language) is a textual syntax for RDF that allows
+writing down RDF graphs in a compact and natural text form. This decoder
+handles standard Turtle syntax as specified in the W3C recommendation.</p>
+<p>Example:</p>
+<pre class="language-dart"><code class="language-dart">final decoder = TurtleDecoder(namespaceMappings: defaultNamespaces);
+final graph = decoder.convert('@prefix ex: &lt;http://example.org/&gt; . ex:subject ex:predicate "object" .');
+</code></pre>
 </section>
 
 
@@ -95,7 +103,7 @@ implementation-specific TurtleParser.</p>
           <span class="name"><a href="../rdf/TurtleDecoder/TurtleDecoder.html">TurtleDecoder</a></span><span class="signature">({<span class="parameter" id="-param-options"><span class="type-annotation"><a href="../rdf/TurtleDecoderOptions-class.html">TurtleDecoderOptions</a></span> <span class="parameter-name">options</span> = <span class="default-value">const TurtleDecoderOptions()</span>, </span><span class="parameter" id="-param-namespaceMappings"><span>required</span> <span class="type-annotation"><a href="../rdf/RdfNamespaceMappings-class.html">RdfNamespaceMappings</a></span> <span class="parameter-name">namespaceMappings</span></span>})</span>
         </dt>
         <dd>
-          
+          Creates a new Turtle decoder
         </dd>
     </dl>
   </section>
@@ -172,7 +180,7 @@ implementation-specific TurtleParser.</p>
 
 </dt>
 <dd>
-  Decodes an RDF document and return an RDF graph
+  Decodes a Turtle document into an RDF graph
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -237,7 +245,7 @@ implementation-specific TurtleParser.</p>
 
 </dt>
 <dd>
-  
+  Creates a new instance with the specified options
   <div class="features"><span class="feature">override</span></div>
 
 </dd>

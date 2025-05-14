@@ -72,6 +72,15 @@
 <p>This method returns triples that match all the specified pattern components.
 Unlike withoutMatching, this method uses AND logic - all specified components
 must match. If a pattern component is null, it acts as a wildcard.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>subject</code> Optional subject to match</li>
+<li><code>predicate</code> Optional predicate to match</li>
+<li><code>object</code> Optional object to match</li>
+</ul>
+<p>Returns:
+List of matching triples as an unmodifiable collection. The list may be
+empty if no matching triples exist.</p>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">// Find all statements about John
 final johnsTriples = graph.findTriples(subject: john);
@@ -82,10 +91,6 @@ final nameTriples = graph.findTriples(predicate: name);
 // Find John's name specifically
 final johnsName = graph.findTriples(subject: john, predicate: name);
 </code></pre>
-<p>@param subject Optional subject to match
-@param predicate Optional predicate to match
-@param object Optional object to match
-@return List of matching triples (unmodifiable)</p>
 </section>
 
 

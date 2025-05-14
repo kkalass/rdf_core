@@ -69,14 +69,28 @@
 <section class="desc markdown">
   <p>Get all objects for a given subject and predicate</p>
 <p>This is a convenience method when you're looking for the value(s)
-of a particular property for a resource.</p>
+of a particular property for a resource. It returns all objects from
+triples where the subject and predicate match the specified values.</p>
+<p>In RDF terms, this retrieves all values for a particular property
+of a resource, which is a common operation in semantic data processing.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>subject</code> The subject resource to query properties for</li>
+<li><code>predicate</code> The property (predicate) to retrieve values of</li>
+</ul>
+<p>Returns:
+An unmodifiable list of all object values that match the pattern.
+The list may be empty if no matching triples exist.</p>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">// Get all John's email addresses
 final johnEmails = graph.getObjects(john, email);
+
+// Get all of John's known associates
+final johnsContacts = graph.getObjects(john, knows);
+
+// Check if John has any type information
+final types = graph.getObjects(john, rdf.type);
 </code></pre>
-<p>@param subject The subject of the triples to query
-@param predicate The predicate of the triples to query
-@return List of all object values (unmodifiable)</p>
 </section>
 
 

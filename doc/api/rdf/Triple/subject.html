@@ -65,8 +65,11 @@
       </section>
       
 <section class="desc markdown">
-  <p>The subject of the triple, representing the resource being described.
-Must be either an IRI or a blank node.</p>
+  <p>The subject of the triple, representing the resource being described.</p>
+<p>In RDF, the subject must be either an IRI or a blank node. The RDF 1.1
+specification does not allow literals as subjects.</p>
+<p>The <a href="../../rdf/RdfSubject-class.html">RdfSubject</a> type ensures that only valid terms can be used as subjects,
+enforcing the RDF data model constraints at compile time.</p>
 </section>
 
       

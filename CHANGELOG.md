@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Enhanced
 
+- Documentation was greatly enhanced for all exported classes
+
 - **RdfNamespaceMappings**: Added static utility method for namespace manipulation
   - New public static method `extractNamespaceAndLocalPart` for splitting IRIs into namespace and local part
   - Can be used by clients to implement custom namespace-aware functionality
@@ -34,7 +36,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Properly writes base directive in Turtle output when baseUri is provided
   - Correctly converts absolute IRIs to relative IRIs when they start with the base URI
   - Ensures no prefix generation for IRIs that should be serialized as relative paths
-
 
 
 ## [0.8.2] - 2025-05-13

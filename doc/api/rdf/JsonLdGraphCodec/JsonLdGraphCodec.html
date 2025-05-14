@@ -64,7 +64,28 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates a new JSON-LD codec</p>
+  <p>Creates a new JSON-LD codec with optional configuration</p>
+<p>This constructor allows fine-grained control over JSON-LD parsing and
+serialization behavior through various options.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>namespaceMappings</code> Custom namespace mappings for compact IRIs during serialization.
+If not provided, default standard namespace mappings will be used.</li>
+<li><code>encoderOptions</code> Options that control JSON-LD serialization behavior.
+Default settings are used if not specified.</li>
+<li><code>decoderOptions</code> Options that control JSON-LD parsing behavior.
+Default settings are used if not specified.</li>
+</ul>
+<p>Example:</p>
+<pre class="language-dart"><code class="language-dart">// Assuming a predefined namespace mapping instance is available
+// For example, from your application configuration
+final myNamespaces = MyApp.getNamespaceMappings();
+
+// Create a codec that uses the application-specific namespace mappings
+final customCodec = JsonLdGraphCodec(
+  namespaceMappings: myNamespaces
+);
+</code></pre>
 </section>
 
 

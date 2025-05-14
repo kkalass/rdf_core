@@ -78,7 +78,15 @@ final class TurtleCodec extends RdfGraphCodec {
   final TurtleEncoderOptions _encoderOptions;
   final TurtleDecoderOptions _decoderOptions;
 
-  /// Creates a new Turtle format handler
+  /// Creates a new Turtle codec
+  ///
+  /// Parameters:
+  /// - [namespaceMappings] Optional namespace prefixes to use for encoding and decoding.
+  ///   If not provided, defaults to standard RDF namespace mappings.
+  /// - [encoderOptions] Configuration options for the Turtle encoder.
+  ///   Default settings use standard formatting with common prefixes.
+  /// - [decoderOptions] Configuration options for the Turtle decoder.
+  ///   Default settings handle standard Turtle syntax with no special configurations.
   const TurtleCodec({
     RdfNamespaceMappings? namespaceMappings,
     TurtleEncoderOptions encoderOptions = const TurtleEncoderOptions(),
@@ -87,6 +95,22 @@ final class TurtleCodec extends RdfGraphCodec {
        _encoderOptions = encoderOptions,
        _decoderOptions = decoderOptions;
 
+  /// Creates a new instance with the specified options
+  ///
+  /// This method returns a new Turtle codec configured with the provided
+  /// encoder and decoder options. The original codec instance remains unchanged.
+  ///
+  /// Parameters:
+  /// - [encoder] Optional encoder options to customize encoding behavior.
+  ///   Will be properly cast to TurtleEncoderOptions if possible, else we use
+  ///   just the options from the [RdfGraphEncoderOptions] class.
+  /// - [decoder] Optional decoder options to customize decoding behavior.
+  ///   Will be properly cast to TurtleDecoderOptions if possible, else we use
+  ///   just the options from the [RdfGraphDecoderOptions] class.
+  ///
+  /// Returns:
+  /// - A new [TurtleCodec] instance with the specified options applied,
+  ///   while preserving the original namespace mappings.
   @override
   TurtleCodec withOptions({
     RdfGraphEncoderOptions? encoder,
@@ -99,24 +123,61 @@ final class TurtleCodec extends RdfGraphCodec {
     );
   }
 
+  /// Returns the primary MIME type for Turtle format
+  ///
+  /// The canonical MIME type for Turtle is 'text/turtle'.
   @override
   String get primaryMimeType => _primaryMimeType;
 
+  /// Returns all MIME types supported by this Turtle codec
+  ///
+  /// Includes the primary MIME type 'text/turtle' and other
+  /// alternative and compatible MIME types such as those for N3.
   @override
   Set<String> get supportedMimeTypes => _supportedMimeTypes;
 
+  /// Returns a Turtle decoder instance
+  ///
+  /// Creates a new decoder that can parse Turtle syntax into an RDF graph.
+  /// The decoder will be initialized with this codec's namespace mappings
+  /// and decoder options.
+  ///
+  /// Returns:
+  /// - A [TurtleDecoder] configured with this codec's settings
   @override
   RdfGraphDecoder get decoder => TurtleDecoder(
     options: _decoderOptions,
     namespaceMappings: _namespaceMappings,
   );
 
+  /// Returns a Turtle encoder instance
+  ///
+  /// Creates a new encoder that can serialize an RDF graph to Turtle syntax.
+  /// The encoder will be initialized with this codec's namespace mappings
+  /// and encoder options.
+  ///
+  /// Returns:
+  /// - A [TurtleEncoder] configured with this codec's settings
   @override
   RdfGraphEncoder get encoder => TurtleEncoder(
     options: _encoderOptions,
     namespaceMappings: _namespaceMappings,
   );
 
+  /// Determines if the content is likely in Turtle format
+  ///
+  /// This method performs a heuristic analysis of the content to check if it
+  /// appears to be in Turtle format. It looks for common Turtle syntax markers
+  /// such as prefix declarations, common RDF prefixes, and triple patterns.
+  ///
+  /// The method uses a lightweight approach that balances accuracy with performance,
+  /// avoiding a full parse while still providing reasonable detection capability.
+  ///
+  /// Parameters:
+  /// - [content] The string content to analyze
+  ///
+  /// Returns:
+  /// - true if the content appears to be in Turtle format
   @override
   bool canParse(String content) {
     // Simple heuristics for detecting Turtle format
@@ -137,12 +198,21 @@ final class TurtleCodec extends RdfGraphCodec {
 
 /// Global convenience variable for working with Turtle format
 ///
-/// This variable provides direct access to Turtle codec for easy
-/// encoding and decoding of Turtle data.
+/// This variable provides direct access to a pre-configured Turtle codec
+/// for easy encoding and decoding of Turtle data without needing to create
+/// a codec instance manually.
 ///
 /// Example:
 /// ```dart
 /// final graph = turtle.decode(turtleString);
 /// final serialized = turtle.encode(graph);
+/// ```
+///
+/// For custom configuration, you can create a new codec with specific options:
+/// ```dart
+/// final customTurtle = TurtleCodec(
+///   namespaceMappings: myNamespaces,
+///   encoderOptions: TurtleEncoderOptions(generateMissingPrefixes: false),
+/// );
 /// ```
 final turtle = TurtleCodec();

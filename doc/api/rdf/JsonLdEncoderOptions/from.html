@@ -65,6 +65,14 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Creates a JSON-LD encoder options object from generic RDF encoder options</p>
+<p>This factory method ensures that when generic <a href="../../rdf/RdfGraphEncoderOptions-class.html">RdfGraphEncoderOptions</a> are provided
+to a method expecting JSON-LD-specific options, they are properly converted.</p>
+<p>If the provided options are already a <a href="../../rdf/JsonLdEncoderOptions-class.html">JsonLdEncoderOptions</a> instance, they are
+returned as-is. Otherwise, a new instance is created with the custom prefixes
+from the generic options.</p>
+</section>
 
 
     

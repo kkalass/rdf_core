@@ -9,17 +9,69 @@ import 'package:rdf_core/src/vocab/xsd.dart';
 
 final _log = Logger("rdf.turtle");
 
+/// Configuration options for Turtle serialization.
+///
+/// This class provides configuration settings that control how RDF graphs
+/// are serialized to the Turtle format, including namespace prefix handling
+/// and automatic prefix generation.
+///
+/// Example:
+/// ```dart
+/// final options = TurtleEncoderOptions(
+///   customPrefixes: {'ex': 'http://example.org/'},
+///   generateMissingPrefixes: true
+/// );
+/// final encoder = TurtleEncoder(options: options);
+/// ```
 class TurtleEncoderOptions extends RdfGraphEncoderOptions {
-  /// When set to true (which is the default), the encoder will generate missing prefixes for IRIs
-  /// automatically, even if there are no matching custom prefixes and no matching
-  /// entries in the namespace mappings.
+  /// Controls automatic generation of namespace prefixes for IRIs without matching prefixes.
+  ///
+  /// When set to `true` (default), the encoder will automatically generate namespace
+  /// prefixes for IRIs that don't have a matching prefix in either the custom prefixes
+  /// or the standard namespace mappings.
+  ///
+  /// The prefix generation process:
+  /// 1. Attempts to extract a meaningful namespace from the IRI (splitting at '/' or '#')
+  /// 2. Skips IRIs with only protocol specifiers (e.g., "http://")
+  /// 3. Only generates prefixes for namespaces ending with '/' or '#'
+  ///    (proper RDF namespace delimiters)
+  /// 4. Uses RdfNamespaceMappings.getOrGeneratePrefix to create a compact, unique prefix
+  ///
+  /// Setting this to `false` will result in all IRIs without matching prefixes being
+  /// written as full IRIs in angle brackets (e.g., `<http://example.org/term>`).
+  ///
+  /// This option is particularly useful for:
+  /// - Reducing the verbosity of the Turtle output
+  /// - Making the serialized data more human-readable
+  /// - Automatically handling unknown namespaces without manual prefix declaration
   final bool generateMissingPrefixes;
 
+  /// Creates a new TurtleEncoderOptions instance.
+  ///
+  /// Parameters:
+  /// - [customPrefixes] Custom namespace prefixes to use during encoding.
+  ///   A mapping of prefix strings to namespace URIs that will be used
+  ///   to generate compact prefix declarations in the Turtle output.
+  /// - [generateMissingPrefixes] When true (default), the encoder will automatically
+  ///   generate prefix declarations for IRIs that don't have a matching prefix.
   const TurtleEncoderOptions({
     Map<String, String> customPrefixes = const {},
     this.generateMissingPrefixes = true,
   }) : super(customPrefixes: customPrefixes);
 
+  /// Creates a TurtleEncoderOptions instance from generic RdfGraphEncoderOptions.
+  ///
+  /// This factory method enables proper type conversion when using the
+  /// generic codec/encoder API with Turtle-specific options.
+  ///
+  /// Parameters:
+  /// - [options] The options object to convert, which may or may not be
+  ///   already a TurtleEncoderOptions instance.
+  ///
+  /// Returns:
+  /// - The input as-is if it's already a TurtleEncoderOptions instance,
+  ///   or a new instance with the input's customPrefixes and default
+  ///   Turtle-specific settings.
   static TurtleEncoderOptions from(RdfGraphEncoderOptions options) =>
       switch (options) {
         TurtleEncoderOptions _ => options,
@@ -27,27 +79,72 @@ class TurtleEncoderOptions extends RdfGraphEncoderOptions {
       };
 }
 
-/// Turtle Encoder Implementation
+/// Encoder for serializing RDF graphs to Turtle syntax.
 ///
-/// Extends the [RdfGraphEncoder] class for serializing RDF graphs to Turtle syntax.
+/// The Turtle format (Terse RDF Triple Language) is a textual syntax for RDF that allows
+/// writing down RDF graphs in a compact and natural text form. This encoder implements
+/// the W3C Turtle recommendation, with additional optimizations for readability and compactness.
+///
+/// Features:
+/// - Automatic namespace prefix generation
+/// - Compact representation for blank nodes and collections
+/// - Proper indentation and formatting for readability
+/// - Support for base URI relative references
+/// - Special handling for common datatypes (integers, decimals, booleans)
 ///
 /// Example usage:
 /// ```dart
-/// import 'package:rdf_core/src/turtle/turtle_encoder.dart';
+/// import 'package:rdf_core/rdf_core.dart';
+///
+/// final graph = RdfGraph();
+/// graph.add(Triple(
+///   IriTerm('http://example.org/subject'),
+///   IriTerm('http://example.org/predicate'),
+///   LiteralTerm('object')
+/// ));
+///
 /// final encoder = TurtleEncoder();
 /// final turtle = encoder.convert(graph);
+/// // Outputs: @prefix ex: <http://example.org/> .
+/// //
+/// // ex:subject ex:predicate "object" .
 /// ```
 ///
 /// See: [Turtle - Terse RDF Triple Language](https://www.w3.org/TR/turtle/)
+///
 /// NOTE: Always use canonical RDF vocabularies (e.g., http://xmlns.com/foaf/0.1/) with http://, not https://
-/// This serializer will warn if it detects use of https:// for a namespace that is canonical as http://.
+/// This encoder will warn if it detects use of https:// for a namespace that is canonical as http://.
 class TurtleEncoder extends RdfGraphEncoder {
-  /// A map of well-known common RDF prefixes used in Turtle serialization.
-  /// These prefixes provide shorthand notation for commonly used RDF namespaces
-  /// and do not need to be specified explicitly for serialization.
+  /// Standard namespace mappings used to resolve well-known prefixes.
+  ///
+  /// These mappings provide a collection of commonly used RDF namespaces
+  /// (like rdf, rdfs, xsd, etc.) that can be used to create more compact
+  /// and readable Turtle output. They also serve as a source for
+  /// automatic prefix generation.
   final RdfNamespaceMappings _namespaceMappings;
+
+  /// Configuration options that control the encoding behavior.
+  ///
+  /// These options determine how the encoder handles prefix generation,
+  /// custom namespace mappings, and other serialization details.
   final TurtleEncoderOptions _options;
 
+  /// Creates a new Turtle encoder with the specified options.
+  ///
+  /// Parameters:
+  /// - [namespaceMappings] Optional custom namespace mappings to use for
+  ///   resolving prefixes. If not provided, default RDF namespace mappings are used.
+  /// - [options] Configuration options that control encoding behavior.
+  ///   Default options include automatic prefix generation.
+  ///
+  /// Example:
+  /// ```dart
+  /// // Create an encoder with custom options
+  /// final encoder = TurtleEncoder(
+  ///   namespaceMappings: extendedNamespaces,
+  ///   options: TurtleEncoderOptions(generateMissingPrefixes: false)
+  /// );
+  /// ```
   TurtleEncoder({
     RdfNamespaceMappings? namespaceMappings,
     TurtleEncoderOptions options = const TurtleEncoderOptions(),
@@ -56,12 +153,58 @@ class TurtleEncoder extends RdfGraphEncoder {
        _namespaceMappings = namespaceMappings ?? RdfNamespaceMappings();
 
   @override
+  /// Creates a new encoder with the specified options, preserving the current namespace mappings.
+  ///
+  /// This method allows changing encoding options without creating a completely new
+  /// encoder instance. It returns a new encoder that shares the same namespace mappings
+  /// but uses the provided options.
+  ///
+  /// Parameters:
+  /// - [options] New encoder options to use. If this is already a TurtleEncoderOptions
+  ///   instance, it will be used directly. Otherwise, it will be converted to
+  ///   TurtleEncoderOptions using the from() factory method.
+  ///
+  /// Returns:
+  /// - A new TurtleEncoder instance with the updated options
+  ///
+  /// Example:
+  /// ```dart
+  /// // Create a new encoder with modified options
+  /// final newEncoder = encoder.withOptions(
+  ///   TurtleEncoderOptions(generateMissingPrefixes: false)
+  /// );
+  /// ```
   RdfGraphEncoder withOptions(RdfGraphEncoderOptions options) => TurtleEncoder(
     namespaceMappings: _namespaceMappings,
     options: TurtleEncoderOptions.from(options),
   );
 
   @override
+  /// Converts an RDF graph to a Turtle string representation.
+  ///
+  /// This method serializes the given RDF graph to the Turtle format with
+  /// advanced formatting features including:
+  /// - Automatically detecting and writing prefix declarations
+  /// - Grouping triples by subject for more compact output
+  /// - Proper indentation and formatting for readability
+  /// - Optimizing blank nodes that appear only once as objects by inlining them
+  /// - Serializing RDF collections (lists) in the compact Turtle '(item1 item2)' notation
+  ///
+  /// Parameters:
+  /// - [graph] The RDF graph to serialize to Turtle
+  /// - [baseUri] Optional base URI to use for resolving relative IRIs and
+  ///   generating shorter references. If provided, a @base directive will be
+  ///   included in the output.
+  ///
+  /// Returns:
+  /// - A properly formatted Turtle string representation of the input graph.
+  ///
+  /// Example:
+  /// ```dart
+  /// final graph = RdfGraph();
+  /// // Add some triples to the graph
+  /// final turtle = encoder.convert(graph, baseUri: 'http://example.org/');
+  /// ```
   String convert(RdfGraph graph, {String? baseUri}) {
     _log.info('Serializing graph to Turtle');
 
@@ -112,7 +255,18 @@ class TurtleEncoder extends RdfGraphEncoder {
   }
 
   /// Counts how many times each blank node is referenced in the graph.
-  /// This helps determine which blank nodes can be inlined (those referenced exactly once).
+  ///
+  /// This method analyzes the graph to count how many times each blank node appears,
+  /// which is crucial for determining which blank nodes can be inlined in the Turtle
+  /// output for improved readability. Blank nodes referenced exactly once as objects
+  /// can typically be inlined using Turtle's square bracket notation [ ... ].
+  ///
+  /// Parameters:
+  /// - [graph] The RDF graph to analyze
+  ///
+  /// Returns:
+  /// - A map where keys are blank node terms and values are the number of times
+  ///   each blank node appears in the graph (as either subject or object)
   Map<BlankNodeTerm, int> _countBlankNodeOccurrences(RdfGraph graph) {
     final occurrences = <BlankNodeTerm, int>{};
 
@@ -133,9 +287,19 @@ class TurtleEncoder extends RdfGraphEncoder {
     return occurrences;
   }
 
-  /// Generates unique labels for all blank nodes in the graph.
+  /// Generates unique and consistent labels for all blank nodes in the graph.
   ///
-  /// This ensures consistent labels throughout a single serialization.
+  /// In Turtle format, blank nodes are typically represented with labels like "_:b0", "_:b1", etc.
+  /// This method ensures that each distinct blank node in the graph receives a unique label,
+  /// and that the same blank node always receives the same label throughout the serialization.
+  ///
+  /// The labels are generated sequentially (b0, b1, b2, ...) to maintain consistent
+  /// and predictable output. These labels are used only for serialization and do not
+  /// affect the actual identity of the blank nodes in the RDF graph.
+  ///
+  /// Parameters:
+  /// - [graph] The RDF graph containing blank nodes to label
+  /// - [blankNodeLabels] A map that will be populated with blank node to label mappings
   void _generateBlankNodeLabels(
     RdfGraph graph,
     Map<BlankNodeTerm, String> blankNodeLabels,
@@ -160,13 +324,26 @@ class TurtleEncoder extends RdfGraphEncoder {
     }
   }
 
-  /// Extracts only those prefixes that are actually used in the graph's triples.
-  /// Will generate missing prefixes using the namespace mappings if needed.
+  /// Analyzes an RDF graph to extract and generate necessary namespace prefixes.
   ///
-  /// @param graph The RDF graph containing triples to analyze
-  /// @param prefixCandidates Map of potential prefixes to their IRIs
-  /// @param baseUri Optional base URI for relative IRI resolution
-  /// @return A filtered map containing only the prefixes used in the graph
+  /// This method performs two main functions:
+  /// 1. Identifies which prefixes from the available candidates are actually used
+  ///    in the graph, to avoid including unused prefixes in the output
+  /// 2. Generates new prefixes for namespaces that appear in the graph but don't
+  ///    have predefined prefixes, if [generateMissingPrefixes] is enabled
+  ///
+  /// The method examines all IRIs in subjects, predicates, objects, and datatype IRIs
+  /// to determine which namespaces are used. It also handles special cases like
+  /// rdf:type (which is serialized as 'a') and IRIs that will be serialized as
+  /// relative references.
+  ///
+  /// Parameters:
+  /// - [graph] The RDF graph to analyze for namespace usage
+  /// - [prefixCandidates] Map of available prefixes (prefix → namespace IRI)
+  /// - [baseUri] Optional base URI for determining relative references
+  ///
+  /// Returns:
+  /// - A map of prefixes to namespace IRIs that should be included in the serialized output
   Map<String, String> _extractUsedAndGenerateMissingPrefixes(
     RdfGraph graph,
     Map<String, String> prefixCandidates,
@@ -231,9 +408,26 @@ class TurtleEncoder extends RdfGraphEncoder {
     return usedPrefixes;
   }
 
-  /// Checks if a term's IRI matches any prefix and adds it to the usedPrefixes if it does.
-  /// If no matching prefix is found, it will generate one using _namespaceMappings.getOrGeneratePrefix
-  /// and add it to all relevant maps.
+  /// Processes an IRI term to determine if it needs a prefix in the serialization.
+  ///
+  /// This method examines an IRI term and decides how it should be serialized in Turtle:
+  /// - As a relative IRI if it falls under the base URI
+  /// - Using an existing prefix if one matches the namespace
+  /// - Using a newly generated prefix if no existing prefix matches (and generation is enabled)
+  /// - As a full IRI in angle brackets if none of the above apply
+  ///
+  /// The method also performs important optimizations:
+  /// - Skips processing for rdf:type, which has special 'a' syntax in Turtle
+  /// - Uses the longest matching prefix when multiple prefixes could apply
+  /// - Warns about canonical namespace mismatches (http:// vs https://)
+  /// - Skips generating prefixes for IRIs without proper namespace delimiters
+  ///
+  /// Parameters:
+  /// - [term] The IRI term to process
+  /// - [iriToPrefixMap] Inverse mapping of namespace IRIs to prefixes for quick lookup
+  /// - [usedPrefixes] Map of prefixes that will be included in the output, which this method may modify
+  /// - [prefixCandidates] All available prefix mappings, including those not yet marked as used
+  /// - [baseUri] Optional base URI for determining relative references
   void _checkTermForPrefix(
     IriTerm term,
     Map<String, String> iriToPrefixMap,

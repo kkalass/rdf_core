@@ -56,6 +56,14 @@
 </h1></div>
 
     
+<section class="desc markdown">
+  <p>Options for configuring the N-Triples encoder behavior.</p>
+<p>N-Triples has a very simple serialization format with minimal configurable options
+compared to other RDF serialization formats.</p>
+<p>The N-Triples format specification doesn't support namespace prefixes, so the
+<a href="../rdf/NTriplesEncoderOptions/customPrefixes.html">customPrefixes</a> property is implemented to return an empty map to satisfy the
+interface requirement.</p>
+</section>
 
 
     <section>
@@ -89,7 +97,7 @@
           <span class="name"><a href="../rdf/NTriplesEncoderOptions/NTriplesEncoderOptions.html">NTriplesEncoderOptions</a></span><span class="signature">()</span>
         </dt>
         <dd>
-          
+          Creates a new instance of NTriplesEncoderOptions with default settings.
             <div class="constructor-modifier features">const</div>
         </dd>
     </dl>
@@ -107,8 +115,7 @@
 
 </dt>
 <dd>
-  prefixes are not used in N-Triples, but the interface requires it because
-most other formats do.
+  Custom namespace prefixes to use during encoding.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -208,7 +215,7 @@ most other formats do.
 
 </dt>
 <dd>
-  
+  Creates an instance of NTriplesEncoderOptions from generic encoder options.
   
 
 </dd>

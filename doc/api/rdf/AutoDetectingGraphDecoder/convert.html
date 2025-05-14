@@ -72,21 +72,20 @@
     </section>
     
 <section class="desc markdown">
-  <p>Decodes an RDF document and return an RDF graph</p>
-<p>This method transforms a textual RDF document into a structured RdfGraph object
-containing triples parsed from the input.</p>
-<p>Parameters:</p>
-<ul>
-<li><code>input</code> is the RDF document to decode, as a string.</li>
-<li><code>documentUrl</code> is the absolute URL of the document, used for resolving relative IRIs.
-If not provided, relative IRIs will be kept as-is or handled according to format-specific rules.</li>
-</ul>
-<p>Returns:</p>
-<ul>
-<li>An <a href="../../rdf/RdfGraph-class.html">RdfGraph</a> containing the triples parsed from the input.</li>
-</ul>
-<p>The specific decoding behavior depends on the implementation of this interface,
-which will handle format-specific details like prefix resolution, blank node handling, etc.</p>
+  <p>Decodes RDF content by auto-detecting its format</p>
+<p>This method implements a multi-stage format detection strategy:</p>
+<ol>
+<li>First tries to detect the format using heuristic analysis</li>
+<li>If detected, attempts to parse with the detected format</li>
+<li>If detection fails or parsing with the detected format fails,
+tries each registered codec in sequence</li>
+<li>If all codecs fail, throws an exception with details</li>
+</ol>
+<p>The <code>input</code> parameter contains the RDF content to decode.
+The <code>documentUrl</code> parameter is an optional base URL for resolving relative IRIs.</p>
+<p>Returns an <a href="../../rdf/RdfGraph-class.html">RdfGraph</a> containing the parsed triples.</p>
+<p>Throws <a href="../../rdf/CodecNotSupportedException-class.html">CodecNotSupportedException</a> if no codec can parse the content
+or if no codecs are registered.</p>
 </section>
 
 

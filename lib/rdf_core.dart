@@ -155,14 +155,6 @@ export 'src/vocab/namespaces.dart';
 /// RDF Core Library
 ///
 /// Entry point for core RDF data model types and utilities.
-///
-/// Example usage:
-/// ```dart
-/// import 'package:rdf_core/rdf_core.dart';
-/// final triple = Triple(subject, predicate, object);
-/// ```
-///
-/// See: [RDF 1.1 Concepts and Abstract Syntax](https://www.w3.org/TR/rdf11-concepts/)
 /// Central facade for the RDF library, providing access to parsing and serialization.
 ///
 /// This class serves as the primary entry point for the RDF library, offering a simplified
@@ -173,6 +165,14 @@ export 'src/vocab/namespaces.dart';
 /// making it suitable for dependency injection and improving testability.
 /// For most use cases, the [RdfCore.withStandardCodecs] factory constructor
 /// provides a pre-configured instance with standard codecs registered.
+///
+/// Example usage:
+/// ```dart
+/// import 'package:rdf_core/rdf_core.dart';
+/// final triple = Triple(subject, predicate, object);
+/// ```
+///
+/// See: [RDF 1.1 Concepts and Abstract Syntax](https://www.w3.org/TR/rdf11-concepts/)
 final class RdfCore {
   final RdfCodecRegistry _registry;
 
@@ -184,8 +184,7 @@ final class RdfCore {
   ///
   /// For standard usage, see [RdfCore.withStandardCodecs].
   ///
-  /// Parameters:
-  /// - [registry]: The codec registry that manages available RDF codecs
+  /// The [registry] parameter is the codec registry that manages available RDF codecs.
   RdfCore({required RdfCodecRegistry registry}) : _registry = registry;
 
   /// Creates a new RDF library instance with standard codecs registered
@@ -194,10 +193,10 @@ final class RdfCore {
   /// N-Triples codecs ready to use. It's the recommended way to create an instance
   /// for most applications.
   ///
-  /// Parameters:
-  /// - [namespaceMappings]: Optional custom namespace mappings for all codecs
-  /// - [additionalCodecs]: Optional list of additional codecs to register beyond
-  ///   the standard ones
+  /// The [namespaceMappings] parameter provides optional custom namespace mappings for all codecs.
+  ///
+  /// The [additionalCodecs] parameter is an optional list of additional codecs to register beyond
+  /// the standard ones.
   ///
   /// Example:
   /// ```dart
@@ -236,6 +235,7 @@ final class RdfCore {
   /// For example, if you need to support Turtle with certain parsing flags because
   /// your turtle documents are not fully compliant with the standard.
   ///
+  /// The [codecs] parameter is a list of codecs to register in the RDF library.
   ///
   /// Example:
   /// ```dart
@@ -261,18 +261,18 @@ final class RdfCore {
   /// The format can be explicitly specified using the contentType parameter,
   /// or automatically detected from the content if not specified.
   ///
-  /// Parameters:
-  /// - [content]: The RDF content to parse as a string
-  /// - [contentType]: Optional MIME type to specify the format (e.g., "text/turtle")
-  /// - [documentUrl]: Optional base URI for resolving relative references in the document
-  /// - [options]: Optional format-specific decoder options (e.g., TurtleDecoderOptions)
+  /// The [content] parameter is the RDF content to parse as a string.
   ///
-  /// Returns:
-  /// - An [RdfGraph] containing the parsed triples
+  /// The [contentType] parameter is an optional MIME type to specify the format (e.g., "text/turtle").
   ///
-  /// Throws:
-  /// - Codec-specific exceptions for parsing errors
-  /// - [CodecNotSupportedException] if the codec is not supported and cannot be detected
+  /// The [documentUrl] parameter is an optional base URI for resolving relative references in the document.
+  ///
+  /// The [options] parameter contains optional format-specific decoder options (e.g., TurtleDecoderOptions).
+  ///
+  /// Returns an [RdfGraph] containing the parsed triples.
+  ///
+  /// Throws codec-specific exceptions for parsing errors.
+  /// Throws [CodecNotSupportedException] if the codec is not supported and cannot be detected.
   RdfGraph decode(
     String content, {
     String? contentType,
@@ -289,19 +289,19 @@ final class RdfCore {
   /// in the specified format. If no format is specified, the default codec
   /// (typically Turtle) is used.
   ///
-  /// Parameters:
-  /// - [graph]: The RDF graph to encode
-  /// - [contentType]: Optional MIME type to specify the output format
-  /// - [baseUri]: Optional base URI for the serialized output, which may enable
-  ///   more compact representations with relative URIs
-  /// - [options]: Optional format-specific encoder options (e.g., TurtleEncoderOptions)
+  /// The [graph] parameter is the RDF graph to encode.
   ///
-  /// Returns:
-  /// - A string containing the serialized RDF data
+  /// The [contentType] parameter is an optional MIME type to specify the output format.
   ///
-  /// Throws:
-  /// - [CodecNotSupportedException] if the requested codec is not supported
-  /// - Codec-specific exceptions for serialization errors
+  /// The [baseUri] parameter is an optional base URI for the serialized output, which may enable
+  /// more compact representations with relative URIs.
+  ///
+  /// The [options] parameter contains optional format-specific encoder options (e.g., TurtleEncoderOptions).
+  ///
+  /// Returns a string containing the serialized RDF data.
+  ///
+  /// Throws [CodecNotSupportedException] if the requested codec is not supported.
+  /// Throws codec-specific exceptions for serialization errors.
   String encode(
     RdfGraph graph, {
     String? contentType,
@@ -318,16 +318,18 @@ final class RdfCore {
   /// If no content type is specified, returns the default codec
   /// (typically for Turtle).
   ///
-  /// Parameters:
-  /// - [contentType]: Optional MIME type to specify the format. If not specified,
-  /// then the encoding will be with the default codec (the first codec registered,
-  /// typically turtle) and the decoding codec will be automatically detected.
+  /// The [contentType] parameter is an optional MIME type to specify the format.
+  /// If not specified, then the encoding will be with the default codec (the first
+  /// codec registered, typically turtle) and the decoding codec will be automatically
+  /// detected.
   ///
-  /// Returns:
-  /// - An [RdfGraphCodec] that can handle the specified content type
+  /// The [encoderOptions] parameter allows for format-specific encoder options.
   ///
-  /// Throws:
-  /// - [CodecNotSupportedException] if the requested format is not supported
+  /// The [decoderOptions] parameter allows for format-specific decoder options.
+  ///
+  /// Returns an [RdfGraphCodec] that can handle the specified content type.
+  ///
+  /// Throws [CodecNotSupportedException] if the requested format is not supported.
   RdfGraphCodec codec({
     String? contentType,
     RdfGraphEncoderOptions? encoderOptions,

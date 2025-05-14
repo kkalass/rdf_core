@@ -65,8 +65,11 @@
       </section>
       
 <section class="desc markdown">
-  <p>The predicate of the triple, representing the property or relationship.
-Must be an IRI.</p>
+  <p>The predicate of the triple, representing the property or relationship.</p>
+<p>In RDF, the predicate must be an IRI. The RDF 1.1 specification does not
+allow blank nodes or literals as predicates.</p>
+<p>The <a href="../../rdf/RdfPredicate-class.html">RdfPredicate</a> type ensures that only valid terms can be used as predicates,
+enforcing the RDF data model constraints at compile time.</p>
 </section>
 
       

@@ -63,10 +63,24 @@
     
 <section class="desc markdown">
   <p>Create a decimal literal</p>
-<p>This is a convenience factory for creating literals with xsd:decimal datatype.</p>
+<p>This is a convenience factory for creating literals with xsd:decimal datatype.
+Decimal literals in RDF represent numeric values that can have fractional parts.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>value</code> The double value to encode as a decimal literal</li>
+</ul>
+<p>Returns:
+A new <a href="../../rdf/LiteralTerm-class.html">LiteralTerm</a> with value converted to string and datatype set to xsd:decimal</p>
+<p>Note:
+Be aware that floating-point representation may lead to precision issues in
+some cases. For exact decimal representation, consider converting the value
+to a string with the desired precision before creating the literal.</p>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">// Create a decimal literal
-final decimalLiteral = LiteralTerm.decimal("3.14");
+final decimalLiteral = LiteralTerm.decimal(3.14);
+
+// Equivalent to manually creating a typed literal
+final manualDecimal = LiteralTerm("3.14", datatype: Xsd.decimal);
 </code></pre>
 </section>
 

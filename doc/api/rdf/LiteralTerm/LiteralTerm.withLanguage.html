@@ -65,13 +65,27 @@
 <section class="desc markdown">
   <p>Create a language-tagged literal</p>
 <p>This is a convenience factory for creating literals with language tags.
-These literals use the rdf:langString datatype.</p>
+These literals use the rdf:langString datatype as required by the RDF 1.1 specification.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>value</code> The string value of the literal</li>
+<li><code>langTag</code> The language tag (e.g., "en", "de", "fr-CA") following BCP 47 format</li>
+</ul>
+<p>Returns:
+A new <a href="../../rdf/LiteralTerm-class.html">LiteralTerm</a> with the specified value, rdf:langString datatype, and language tag</p>
+<p>Note:
+Language tags are case-insensitive according to the RDF specification, but it's
+recommended to use lowercase for language subtags (e.g., "en-us" rather than "en-US")
+for maximum compatibility.</p>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">// Create an English language literal
 final enLiteral = LiteralTerm.withLanguage("Hello", "en");
 
 // Create a German language literal
 final deLiteral = LiteralTerm.withLanguage("Hallo", "de");
+
+// Create a Canadian French literal with region subtag
+final frCALiteral = LiteralTerm.withLanguage("Bonjour", "fr-ca");
 </code></pre>
 </section>
 

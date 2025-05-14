@@ -2,14 +2,19 @@
 ///
 /// This file defines the plugin architecture that enables the RDF library to support
 /// multiple serialization formats through a unified API, based on the dart:convert
-/// framework classes. It implements the Strategy pattern
-/// to allow different decoding and encoding strategies to be selected at runtime.
+/// framework classes. It implements the Strategy pattern to allow different
+/// decoding and encoding strategies to be selected at runtime.
 ///
 /// The plugin system allows:
 /// - Registration of codec implementations (Turtle, JSON-LD, etc.)
 /// - Codec auto-detection based on content
 /// - Codec selection based on MIME type
 /// - A unified API for decoding and encoding regardless of format
+///
+/// Key components:
+/// - [RdfGraphCodec]: Abstract base class for RDF format implementations
+/// - [RdfCodecRegistry]: Central registry for format plugins and auto-detection
+/// - [AutoDetectingGraphCodec]: Special codec that auto-detects formats when parsing
 library;
 
 import 'dart:convert';
@@ -49,6 +54,12 @@ import '../rdf_encoder.dart';
 ///     // Check if the content appears to be in this format
 ///     return content.contains('CUSTOM-RDF-FORMAT');
 ///   }
+///
+///   @override
+///   RdfGraphCodec withOptions({
+///     RdfGraphEncoderOptions? encoder,
+///     RdfGraphDecoderOptions? decoder,
+///   })  => this;
 /// }
 /// ```
 abstract class RdfGraphCodec extends Codec<RdfGraph, String> {
@@ -79,8 +90,21 @@ abstract class RdfGraphCodec extends Codec<RdfGraph, String> {
   @override
   RdfGraphEncoder get encoder;
 
+  /// Creates a new codec instance with default settings
   const RdfGraphCodec();
 
+  /// Creates a new codec instance with the specified options
+  ///
+  /// This method returns a new instance of the codec configured with the
+  /// provided encoder and decoder options. The original codec instance remains unchanged.
+  ///
+  /// The [encoder] parameter contains optional encoder options to customize encoding behavior.
+  /// The [decoder] parameter contains optional decoder options to customize decoding behavior.
+  ///
+  /// Returns a new [RdfGraphCodec] instance with the specified options applied.
+  ///
+  /// This follows the immutable configuration pattern, allowing for clean
+  /// method chaining and configuration without side effects.
   RdfGraphCodec withOptions({
     RdfGraphEncoderOptions? encoder,
     RdfGraphDecoderOptions? decoder,
@@ -92,21 +116,19 @@ abstract class RdfGraphCodec extends Codec<RdfGraph, String> {
   /// It transforms an in-memory RDF graph into an encoded text representation that can be
   /// stored or transmitted.
   ///
-  /// Parameters:
-  /// - [input] The RDF graph to encode
-  /// - [baseUri] Optional base URI for resolving/shortening IRIs in the output.
-  ///   When provided, the encoder may use this to produce more compact output.
-  /// - [customPrefixes] Optional map of prefix to namespace mappings to use in serialization.
-  ///   Allows caller-specified namespace abbreviations for readable output in codecs
-  ///   that support prefixes (like Turtle).
+  /// The [input] parameter is the RDF graph to encode.
+  /// The [baseUri] parameter is an optional base URI for resolving/shortening IRIs in the output.
+  /// When provided, the encoder may use this to produce more compact output.
+  /// The [options] parameter contains optional encoder options to use for this encoding operation.
+  /// Can include custom namespace prefixes and other encoder-specific settings.
   ///
-  /// Returns:
-  /// - The serialized representation of the graph as a string
+  /// Returns the serialized representation of the graph as a string.
   ///
   /// Example:
   /// ```dart
   /// final turtle = TurtleCodec();
-  /// final serialized = turtle.encode(graph, customPrefixes: {'ex': 'http://example.org/'});
+  /// final options = RdfGraphEncoderOptions(customPrefixes: {'ex': 'http://example.org/'});
+  /// final serialized = turtle.encode(graph, options: options);
   /// ```
   String encode(
     RdfGraph input, {
@@ -125,14 +147,13 @@ abstract class RdfGraphCodec extends Codec<RdfGraph, String> {
   /// It transforms a textual RDF document into a structured RdfGraph object
   /// containing triples parsed from the input.
   ///
-  /// Parameters:
-  /// - [input] The RDF content to decode as a string
-  /// - [documentUrl] Optional base URI for resolving relative references in the document.
-  ///   If not provided, relative IRIs will be kept as-is or handled according to
-  ///   codec-specific rules.
+  /// The [input] parameter is the RDF content to decode as a string.
+  /// The [documentUrl] parameter is an optional base URI for resolving relative references in the document.
+  /// If not provided, relative IRIs will be kept as-is or handled according to
+  /// codec-specific rules.
+  /// The [options] parameter contains optional decoder options for this operation.
   ///
-  /// Returns:
-  /// - An [RdfGraph] containing the parsed triples
+  /// Returns an [RdfGraph] containing the parsed triples.
   ///
   /// Example:
   /// ```dart
@@ -140,8 +161,7 @@ abstract class RdfGraphCodec extends Codec<RdfGraph, String> {
   /// final graph = turtle.decode(turtleString);
   /// ```
   ///
-  /// Throws:
-  /// - Codec-specific exceptions for syntax errors or other parsing problems
+  /// Throws codec-specific exceptions for syntax errors or other parsing problems.
   RdfGraph decode(
     String input, {
     String? documentUrl,
@@ -163,11 +183,9 @@ abstract class RdfGraphCodec extends Codec<RdfGraph, String> {
   /// perform a full parse, but should do enough checking to make a reasonable
   /// determination.
   ///
-  /// Parameters:
-  /// - [content] The string content to check
+  /// The [content] parameter is the string content to check.
   ///
-  /// Returns:
-  /// - true if the content appears to be in this codec's format
+  /// Returns true if the content appears to be in this codec's format.
   bool canParse(String content);
 }
 
@@ -184,14 +202,14 @@ abstract class RdfGraphCodec extends Codec<RdfGraph, String> {
 /// final registry = RdfCodecRegistry();
 ///
 /// // Register format plugins
-/// registry.registerCodec(const TurtleCodec());
-/// registry.registerCodec(const JsonLdCodec());
+/// registry.registerGraphCodec(const TurtleCodec());
+/// registry.registerGraphCodec(const JsonLdGraphCodec());
 ///
 /// // Get a codec for a specific MIME type
-/// final turtleCodec = registry.codec('text/turtle');
+/// final turtleCodec = registry.getGraphCodec('text/turtle');
 ///
 /// // Or let the system detect the format
-/// final autoCodec = registry.codec(); // Will auto-detect
+/// final autoCodec = registry.getGraphCodec(); // Will auto-detect
 /// ```
 final class RdfCodecRegistry {
   final _logger = Logger('rdf.codec_registry');
@@ -210,7 +228,7 @@ final class RdfCodecRegistry {
   /// when requested by any of its supported MIME types. The codec will also
   /// be considered during auto-detection of unknown content.
   ///
-  /// @param codec The codec implementation to register
+  /// The [codec] parameter is the codec implementation to register.
   void registerGraphCodec(RdfGraphCodec codec) {
     _logger.fine('Registering graph codec: ${codec.primaryMimeType}');
     _graphCodecs.add(codec);
@@ -221,6 +239,12 @@ final class RdfCodecRegistry {
     }
   }
 
+  /// Returns all MIME types supported by all registered codecs
+  ///
+  /// This getter provides a consolidated set of all MIME types that can be
+  /// handled by any of the registered graph codecs. The set is unmodifiable.
+  ///
+  /// Returns an unmodifiable set of all MIME types supported by registered graph codecs.
   Set<String> get allGraphMimeTypes {
     final mimeTypes = <String>{};
     for (final codec in _graphCodecs) {
@@ -234,10 +258,14 @@ final class RdfCodecRegistry {
   /// This method retrieves the appropriate codec for processing RDF data
   /// in the format specified by the given MIME type.
   ///
-  /// @param mimeType The MIME type for which to retrieve a codec. Can be null.
-  /// @return The appropriate [RdfGraphCodec] for the given MIME type. If you pass in null as mimeType then a special
-  /// one that auto-detects the format for the decoder, but encodes to the first registered codec
-  /// @throws UnsupportedCodecException If no codec is found for the given MIME type.
+  /// The [mimeType] parameter is the MIME type for which to retrieve a codec. Can be null.
+  ///
+  /// Returns the appropriate [RdfGraphCodec] for the given MIME type. If mimeType is null,
+  /// returns a special codec that auto-detects the format for decoding, but encodes
+  /// to the format of the first registered codec.
+  ///
+  /// Throws [CodecNotSupportedException] if no codec is found for the given MIME type
+  /// or if no codecs are registered.
   RdfGraphCodec getGraphCodec(String? mimeType) {
     RdfGraphCodec? result;
     if (mimeType != null) {
@@ -267,17 +295,19 @@ final class RdfCodecRegistry {
   /// Returns an unmodifiable list of all codec implementations currently registered.
   /// This can be useful for iterating through available codecs or for diagnostics.
   ///
-  /// @return An unmodifiable list of all registered codecs
+  /// Returns an unmodifiable list of all registered codecs.
   List<RdfGraphCodec> getAllGraphCodecs() => List.unmodifiable(_graphCodecs);
 
   /// Detect codec from content when no MIME type is available
   ///
   /// Attempts to identify the codec by examining the content structure.
-  /// Each registered codec is asked if it can parse the content, and the
+  /// Each registered codec is asked if it can parse the content in
+  /// the order in which they were registered, and the
   /// first one that responds positively is returned.
   ///
-  /// @param content The content string to analyze
-  /// @return The first codec that claims it can parse the content, or null if none found
+  /// The [content] parameter is the content string to analyze.
+  ///
+  /// Returns the first codec that claims it can parse the content, or null if none found.
   RdfGraphCodec? detectGraphCodec(String content) {
     _logger.fine('Attempting to detect codec from content');
 
@@ -297,8 +327,9 @@ final class RdfCodecRegistry {
   /// Ensures that MIME types are compared case-insensitively and without
   /// extraneous whitespace.
   ///
-  /// @param mimeType The MIME type string to normalize
-  /// @return The normalized MIME type string
+  /// The [mimeType] parameter is the MIME type string to normalize.
+  ///
+  /// Returns the normalized MIME type string.
   static String _normalizeMimeType(String mimeType) {
     return mimeType.trim().toLowerCase();
   }
@@ -325,13 +356,22 @@ class CodecNotSupportedException implements Exception {
 
   /// Creates a new format not supported exception
   ///
-  /// @param message A description of why the format is not supported
+  /// The [message] parameter contains a description of why the format is not supported.
   CodecNotSupportedException(this.message);
 
   @override
   String toString() => 'CodecNotSupportedException: $message';
 }
 
+/// A specialized codec that auto-detects the format during decoding
+///
+/// This codec implementation automatically detects the appropriate format for decoding
+/// based on content inspection, while using a specified default codec for encoding.
+/// It works in conjunction with the [RdfCodecRegistry] to identify the correct format.
+///
+/// This class is primarily used internally by the RDF library when the format is
+/// not explicitly specified, but can also be used directly when working with content
+/// of unknown format.
 final class AutoDetectingGraphCodec extends RdfGraphCodec {
   final RdfGraphCodec _defaultCodec;
 
@@ -339,6 +379,12 @@ final class AutoDetectingGraphCodec extends RdfGraphCodec {
   final RdfGraphEncoderOptions? _encoderOptions;
   final RdfGraphDecoderOptions? _decoderOptions;
 
+  /// Creates a new auto-detecting codec
+  ///
+  /// The [defaultCodec] parameter is the codec to use for encoding operations.
+  /// The [registry] parameter is the codec registry to use for format detection.
+  /// The [encoderOptions] parameter contains optional configuration options for the encoder.
+  /// The [decoderOptions] parameter contains optional configuration options for the decoder.
   AutoDetectingGraphCodec({
     required RdfGraphCodec defaultCodec,
     required RdfCodecRegistry registry,
@@ -349,6 +395,15 @@ final class AutoDetectingGraphCodec extends RdfGraphCodec {
        _encoderOptions = encoderOptions,
        _decoderOptions = decoderOptions;
 
+  /// Creates a new instance with the specified options
+  ///
+  /// Returns a new auto-detecting codec with the given configuration options,
+  /// while maintaining the original registry and default codec associations.
+  ///
+  /// The [encoder] parameter contains optional encoder options to use.
+  /// The [decoder] parameter contains optional decoder options to use.
+  ///
+  /// Returns a new [AutoDetectingGraphCodec] instance with the specified options.
   @override
   RdfGraphCodec withOptions({
     RdfGraphEncoderOptions? encoder,
@@ -360,16 +415,32 @@ final class AutoDetectingGraphCodec extends RdfGraphCodec {
     decoderOptions: decoder ?? _decoderOptions,
   );
 
+  /// Returns the primary MIME type of the default codec
+  ///
+  /// Since this is an auto-detecting codec, it returns the primary MIME type
+  /// of the default codec used for encoding operations.
   @override
   String get primaryMimeType => _defaultCodec.primaryMimeType;
 
+  /// Returns all MIME types supported by the registry
+  ///
+  /// This returns the union of all MIME types supported by all registered codecs,
+  /// since the auto-detecting decoder can potentially work with any of them.
   @override
   Set<String> get supportedMimeTypes => _registry.allGraphMimeTypes;
 
+  /// Returns an auto-detecting decoder
+  ///
+  /// Creates a decoder that will automatically detect the format of the input data
+  /// and use the appropriate registered codec to decode it.
   @override
   RdfGraphDecoder get decoder =>
       AutoDetectingGraphDecoder(_registry, options: _decoderOptions);
 
+  /// Returns the default codec's encoder
+  ///
+  /// Since format detection is only relevant for decoding, this returns the
+  /// encoder from the default codec, optionally configured with the stored options.
   @override
   RdfGraphEncoder get encoder {
     if (_encoderOptions != null) {
@@ -378,6 +449,14 @@ final class AutoDetectingGraphCodec extends RdfGraphCodec {
     return _defaultCodec.encoder;
   }
 
+  /// Determines if the content can be parsed by any registered codec
+  ///
+  /// Delegates to the registry's detection mechanism to determine if the content
+  /// matches any of the registered codecs' formats.
+  ///
+  /// The [content] parameter is the content to check.
+  ///
+  /// Returns true if at least one registered codec can parse the content.
   @override
   bool canParse(String content) {
     final codec = _registry.detectGraphCodec(content);
@@ -400,14 +479,39 @@ final class AutoDetectingGraphDecoder extends RdfGraphDecoder {
 
   /// Creates a new auto-detecting decoder
   ///
-  /// @param registry The format registry to use for detection and parser creation
+  /// The [_registry] parameter is the codec registry to use for format detection.
+  /// The [options] parameter contains optional configuration options for the decoder.
   AutoDetectingGraphDecoder(this._registry, {RdfGraphDecoderOptions? options})
     : _decoderOptions = options;
 
+  /// Creates a new instance with the specified options
+  ///
+  /// Returns a new decoder with the given options while maintaining
+  /// the original registry association.
+  ///
+  /// The [options] parameter contains the decoder options to apply.
+  ///
+  /// Returns a new [AutoDetectingGraphDecoder] with the specified options.
   @override
   RdfGraphDecoder withOptions(RdfGraphDecoderOptions options) =>
       AutoDetectingGraphDecoder(_registry, options: options);
 
+  /// Decodes RDF content by auto-detecting its format
+  ///
+  /// This method implements a multi-stage format detection strategy:
+  /// 1. First tries to detect the format using heuristic analysis
+  /// 2. If detected, attempts to parse with the detected format
+  /// 3. If detection fails or parsing with the detected format fails,
+  ///    tries each registered codec in sequence
+  /// 4. If all codecs fail, throws an exception with details
+  ///
+  /// The [input] parameter contains the RDF content to decode.
+  /// The [documentUrl] parameter is an optional base URL for resolving relative IRIs.
+  ///
+  /// Returns an [RdfGraph] containing the parsed triples.
+  ///
+  /// Throws [CodecNotSupportedException] if no codec can parse the content
+  /// or if no codecs are registered.
   @override
   RdfGraph convert(String input, {String? documentUrl}) {
     // First try to use format auto-detection

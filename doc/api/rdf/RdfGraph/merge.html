@@ -70,12 +70,16 @@
 <p>This creates a union of the two graphs, combining all their triples.
 If both graphs contain the same triple, it will appear only once in
 the result (since RDF graphs are sets).</p>
+<p>Parameters:</p>
+<ul>
+<li><code>other</code> The graph to merge with this one</li>
+</ul>
+<p>Returns:
+A new graph containing all triples from both graphs</p>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">// Merge two graphs to combine their information
 final combinedGraph = personGraph.merge(addressGraph);
 </code></pre>
-<p>@param other The graph to merge with this one
-@return A new graph containing all triples from both graphs</p>
 </section>
 
 

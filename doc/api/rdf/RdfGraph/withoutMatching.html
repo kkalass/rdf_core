@@ -72,6 +72,14 @@
 <p>This method removes triples that match the specified pattern components.
 If multiple pattern components are provided, they are treated as an OR condition
 (i.e., if any of them match, the triple is removed).</p>
+<p>Parameters:</p>
+<ul>
+<li><code>subject</code> Optional subject to match for removal</li>
+<li><code>predicate</code> Optional predicate to match for removal</li>
+<li><code>object</code> Optional object to match for removal</li>
+</ul>
+<p>Returns:
+A new graph instance with matching triples removed</p>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">// Remove all triples about Jane
 final withoutJane = graph.withoutMatching(subject: jane);
@@ -82,10 +90,6 @@ final withoutContactInfo = graph.withoutMatching(
   object: email
 );
 </code></pre>
-<p>@param subject Optional subject to match
-@param predicate Optional predicate to match
-@param object Optional object to match
-@return A new graph with matching triples removed</p>
 </section>
 
 

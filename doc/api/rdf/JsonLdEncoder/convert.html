@@ -72,19 +72,26 @@
     </section>
     
 <section class="desc markdown">
-  <p>Encodes an RDF graph to a string representation in a specific format.</p>
-<p>Transforms an in-memory RDF graph into an encoded text format that can be
-stored or transmitted. The exact output format depends on the implementing class.</p>
-<p>Parameters:</p>
+  <p>Converts an RDF graph to a JSON-LD string representation.</p>
+<p>This method analyzes the graph structure and automatically determines
+the most appropriate JSON-LD representation:</p>
 <ul>
-<li><code>graph</code> The RDF graph to encode.</li>
-<li><code>baseUri</code> Optional base URI for resolving/shortening IRIs in the output.
-When provided, the encoder may use this to produce more compact output.</li>
+<li>For empty graphs, it returns an empty JSON object <code>{}</code></li>
+<li>For graphs with a single subject, it creates a single JSON-LD object
+with all properties of that subject</li>
+<li>For graphs with multiple subjects, it creates a JSON-LD document with
+a top-level <code>@graph</code> array containing all subject nodes</li>
 </ul>
-<p>Returns:</p>
+<p>The method also:</p>
 <ul>
-<li>The serialized representation of the graph as a string.</li>
+<li>Generates consistent labels for blank nodes</li>
+<li>Creates a <code>@context</code> object with meaningful prefixes based on the graph content</li>
+<li>Groups triples by subject for better structure</li>
+<li>Handles typed literals appropriately</li>
 </ul>
+<p><code>graph</code> The RDF graph to convert to JSON-LD.
+<code>baseUri</code> Optional base URI for relative IRIs (not currently used).</p>
+<p>Returns a formatted JSON-LD string with 2-space indentation.</p>
 </section>
 
 

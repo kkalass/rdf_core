@@ -73,23 +73,14 @@
 <p>Converts an in-memory RDF graph into a serialized string representation
 in the specified format. If no format is specified, the default codec
 (typically Turtle) is used.</p>
-<p>Parameters:</p>
-<ul>
-<li><code>graph</code>: The RDF graph to encode</li>
-<li><code>contentType</code>: Optional MIME type to specify the output format</li>
-<li><code>baseUri</code>: Optional base URI for the serialized output, which may enable
-more compact representations with relative URIs</li>
-<li><code>options</code>: Optional format-specific encoder options (e.g., TurtleEncoderOptions)</li>
-</ul>
-<p>Returns:</p>
-<ul>
-<li>A string containing the serialized RDF data</li>
-</ul>
-<p>Throws:</p>
-<ul>
-<li><a href="../../rdf/CodecNotSupportedException-class.html">CodecNotSupportedException</a> if the requested codec is not supported</li>
-<li>Codec-specific exceptions for serialization errors</li>
-</ul>
+<p>The <code>graph</code> parameter is the RDF graph to encode.</p>
+<p>The <code>contentType</code> parameter is an optional MIME type to specify the output format.</p>
+<p>The <code>baseUri</code> parameter is an optional base URI for the serialized output, which may enable
+more compact representations with relative URIs.</p>
+<p>The <code>options</code> parameter contains optional format-specific encoder options (e.g., TurtleEncoderOptions).</p>
+<p>Returns a string containing the serialized RDF data.</p>
+<p>Throws <a href="../../rdf/CodecNotSupportedException-class.html">CodecNotSupportedException</a> if the requested codec is not supported.
+Throws codec-specific exceptions for serialization errors.</p>
 </section>
 
 

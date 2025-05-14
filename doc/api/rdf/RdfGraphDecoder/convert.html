@@ -57,6 +57,11 @@
 
     <section class="multi-line-signature">
       
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
 <span class="returntype"><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></span>
 <span class="name ">convert</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="convert-param-input"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">input</span>, {</span></li>
 <li><span class="parameter" id="convert-param-documentUrl"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">documentUrl</span>, </span></li>
@@ -67,13 +72,14 @@
     </section>
     
 <section class="desc markdown">
-  <p>Decodes an RDF document and return an RDF graph</p>
-<p>This method transforms a textual RDF document into a structured RdfGraph object
-containing triples parsed from the input.</p>
+  <p>Decodes an RDF document and returns an RDF graph</p>
+<p>This method transforms a textual RDF document into a structured <code>RdfGraph</code> object
+containing triples parsed from the input. It implements the <code>convert</code> method
+from the <code>Converter</code> interface.</p>
 <p>Parameters:</p>
 <ul>
-<li><code>input</code> is the RDF document to decode, as a string.</li>
-<li><code>documentUrl</code> is the absolute URL of the document, used for resolving relative IRIs.
+<li><code>input</code> The RDF document to decode, as a string.</li>
+<li><code>documentUrl</code> The absolute URL of the document, used for resolving relative IRIs.
 If not provided, relative IRIs will be kept as-is or handled according to format-specific rules.</li>
 </ul>
 <p>Returns:</p>
@@ -82,13 +88,15 @@ If not provided, relative IRIs will be kept as-is or handled according to format
 </ul>
 <p>The specific decoding behavior depends on the implementation of this interface,
 which will handle format-specific details like prefix resolution, blank node handling, etc.</p>
+<p>May throw format-specific parsing exceptions if the input is malformed.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">RdfGraph convert(String input, {String? documentUrl});</code></pre>
+  <pre class="language-dart"><code class="language-dart">@override
+RdfGraph convert(String input, {String? documentUrl});</code></pre>
 </section>
 
 

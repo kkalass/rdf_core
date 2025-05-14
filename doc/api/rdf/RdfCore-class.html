@@ -59,12 +59,7 @@
     
 <section class="desc markdown">
   <p>RDF Core Library</p>
-<p>Entry point for core RDF data model types and utilities.</p>
-<p>Example usage:</p>
-<pre class="language-dart"><code class="language-dart">import 'package:rdf_core/rdf_core.dart';
-final triple = Triple(subject, predicate, object);
-</code></pre>
-<p>See: <a href="https://www.w3.org/TR/rdf11-concepts/">RDF 1.1 Concepts and Abstract Syntax</a>
+<p>Entry point for core RDF data model types and utilities.
 Central facade for the RDF library, providing access to parsing and serialization.</p>
 <p>This class serves as the primary entry point for the RDF library, offering a simplified
 interface for common RDF operations. It encapsulates the complexity of codec management,
@@ -73,6 +68,11 @@ format registries, and plugin management behind a clean, user-friendly API.</p>
 making it suitable for dependency injection and improving testability.
 For most use cases, the <a href="../rdf/RdfCore/RdfCore.withStandardCodecs.html">RdfCore.withStandardCodecs</a> factory constructor
 provides a pre-configured instance with standard codecs registered.</p>
+<p>Example usage:</p>
+<pre class="language-dart"><code class="language-dart">import 'package:rdf_core/rdf_core.dart';
+final triple = Triple(subject, predicate, object);
+</code></pre>
+<p>See: <a href="https://www.w3.org/TR/rdf11-concepts/">RDF 1.1 Concepts and Abstract Syntax</a></p>
 </section>
 
 

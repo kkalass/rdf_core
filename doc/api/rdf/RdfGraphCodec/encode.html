@@ -72,22 +72,16 @@
 <p>This is a convenience method that delegates to the codec's encoder.
 It transforms an in-memory RDF graph into an encoded text representation that can be
 stored or transmitted.</p>
-<p>Parameters:</p>
-<ul>
-<li><code>input</code> The RDF graph to encode</li>
-<li><code>baseUri</code> Optional base URI for resolving/shortening IRIs in the output.
-When provided, the encoder may use this to produce more compact output.</li>
-<li><code>customPrefixes</code> Optional map of prefix to namespace mappings to use in serialization.
-Allows caller-specified namespace abbreviations for readable output in codecs
-that support prefixes (like Turtle).</li>
-</ul>
-<p>Returns:</p>
-<ul>
-<li>The serialized representation of the graph as a string</li>
-</ul>
+<p>The <code>input</code> parameter is the RDF graph to encode.
+The <code>baseUri</code> parameter is an optional base URI for resolving/shortening IRIs in the output.
+When provided, the encoder may use this to produce more compact output.
+The <code>options</code> parameter contains optional encoder options to use for this encoding operation.
+Can include custom namespace prefixes and other encoder-specific settings.</p>
+<p>Returns the serialized representation of the graph as a string.</p>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">final turtle = TurtleCodec();
-final serialized = turtle.encode(graph, customPrefixes: {'ex': 'http://example.org/'});
+final options = RdfGraphEncoderOptions(customPrefixes: {'ex': 'http://example.org/'});
+final serialized = turtle.encode(graph, options: options);
 </code></pre>
 </section>
 

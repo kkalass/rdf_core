@@ -72,21 +72,26 @@
     </section>
     
 <section class="desc markdown">
-  <p>Decodes an RDF document and return an RDF graph</p>
-<p>This method transforms a textual RDF document into a structured RdfGraph object
-containing triples parsed from the input.</p>
+  <p>Decodes a Turtle document into an RDF graph</p>
+<p>This method parses a string containing Turtle syntax into an
+RDF graph structure. It delegates to the internal TurtleParser
+implementation to handle the actual parsing.</p>
 <p>Parameters:</p>
 <ul>
-<li><code>input</code> is the RDF document to decode, as a string.</li>
-<li><code>documentUrl</code> is the absolute URL of the document, used for resolving relative IRIs.
-If not provided, relative IRIs will be kept as-is or handled according to format-specific rules.</li>
+<li><code>input</code> The Turtle document to decode as a string.</li>
+<li><code>documentUrl</code> Optional base URI for the document, used for resolving
+relative IRIs in the Turtle content. If not provided, relative IRIs
+will result in an error unless there's a @base directive in the content.</li>
 </ul>
 <p>Returns:</p>
 <ul>
-<li>An <a href="../../rdf/RdfGraph-class.html">RdfGraph</a> containing the triples parsed from the input.</li>
+<li>An <a href="../../rdf/RdfGraph-class.html">RdfGraph</a> containing the parsed triples.</li>
 </ul>
-<p>The specific decoding behavior depends on the implementation of this interface,
-which will handle format-specific details like prefix resolution, blank node handling, etc.</p>
+<p>Throws:</p>
+<ul>
+<li><a href="../../rdf/RdfSyntaxException-class.html">RdfSyntaxException</a> if the syntax is invalid or cannot be parsed.</li>
+<li><a href="../../rdf/RdfInvalidIriException-class.html">RdfInvalidIriException</a> if relative IRIs are used without a base URI.</li>
+</ul>
 </section>
 
 

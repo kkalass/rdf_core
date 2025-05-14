@@ -63,10 +63,20 @@
     
 <section class="desc markdown">
   <p>Create an integer literal</p>
-<p>This is a convenience factory for creating literals with xsd:integer datatype.</p>
+<p>This is a convenience factory for creating literals with xsd:integer datatype.
+Integer literals in RDF represent whole numbers without fractional components.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>value</code> The integer value to encode as a literal</li>
+</ul>
+<p>Returns:
+A new <a href="../../rdf/LiteralTerm-class.html">LiteralTerm</a> with value converted to string and datatype set to xsd:integer</p>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">// Create an integer literal
-final intLiteral = LiteralTerm.integer("42");
+final intLiteral = LiteralTerm.integer(42);
+
+// Equivalent to manually creating a typed literal
+final manualInt = LiteralTerm("42", datatype: Xsd.integer);
 </code></pre>
 </section>
 

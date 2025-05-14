@@ -83,6 +83,12 @@ an instance with the RdfCodecRegistry.</p>
     // Check if the content appears to be in this format
     return content.contains('CUSTOM-RDF-FORMAT');
   }
+
+  @override
+  RdfGraphCodec withOptions({
+    RdfGraphEncoderOptions? encoder,
+    RdfGraphDecoderOptions? decoder,
+  })  =&gt; this;
 }
 </code></pre>
 </section>
@@ -126,7 +132,7 @@ an instance with the RdfCodecRegistry.</p>
           <span class="name"><a href="../rdf/RdfGraphCodec/RdfGraphCodec.html">RdfGraphCodec</a></span><span class="signature">()</span>
         </dt>
         <dd>
-          
+          Creates a new codec instance with default settings
             <div class="constructor-modifier features">const</div>
         </dd>
     </dl>
@@ -316,7 +322,7 @@ an instance with the RdfCodecRegistry.</p>
 
 </dt>
 <dd>
-  
+  Creates a new codec instance with the specified options
   
 
 </dd>

@@ -68,8 +68,43 @@ transforms RDF data into compact, structured JSON documents by:</p>
 <li>Nesting objects for more readable representation</li>
 <li>Handling different RDF term types appropriately</li>
 </ul>
+<h2 id="graph-structure-handling">Graph Structure Handling</h2>
+<p>The encoder automatically detects the structure of the input graph:</p>
+<ul>
+<li>
+<p><strong>Single Subject</strong>: When the graph contains triples with only one subject,
+the output is a single JSON-LD object with properties representing predicates.</p>
+</li>
+<li>
+<p><strong>Multiple Subjects</strong>: When the graph contains triples with multiple subjects,
+the encoder generates a JSON-LD document with a top-level <code>@graph</code> array
+containing all subject nodes. This produces more readable output by
+structuring the data naturally.</p>
+</li>
+</ul>
+<h2 id="graph-and-named-graphs">@graph and Named Graphs</h2>
+<p>Note that the current implementation does not support true RDF Datasets with
+named graphs. When outputting a graph with multiple subjects as <code>@graph</code>,
+this does not represent different named graphs but rather is a structural
+device for organizing multiple nodes in the default graph.</p>
+<p>In JSON-LD, a top-level <code>@graph</code> array can be used for two different purposes:</p>
+<ol>
+<li>As a way to organize multiple unrelated nodes (current implementation)</li>
+<li>As a way to represent named graphs in an RDF dataset (future enhancement)</li>
+</ol>
+<h2 id="datatype-handling">Datatype Handling</h2>
+<p>The encoder handles various RDF literal types and automatically converts them
+to appropriate JSON representations:</p>
+<ul>
+<li>String literals are represented as JSON strings</li>
+<li>Integer literals are converted to JSON numbers when possible</li>
+<li>Boolean literals are converted to JSON booleans when possible</li>
+<li>Other datatypes use the <code>@value</code> and <code>@type</code> syntax</li>
+</ul>
+<h2 id="configuration-options">Configuration Options</h2>
 <p>The serializer produces compacted JSON-LD by default, using prefixes
-to make property names more readable.</p>
+to make property names more readable. Customizations are possible
+through namespace mappings and encoder options.</p>
 </section>
 
 
@@ -183,7 +218,7 @@ to make property names more readable.</p>
 
 </dt>
 <dd>
-  Encodes an RDF graph to a string representation in a specific format.
+  Converts an RDF graph to a JSON-LD string representation.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -248,7 +283,7 @@ to make property names more readable.</p>
 
 </dt>
 <dd>
-  
+  Creates a new encoder instance with the specified options.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>

@@ -3,6 +3,22 @@
 /// This file defines the implementation of JSON-LD (JavaScript Object Notation for Linked Data)
 /// serialization format for RDF data. JSON-LD enables the expression of linked data using
 /// standard JSON syntax, making it both web-friendly and developer-friendly.
+///
+/// The JSON-LD implementation in this library provides:
+/// - Serialization of RDF graphs to JSON-LD (encoding)
+/// - Parsing of JSON-LD documents into RDF graphs (decoding)
+/// - Support for context definitions and compact IRIs
+/// - Handling of nested JSON-LD structures
+///
+/// JSON-LD is particularly useful when:
+/// - Integrating RDF data with JavaScript applications
+/// - Creating RESTful APIs that serve semantic data
+/// - Working with developers who prefer JSON over other RDF formats
+/// - Storing RDF data in JSON-based document databases
+///
+/// For more information on JSON-LD, see:
+/// - [JSON-LD 1.1 W3C Recommendation](https://www.w3.org/TR/json-ld11/)
+/// - [JSON-LD Website](https://json-ld.org/)
 library jsonld_format;
 
 import 'package:rdf_core/src/vocab/namespaces.dart';
@@ -85,7 +101,30 @@ final class JsonLdGraphCodec extends RdfGraphCodec {
   final JsonLdEncoderOptions _encoderOptions;
   final JsonLdDecoderOptions _decoderOptions;
 
-  /// Creates a new JSON-LD codec
+  /// Creates a new JSON-LD codec with optional configuration
+  ///
+  /// This constructor allows fine-grained control over JSON-LD parsing and
+  /// serialization behavior through various options.
+  ///
+  /// Parameters:
+  /// - [namespaceMappings] Custom namespace mappings for compact IRIs during serialization.
+  ///   If not provided, default standard namespace mappings will be used.
+  /// - [encoderOptions] Options that control JSON-LD serialization behavior.
+  ///   Default settings are used if not specified.
+  /// - [decoderOptions] Options that control JSON-LD parsing behavior.
+  ///   Default settings are used if not specified.
+  ///
+  /// Example:
+  /// ```dart
+  /// // Assuming a predefined namespace mapping instance is available
+  /// // For example, from your application configuration
+  /// final myNamespaces = MyApp.getNamespaceMappings();
+  ///
+  /// // Create a codec that uses the application-specific namespace mappings
+  /// final customCodec = JsonLdGraphCodec(
+  ///   namespaceMappings: myNamespaces
+  /// );
+  /// ```
   const JsonLdGraphCodec({
     RdfNamespaceMappings? namespaceMappings,
     JsonLdEncoderOptions encoderOptions = const JsonLdEncoderOptions(),
@@ -111,11 +150,13 @@ final class JsonLdGraphCodec extends RdfGraphCodec {
   Set<String> get supportedMimeTypes => _supportedMimeTypes;
 
   @override
-  RdfGraphDecoder get decoder => JsonLdDecoder();
+  RdfGraphDecoder get decoder => JsonLdDecoder(options: this._decoderOptions);
 
   @override
-  RdfGraphEncoder get encoder =>
-      JsonLdEncoder(namespaceMappings: this._namespaceMappings);
+  RdfGraphEncoder get encoder => JsonLdEncoder(
+    namespaceMappings: this._namespaceMappings,
+    options: this._encoderOptions,
+  );
 
   @override
   bool canParse(String content) {
@@ -137,14 +178,83 @@ final class JsonLdGraphCodec extends RdfGraphCodec {
 
 /// Global convenience variable for working with JSON-LD format
 ///
-/// This variable provides direct access to JSON-LD codec for easy
-/// encoding and decoding of JSON-LD data. Note that this is the variant
-/// of JSON-LD that is used for RdfGraph only, for the full RdfDataset use
-/// JsonLdDatasetCodec.
+/// This variable provides direct access to the JSON-LD codec for easy
+/// encoding and decoding of RDF data in JSON-LD format. It uses the default
+/// configuration of [JsonLdGraphCodec] with standard namespace mappings and
+/// default encoder/decoder options.
 ///
-/// Example:
+/// Using this global instance is recommended for most common JSON-LD operations
+/// where custom configuration is not needed.
+///
+/// ## Dataset and Named Graph Handling
+///
+/// JSON-LD provides native support for RDF datasets through the `@graph` keyword.
+/// When converting between JSON-LD and RDF Graphs:
+///
+/// - **Decoding**: When a JSON-LD document contains a top-level `@graph` property,
+///   all triples from the named graphs are imported into a single [RdfGraph],
+///   losing the graph names but preserving the triple data.
+///
+/// - **Encoding**: When an [RdfGraph] contains multiple independent subjects,
+///   it is serialized as a JSON-LD document with a top-level `@graph` array,
+///   which groups the data for better readability but doesn't create separate
+///   named graphs in the RDF sense.
+///
+/// Note that the full RDF Dataset support (with multiple named graphs) is planned
+/// for a future release.
+///
+/// ## Configuration
+///
+/// Parameters:
+/// - Uses default [RdfNamespaceMappings] for standard namespace prefixes
+/// - Uses default [JsonLdEncoderOptions] for serialization
+/// - Uses default [JsonLdDecoderOptions] for parsing
+///
+/// ## Examples
+///
+/// Basic usage:
 /// ```dart
+/// // Decode JSON-LD string into an RDF graph
+/// final jsonLdString = '''
+/// {
+///   "@context": {
+///     "name": "http://xmlns.com/foaf/0.1/name"
+///   },
+///   "@id": "http://example.org/person/1",
+///   "name": "John Smith"
+/// }
+/// ''';
 /// final graph = jsonldGraph.decode(jsonLdString);
+///
+/// // Encode an RDF graph to JSON-LD string
 /// final serialized = jsonldGraph.encode(graph);
 /// ```
+///
+/// Working with `@graph`:
+/// ```dart
+/// // JSON-LD with @graph containing multiple subjects
+/// final jsonWithGraph = '''
+/// {
+///   "@context": {
+///     "name": "http://xmlns.com/foaf/0.1/name"
+///   },
+///   "@graph": [
+///     {
+///       "@id": "http://example.org/person/1",
+///       "name": "Alice"
+///     },
+///     {
+///       "@id": "http://example.org/person/2",
+///       "name": "Bob"
+///     }
+///   ]
+/// }
+/// ''';
+///
+/// // Decodes into a single RDF graph with multiple subjects
+/// final multiSubjectGraph = jsonldGraph.decode(jsonWithGraph);
+/// ```
+///
+/// For custom JSON-LD processing options, create a specific instance of
+/// [JsonLdGraphCodec] with the desired configuration.
 final jsonldGraph = JsonLdGraphCodec();

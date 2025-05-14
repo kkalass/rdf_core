@@ -8,11 +8,38 @@ import 'turtle_tokenizer.dart';
 final _log = Logger("rdf.turtle");
 const _format = "Turtle";
 
+/// Configuration options for the Turtle decoder
+///
+/// This class provides configuration options for the Turtle decoder,
+/// allowing customization of parsing behavior.
+///
+/// Parameters:
+/// - [parsingFlags] A set of parsing flags that modify the parser's behavior,
+///   such as allowing non-standard Turtle syntax extensions or being more
+///   lenient with certain syntax requirements.
 class TurtleDecoderOptions extends RdfGraphDecoderOptions {
+  /// Flags that modify the parsing behavior
   final Set<TurtleParsingFlag> parsingFlags;
 
+  /// Creates a new set of Turtle decoder options
+  ///
+  /// Parameters:
+  /// - [parsingFlags] Optional set of parsing flags to customize parsing behavior.
+  ///   By default, strict Turtle parsing is used with no special flags.
   const TurtleDecoderOptions({this.parsingFlags = const {}});
 
+  /// Creates TurtleDecoderOptions from generic RdfGraphDecoderOptions
+  ///
+  /// This factory method enables proper type conversion when using the
+  /// generic codec/decoder API with Turtle-specific options.
+  ///
+  /// Parameters:
+  /// - [options] The options object to convert, which may or may not be
+  ///   already a TurtleDecoderOptions instance.
+  ///
+  /// Returns:
+  /// - The input as-is if it's already a TurtleDecoderOptions instance,
+  ///   or a new instance with default settings otherwise.
   static TurtleDecoderOptions from(RdfGraphDecoderOptions options) =>
       switch (options) {
         TurtleDecoderOptions _ => options,
@@ -20,21 +47,56 @@ class TurtleDecoderOptions extends RdfGraphDecoderOptions {
       };
 }
 
-/// Decoder for Turtle format
+/// Decoder for Turtle format RDF documents
 ///
-/// Internal adapter that bridges the RdfDecoder interface to the
-/// implementation-specific TurtleParser.
+/// This decoder implements the RdfGraphDecoder interface for parsing Turtle syntax
+/// into RDF graphs. It acts as an adapter that bridges the RdfDecoder interface
+/// to the implementation-specific TurtleParser.
+///
+/// The Turtle format (Terse RDF Triple Language) is a textual syntax for RDF that allows
+/// writing down RDF graphs in a compact and natural text form. This decoder
+/// handles standard Turtle syntax as specified in the W3C recommendation.
+///
+/// Example:
+/// ```dart
+/// final decoder = TurtleDecoder(namespaceMappings: defaultNamespaces);
+/// final graph = decoder.convert('@prefix ex: <http://example.org/> . ex:subject ex:predicate "object" .');
+/// ```
 class TurtleDecoder extends RdfGraphDecoder {
   final TurtleDecoderOptions _options;
   final RdfNamespaceMappings _namespaceMappings;
 
+  /// Creates a new Turtle decoder
+  ///
+  /// Parameters:
+  /// - [options] Configuration options that control parsing behavior.
+  ///   Default is standard Turtle parsing with no special settings.
+  /// - [namespaceMappings] Required namespace mappings to use when expanding
+  ///   prefixed names encountered during parsing.
   TurtleDecoder({
     TurtleDecoderOptions options = const TurtleDecoderOptions(),
     required RdfNamespaceMappings namespaceMappings,
   }) : _namespaceMappings = namespaceMappings,
-       // Pass the parsing flags to the TurtleParser
        _options = options;
 
+  /// Decodes a Turtle document into an RDF graph
+  ///
+  /// This method parses a string containing Turtle syntax into an
+  /// RDF graph structure. It delegates to the internal TurtleParser
+  /// implementation to handle the actual parsing.
+  ///
+  /// Parameters:
+  /// - [input] The Turtle document to decode as a string.
+  /// - [documentUrl] Optional base URI for the document, used for resolving
+  ///   relative IRIs in the Turtle content. If not provided, relative IRIs
+  ///   will result in an error unless there's a @base directive in the content.
+  ///
+  /// Returns:
+  /// - An [RdfGraph] containing the parsed triples.
+  ///
+  /// Throws:
+  /// - [RdfSyntaxException] if the syntax is invalid or cannot be parsed.
+  /// - [RdfInvalidIriException] if relative IRIs are used without a base URI.
   @override
   RdfGraph convert(String input, {String? documentUrl}) {
     final parser = TurtleParser(
@@ -46,6 +108,18 @@ class TurtleDecoder extends RdfGraphDecoder {
     return RdfGraph.fromTriples(parser.parse());
   }
 
+  /// Creates a new instance with the specified options
+  ///
+  /// This method returns a new Turtle decoder configured with the provided
+  /// options. The original decoder instance remains unchanged.
+  ///
+  /// Parameters:
+  /// - [options] Decoder options to customize decoding behavior.
+  ///   Will be properly cast to TurtleDecoderOptions if possible, else we will use the default options instead.
+  ///
+  /// Returns:
+  /// - A new [TurtleDecoder] instance with the specified options applied,
+  ///   while preserving the original namespace mappings.
   @override
   RdfGraphDecoder withOptions(RdfGraphDecoderOptions options) => TurtleDecoder(
     options: TurtleDecoderOptions.from(options),
@@ -89,11 +163,38 @@ class TurtleParser {
 
   /// Creates a new Turtle parser for the given input string.
   ///
-  /// [input] is the Turtle document to parse.
-  /// [baseUri] is the base URI against which relative IRIs should be resolved.
-  /// If not provided, relative IRIs will be kept as-is.
-  /// [parsingFlags] is a set of flags that enable relaxed parsing for non-standard
-  /// Turtle syntax that may be present in real-world files.
+  /// The parser handles Turtle syntax according to the W3C recommendation,
+  /// with additional options for dealing with non-compliant documents.
+  ///
+  /// Parameters:
+  /// - [input] The Turtle document string to parse. This can be a complete
+  ///   document or a fragment.
+  /// - [baseUri] The base URI against which relative IRIs will be resolved.
+  ///   If not provided, relative IRIs will be kept as-is, which may result
+  ///   in incomplete URIs in the resulting triples.
+  /// - [parsingFlags] A set of flags that enable relaxed parsing for non-standard
+  ///   Turtle syntax that may be present in real-world files. Available flags include:
+  ///   - [TurtleParsingFlag.allowDigitInLocalName] - Allows local names with leading digits
+  ///   - [TurtleParsingFlag.allowMissingDotAfterPrefix] - Allows prefix declarations without a trailing dot
+  ///   - [TurtleParsingFlag.autoAddCommonPrefixes] - Auto-adds standard prefixes when not explicitly defined
+  ///   - [TurtleParsingFlag.allowPrefixWithoutAtSign] - Allows prefix declarations without the @ symbol
+  ///   - [TurtleParsingFlag.allowMissingFinalDot] - Handles missing dots at the end of triple statements
+  ///   - [TurtleParsingFlag.allowIdentifiersWithoutColon] - Treats simple identifiers as base-resolved IRIs
+  /// - [namespaceMappings] Provides predefined namespace mappings for the parser to use.
+  ///   These mappings will be available in addition to any prefix declarations in the document.
+  ///
+  /// Example:
+  /// ```dart
+  /// final parser = TurtleParser(
+  ///   turtleDocument,
+  ///   baseUri: 'http://example.org/',
+  ///   parsingFlags: {
+  ///     TurtleParsingFlag.allowMissingFinalDot,
+  ///     TurtleParsingFlag.autoAddCommonPrefixes,
+  ///   }
+  /// );
+  /// final triples = parser.parse();
+  /// ```
   TurtleParser(
     String input, {
     String? baseUri,
@@ -104,7 +205,7 @@ class TurtleParser {
        _parsingFlags = parsingFlags,
        _namespaceMappings = namespaceMappings;
 
-  /// Parses the input and returns a list of triples.
+  /// Parses the input and returns a list of RDF triples.
   ///
   /// The parser processes the input in the following order:
   /// 1. Prefix declarations (@prefix)
@@ -114,7 +215,20 @@ class TurtleParser {
   /// Each triple is added to the result list, and the method returns all
   /// triples found in the input.
   ///
-  /// Throws [RdfSyntaxException] if the input is not valid Turtle syntax.
+  /// Throws [RdfSyntaxException] if the input contains invalid Turtle syntax.
+  /// The exception will contain information about the nature of the syntax error
+  /// and its location in the input.
+  ///
+  /// Returns an empty list if the input contains no triples.
+  ///
+  /// Example:
+  /// ```dart
+  /// final parser = TurtleParser('''
+  ///   @prefix ex: <http://example.org/> .
+  ///   ex:subject ex:predicate "object" .
+  /// ''');
+  /// final triples = parser.parse();
+  /// ```
   List<Triple> parse() {
     try {
       _currentToken = _tokenizer.nextToken();

@@ -69,14 +69,28 @@
 <section class="desc markdown">
   <p>Get all subjects with a given predicate and object</p>
 <p>This is a convenience method for "reverse lookups" - finding resources
-that have a particular property value.</p>
+that have a particular property value. It returns all subjects from
+triples where the predicate and object match the specified values.</p>
+<p>In RDF terms, this retrieves all resources that have a specific property
+with a specific value, which is useful for finding resources by attribute.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>predicate</code> The property (predicate) to search by</li>
+<li><code>object</code> The value that matching resources must have for the property</li>
+</ul>
+<p>Returns:
+An unmodifiable list of all subject resources that match the pattern.
+The list may be empty if no matching triples exist.</p>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">// Find all people who know Jane
 final peopleWhoKnowJane = graph.getSubjects(knows, jane);
+
+// Find all resources of type Person
+final allPersons = graph.getSubjects(rdf.type, foaf.Person);
+
+// Find resources with a specific email address
+final resourcesWithEmail = graph.getSubjects(email, LiteralTerm.string('john@example.com'));
 </code></pre>
-<p>@param predicate The predicate of the triples to query
-@param object The object value of the triples to query
-@return List of all matching subjects (unmodifiable)</p>
 </section>
 
 

@@ -84,8 +84,10 @@ to text in this codec's format.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-RdfGraphEncoder get encoder =&gt;
-    JsonLdEncoder(namespaceMappings: this._namespaceMappings);</code></pre>
+RdfGraphEncoder get encoder =&gt; JsonLdEncoder(
+  namespaceMappings: this._namespaceMappings,
+  options: this._encoderOptions,
+);</code></pre>
 </section>
 
   </section>

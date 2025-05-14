@@ -63,6 +63,12 @@ has a lexical value (string) and a datatype IRI that defines how to interpret
 the string. Additionally, string literals can have language tags.</p>
 <p>Literals can only appear in the object position of a triple, never as subjects
 or predicates.</p>
+<p>In RDF 1.1, all literals have a datatype:</p>
+<ul>
+<li>Plain literals use xsd:string by default</li>
+<li>Language-tagged literals use rdf:langString</li>
+<li>Typed literals use an explicit datatype IRI (typically an XSD datatype)</li>
+</ul>
 <p>Examples in Turtle syntax:</p>
 <ul>
 <li>Simple string: <code>"Hello World"</code></li>
@@ -101,10 +107,10 @@ or predicates.</p>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="LiteralTerm" class="callable">
-          <span class="name"><a href="../rdf/LiteralTerm/LiteralTerm.html">LiteralTerm</a></span><span class="signature">(<span class="parameter" id="-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">value</span>, {</span><span class="parameter" id="-param-datatype"><span>required</span> <span class="type-annotation"><a href="../rdf/IriTerm-class.html">IriTerm</a></span> <span class="parameter-name">datatype</span>, </span><span class="parameter" id="-param-language"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">language</span></span>})</span>
+          <span class="name"><a href="../rdf/LiteralTerm/LiteralTerm.html">LiteralTerm</a></span><span class="signature">(<span class="parameter" id="-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">value</span>, {</span><span class="parameter" id="-param-datatype"><span class="type-annotation"><a href="../rdf/IriTerm-class.html">IriTerm</a>?</span> <span class="parameter-name">datatype</span>, </span><span class="parameter" id="-param-language"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">language</span></span>})</span>
         </dt>
         <dd>
-          Create a literal with optional datatype or language tag
+          Creates a literal with an optional datatype or language tag
             <div class="constructor-modifier features">const</div>
         </dd>
         <dt id="LiteralTerm.boolean" class="callable">
@@ -176,7 +182,7 @@ or predicates.</p>
 
 </dt>
 <dd>
-  The hash code for this object.
+  Provides a consistent hash code for this literal term based on its components.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -247,7 +253,7 @@ or predicates.</p>
 
 </dt>
 <dd>
-  A string representation of this object.
+  Returns a string representation of this literal term in a Turtle-like syntax.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -268,7 +274,7 @@ or predicates.</p>
 
 </dt>
 <dd>
-  The equality operator.
+  Compares this literal term with another object for equality.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>

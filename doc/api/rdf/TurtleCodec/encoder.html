@@ -84,8 +84,10 @@ to text in this codec's format.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-RdfGraphEncoder get encoder =&gt;
-    TurtleEncoder(namespaceMappings: _namespaceMappings);</code></pre>
+RdfGraphEncoder get encoder =&gt; TurtleEncoder(
+  options: _encoderOptions,
+  namespaceMappings: _namespaceMappings,
+);</code></pre>
 </section>
 
   </section>
@@ -115,7 +117,7 @@ RdfGraphEncoder get encoder =&gt;
 <footer>
   <span class="no-break">
     rdf_core
-      0.8.2-dev
+      0.9.0-dev
   </span>
   
 </footer>

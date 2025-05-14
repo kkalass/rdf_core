@@ -81,7 +81,7 @@
 
 // Easy access to codecs through global variables
 final graphFromTurtle = turtle.decode(turtleData);
-final graphFromJsonLd = lsonldGraph.decode(jsonLdData);
+final graphFromJsonLd = jsonldGraph.decode(jsonLdData);
 final graphFromNTriples = ntriples.decode(ntriplesData);
 
 // Or use the pre-configured RdfCore instance
@@ -179,7 +179,7 @@ void main() {
   ''';
 
   // Using the convenience global variable
-  final graph = lsonldGraph.decode(jsonLdData);
+  final graph = jsonldGraph.decode(jsonLdData);
 
   // Print decoded triples
   for (final triple in graph.triples) {
@@ -187,7 +187,7 @@ void main() {
   }
 
   // Encode the graph back to JSON-LD
-  final serialized = lsonldGraph.encode(graph);
+  final serialized = jsonldGraph.encode(graph);
   print('\nEncoded JSON-LD:\n$serialized');
 }
 </code></pre>
@@ -229,28 +229,37 @@ final newGraph = graph.withTriple(Triple(bnode, predicate, object));
 <h3 id="non-standard-turtle-decoding">Non-Standard Turtle decoding</h3>
 <pre class="language-dart"><code class="language-dart">import 'package:rdf_core/rdf_core.dart';
 
-// Configure a custom TurtleCodec with specific parsing flags
-final customTurtleCodec = TurtleCodec(
+final nonStandardTurtle = '''
+@base &lt;http://my.example.org/&gt; .
+@prefix ex: &lt;http://example.org/&gt; 
+ex:resource123 a Type . // "Type" without prefix is resolved to &lt;http://my.example.org/Type&gt;
+''';
+
+// Create an options instance with the appropriate configuration
+final options = TurtleDecoderOptions(
   parsingFlags: {
-    TurtleParsingFlag.allowDigitInLocalName,
-    TurtleParsingFlag.allowMissingDotAfterPrefix,
-    TurtleParsingFlag.autoAddCommonPrefixes,
+    TurtleParsingFlag.allowDigitInLocalName,       // Allow local names with digits like "resource123"
+    TurtleParsingFlag.allowMissingDotAfterPrefix,  // Allow prefix declarations without trailing dot
+    TurtleParsingFlag.allowIdentifiersWithoutColon, // Treat terms without colon as IRIs resolved against base URI
   }
 );
 
-// Option 1: Use the custom codec directly
-final nonStandardTurtle = '''
-  @prefix ex: &lt;http://example.org/&gt; // Missing dot after prefix
-  ex:resource123 a ex:Type . // Digit in local name
-''';
+// Option 1: Use the options with the global rdf variable
+final graph = rdf.decode(nonStandardTurtle, options: options);
 
-final graph = customTurtleCodec.decode(nonStandardTurtle);
+// Option 2: Use the options to derive a new codec from the global turtle variable
+final configuredTurtle = turtle.withOptions(decoder: options);
+final graph2 = configuredTurtle.decode(nonStandardTurtle);
 
-// Option 2: Register the custom codec with an RdfCore instance - note that this 
+// Option 3: Configure a custom TurtleCodec with specific parsing flags
+final customTurtleCodec = TurtleCodec(decoderOptions: options);
+final graph3 = customTurtleCodec.decode(nonStandardTurtle);
+
+// Option 4: Register the custom codec with an RdfCore instance - note that this 
 // time we register only the specified codecs here. If we want jsonld, we have to 
 // add it to the list as well.
 final customRdf = RdfCore.withCodecs(codecs: [customTurtleCodec]);
-final graph2 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
+final graph4 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 </code></pre>
 <hr>
 <h2 id="-error-handling">⚠️ Error Handling</h2>
@@ -312,7 +321,7 @@ final graph2 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 <td>Global convenience variable for Turtle codec</td>
 </tr>
 <tr>
-<td><code>jsonld</code></td>
+<td><code>jsonldGraph</code></td>
 <td>Global convenience variable for JSON-LD codec</td>
 </tr>
 <tr>
@@ -336,9 +345,8 @@ final graph2 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 <hr>
 <h2 id="-roadmap--next-steps">🛣️ Roadmap / Next Steps</h2>
 <ul>
-<li>Support base uri in jsonld and turtle encoding</li>
 <li>RDF 1.1: Datasets with Named Graphs</li>
-<li>Improve jsonld decoder/encoder (full RdfDataset support and include realworld tests for e.g. foaf.jsonld)</li>
+<li>Improve jsonld decoder/encoder (full RdfDataset support, better support for base uri, include realworld tests for e.g. foaf.jsonld)</li>
 <li>RDF 1.2: Rdf-Star</li>
 <li>SHACL and schema validation</li>
 <li>Performance optimizations for large graphs</li>
@@ -397,7 +405,7 @@ final graph2 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 <footer>
   <span class="no-break">
     rdf_core
-      0.8.2-dev
+      0.9.0-dev
   </span>
   
 </footer>

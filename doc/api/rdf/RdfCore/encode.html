@@ -61,7 +61,7 @@
 <span class="name ">encode</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="encode-param-graph"><span class="type-annotation"><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></span> <span class="parameter-name">graph</span>, {</span></li>
 <li><span class="parameter" id="encode-param-contentType"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">contentType</span>, </span></li>
 <li><span class="parameter" id="encode-param-baseUri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">baseUri</span>, </span></li>
-<li><span class="parameter" id="encode-param-customPrefixes"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">customPrefixes</span> = <span class="default-value">const {}</span>, </span></li>
+<li><span class="parameter" id="encode-param-options"><span class="type-annotation"><a href="../../rdf/RdfGraphEncoderOptions-class.html">RdfGraphEncoderOptions</a>?</span> <span class="parameter-name">options</span>, </span></li>
 </ol>})
 
       
@@ -79,8 +79,7 @@ in the specified format. If no format is specified, the default codec
 <li><code>contentType</code>: Optional MIME type to specify the output format</li>
 <li><code>baseUri</code>: Optional base URI for the serialized output, which may enable
 more compact representations with relative URIs</li>
-<li><code>customPrefixes</code>: Optional custom namespace prefix mappings to use in
-formats that support prefixes (like Turtle)</li>
+<li><code>options</code>: Optional format-specific encoder options (e.g., TurtleEncoderOptions)</li>
 </ul>
 <p>Returns:</p>
 <ul>
@@ -101,12 +100,11 @@ formats that support prefixes (like Turtle)</li>
   RdfGraph graph, {
   String? contentType,
   String? baseUri,
-  Map&lt;String, String&gt; customPrefixes = const {},
-}) {
-  return codec(
-    contentType,
-  ).encode(graph, baseUri: baseUri, customPrefixes: customPrefixes);
-}</code></pre>
+  RdfGraphEncoderOptions? options,
+}) =&gt; codec(
+  contentType: contentType,
+  encoderOptions: options,
+).encode(graph, baseUri: baseUri);</code></pre>
 </section>
 
 
@@ -134,7 +132,7 @@ formats that support prefixes (like Turtle)</li>
 <footer>
   <span class="no-break">
     rdf_core
-      0.8.2-dev
+      0.9.0-dev
   </span>
   
 </footer>

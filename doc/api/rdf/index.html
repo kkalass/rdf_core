@@ -126,7 +126,7 @@ final object = LiteralTerm.string('John Smith');
 final newGraph = graph.withTriple(Triple(subject, predicate, object));
 
 // Query the graph
-final nameTriples = graph.findBySubjectAndPredicate(
+final nameTriples = graph.getObjects(
   subject,
   predicate
 );
@@ -142,15 +142,20 @@ final unknownContent = getContentFromSomewhere();
 final graph = rdf.decode(unknownContent); // Format auto-detected
 </code></pre>
 <h3 id="using-custom-prefixes-in-serialization">Using Custom Prefixes in Serialization</h3>
+<p>Note that this is rarely needed, as the library knows some well-known
+prefixes and will automatically generate missing prefixes for you.
+However, this gives you more control over the output.</p>
 <pre class="language-dart"><code class="language-dart">final customPrefixes = {
-  'ex': 'http://example.org/',
+  'example': 'http://example.org/',
   'foaf': 'http://xmlns.com/foaf/0.1/'
 };
 
-final turtle = rdf.serialize(
+final turtle = rdf.encode(
   graph,
   contentType: 'text/turtle',
-  customPrefixes: customPrefixes
+  options: TurtleEncoderOptions(
+    customPrefixes: customPrefixes
+  )
 );
 </code></pre>
 <h2 id="architecture">Architecture</h2>
@@ -203,6 +208,38 @@ library highly testable and extensible.</p>
   IRI (Internationalized Resource Identifier) in RDF
 </dd>
 
+          <dt id="JsonLdDecoder">
+  <span class="name "><a href="../rdf/JsonLdDecoder-class.html">JsonLdDecoder</a></span> 
+
+</dt>
+<dd>
+  Decoder for JSON-LD format
+</dd>
+
+          <dt id="JsonLdDecoderOptions">
+  <span class="name "><a href="../rdf/JsonLdDecoderOptions-class.html">JsonLdDecoderOptions</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="JsonLdEncoder">
+  <span class="name "><a href="../rdf/JsonLdEncoder-class.html">JsonLdEncoder</a></span> 
+
+</dt>
+<dd>
+  Encoder for converting RDF graphs to JSON-LD format.
+</dd>
+
+          <dt id="JsonLdEncoderOptions">
+  <span class="name "><a href="../rdf/JsonLdEncoderOptions-class.html">JsonLdEncoderOptions</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
           <dt id="JsonLdGraphCodec">
   <span class="name "><a href="../rdf/JsonLdGraphCodec-class.html">JsonLdGraphCodec</a></span> 
 
@@ -225,6 +262,38 @@ library highly testable and extensible.</p>
 </dt>
 <dd>
   Format definition for the N-Triples RDF serialization format.
+</dd>
+
+          <dt id="NTriplesDecoder">
+  <span class="name "><a href="../rdf/NTriplesDecoder-class.html">NTriplesDecoder</a></span> 
+
+</dt>
+<dd>
+  Decoder for the N-Triples format.
+</dd>
+
+          <dt id="NTriplesDecoderOptions">
+  <span class="name "><a href="../rdf/NTriplesDecoderOptions-class.html">NTriplesDecoderOptions</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="NTriplesEncoder">
+  <span class="name "><a href="../rdf/NTriplesEncoder-class.html">NTriplesEncoder</a></span> 
+
+</dt>
+<dd>
+  Encoder for the N-Triples format.
+</dd>
+
+          <dt id="NTriplesEncoderOptions">
+  <span class="name "><a href="../rdf/NTriplesEncoderOptions-class.html">NTriplesEncoderOptions</a></span> 
+
+</dt>
+<dd>
+  
 </dd>
 
           <dt id="RdfCodecRegistry">
@@ -267,12 +336,28 @@ library highly testable and extensible.</p>
   Base class for decoding RDF documents in various formats
 </dd>
 
+          <dt id="RdfGraphDecoderOptions">
+  <span class="name "><a href="../rdf/RdfGraphDecoderOptions-class.html">RdfGraphDecoderOptions</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
           <dt id="RdfGraphEncoder">
   <span class="name "><a href="../rdf/RdfGraphEncoder-class.html">RdfGraphEncoder</a></span> 
 
 </dt>
 <dd>
   Interface for encoding RDF graphs to different serialization formats.
+</dd>
+
+          <dt id="RdfGraphEncoderOptions">
+  <span class="name "><a href="../rdf/RdfGraphEncoderOptions-class.html">RdfGraphEncoderOptions</a></span> 
+
+</dt>
+<dd>
+  
 </dd>
 
           <dt id="RdfNamespaceMappings">
@@ -337,6 +422,38 @@ library highly testable and extensible.</p>
 </dt>
 <dd>
   RDF Codec implementation for the Turtle serialization format.
+</dd>
+
+          <dt id="TurtleDecoder">
+  <span class="name "><a href="../rdf/TurtleDecoder-class.html">TurtleDecoder</a></span> 
+
+</dt>
+<dd>
+  Decoder for Turtle format
+</dd>
+
+          <dt id="TurtleDecoderOptions">
+  <span class="name "><a href="../rdf/TurtleDecoderOptions-class.html">TurtleDecoderOptions</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TurtleEncoder">
+  <span class="name "><a href="../rdf/TurtleEncoder-class.html">TurtleEncoder</a></span> 
+
+</dt>
+<dd>
+  Turtle Encoder Implementation
+</dd>
+
+          <dt id="TurtleEncoderOptions">
+  <span class="name "><a href="../rdf/TurtleEncoderOptions-class.html">TurtleEncoderOptions</a></span> 
+
+</dt>
+<dd>
+  
 </dd>
 
       </dl>
@@ -553,7 +670,7 @@ with standard codecs pre-registered
 <footer>
   <span class="no-break">
     rdf_core
-      0.8.2-dev
+      0.9.0-dev
   </span>
   
 </footer>

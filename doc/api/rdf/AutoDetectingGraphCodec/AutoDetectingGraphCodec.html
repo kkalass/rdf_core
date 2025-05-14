@@ -59,6 +59,8 @@
       
       <span class="name ">AutoDetectingGraphCodec</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-defaultCodec"><span>required</span> <span class="type-annotation"><a href="../../rdf/RdfGraphCodec-class.html">RdfGraphCodec</a></span> <span class="parameter-name">defaultCodec</span>, </span></li>
 <li><span class="parameter" id="-param-registry"><span>required</span> <span class="type-annotation"><a href="../../rdf/RdfCodecRegistry-class.html">RdfCodecRegistry</a></span> <span class="parameter-name">registry</span>, </span></li>
+<li><span class="parameter" id="-param-encoderOptions"><span class="type-annotation"><a href="../../rdf/RdfGraphEncoderOptions-class.html">RdfGraphEncoderOptions</a>?</span> <span class="parameter-name">encoderOptions</span>, </span></li>
+<li><span class="parameter" id="-param-decoderOptions"><span class="type-annotation"><a href="../../rdf/RdfGraphDecoderOptions-class.html">RdfGraphDecoderOptions</a>?</span> <span class="parameter-name">decoderOptions</span>, </span></li>
 </ol>})
     </section>
     
@@ -70,8 +72,12 @@
   <pre class="language-dart"><code class="language-dart">AutoDetectingGraphCodec({
   required RdfGraphCodec defaultCodec,
   required RdfCodecRegistry registry,
+  RdfGraphEncoderOptions? encoderOptions,
+  RdfGraphDecoderOptions? decoderOptions,
 }) : _defaultCodec = defaultCodec,
-     _registry = registry;</code></pre>
+     _registry = registry,
+     _encoderOptions = encoderOptions,
+     _decoderOptions = decoderOptions;</code></pre>
 </section>
 
 
@@ -99,7 +105,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.8.2-dev
+      0.9.0-dev
   </span>
   
 </footer>

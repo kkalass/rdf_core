@@ -58,6 +58,8 @@
     <section class="multi-line-signature">
       const
       <span class="name ">JsonLdGraphCodec</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-namespaceMappings"><span class="type-annotation"><a href="../../rdf/RdfNamespaceMappings-class.html">RdfNamespaceMappings</a>?</span> <span class="parameter-name">namespaceMappings</span>, </span></li>
+<li><span class="parameter" id="-param-encoderOptions"><span class="type-annotation"><a href="../../rdf/JsonLdEncoderOptions-class.html">JsonLdEncoderOptions</a></span> <span class="parameter-name">encoderOptions</span> = <span class="default-value">const JsonLdEncoderOptions()</span>, </span></li>
+<li><span class="parameter" id="-param-decoderOptions"><span class="type-annotation"><a href="../../rdf/JsonLdDecoderOptions-class.html">JsonLdDecoderOptions</a></span> <span class="parameter-name">decoderOptions</span> = <span class="default-value">const JsonLdDecoderOptions()</span>, </span></li>
 </ol>})
     </section>
     
@@ -69,8 +71,13 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">const JsonLdGraphCodec({RdfNamespaceMappings? namespaceMappings})
-  : _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings();</code></pre>
+  <pre class="language-dart"><code class="language-dart">const JsonLdGraphCodec({
+  RdfNamespaceMappings? namespaceMappings,
+  JsonLdEncoderOptions encoderOptions = const JsonLdEncoderOptions(),
+  JsonLdDecoderOptions decoderOptions = const JsonLdDecoderOptions(),
+}) : _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings(),
+     _decoderOptions = decoderOptions,
+     _encoderOptions = encoderOptions;</code></pre>
 </section>
 
 
@@ -98,7 +105,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.8.2-dev
+      0.9.0-dev
   </span>
   
 </footer>

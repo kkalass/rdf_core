@@ -58,7 +58,8 @@
     <section class="multi-line-signature">
       const
       <span class="name ">TurtleCodec</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-namespaceMappings"><span class="type-annotation"><a href="../../rdf/RdfNamespaceMappings-class.html">RdfNamespaceMappings</a>?</span> <span class="parameter-name">namespaceMappings</span>, </span></li>
-<li><span class="parameter" id="-param-parsingFlags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/TurtleParsingFlag.html">TurtleParsingFlag</a></span>&gt;</span></span> <span class="parameter-name">parsingFlags</span> = <span class="default-value">const {}</span>, </span></li>
+<li><span class="parameter" id="-param-encoderOptions"><span class="type-annotation"><a href="../../rdf/TurtleEncoderOptions-class.html">TurtleEncoderOptions</a></span> <span class="parameter-name">encoderOptions</span> = <span class="default-value">const TurtleEncoderOptions()</span>, </span></li>
+<li><span class="parameter" id="-param-decoderOptions"><span class="type-annotation"><a href="../../rdf/TurtleDecoderOptions-class.html">TurtleDecoderOptions</a></span> <span class="parameter-name">decoderOptions</span> = <span class="default-value">const TurtleDecoderOptions()</span>, </span></li>
 </ol>})
     </section>
     
@@ -72,9 +73,11 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">const TurtleCodec({
   RdfNamespaceMappings? namespaceMappings,
-  Set&lt;TurtleParsingFlag&gt; parsingFlags = const {},
+  TurtleEncoderOptions encoderOptions = const TurtleEncoderOptions(),
+  TurtleDecoderOptions decoderOptions = const TurtleDecoderOptions(),
 }) : _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings(),
-     _parsingFlags = parsingFlags;</code></pre>
+     _encoderOptions = encoderOptions,
+     _decoderOptions = decoderOptions;</code></pre>
 </section>
 
 
@@ -102,7 +105,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.8.2-dev
+      0.9.0-dev
   </span>
   
 </footer>

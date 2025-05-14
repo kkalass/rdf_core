@@ -171,7 +171,14 @@ E.g., allows <code>prefix ex: &lt;http://example.com/&gt;</code></p>
 </dt>
 <dd>
   <p>Allows simple identifiers without colons to be treated as prefixed names.
-E.g., allows <code>abc</code> to be treated as a prefixed name without requiring a colon.</p>
+E.g., allows <code>abc</code> to be treated as an IRI that is resolved against the base URI.</p>
+<p>Note: This requires that a base URI is set, either through an @base directive
+in the document or provided as the documentUrl parameter when decoding.</p>
+<p>Example:</p>
+<pre class="language-dart"><code>@base &lt;http://example.org/&gt; .
+&lt;http://example.org/subject&gt; a Type .
+</code></pre>
+<p>Here "Type" will be resolved to <a href="http://example.org/Type">example.org/Type</a></p>
   
 
 </dd>
@@ -339,7 +346,7 @@ E.g., allows <code>abc</code> to be treated as a prefixed name without requiring
 <footer>
   <span class="no-break">
     rdf_core
-      0.8.2-dev
+      0.9.0-dev
   </span>
   
 </footer>

@@ -149,7 +149,7 @@ The primary MIME type is <code>application/ld+json</code>.</p>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="JsonLdGraphCodec" class="callable">
-          <span class="name"><a href="../rdf/JsonLdGraphCodec/JsonLdGraphCodec.html">JsonLdGraphCodec</a></span><span class="signature">({<span class="parameter" id="-param-namespaceMappings"><span class="type-annotation"><a href="../rdf/RdfNamespaceMappings-class.html">RdfNamespaceMappings</a>?</span> <span class="parameter-name">namespaceMappings</span></span>})</span>
+          <span class="name"><a href="../rdf/JsonLdGraphCodec/JsonLdGraphCodec.html">JsonLdGraphCodec</a></span><span class="signature">({<span class="parameter" id="-param-namespaceMappings"><span class="type-annotation"><a href="../rdf/RdfNamespaceMappings-class.html">RdfNamespaceMappings</a>?</span> <span class="parameter-name">namespaceMappings</span>, </span><span class="parameter" id="-param-encoderOptions"><span class="type-annotation"><a href="../rdf/JsonLdEncoderOptions-class.html">JsonLdEncoderOptions</a></span> <span class="parameter-name">encoderOptions</span> = <span class="default-value">const JsonLdEncoderOptions()</span>, </span><span class="parameter" id="-param-decoderOptions"><span class="type-annotation"><a href="../rdf/JsonLdDecoderOptions-class.html">JsonLdDecoderOptions</a></span> <span class="parameter-name">decoderOptions</span> = <span class="default-value">const JsonLdDecoderOptions()</span></span>})</span>
         </dt>
         <dd>
           Creates a new JSON-LD codec
@@ -270,7 +270,7 @@ The primary MIME type is <code>application/ld+json</code>.</p>
 </dd>
 
         <dt id="decode" class="callable inherited">
-  <span class="name"><a href="../rdf/RdfGraphCodec/decode.html">decode</a></span><span class="signature">(<wbr><span class="parameter" id="decode-param-input"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">input</span>, {</span><span class="parameter" id="decode-param-documentUrl"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">documentUrl</span></span>})
+  <span class="name"><a href="../rdf/RdfGraphCodec/decode.html">decode</a></span><span class="signature">(<wbr><span class="parameter" id="decode-param-input"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">input</span>, {</span><span class="parameter" id="decode-param-documentUrl"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">documentUrl</span>, </span><span class="parameter" id="decode-param-options"><span class="type-annotation"><a href="../rdf/RdfGraphDecoderOptions-class.html">RdfGraphDecoderOptions</a>?</span> <span class="parameter-name">options</span></span>})
     <span class="returntype parameter">&#8594; <a href="../rdf/RdfGraph-class.html">RdfGraph</a></span>
   </span>
   
@@ -283,7 +283,7 @@ The primary MIME type is <code>application/ld+json</code>.</p>
 </dd>
 
         <dt id="encode" class="callable inherited">
-  <span class="name"><a href="../rdf/RdfGraphCodec/encode.html">encode</a></span><span class="signature">(<wbr><span class="parameter" id="encode-param-input"><span class="type-annotation"><a href="../rdf/RdfGraph-class.html">RdfGraph</a></span> <span class="parameter-name">input</span>, {</span><span class="parameter" id="encode-param-baseUri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">baseUri</span>, </span><span class="parameter" id="encode-param-customPrefixes"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">customPrefixes</span> = <span class="default-value">const {}</span></span>})
+  <span class="name"><a href="../rdf/RdfGraphCodec/encode.html">encode</a></span><span class="signature">(<wbr><span class="parameter" id="encode-param-input"><span class="type-annotation"><a href="../rdf/RdfGraph-class.html">RdfGraph</a></span> <span class="parameter-name">input</span>, {</span><span class="parameter" id="encode-param-baseUri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">baseUri</span>, </span><span class="parameter" id="encode-param-options"><span class="type-annotation"><a href="../rdf/RdfGraphEncoderOptions-class.html">RdfGraphEncoderOptions</a>?</span> <span class="parameter-name">options</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
   </span>
   
@@ -331,6 +331,19 @@ The primary MIME type is <code>application/ld+json</code>.</p>
 <dd class="inherited">
   A string representation of this object.
   <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="withOptions" class="callable">
+  <span class="name"><a href="../rdf/JsonLdGraphCodec/withOptions.html">withOptions</a></span><span class="signature">(<wbr>{<span class="parameter" id="withOptions-param-encoder"><span class="type-annotation"><a href="../rdf/RdfGraphEncoderOptions-class.html">RdfGraphEncoderOptions</a>?</span> <span class="parameter-name">encoder</span>, </span><span class="parameter" id="withOptions-param-decoder"><span class="type-annotation"><a href="../rdf/RdfGraphDecoderOptions-class.html">RdfGraphDecoderOptions</a>?</span> <span class="parameter-name">decoder</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rdf/JsonLdGraphCodec-class.html">JsonLdGraphCodec</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">override</span></div>
 
 </dd>
 
@@ -384,7 +397,7 @@ The primary MIME type is <code>application/ld+json</code>.</p>
 <footer>
   <span class="no-break">
     rdf_core
-      0.8.2-dev
+      0.9.0-dev
   </span>
   
 </footer>

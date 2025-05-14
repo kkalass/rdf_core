@@ -84,7 +84,12 @@ to text in this codec's format.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-RdfGraphEncoder get encoder =&gt; _defaultCodec.encoder;</code></pre>
+RdfGraphEncoder get encoder {
+  if (_encoderOptions != null) {
+    return _defaultCodec.encoder.withOptions(_encoderOptions);
+  }
+  return _defaultCodec.encoder;
+}</code></pre>
 </section>
 
   </section>
@@ -114,7 +119,7 @@ RdfGraphEncoder get encoder =&gt; _defaultCodec.encoder;</code></pre>
 <footer>
   <span class="no-break">
     rdf_core
-      0.8.2-dev
+      0.9.0-dev
   </span>
   
 </footer>

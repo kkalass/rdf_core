@@ -85,7 +85,7 @@ to an RdfGraph object.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 RdfGraphDecoder get decoder =&gt; TurtleDecoder(
-  parsingFlags: _parsingFlags,
+  options: _decoderOptions,
   namespaceMappings: _namespaceMappings,
 );</code></pre>
 </section>
@@ -117,7 +117,7 @@ RdfGraphDecoder get decoder =&gt; TurtleDecoder(
 <footer>
   <span class="no-break">
     rdf_core
-      0.8.2-dev
+      0.9.0-dev
   </span>
   
 </footer>

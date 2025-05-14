@@ -57,7 +57,9 @@
 
     <section class="multi-line-signature">
       const
-      <span class="name ">NTriplesCodec</span>(<wbr>)
+      <span class="name ">NTriplesCodec</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-encoderOptions"><span class="type-annotation"><a href="../../rdf/NTriplesEncoderOptions-class.html">NTriplesEncoderOptions</a></span> <span class="parameter-name">encoderOptions</span> = <span class="default-value">const NTriplesEncoderOptions()</span>, </span></li>
+<li><span class="parameter" id="-param-decoderOptions"><span class="type-annotation"><a href="../../rdf/NTriplesDecoderOptions-class.html">NTriplesDecoderOptions</a></span> <span class="parameter-name">decoderOptions</span> = <span class="default-value">const NTriplesDecoderOptions()</span>, </span></li>
+</ol>})
     </section>
     
 <section class="desc markdown">
@@ -68,7 +70,11 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">const NTriplesCodec();</code></pre>
+  <pre class="language-dart"><code class="language-dart">const NTriplesCodec({
+  NTriplesEncoderOptions encoderOptions = const NTriplesEncoderOptions(),
+  NTriplesDecoderOptions decoderOptions = const NTriplesDecoderOptions(),
+}) : _encoderOptions = encoderOptions,
+     _decoderOptions = decoderOptions;</code></pre>
 </section>
 
 
@@ -96,7 +102,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.8.2-dev
+      0.9.0-dev
   </span>
   
 </footer>

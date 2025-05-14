@@ -95,14 +95,25 @@ which will handle format-specific details like prefix resolution, blank node han
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 RdfGraph convert(String input, {String? documentUrl}) {
+  &#47;&#47; First try to use format auto-detection
   final format = _registry.detectGraphCodec(input);
 
   if (format != null) {
     _logger.fine(&#39;Using detected format: ${format.primaryMimeType}&#39;);
-    return format.decoder.convert(input, documentUrl: documentUrl);
+    try {
+      return (_decoderOptions == null
+              ? format.decoder
+              : format.decoder.withOptions(_decoderOptions))
+          .convert(input, documentUrl: documentUrl);
+    } catch (e) {
+      _logger.fine(
+        &#39;Failed with detected format ${format.primaryMimeType}: $e&#39;,
+      );
+      &#47;&#47; If the detected format fails, fall through to trying all formats
+    }
   }
 
-  &#47;&#47; If we can&#39;t detect, try the first available format
+  &#47;&#47; If we can&#39;t detect or the detected format fails, try all formats in sequence
   final codecs = _registry.getAllGraphCodecs();
   if (codecs.isEmpty) {
     throw CodecNotSupportedException(&#39;No RDF codecs registered&#39;);
@@ -113,7 +124,10 @@ RdfGraph convert(String input, {String? documentUrl}) {
   for (final codec in codecs) {
     try {
       _logger.fine(&#39;Trying codec: ${codec.primaryMimeType}&#39;);
-      return codec.decoder.convert(input, documentUrl: documentUrl);
+      return (_decoderOptions == null
+              ? codec.decoder
+              : codec.decoder.withOptions(_decoderOptions))
+          .convert(input, documentUrl: documentUrl);
     } catch (e) {
       _logger.fine(&#39;Failed with format ${codec.primaryMimeType}: $e&#39;);
       lastException = e is Exception ? e : Exception(e.toString());
@@ -151,7 +165,7 @@ RdfGraph convert(String input, {String? documentUrl}) {
 <footer>
   <span class="no-break">
     rdf_core
-      0.8.2-dev
+      0.9.0-dev
   </span>
   
 </footer>

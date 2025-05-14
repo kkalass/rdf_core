@@ -57,8 +57,9 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">AutoDetectingGraphDecoder</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="-param-_registry"><span class="type-annotation"><a href="../../rdf/RdfCodecRegistry-class.html">RdfCodecRegistry</a></span> <span class="parameter-name">_registry</span></span></li>
-</ol>)
+      <span class="name ">AutoDetectingGraphDecoder</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-_registry"><span class="type-annotation"><a href="../../rdf/RdfCodecRegistry-class.html">RdfCodecRegistry</a></span> <span class="parameter-name">_registry</span>, {</span></li>
+<li><span class="parameter" id="-param-options"><span class="type-annotation"><a href="../../rdf/RdfGraphDecoderOptions-class.html">RdfGraphDecoderOptions</a>?</span> <span class="parameter-name">options</span>, </span></li>
+</ol>})
     </section>
     
 <section class="desc markdown">
@@ -70,7 +71,8 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">AutoDetectingGraphDecoder(this._registry);</code></pre>
+  <pre class="language-dart"><code class="language-dart">AutoDetectingGraphDecoder(this._registry, {RdfGraphDecoderOptions? options})
+  : _decoderOptions = options;</code></pre>
 </section>
 
 
@@ -98,7 +100,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.8.2-dev
+      0.9.0-dev
   </span>
   
 </footer>

@@ -402,6 +402,11 @@ class RdfNamespaceMappings {
 
   /// Extracts the namespace and local part from an IRI
   ///
+  /// A namespace is defined as the part of the IRI up to and including the last '#' character,
+  /// or the part up to and including the last '/' character if there is no '#'.
+  /// However, if the resulting namespace would be a protocol-only URI (like 'http://' or 'https://'),
+  /// the entire IRI is treated as the namespace to avoid generating invalid or meaningless prefixes.
+  ///
   /// @param iri The IRI to split into namespace and local part
   /// @return A tuple containing (namespace, localPart)
   static (String namespace, String localPart) extractNamespaceAndLocalPart(
@@ -413,7 +418,16 @@ class RdfNamespaceMappings {
     if (hashIndex > slashIndex && hashIndex != -1) {
       return (iri.substring(0, hashIndex + 1), iri.substring(hashIndex + 1));
     } else if (slashIndex != -1) {
-      return (iri.substring(0, slashIndex + 1), iri.substring(slashIndex + 1));
+      // Check if the namespace would only be a protocol like 'http://' or 'https://'
+      final namespace = iri.substring(0, slashIndex + 1);
+      if (namespace == 'http://' ||
+          namespace == 'https://' ||
+          namespace == 'ftp://' ||
+          namespace == 'file://') {
+        // If just a protocol, use the entire IRI as namespace and leave local part empty
+        return (iri, '');
+      }
+      return (namespace, iri.substring(slashIndex + 1));
     } else {
       return (iri, '');
     }

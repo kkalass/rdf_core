@@ -294,9 +294,26 @@ class TurtleEncoder extends RdfGraphEncoder {
       // No existing prefix found, generate a new one using namespace mappings
 
       // Extract namespace from IRI
-      final (namespace, _) = RdfNamespaceMappings.extractNamespaceAndLocalPart(
-        iri,
-      );
+      final (
+        namespace,
+        localPart,
+      ) = RdfNamespaceMappings.extractNamespaceAndLocalPart(iri);
+
+      // Skip generating prefixes for protocol-only URIs like "http://" or "https://"
+      if (namespace == "http://" ||
+          namespace == "https://" ||
+          namespace == "ftp://" ||
+          namespace == "file://") {
+        // If it's just a protocol URI, don't add a prefix
+        return;
+      }
+
+      // Skip generating prefixes for namespaces that don't end with "/" or "#"
+      // since these are not proper namespace delimiters in RDF
+      if (!namespace.endsWith('/') && !namespace.endsWith('#')) {
+        // For IRIs without proper namespace delimiters, don't add a prefix
+        return;
+      }
 
       // Get or generate a prefix for this namespace
       final (prefix, _) = _namespaceMappings.getOrGeneratePrefix(

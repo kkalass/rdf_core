@@ -3,7 +3,6 @@
 //
 
 import 'package:rdf_core/rdf_core.dart';
-import 'package:rdf_core/src/turtle/turtle_encoder.dart';
 
 void main() {
   // --- Manual Graph Construction ---
@@ -28,12 +27,7 @@ void main() {
   }
 
   // --- Serialize to Turtle with custom prefixes ---
-  final turtleStr = turtle.encode(
-    graph,
-    options: TurtleEncoderOptions(
-      customPrefixes: {'ex': 'http://example.org/'},
-    ),
-  );
+  final turtleStr = turtle.encode(graph);
 
   // Note that prefixes for well-known IRIs like https://xmlns.com/foaf/0.1/ will automatically
   // be introduced, using custom prefixes is optional. Expect an output like this:

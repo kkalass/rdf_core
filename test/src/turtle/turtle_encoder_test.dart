@@ -1626,5 +1626,102 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
         reason: 'Should inline a blank node within a collection',
       );
     });
+
+    test('should not generate invalid namespace prefixes', () {
+      // Arrange
+      final graph = RdfGraph(
+        triples: [
+          Triple(
+            IriTerm('http://example.org/organization'),
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+            IriTerm('https://schema.org/Organization'),
+          ),
+          Triple(
+            IriTerm('http://example.org/organization'),
+            IriTerm('https://schema.org/name'),
+            LiteralTerm.string('Test Organization'),
+          ),
+          Triple(
+            IriTerm('http://example.org/organization'),
+            IriTerm('https://schema.org/address'),
+            BlankNodeTerm(),
+          ),
+        ],
+      );
+
+      // Act
+      final result = encoder.convert(graph);
+
+      // Assert
+      // Should contain schema.org prefix properly
+      expect(result, contains('@prefix schema: <https://schema.org/> .'));
+
+      // Should NOT contain invalid prefixes
+      expect(result, isNot(contains('@prefix ns1: <https://> .')));
+
+      // The serialized output should use the proper prefix
+      expect(result, contains('a schema:Organization'));
+      expect(result, contains('schema:name "Test Organization"'));
+      expect(result, contains('schema:address _:'));
+    });
+
+    test('should handle complex namespace IRIs correctly', () {
+      // Arrange
+      final graph = RdfGraph(
+        triples: [
+          // Standard HTTP IRI
+          Triple(
+            IriTerm('http://example.org/resource'),
+            IriTerm('http://example.org/property'),
+            LiteralTerm.string('value1'),
+          ),
+          // HTTPS IRI with subdomain
+          Triple(
+            IriTerm('https://api.example.com/resource'),
+            IriTerm('https://api.example.com/property'),
+            LiteralTerm.string('value2'),
+          ),
+          // IRI with no path (would have created invalid ns:https:// before the fix)
+          Triple(
+            IriTerm('https://example.net'),
+            IriTerm('https://example.org/refers-to'),
+            LiteralTerm.string('value3'),
+          ),
+          // IRI with just a protocol (would have created invalid ns:http:// before the fix)
+          Triple(
+            IriTerm('http://'),
+            IriTerm('http://example.org/isProtocol'),
+            LiteralTerm.boolean(true),
+          ),
+        ],
+      );
+
+      // Act
+      final result = encoder.convert(graph);
+      print(result);
+      // Assert
+      // Verify each namespace has a proper prefix (exact prefix name may vary)
+      expect(result, contains('@prefix '));
+
+      // Verify the prefixes for the namespaces (but don't assert the specific prefix names)
+      expect(result, contains('@prefix ex: <http://example.org/>'));
+      expect(result, contains('@prefix api: <https://api.example.com/>'));
+      // This IRI doesn't have a trailing slash or hash, so should be serialized as a full IRI, not with a prefix
+      expect(result, isNot(contains('@prefix ex1: <https://example.net>')));
+
+      // Check for handling of protocol-only URI correctly
+      // The literal URI 'http://' should not be assigned a prefix but used directly as a full IRI
+      expect(result, isNot(contains('@prefix ns1: <http://> .')));
+      expect(
+        result,
+        contains('<http://> ex:isProtocol true .'),
+      ); // Should be used as a full IRI
+
+      // Check that triples are correctly serialized (content independent of prefix names)
+      expect(result, contains('ex:resource ex:property "value1"'));
+      expect(result, contains('ex1:refers-to "value3"'));
+      expect(result, contains('ex:isProtocol true'));
+      expect(result, contains('api:resource api:property "value2"'));
+    });
   });
 }

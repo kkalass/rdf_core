@@ -66,21 +66,7 @@ void main() {
 
   // Convert between formats - serialize to Turtle
   print('\nConverting to Turtle format:');
-  final turtle = rdf.encode(
-    graph,
-    contentType: 'text/turtle',
-
-    // Note that we can use explicitly TurtleEncoderOptions, but we can also use
-    // the more generic RdfGraphEncoderOptions which would work for all formats
-    // that support custom prefixes.
-    options: RdfGraphEncoderOptions(
-      // Custom prefixes for Turtle serialization
-      customPrefixes: {
-        'ex': 'http://example.org/',
-        'foaf': 'http://xmlns.com/foaf/0.1/',
-      },
-    ),
-  );
+  final turtle = rdf.encode(graph, contentType: 'text/turtle');
   print(turtle);
 
   // Working with different types of terms in N-Triples

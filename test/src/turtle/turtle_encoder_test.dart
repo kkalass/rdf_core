@@ -1874,5 +1874,96 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
         },
       );
     });
+
+    test('should generate valid prefixes for URLs with hyphens', () {
+      // Arrange - Create a graph with IRIs containing hyphens
+      final graph = RdfGraph(
+        triples: [
+          Triple(
+            IriTerm('http://kalass.de/dart/rdf/test-ontology#subject'),
+            IriTerm('http://kalass.de/dart/rdf/test-ontology#predicate'),
+            IriTerm('http://example-domain.org/object'),
+          ),
+          Triple(
+            IriTerm('http://other-domain.com/resource'),
+            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+            IriTerm('http://example-domain.org/Class'),
+          ),
+        ],
+      );
+
+      // Act
+      final result = encoder.convert(graph);
+
+      // Assert
+      expect(
+        result,
+        contains('@prefix to: <http://kalass.de/dart/rdf/test-ontology#> .'),
+        reason: 'Should generate valid prefix using initials for test-ontology',
+      );
+
+      // Prefix for example-domain should not contain hyphens
+      expect(
+        result,
+        isNot(contains('@prefix example-domain:')),
+        reason: 'Should not generate prefixes containing hyphens',
+      );
+
+      // The generated prefixes should be used in the triples
+      expect(
+        result,
+        contains('to:subject to:predicate'),
+        reason: 'Should use generated initials-based prefixes in the triples',
+      );
+    });
+
+    test(
+      'should generate valid prefixes for complex URL patterns with hyphens',
+      () {
+        // Test various complex URL patterns with hyphens
+        final urls = [
+          // URLs with complex path and hyphens
+          'http://example.org/path-with/multiple-hyphens/in-segments#term',
+          // URLs with hyphenated domain names
+          'http://multi-part-domain-name.example.org/resource',
+          // URLs with both domain and path hyphens
+          'http://hyphenated-domain.org/hyphenated-path/resource',
+          // URL with special characters and hyphens
+          'http://domain.org/path/with_special-chars.and-hyphens',
+        ];
+
+        // Create a graph with a triple for each URL
+        final triples =
+            urls
+                .map(
+                  (url) => Triple(
+                    IriTerm(url),
+                    IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+                    IriTerm('http://example.org/Resource'),
+                  ),
+                )
+                .toList();
+
+        final graph = RdfGraph(triples: triples);
+
+        // Act
+        final result = encoder.convert(graph);
+
+        // Assert - make sure no generated prefixes contain hyphens
+        for (final line in result.split('\n')) {
+          if (line.trim().startsWith('@prefix ')) {
+            final prefixPart = line
+                .split(':')[0]
+                .trim()
+                .replaceAll('@prefix ', '');
+            expect(
+              prefixPart.contains('-'),
+              isFalse,
+              reason: 'Prefix "$prefixPart" should not contain hyphens',
+            );
+          }
+        }
+      },
+    );
   });
 }

@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This behavior can be configured through the `useNumericLocalNames` option in `TurtleEncoderOptions`
   - Fixed internal parameter consistency to ensure proper serialization of IRIs with numeric local names regardless of prefix availability
 
+- **RdfNamespaceMappings**: Improved prefix generation for URIs with hyphens
+  - Changed prefix generation strategy to use initials for components with hyphens (e.g., "test-complex-ontology" → "tco")
+  - Ensures compliance with RDF specifications that prohibit hyphens in prefixes
+  - Makes prefix generation consistent between domain names and path components with hyphens
+  - Added comprehensive tests for hyphen handling in prefix generation
+
 ## [0.9.0] - 2025-05-14
 
 ### Breaking Changes

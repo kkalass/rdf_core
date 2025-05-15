@@ -527,5 +527,85 @@ void main() {
       // Should be identical (same instance) due to const constructor
       expect(identical(mappings1, mappings2), isTrue);
     });
+
+    group('hyphen handling in prefixes', () {
+      test('removes hyphens when extracting prefixes from domain names', () {
+        final mappings = RdfNamespaceMappings.custom({}, useDefaults: false);
+
+        // Test domain with hyphen
+        final (dataGovPrefix, _) = mappings.getOrGeneratePrefix(
+          'http://test-domain.example.org/vocab/',
+        );
+        expect(dataGovPrefix, equals('td'));
+
+        // Test domain with multiple hyphens
+        final (multiHyphenPrefix, _) = mappings.getOrGeneratePrefix(
+          'http://multiple-hyphens-test.org/',
+        );
+        expect(multiHyphenPrefix, equals('mht'));
+      });
+
+      test('handles hyphenated path components correctly', () {
+        final mappings = RdfNamespaceMappings.custom({}, useDefaults: false);
+
+        // Path component with hyphen
+        final (pathPrefix, _) = mappings.getOrGeneratePrefix(
+          'http://example.org/test-ontology#',
+        );
+        // Should use initials from hyphenated component
+        expect(pathPrefix, equals('to'));
+
+        // Path component with multiple hyphens
+        final (multiHyphenPrefix, _) = mappings.getOrGeneratePrefix(
+          'http://kalass.de/dart/rdf/test-complex-ontology#age',
+        );
+        expect(
+          multiHyphenPrefix,
+          equals('tco'),
+        ); // Using initials from test-complex-ontology
+      });
+
+      test('never generates prefixes containing hyphens', () {
+        final mappings = RdfNamespaceMappings.custom({}, useDefaults: false);
+
+        // Generate prefixes for various hyphenated components
+        final urls = [
+          'http://test-domain.org/',
+          'http://example.org/path-with-hyphens/',
+          'http://domain.com/some/path/test-ontology#',
+          'http://kalass.de/dart/rdf/test-ontology#age',
+        ];
+
+        for (final url in urls) {
+          final (prefix, _) = mappings.getOrGeneratePrefix(url);
+          expect(prefix, isNotNull);
+          expect(prefix, isNotEmpty);
+          expect(
+            prefix.contains('-'),
+            isFalse,
+            reason: 'Prefix "$prefix" for URL "$url" contains hyphen',
+          );
+        }
+      });
+
+      test('applies correct prefix sanitization strategy', () {
+        final mappings = RdfNamespaceMappings.custom({}, useDefaults: false);
+
+        // Test strategy 1: Using initials for simple hyphenated terms
+        final (simpleHyphenPrefix, _) = mappings.getOrGeneratePrefix(
+          'http://example.org/simple-test/',
+        );
+        expect(simpleHyphenPrefix, equals('st'));
+
+        // Test strategy 2: Using initials for complex terms
+        final (initialsPrefix, _) = mappings.getOrGeneratePrefix(
+          'http://example.org/complex-multi-part-name/',
+        );
+        expect(
+          initialsPrefix,
+          equals('cmpn'),
+        ); // Initials from hyphenated parts
+      });
+    });
   });
 }

@@ -253,12 +253,17 @@ class RdfNamespaceMappings {
     final firstPart = domainParts[0].toLowerCase();
 
     // For domains with hyphens, consider using initials (e.g., "data-gov" -> "dg")
+    // This is necessary because hyphens are not allowed in RDF prefixes
     if (firstPart.contains('-')) {
       final parts = firstPart.split('-');
       if (parts.length >= 2 && parts.every((p) => p.isNotEmpty)) {
         final initials = parts.map((p) => p[0]).join('');
         if (_isValidPrefix(initials)) return initials;
       }
+      
+      // If initials approach doesn't work, try removing hyphens
+      final noHyphens = firstPart.replaceAll('-', '');
+      if (_isValidPrefix(noHyphens)) return noHyphens;
     }
 
     // For other domains, use short prefix or abbreviation from first domain part
@@ -318,8 +323,9 @@ class RdfNamespaceMappings {
     final nsIndex = components.indexOf('ns');
     if (nsIndex >= 0 && nsIndex < components.length - 1) {
       final candidate = components[nsIndex + 1];
-      if (_isGoodPrefix(genericTerms, candidate, versionOrDatePattern)) {
-        return candidate;
+      final cleanedCandidate = _sanitizeComponentForPrefix(candidate);
+      if (_isGoodPrefix(genericTerms, cleanedCandidate, versionOrDatePattern)) {
+        return cleanedCandidate;
       }
     }
 
@@ -339,11 +345,14 @@ class RdfNamespaceMappings {
         component = component.substring(0, component.length - 1);
       }
 
+      // Clean the component (remove or replace invalid characters)
+      final cleanedComponent = _sanitizeComponentForPrefix(component);
+
       // Skip version numbers and dates
-      if (versionOrDatePattern.hasMatch(component)) continue;
+      if (versionOrDatePattern.hasMatch(cleanedComponent)) continue;
 
       // Skip generic terms if not the only option
-      if (genericTerms.contains(component.toLowerCase()) &&
+      if (genericTerms.contains(cleanedComponent.toLowerCase()) &&
           (components.length > 1 || i > 0)) {
         continue;
       }
@@ -351,25 +360,58 @@ class RdfNamespaceMappings {
       // If we've reached the first component and haven't found anything better
       if (i == 0 && components.length > 1) {
         // Try using the first segment if it's not a generic term
-        if (_isGoodPrefix(genericTerms, component, versionOrDatePattern)) {
-          return component;
+        if (_isGoodPrefix(genericTerms, cleanedComponent, versionOrDatePattern)) {
+          return cleanedComponent;
         }
 
         // If the second segment is not a generic term or version, consider it
-        if (components.length > 1 &&
-            _isGoodPrefix(genericTerms, components[1], versionOrDatePattern)) {
-          return components[1];
+        if (components.length > 1) {
+          final secondCleanedComponent = _sanitizeComponentForPrefix(components[1]);
+          if (_isGoodPrefix(genericTerms, secondCleanedComponent, versionOrDatePattern)) {
+            return secondCleanedComponent;
+          }
         }
       }
 
       // Found a good candidate
-      if (_isGoodPrefix(genericTerms, component, versionOrDatePattern)) {
-        return component;
+      if (_isGoodPrefix(genericTerms, cleanedComponent, versionOrDatePattern)) {
+        return cleanedComponent;
       }
     }
 
     // If no good prefix found, return null - we will use the domain then
     return null;
+  }  /// Sanitizes a URL component to create a valid RDF prefix.
+  /// 
+  /// Makes a path or domain component suitable for use as an RDF prefix by:
+  /// 1. For hyphenated components, preferring the initials of each part (e.g., "test-complex-ontology" → "tco")
+  /// 2. If initials approach fails, falling back to removing hyphens
+  /// 3. Ensuring the result complies with RDF prefix naming rules
+  /// 
+  /// Returns a cleaned string that can be used as a valid RDF prefix,
+  /// or the original string if no cleaning is needed or possible.
+  String _sanitizeComponentForPrefix(String component) {
+    // If component already valid, return it as is
+    if (_isValidPrefix(component)) return component;
+    
+    // For components with hyphens, prioritize using initials
+    if (component.contains('-')) {
+      final parts = component.split('-');
+      if (parts.length >= 2 && parts.every((p) => p.isNotEmpty)) {
+        final initials = parts.map((p) => p.isNotEmpty ? p[0] : '').join('');
+        if (_isValidPrefix(initials)) return initials;
+        
+        // If initials approach doesn't work, fall back to removing hyphens
+        final noHyphens = component.replaceAll('-', '');
+        if (_isValidPrefix(noHyphens)) return noHyphens;
+      }
+    } else {
+      // For components without hyphens, just return the component
+      return component;
+    }
+    
+    // Return original if cleaning didn't work (will be filtered out later by _isValidPrefix)
+    return component;
   }
 
   /// Determines if a string component makes a good prefix for a namespace.
@@ -395,13 +437,16 @@ class RdfNamespaceMappings {
 
   /// Checks if a string is valid for use as an RDF namespace prefix.
   ///
-  /// A valid prefix must follow these rules:
+  /// A valid prefix must follow the Turtle/SPARQL specification for PN_PREFIX:
   /// 1. Must not be empty
   /// 2. First character must be a letter (A-Z, a-z) or underscore (_)
-  /// 3. Subsequent characters can be letters, digits, underscore (_), hyphen (-), or period (.)
+  /// 3. Subsequent characters can be letters, digits, underscore (_), or period (.)
+  /// 4. If periods are used, they must not be the last character
   ///
-  /// These rules align with XML namespace prefix naming conventions and common
-  /// practices in RDF serialization formats.
+  /// Note that according to the RDF specifications, hyphens (-) are not allowed in prefixes,
+  /// although they are allowed in local names.
+  ///
+  /// These rules align with the Turtle/SPARQL specification for PN_PREFIX.
   ///
   /// The [name] parameter is the string to validate as a potential prefix.
   /// Returns true if the string is a valid prefix, false otherwise.
@@ -410,7 +455,7 @@ class RdfNamespaceMappings {
       return false;
     }
 
-    // First character must be a letter or underscore
+    // First character must be a letter or underscore (PN_CHARS_BASE)
     final firstChar = name.codeUnitAt(0);
     if (!((firstChar >= 65 && firstChar <= 90) || // A-Z
         (firstChar >= 97 && firstChar <= 122) || // a-z
@@ -419,18 +464,23 @@ class RdfNamespaceMappings {
       return false;
     }
 
-    // Subsequent characters can also include digits and some symbols
+    // Subsequent characters can include letters, digits, underscore and periods
+    // but periods must not be the last character
     for (int i = 1; i < name.length; i++) {
       final char = name.codeUnitAt(i);
       if (!((char >= 65 && char <= 90) || // A-Z
           (char >= 97 && char <= 122) || // a-z
           (char >= 48 && char <= 57) || // 0-9
           char == 95 || // _
-          char == 45 || // -
           char == 46)) {
         // .
         return false;
       }
+    }
+
+    // Period must not be the last character
+    if (name.endsWith('.')) {
+      return false;
     }
 
     return true;

@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the toString method from the NTriplesCodec class, for the Dart programming language.">
-  <title>toString method - NTriplesCodec class - rdf library - Dart API</title>
+  <meta name="description" content="API docs for the useNumericLocalNames property from the TurtleEncoderOptions class, for the Dart programming language.">
+  <title>useNumericLocalNames property - TurtleEncoderOptions class - rdf library - Dart API</title>
 
 
   
@@ -26,10 +26,10 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rdf_core</a></li>
     <li><a href="../../rdf">rdf_core.dart</a></li>
-    <li><a href="../../rdf/NTriplesCodec-class.html">NTriplesCodec</a></li>
-    <li class="self-crumb">toString method</li>
+    <li><a href="../../rdf/TurtleEncoderOptions-class.html">TurtleEncoderOptions</a></li>
+    <li class="self-crumb">useNumericLocalNames property</li>
   </ol>
-  <div class="self-name">toString</div>
+  <div class="self-name">useNumericLocalNames</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -49,43 +49,52 @@
 <div
     id="dartdoc-main-content"
     class="main-content"
-    data-above-sidebar="rdf&#47;NTriplesCodec-class-sidebar.html"
+    data-above-sidebar="rdf&#47;TurtleEncoderOptions-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">toString</span> method 
+<h1><span class="kind-property">useNumericLocalNames</span> property 
 </h1></div>
 
-    <section class="multi-line-signature">
-      
-  <div>
-    <ol class="annotation-list">
-        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
-    </ol>
-  </div>
-<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
-<span class="name ">toString</span>(<wbr>)
-
-      <div class="features"><span class="feature">override</span></div>
-
-    </section>
     
+      <section class="multi-line-signature">
+        
+        <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a>
+        <span class="name ">useNumericLocalNames</span>
+        <div class="features"><span class="feature">final</span></div>
+
+      </section>
+      
 <section class="desc markdown">
-  <p>Returns a string representation of this codec</p>
-<p>This is primarily used for debugging and logging purposes.</p>
+  <p>Controls whether local names that start with a digit are written using prefix notation.</p>
+<p>According to the Turtle specification, local names that begin with a digit
+cannot be written directly in the prefixed notation, as this would produce
+invalid Turtle syntax.</p>
+<p>When set to <code>true</code>, the encoder will use prefixed notation for IRIs with
+local names that start with digits. This requires each of these local names
+to be escaped properly and is not recommended by default.</p>
+<p>When set to <code>false</code> (default), the encoder will always write IRIs with local
+names that start with a digit as full IRIs in angle brackets, regardless of
+whether a matching prefix exists.</p>
+<p>For example, with this option set to <code>false</code>:</p>
+<ul>
+<li>The IRI <code>http://example.org/123</code> will be written as <code>&lt;http://example.org/123&gt;</code>
+even if the prefix <code>ex:</code> is defined for <code>http://example.org/</code></li>
+</ul>
+<p>This behavior ensures compliant Turtle output and improves readability
+while avoiding potential syntax errors.</p>
 </section>
 
-
-    
+      
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">@override
-String toString() =&gt; &#39;NTriplesFormat()&#39;;</code></pre>
+  <pre class="language-dart"><code class="language-dart">final bool useNumericLocalNames;</code></pre>
 </section>
 
 
-  </div> <!-- /.main-content -->
-  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
-    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+    
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
   <form class="search-sidebar" role="search">
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
@@ -94,14 +103,14 @@ String toString() =&gt; &#39;NTriplesFormat()&#39;;</code></pre>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rdf_core</a></li>
     <li><a href="../../rdf">rdf</a></li>
-    <li><a href="../../rdf/NTriplesCodec-class.html">NTriplesCodec</a></li>
-    <li class="self-crumb">toString method</li>
+    <li><a href="../../rdf/TurtleEncoderOptions-class.html">TurtleEncoderOptions</a></li>
+    <li class="self-crumb">useNumericLocalNames property</li>
 </ol>
 
-    <h5>NTriplesCodec class</h5>
-    <div id="dartdoc-sidebar-left-content"></div>
-  </div><!--/.sidebar-offcanvas-->
-  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>TurtleEncoderOptions class</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div><!--/.sidebar-offcanvas-->
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
 </div><!--/.sidebar-offcanvas-->
 </main>
 <footer>

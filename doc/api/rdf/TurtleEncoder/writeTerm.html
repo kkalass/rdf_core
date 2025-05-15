@@ -62,6 +62,7 @@
 <li><span class="parameter" id="writeTerm-param-prefixesByIri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">prefixesByIri</span> = <span class="default-value">const {}</span>, </span></li>
 <li><span class="parameter" id="writeTerm-param-blankNodeLabels"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/BlankNodeTerm-class.html">BlankNodeTerm</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">blankNodeLabels</span> = <span class="default-value">const {}</span>, </span></li>
 <li><span class="parameter" id="writeTerm-param-baseUri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">baseUri</span>, </span></li>
+<li><span class="parameter" id="writeTerm-param-isPredicate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isPredicate</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
 
       
@@ -81,6 +82,7 @@
   Map&lt;String, String&gt; prefixesByIri = const {},
   Map&lt;BlankNodeTerm, String&gt; blankNodeLabels = const {},
   String? baseUri,
+  bool isPredicate = false,
 }) {
   switch (term) {
     case IriTerm _:
@@ -92,24 +94,58 @@
         final (
           baseIri,
           localPart,
-        ) = RdfNamespaceMappings.extractNamespaceAndLocalPart(iri);
+        ) = RdfNamespaceMappings.extractNamespaceAndLocalPart(
+          iri,
+          allowNumericLocalNames: _options.useNumericLocalNames,
+        );
 
-        final prefix = prefixesByIri[baseIri];
-        if (prefix != null) {
-          &#47;&#47; Handle empty prefix specially
-          return prefix.isEmpty ? &#39;:$localPart&#39; : &#39;$prefix:$localPart&#39;;
-        } else {
-          final prefix = prefixesByIri[iri];
+        &#47;&#47; If we have a valid local part
+        if (localPart.isNotEmpty || baseIri == iri) {
+          final prefix = prefixesByIri[baseIri];
           if (prefix != null) {
-            return prefix.isEmpty ? &#39;:&#39; : &#39;$prefix:&#39;;
+            &#47;&#47; Handle empty prefix specially
+            return prefix.isEmpty ? &#39;:$localPart&#39; : &#39;$prefix:$localPart&#39;;
+          } else {
+            final prefix = prefixesByIri[iri];
+            if (prefix != null) {
+              return prefix.isEmpty ? &#39;:&#39; : &#39;$prefix:&#39;;
+            }
           }
         }
       }
 
-      &#47;&#47; Handle base URI relative references
+      &#47;&#47; For predicates or terms with baseUri:
+      &#47;&#47; - For predicates, always use prefixes if they exist (handled above)
+      &#47;&#47; - For subject&#47;object under baseUri, check if there&#39;s a better prefix
+      &#47;&#47;   that is longer than baseUri, if not, use relative IRI
+
+      &#47;&#47; If we have a baseUri and this term starts with it
       if (baseUri != null &amp;&amp; term.iri.startsWith(baseUri)) {
-        final localPart = term.iri.substring(baseUri.length);
-        return &#39;&lt;$localPart&gt;&#39;;
+        &#47;&#47; For non-predicates that start with baseUri, check if there&#39;s a
+        &#47;&#47; namespace prefix that&#39;s longer than baseUri
+        if (!isPredicate) {
+          bool betterPrefixExists = false;
+          for (final entry in prefixesByIri.entries) {
+            final namespace = entry.key;
+            &#47;&#47; If there&#39;s a namespace that:
+            &#47;&#47; 1. Is a prefix of this IRI
+            &#47;&#47; 2. Is longer than baseUri
+            &#47;&#47; 3. Has an associated prefix
+            if (term.iri.startsWith(namespace) &amp;&amp;
+                namespace.length &gt; baseUri.length) {
+              betterPrefixExists = true;
+              break;
+            }
+          }
+
+          &#47;&#47; If no better prefix exists, use relative IRI
+          if (!betterPrefixExists) {
+            final localPart = term.iri.substring(baseUri.length);
+            return &#39;&lt;$localPart&gt;&#39;;
+          }
+          &#47;&#47; Otherwise, fall through to the full IRI case below
+          &#47;&#47; (which might still find a prefix to use)
+        }
       }
 
       return &#39;&lt;${term.iri}&gt;&#39;;
@@ -175,7 +211,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.0
+      0.9.1
   </span>
   
 </footer>

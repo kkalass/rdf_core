@@ -58,8 +58,9 @@
     <section class="multi-line-signature">
       
 <span class="returntype">(<span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span></span>)</span>
-<span class="name ">extractNamespaceAndLocalPart</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="extractNamespaceAndLocalPart-param-iri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">iri</span></span></li>
-</ol>)
+<span class="name ">extractNamespaceAndLocalPart</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="extractNamespaceAndLocalPart-param-iri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">iri</span>, {</span></li>
+<li><span class="parameter" id="extractNamespaceAndLocalPart-param-allowNumericLocalNames"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">allowNumericLocalNames</span> = <span class="default-value">true</span>, </span></li>
+</ol>})
 
       
 
@@ -72,7 +73,15 @@ or the part up to and including the last '/' character if there is no '#'.
 However, if the resulting namespace would be a protocol-only URI (like 'http://' or 'https://'),
 the entire IRI is treated as the namespace to avoid generating invalid or meaningless prefixes.</p>
 <p>The <code>iri</code> is the IRI to split into namespace and local part.
-Returns a tuple containing (namespace, localPart).</p>
+When <code>allowNumericLocalNames</code> is false, local parts that start with a digit will be
+considered invalid for prefixed notation (which is common in formats like Turtle),
+resulting in an empty local part and the full IRI as the namespace.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>iri</code> The IRI to split</li>
+<li><code>allowNumericLocalNames</code> Whether to allow local names that start with digits (default: true)</li>
+</ul>
+<p>Returns a tuple containing (namespace, localPart).</p>
 </section>
 
 
@@ -80,16 +89,21 @@ Returns a tuple containing (namespace, localPart).</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static (String namespace, String localPart) extractNamespaceAndLocalPart(
-  String iri,
-) {
+  String iri, {
+  bool allowNumericLocalNames = true,
+}) {
   final hashIndex = iri.lastIndexOf(&#39;#&#39;);
   final slashIndex = iri.lastIndexOf(&#39;&#47;&#39;);
 
+  String namespace;
+  String localPart;
+
   if (hashIndex &gt; slashIndex &amp;&amp; hashIndex != -1) {
-    return (iri.substring(0, hashIndex + 1), iri.substring(hashIndex + 1));
+    namespace = iri.substring(0, hashIndex + 1);
+    localPart = iri.substring(hashIndex + 1);
   } else if (slashIndex != -1) {
     &#47;&#47; Check if the namespace would only be a protocol like &#39;http:&#47;&#47;&#39; or &#39;https:&#47;&#47;&#39;
-    final namespace = iri.substring(0, slashIndex + 1);
+    namespace = iri.substring(0, slashIndex + 1);
     if (namespace == &#39;http:&#47;&#47;&#39; ||
         namespace == &#39;https:&#47;&#47;&#39; ||
         namespace == &#39;ftp:&#47;&#47;&#39; ||
@@ -97,10 +111,20 @@ Returns a tuple containing (namespace, localPart).</p>
       &#47;&#47; If just a protocol, use the entire IRI as namespace and leave local part empty
       return (iri, &#39;&#39;);
     }
-    return (namespace, iri.substring(slashIndex + 1));
+    localPart = iri.substring(slashIndex + 1);
   } else {
     return (iri, &#39;&#39;);
   }
+
+  &#47;&#47; If local part starts with a digit and numeric local names aren&#39;t allowed,
+  &#47;&#47; return the full IRI as namespace and an empty local part
+  if (!allowNumericLocalNames &amp;&amp;
+      localPart.isNotEmpty &amp;&amp;
+      RegExp(r&#39;^\d&#39;).hasMatch(localPart)) {
+    return (iri, &#39;&#39;);
+  }
+
+  return (namespace, localPart);
 }</code></pre>
 </section>
 
@@ -129,7 +153,7 @@ Returns a tuple containing (namespace, localPart).</p>
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.0
+      0.9.1
   </span>
   
 </footer>

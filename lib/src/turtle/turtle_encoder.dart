@@ -401,6 +401,7 @@ class TurtleEncoder extends RdfGraphEncoder {
           usedPrefixes,
           prefixCandidates,
           baseUri,
+          isPredicate: true,
         );
       }
 
@@ -459,6 +460,7 @@ class TurtleEncoder extends RdfGraphEncoder {
     Map<String, String> usedPrefixes,
     Map<String, String> prefixCandidates,
     String? baseUri,
+    {bool isPredicate = false}
   ) {
     if (term == Rdf.type) {
       // This IRI has special handling in Turtle besides the prefix stuff:
@@ -468,9 +470,30 @@ class TurtleEncoder extends RdfGraphEncoder {
 
     final iri = term.iri;
 
-    // Skip prefix generation for IRIs that will be rendered as relative URIs
-    if (baseUri != null && iri.startsWith(baseUri)) {
-      return;
+    // Never skip prefix generation for predicates - always use prefixes if available
+    // For subjects and objects, allow relative IRIs under base URI, but only
+    // if there's no better matching prefix (handled later)
+    if (!isPredicate && baseUri != null && iri.startsWith(baseUri)) {
+      // For subjects and objects under baseUri, we need to be careful:
+      // 1. Check if there's a matching prefix that's longer than baseUri
+      // 2. If yes, use that prefix
+      // 3. If no, don't generate a new prefix - we'll use relative IRIs
+      
+      // Find the longest matching prefix (if any)
+      var longerPrefixExists = false;
+      for (final entry in prefixCandidates.entries) {
+        final namespace = entry.value;
+        if (iri.startsWith(namespace) && namespace.length > baseUri.length) {
+          longerPrefixExists = true;
+          break;
+        }
+      }
+      
+      // If no longer prefix exists, skip all prefix generation for this term
+      // It will be serialized as a relative IRI instead
+      if (!longerPrefixExists) {
+        return;
+      }
     }
 
     // Extract namespace and local part with validation for numeric local names
@@ -523,6 +546,10 @@ class TurtleEncoder extends RdfGraphEncoder {
 
     // Only add valid prefixes with non-empty namespaces
     if ((bestPrefix.isNotEmpty || bestPrefix == '') && bestMatch.isNotEmpty) {
+      // Don't add a prefix for the base URI namespace, unless it's for a predicate
+      if (baseUri != null && bestMatch == baseUri && !isPredicate) {
+        return;
+      }
       usedPrefixes[bestPrefix] = bestMatch;
     } else if (bestMatch.isEmpty && _options.generateMissingPrefixes) {
       // No existing prefix found, generate a new one using namespace mappings
@@ -983,6 +1010,7 @@ class TurtleEncoder extends RdfGraphEncoder {
           predicate,
           prefixesByIri: prefixesByIri,
           blankNodeLabels: blankNodeLabels,
+          isPredicate: true,
         ),
       );
       buffer.write(' ');
@@ -1107,6 +1135,7 @@ class TurtleEncoder extends RdfGraphEncoder {
           predicate,
           prefixesByIri: prefixesByIri,
           blankNodeLabels: blankNodeLabels,
+          isPredicate: true,
         ),
       );
       buffer.write(' ');
@@ -1178,6 +1207,7 @@ class TurtleEncoder extends RdfGraphEncoder {
     Map<String, String> prefixesByIri = const {},
     Map<BlankNodeTerm, String> blankNodeLabels = const {},
     String? baseUri,
+    bool isPredicate = false,
   }) {
     switch (term) {
       case IriTerm _:
@@ -1209,10 +1239,38 @@ class TurtleEncoder extends RdfGraphEncoder {
           }
         }
 
-        // Handle base URI relative references
+        // For predicates or terms with baseUri:
+        // - For predicates, always use prefixes if they exist (handled above)
+        // - For subject/object under baseUri, check if there's a better prefix
+        //   that is longer than baseUri, if not, use relative IRI
+        
+        // If we have a baseUri and this term starts with it
         if (baseUri != null && term.iri.startsWith(baseUri)) {
-          final localPart = term.iri.substring(baseUri.length);
-          return '<$localPart>';
+          // For non-predicates that start with baseUri, check if there's a 
+          // namespace prefix that's longer than baseUri
+          if (!isPredicate) {
+            bool betterPrefixExists = false;
+            for (final entry in prefixesByIri.entries) {
+              final namespace = entry.key;
+              // If there's a namespace that:
+              // 1. Is a prefix of this IRI
+              // 2. Is longer than baseUri
+              // 3. Has an associated prefix
+              if (term.iri.startsWith(namespace) && 
+                  namespace.length > baseUri.length) {
+                betterPrefixExists = true;
+                break;
+              }
+            }
+            
+            // If no better prefix exists, use relative IRI
+            if (!betterPrefixExists) {
+              final localPart = term.iri.substring(baseUri.length);
+              return '<$localPart>';
+            }
+            // Otherwise, fall through to the full IRI case below
+            // (which might still find a prefix to use)
+          }
         }
 
         return '<${term.iri}>';

@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **TurtleEncoder**: Fixed prefix and relative URI handling with base URI
+  - Improved handling of IRIs with baseUri to correctly prioritize relative IRIs for subjects/objects
+  - Always use prefixes for predicates, even when they fall under the base URI
+  - Apply prefixes only to subjects/objects when their namespace is longer than the base URI
+  - Fixed issue where base URI namespaces were sometimes incorrectly used as prefixes
+
 - **TurtleEncoder**: Improved handling of local names that start with a digit
   - Local names that start with a digit are now consistently serialized as full IRIs rather than using prefix notation by default
   - This behavior can be configured through the `useNumericLocalNames` option in `TurtleEncoderOptions`

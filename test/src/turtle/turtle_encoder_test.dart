@@ -1,8 +1,6 @@
 // NOTE: Always use canonical RDF vocabularies (e.g., http://xmlns.com/foaf/0.1/) with http://, not https://
-import 'package:rdf_core/src/graph/rdf_graph.dart';
-import 'package:rdf_core/src/graph/rdf_term.dart';
-import 'package:rdf_core/src/graph/triple.dart';
-import 'package:rdf_core/src/turtle/turtle_encoder.dart';
+import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_core/src/vocab/rdf.dart';
 import 'package:rdf_core/src/vocab/xsd.dart';
 import 'package:test/test.dart';
 
@@ -1965,5 +1963,37 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
         }
       },
     );
+
+    test('should handle whitespace in IRI correctly', () {
+      // Arrange - Create a graph with IRIs containing hyphens
+      final graph = RdfGraph(
+        triples: [
+          Triple(
+            IriTerm('http://example.com/my%20test%20Resource'),
+            Rdf.type,
+            IriTerm('http://example.com/My%20Class'),
+          ),
+        ],
+      );
+
+      // Act
+      final result = encoder.convert(graph);
+      final decoded = TurtleDecoder(
+        namespaceMappings: RdfNamespaceMappings(),
+      ).convert(result);
+
+      // Assert
+
+      expect(
+        result,
+        contains(
+          '<http://example.com/my%20test%20Resource> a <http://example.com/My%20Class>',
+        ),
+        reason:
+            'Should use url escape for whitespace in IRIs, but does not re-escape it',
+      );
+
+      expect(decoded, equals(graph));
+    });
   });
 }

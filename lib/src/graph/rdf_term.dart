@@ -87,6 +87,10 @@ class IriTerm extends RdfPredicate implements RdfSubject {
     _validateAbsoluteIri(iri);
   }
 
+  factory IriTerm.encodeFull(String rawIri) {
+    return IriTerm(Uri.encodeFull(rawIri));
+  }
+
   /// Creates an IRI term from a prevalidated IRI string.
   ///
   /// Use this constructor only when you are sure the IRI is valid and absolute
@@ -126,6 +130,12 @@ class IriTerm extends RdfPredicate implements RdfSubject {
       throw RdfConstraintViolationException(
         'IRI scheme must start with a letter and contain only letters, digits, +, -, or .',
         constraint: 'scheme-format',
+      );
+    }
+    if (iri.contains(" ")) {
+      throw RdfConstraintViolationException(
+        'IRI cannot contain spaces',
+        constraint: 'iri-format',
       );
     }
   }

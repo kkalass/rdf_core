@@ -260,7 +260,7 @@ class RdfNamespaceMappings {
         final initials = parts.map((p) => p[0]).join('');
         if (_isValidPrefix(initials)) return initials;
       }
-      
+
       // If initials approach doesn't work, try removing hyphens
       final noHyphens = firstPart.replaceAll('-', '');
       if (_isValidPrefix(noHyphens)) return noHyphens;
@@ -360,14 +360,24 @@ class RdfNamespaceMappings {
       // If we've reached the first component and haven't found anything better
       if (i == 0 && components.length > 1) {
         // Try using the first segment if it's not a generic term
-        if (_isGoodPrefix(genericTerms, cleanedComponent, versionOrDatePattern)) {
+        if (_isGoodPrefix(
+          genericTerms,
+          cleanedComponent,
+          versionOrDatePattern,
+        )) {
           return cleanedComponent;
         }
 
         // If the second segment is not a generic term or version, consider it
         if (components.length > 1) {
-          final secondCleanedComponent = _sanitizeComponentForPrefix(components[1]);
-          if (_isGoodPrefix(genericTerms, secondCleanedComponent, versionOrDatePattern)) {
+          final secondCleanedComponent = _sanitizeComponentForPrefix(
+            components[1],
+          );
+          if (_isGoodPrefix(
+            genericTerms,
+            secondCleanedComponent,
+            versionOrDatePattern,
+          )) {
             return secondCleanedComponent;
           }
         }
@@ -381,26 +391,28 @@ class RdfNamespaceMappings {
 
     // If no good prefix found, return null - we will use the domain then
     return null;
-  }  /// Sanitizes a URL component to create a valid RDF prefix.
-  /// 
+  }
+
+  /// Sanitizes a URL component to create a valid RDF prefix.
+  ///
   /// Makes a path or domain component suitable for use as an RDF prefix by:
   /// 1. For hyphenated components, preferring the initials of each part (e.g., "test-complex-ontology" → "tco")
   /// 2. If initials approach fails, falling back to removing hyphens
   /// 3. Ensuring the result complies with RDF prefix naming rules
-  /// 
+  ///
   /// Returns a cleaned string that can be used as a valid RDF prefix,
   /// or the original string if no cleaning is needed or possible.
   String _sanitizeComponentForPrefix(String component) {
     // If component already valid, return it as is
     if (_isValidPrefix(component)) return component;
-    
+
     // For components with hyphens, prioritize using initials
     if (component.contains('-')) {
       final parts = component.split('-');
       if (parts.length >= 2 && parts.every((p) => p.isNotEmpty)) {
         final initials = parts.map((p) => p.isNotEmpty ? p[0] : '').join('');
         if (_isValidPrefix(initials)) return initials;
-        
+
         // If initials approach doesn't work, fall back to removing hyphens
         final noHyphens = component.replaceAll('-', '');
         if (_isValidPrefix(noHyphens)) return noHyphens;
@@ -409,7 +421,7 @@ class RdfNamespaceMappings {
       // For components without hyphens, just return the component
       return component;
     }
-    
+
     // Return original if cleaning didn't work (will be filtered out later by _isValidPrefix)
     return component;
   }
@@ -556,6 +568,9 @@ class RdfNamespaceMappings {
     if (!allowNumericLocalNames &&
         localPart.isNotEmpty &&
         RegExp(r'^\d').hasMatch(localPart)) {
+      return (iri, '');
+    }
+    if (localPart.contains('%')) {
       return (iri, '');
     }
 

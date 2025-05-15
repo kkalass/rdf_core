@@ -2,7 +2,6 @@ import 'package:rdf_core/src/exceptions/rdf_validation_exception.dart';
 import 'package:rdf_core/src/graph/rdf_term.dart';
 import 'package:rdf_core/src/vocab/rdf.dart';
 import 'package:rdf_core/src/vocab/xsd.dart';
-
 import 'package:test/test.dart';
 
 void main() {
@@ -12,6 +11,18 @@ void main() {
       expect(iri.iri, equals('http://example.org/resource'));
     });
 
+    test('Iris with whitespaces should throw exception', () {
+      expect(
+        () => IriTerm('http://example.org/my test Resource'),
+        throwsA(isA<RdfConstraintViolationException>()),
+      );
+    });
+
+    test('Escape Iris with whitespaces', () {
+      var expected = IriTerm('http://example.org/my%20test%20Resource');
+      var result = IriTerm.encodeFull('http://example.org/my test Resource');
+      expect(result, equals(expected));
+    });
     test('equals operator compares case-sensitively', () {
       final iri1 = IriTerm('http://example.org/resource');
       final iri2 = IriTerm('http://EXAMPLE.org/resource');

@@ -459,9 +459,9 @@ class TurtleEncoder extends RdfGraphEncoder {
     Map<String, String> iriToPrefixMap,
     Map<String, String> usedPrefixes,
     Map<String, String> prefixCandidates,
-    String? baseUri,
-    {bool isPredicate = false}
-  ) {
+    String? baseUri, {
+    bool isPredicate = false,
+  }) {
     if (term == Rdf.type) {
       // This IRI has special handling in Turtle besides the prefix stuff:
       // it will be rendered simply as "a" - no prefix needed
@@ -478,7 +478,7 @@ class TurtleEncoder extends RdfGraphEncoder {
       // 1. Check if there's a matching prefix that's longer than baseUri
       // 2. If yes, use that prefix
       // 3. If no, don't generate a new prefix - we'll use relative IRIs
-      
+
       // Find the longest matching prefix (if any)
       var longerPrefixExists = false;
       for (final entry in prefixCandidates.entries) {
@@ -488,7 +488,7 @@ class TurtleEncoder extends RdfGraphEncoder {
           break;
         }
       }
-      
+
       // If no longer prefix exists, skip all prefix generation for this term
       // It will be serialized as a relative IRI instead
       if (!longerPrefixExists) {
@@ -1243,10 +1243,10 @@ class TurtleEncoder extends RdfGraphEncoder {
         // - For predicates, always use prefixes if they exist (handled above)
         // - For subject/object under baseUri, check if there's a better prefix
         //   that is longer than baseUri, if not, use relative IRI
-        
+
         // If we have a baseUri and this term starts with it
         if (baseUri != null && term.iri.startsWith(baseUri)) {
-          // For non-predicates that start with baseUri, check if there's a 
+          // For non-predicates that start with baseUri, check if there's a
           // namespace prefix that's longer than baseUri
           if (!isPredicate) {
             bool betterPrefixExists = false;
@@ -1256,13 +1256,13 @@ class TurtleEncoder extends RdfGraphEncoder {
               // 1. Is a prefix of this IRI
               // 2. Is longer than baseUri
               // 3. Has an associated prefix
-              if (term.iri.startsWith(namespace) && 
+              if (term.iri.startsWith(namespace) &&
                   namespace.length > baseUri.length) {
                 betterPrefixExists = true;
                 break;
               }
             }
-            
+
             // If no better prefix exists, use relative IRI
             if (!betterPrefixExists) {
               final localPart = term.iri.substring(baseUri.length);

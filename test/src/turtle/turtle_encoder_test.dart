@@ -1723,5 +1723,156 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
       expect(result, contains('ex:isProtocol true'));
       expect(result, contains('api:resource api:property "value2"'));
     });
+
+    group('Numeric local names handling', () {
+      test(
+        'should not use prefixed notation for IRIs with numeric local names by default',
+        () {
+          // Arrange
+          final graph = RdfGraph(
+            triples: [
+              Triple(
+                IriTerm("http://example.org/subject"),
+                IriTerm("http://example.org/predicate"),
+                IriTerm("http://example.org/123numeric"),
+              ),
+            ],
+          );
+          final prefixes = {'ex': 'http://example.org/'};
+
+          // Act
+          final result = encoder
+              .withOptions(TurtleEncoderOptions(customPrefixes: prefixes))
+              .convert(graph);
+
+          // Assert
+          expect(result, contains('@prefix ex: <http://example.org/> .'));
+          expect(
+            result,
+            contains('ex:subject ex:predicate <http://example.org/123numeric>'),
+          );
+          // Nicht als ex:123numeric geschrieben
+        },
+      );
+
+      test(
+        'should use prefixed notation for IRIs with numeric local names when option is enabled',
+        () {
+          // Arrange
+          final graph = RdfGraph(
+            triples: [
+              Triple(
+                IriTerm("http://example.org/subject"),
+                IriTerm("http://example.org/predicate"),
+                IriTerm("http://example.org/123numeric"),
+              ),
+            ],
+          );
+          final prefixes = {'ex': 'http://example.org/'};
+
+          // Act
+          final result = encoder
+              .withOptions(
+                TurtleEncoderOptions(
+                  customPrefixes: prefixes,
+                  useNumericLocalNames: true,
+                ),
+              )
+              .convert(graph);
+
+          // Assert
+          expect(result, contains('@prefix ex: <http://example.org/> .'));
+          expect(result, contains('ex:subject ex:predicate ex:123numeric'));
+          // Geschrieben als ex:123numeric
+        },
+      );
+
+      test(
+        'should not include prefix for namespace with all numeric local names when option is disabled',
+        () {
+          // Arrange
+          final graph = RdfGraph(
+            triples: [
+              Triple(
+                IriTerm("http://example.org/subject"),
+                IriTerm("http://example.org/predicate"),
+                IriTerm("http://onlynumbers.org/123"),
+              ),
+              Triple(
+                IriTerm("http://example.org/subject"),
+                IriTerm("http://example.org/predicate2"),
+                IriTerm("http://onlynumbers.org/456"),
+              ),
+            ],
+          );
+          final prefixes = {
+            'ex': 'http://example.org/',
+            'num': 'http://onlynumbers.org/',
+          };
+
+          // Act
+          final result = encoder
+              .withOptions(
+                TurtleEncoderOptions(
+                  customPrefixes: prefixes,
+                  generateMissingPrefixes: false,
+                ),
+              )
+              .convert(graph);
+
+          // Assert
+          expect(result, contains('@prefix ex: <http://example.org/> .'));
+          // Prefix 'num:' sollte nicht erscheinen, da er nur für numerische lokale Namen verwendet würde
+          expect(
+            result,
+            isNot(contains('@prefix num: <http://onlynumbers.org/> .')),
+          );
+          expect(result, contains('<http://onlynumbers.org/123>'));
+          expect(result, contains('<http://onlynumbers.org/456>'));
+        },
+      );
+
+      test(
+        'should include prefix for namespace with mixed numeric and non-numeric local names',
+        () {
+          // Arrange
+          final graph = RdfGraph(
+            triples: [
+              Triple(
+                IriTerm("http://example.org/subject"),
+                IriTerm("http://example.org/predicate"),
+                IriTerm("http://mixed.org/123"),
+              ),
+              Triple(
+                IriTerm("http://example.org/subject"),
+                IriTerm("http://example.org/predicate2"),
+                IriTerm("http://mixed.org/text"),
+              ),
+            ],
+          );
+          final prefixes = {
+            'ex': 'http://example.org/',
+            'mix': 'http://mixed.org/',
+          };
+
+          // Act
+          final result = encoder
+              .withOptions(
+                TurtleEncoderOptions(
+                  customPrefixes: prefixes,
+                  generateMissingPrefixes: false,
+                ),
+              )
+              .convert(graph);
+
+          // Assert
+          expect(result, contains('@prefix ex: <http://example.org/> .'));
+          // Prefix 'mix:' sollte erscheinen, da er auch für nicht-numerische lokale Namen verwendet wird
+          expect(result, contains('@prefix mix: <http://mixed.org/> .'));
+          expect(result, contains('<http://mixed.org/123>'));
+          expect(result, contains('mix:text'));
+        },
+      );
+    });
   });
 }

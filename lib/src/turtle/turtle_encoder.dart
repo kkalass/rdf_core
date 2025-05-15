@@ -46,6 +46,28 @@ class TurtleEncoderOptions extends RdfGraphEncoderOptions {
   /// - Automatically handling unknown namespaces without manual prefix declaration
   final bool generateMissingPrefixes;
 
+  /// Controls whether local names that start with a digit are written using prefix notation.
+  ///
+  /// According to the Turtle specification, local names that begin with a digit
+  /// cannot be written directly in the prefixed notation, as this would produce
+  /// invalid Turtle syntax.
+  ///
+  /// When set to `true`, the encoder will use prefixed notation for IRIs with
+  /// local names that start with digits. This requires each of these local names
+  /// to be escaped properly and is not recommended by default.
+  ///
+  /// When set to `false` (default), the encoder will always write IRIs with local
+  /// names that start with a digit as full IRIs in angle brackets, regardless of
+  /// whether a matching prefix exists.
+  ///
+  /// For example, with this option set to `false`:
+  /// - The IRI `http://example.org/123` will be written as `<http://example.org/123>`
+  ///   even if the prefix `ex:` is defined for `http://example.org/`
+  ///
+  /// This behavior ensures compliant Turtle output and improves readability
+  /// while avoiding potential syntax errors.
+  final bool useNumericLocalNames;
+
   /// Creates a new TurtleEncoderOptions instance.
   ///
   /// Parameters:
@@ -54,9 +76,12 @@ class TurtleEncoderOptions extends RdfGraphEncoderOptions {
   ///   to generate compact prefix declarations in the Turtle output.
   /// - [generateMissingPrefixes] When true (default), the encoder will automatically
   ///   generate prefix declarations for IRIs that don't have a matching prefix.
+  /// - [useNumericLocalNames] When false (default), IRIs with local names that start
+  ///   with a digit will be written as full IRIs instead of using prefixed notation.
   const TurtleEncoderOptions({
     Map<String, String> customPrefixes = const {},
     this.generateMissingPrefixes = true,
+    this.useNumericLocalNames = false,
   }) : super(customPrefixes: customPrefixes);
 
   /// Creates a TurtleEncoderOptions instance from generic RdfGraphEncoderOptions.
@@ -448,6 +473,21 @@ class TurtleEncoder extends RdfGraphEncoder {
       return;
     }
 
+    // Extract namespace and local part with validation for numeric local names
+    final (
+      namespace,
+      localPart,
+    ) = RdfNamespaceMappings.extractNamespaceAndLocalPart(
+      iri,
+      allowNumericLocalNames: _options.useNumericLocalNames,
+    );
+
+    // If the local part is empty after validation, skip this IRI for prefix usage
+    // (This happens with IRIs having numeric local names when useNumericLocalNames=false)
+    if (localPart.isEmpty && namespace == iri) {
+      return;
+    }
+
     // Warn if https:// is used and http:// is in the prefix map for the same path
     if (iri.startsWith('https://')) {
       final httpIri = 'http://' + iri.substring('https://'.length);
@@ -491,7 +531,10 @@ class TurtleEncoder extends RdfGraphEncoder {
       final (
         namespace,
         localPart,
-      ) = RdfNamespaceMappings.extractNamespaceAndLocalPart(iri);
+      ) = RdfNamespaceMappings.extractNamespaceAndLocalPart(
+        iri,
+        allowNumericLocalNames: _options.useNumericLocalNames,
+      );
 
       // Skip generating prefixes for protocol-only URIs like "http://" or "https://"
       if (namespace == "http://" ||
@@ -1146,16 +1189,22 @@ class TurtleEncoder extends RdfGraphEncoder {
           final (
             baseIri,
             localPart,
-          ) = RdfNamespaceMappings.extractNamespaceAndLocalPart(iri);
+          ) = RdfNamespaceMappings.extractNamespaceAndLocalPart(
+            iri,
+            allowNumericLocalNames: _options.useNumericLocalNames,
+          );
 
-          final prefix = prefixesByIri[baseIri];
-          if (prefix != null) {
-            // Handle empty prefix specially
-            return prefix.isEmpty ? ':$localPart' : '$prefix:$localPart';
-          } else {
-            final prefix = prefixesByIri[iri];
+          // If we have a valid local part
+          if (localPart.isNotEmpty || baseIri == iri) {
+            final prefix = prefixesByIri[baseIri];
             if (prefix != null) {
-              return prefix.isEmpty ? ':' : '$prefix:';
+              // Handle empty prefix specially
+              return prefix.isEmpty ? ':$localPart' : '$prefix:$localPart';
+            } else {
+              final prefix = prefixesByIri[iri];
+              if (prefix != null) {
+                return prefix.isEmpty ? ':' : '$prefix:';
+              }
             }
           }
         }

@@ -464,18 +464,31 @@ class RdfNamespaceMappings {
   /// the entire IRI is treated as the namespace to avoid generating invalid or meaningless prefixes.
   ///
   /// The [iri] is the IRI to split into namespace and local part.
+  /// When [allowNumericLocalNames] is false, local parts that start with a digit will be
+  /// considered invalid for prefixed notation (which is common in formats like Turtle),
+  /// resulting in an empty local part and the full IRI as the namespace.
+  ///
+  /// Parameters:
+  /// - [iri] The IRI to split
+  /// - [allowNumericLocalNames] Whether to allow local names that start with digits (default: true)
+  ///
   /// Returns a tuple containing (namespace, localPart).
   static (String namespace, String localPart) extractNamespaceAndLocalPart(
-    String iri,
-  ) {
+    String iri, {
+    bool allowNumericLocalNames = true,
+  }) {
     final hashIndex = iri.lastIndexOf('#');
     final slashIndex = iri.lastIndexOf('/');
 
+    String namespace;
+    String localPart;
+
     if (hashIndex > slashIndex && hashIndex != -1) {
-      return (iri.substring(0, hashIndex + 1), iri.substring(hashIndex + 1));
+      namespace = iri.substring(0, hashIndex + 1);
+      localPart = iri.substring(hashIndex + 1);
     } else if (slashIndex != -1) {
       // Check if the namespace would only be a protocol like 'http://' or 'https://'
-      final namespace = iri.substring(0, slashIndex + 1);
+      namespace = iri.substring(0, slashIndex + 1);
       if (namespace == 'http://' ||
           namespace == 'https://' ||
           namespace == 'ftp://' ||
@@ -483,9 +496,19 @@ class RdfNamespaceMappings {
         // If just a protocol, use the entire IRI as namespace and leave local part empty
         return (iri, '');
       }
-      return (namespace, iri.substring(slashIndex + 1));
+      localPart = iri.substring(slashIndex + 1);
     } else {
       return (iri, '');
     }
+
+    // If local part starts with a digit and numeric local names aren't allowed,
+    // return the full IRI as namespace and an empty local part
+    if (!allowNumericLocalNames &&
+        localPart.isNotEmpty &&
+        RegExp(r'^\d').hasMatch(localPart)) {
+      return (iri, '');
+    }
+
+    return (namespace, localPart);
   }
 }

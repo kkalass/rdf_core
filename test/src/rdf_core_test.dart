@@ -289,7 +289,8 @@ class _CustomRdfGraphCodec extends RdfGraphCodec {
   RdfGraphCodec withOptions({
     RdfGraphEncoderOptions? encoder,
     RdfGraphDecoderOptions? decoder,
-  }) => this;
+  }) =>
+      this;
 }
 
 /// Custom implementation of RdfGraphDecoder for testing purposes

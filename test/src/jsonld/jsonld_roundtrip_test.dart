@@ -191,20 +191,18 @@ void _compareGraphStructure(RdfGraph originalGraph, RdfGraph roundtripGraph) {
 
   for (final subject in subjectsInOriginal) {
     // For each subject in the original graph
-    final blankNodeObjects =
-        originalGraph
-            .findTriples(subject: subject)
-            .where((t) => t.object is BlankNodeTerm)
-            .map((t) => t.object as BlankNodeTerm)
-            .toSet();
+    final blankNodeObjects = originalGraph
+        .findTriples(subject: subject)
+        .where((t) => t.object is BlankNodeTerm)
+        .map((t) => t.object as BlankNodeTerm)
+        .toSet();
 
     for (final blankNode in blankNodeObjects) {
       // Check if there's a corresponding blank node in the roundtrip graph
-      final predicateToBlankNode =
-          originalGraph
-              .findTriples(subject: subject, object: blankNode)
-              .first
-              .predicate;
+      final predicateToBlankNode = originalGraph
+          .findTriples(subject: subject, object: blankNode)
+          .first
+          .predicate;
 
       final roundtripBlankNodeTriples = roundtripGraph.findTriples(
         subject: subject,

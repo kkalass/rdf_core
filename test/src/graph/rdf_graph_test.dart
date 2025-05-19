@@ -264,9 +264,8 @@ void main() {
             LiteralTerm.string('quux'),
           );
 
-          final originalGraph = RdfGraph()
-              .withTriple(triple1)
-              .withTriple(triple2);
+          final originalGraph =
+              RdfGraph().withTriple(triple1).withTriple(triple2);
 
           // Call withoutMatching with no parameters
           final resultGraph = originalGraph.withoutMatching();

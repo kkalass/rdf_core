@@ -1931,16 +1931,15 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
         ];
 
         // Create a graph with a triple for each URL
-        final triples =
-            urls
-                .map(
-                  (url) => Triple(
-                    IriTerm(url),
-                    IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
-                    IriTerm('http://example.org/Resource'),
-                  ),
-                )
-                .toList();
+        final triples = urls
+            .map(
+              (url) => Triple(
+                IriTerm(url),
+                IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+                IriTerm('http://example.org/Resource'),
+              ),
+            )
+            .toList();
 
         final graph = RdfGraph(triples: triples);
 
@@ -1950,10 +1949,8 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
         // Assert - make sure no generated prefixes contain hyphens
         for (final line in result.split('\n')) {
           if (line.trim().startsWith('@prefix ')) {
-            final prefixPart = line
-                .split(':')[0]
-                .trim()
-                .replaceAll('@prefix ', '');
+            final prefixPart =
+                line.split(':')[0].trim().replaceAll('@prefix ', '');
             expect(
               prefixPart.contains('-'),
               isFalse,

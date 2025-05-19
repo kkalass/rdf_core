@@ -206,22 +206,20 @@ void main() {
       expect(literalObjectCount, equals(redecodedLiteralObjectCount));
 
       // Check for language-tagged literals
-      final langLiteralCount =
-          graph.triples
-              .where(
-                (t) =>
-                    t.object is LiteralTerm &&
-                    (t.object as LiteralTerm).language != null,
-              )
-              .length;
-      final redecodedLangLiteralCount =
-          redecodedGraph.triples
-              .where(
-                (t) =>
-                    t.object is LiteralTerm &&
-                    (t.object as LiteralTerm).language != null,
-              )
-              .length;
+      final langLiteralCount = graph.triples
+          .where(
+            (t) =>
+                t.object is LiteralTerm &&
+                (t.object as LiteralTerm).language != null,
+          )
+          .length;
+      final redecodedLangLiteralCount = redecodedGraph.triples
+          .where(
+            (t) =>
+                t.object is LiteralTerm &&
+                (t.object as LiteralTerm).language != null,
+          )
+          .length;
       expect(langLiteralCount, equals(redecodedLangLiteralCount));
     });
   });

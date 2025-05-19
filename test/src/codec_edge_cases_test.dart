@@ -195,7 +195,8 @@ void main() {
         );
       });
 
-      test('decode throws FormatException for invalid literal in N-Triples', () {
+      test('decode throws FormatException for invalid literal in N-Triples',
+          () {
         // Arrange - Invalid literal (unterminated string)
         const invalidLiteralNTriples =
             '<http://example.org/subject> <http://example.org/predicate> "unterminated .';

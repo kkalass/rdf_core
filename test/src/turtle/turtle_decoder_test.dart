@@ -753,15 +753,13 @@ void main() {
       expect(triples.length, equals(8));
 
       // Verify alice triples
-      final aliceTriples =
-          triples
-              .where(
-                (t) =>
-                    t.subject is IriTerm &&
-                    (t.subject as IriTerm).iri ==
-                        'http://example.org/person/alice',
-              )
-              .toList();
+      final aliceTriples = triples
+          .where(
+            (t) =>
+                t.subject is IriTerm &&
+                (t.subject as IriTerm).iri == 'http://example.org/person/alice',
+          )
+          .toList();
 
       expect(aliceTriples.length, equals(4));
 
@@ -818,15 +816,13 @@ void main() {
       );
 
       // Verify bob triples
-      final bobTriples =
-          triples
-              .where(
-                (t) =>
-                    t.subject is IriTerm &&
-                    (t.subject as IriTerm).iri ==
-                        'http://example.org/person/bob',
-              )
-              .toList();
+      final bobTriples = triples
+          .where(
+            (t) =>
+                t.subject is IriTerm &&
+                (t.subject as IriTerm).iri == 'http://example.org/person/bob',
+          )
+          .toList();
 
       expect(bobTriples.length, equals(2));
 
@@ -857,15 +853,14 @@ void main() {
       );
 
       // Verify charlie triples
-      final charlieTriples =
-          triples
-              .where(
-                (t) =>
-                    t.subject is IriTerm &&
-                    (t.subject as IriTerm).iri ==
-                        'http://example.org/local/charlie',
-              )
-              .toList();
+      final charlieTriples = triples
+          .where(
+            (t) =>
+                t.subject is IriTerm &&
+                (t.subject as IriTerm).iri ==
+                    'http://example.org/local/charlie',
+          )
+          .toList();
 
       expect(charlieTriples.length, equals(2));
 
@@ -937,51 +932,45 @@ void main() {
       expect(blankNodes.length, equals(2));
 
       // Find the node with name "Node 1"
-      final node1Triples =
-          triples
-              .where(
-                (t) =>
-                    t.predicate == IriTerm('http://example.org/name') &&
-                    t.object == LiteralTerm.string("Node 1"),
-              )
-              .toList();
+      final node1Triples = triples
+          .where(
+            (t) =>
+                t.predicate == IriTerm('http://example.org/name') &&
+                t.object == LiteralTerm.string("Node 1"),
+          )
+          .toList();
 
       expect(node1Triples.length, equals(1));
       final node1 = node1Triples[0].subject as BlankNodeTerm;
 
       // Find the node with name "Node 2"
-      final node2Triples =
-          triples
-              .where(
-                (t) =>
-                    t.predicate == IriTerm('http://example.org/name') &&
-                    t.object == LiteralTerm.string("Node 2"),
-              )
-              .toList();
+      final node2Triples = triples
+          .where(
+            (t) =>
+                t.predicate == IriTerm('http://example.org/name') &&
+                t.object == LiteralTerm.string("Node 2"),
+          )
+          .toList();
 
       expect(node2Triples.length, equals(1));
       final node2 = node2Triples[0].subject as BlankNodeTerm;
 
       // Verify relationships
-      final node1RelatedTo =
-          triples
-                  .firstWhere(
-                    (t) =>
-                        t.subject == node1 &&
-                        t.predicate == IriTerm('http://example.org/relatedTo'),
-                  )
-                  .object
-              as BlankNodeTerm;
+      final node1RelatedTo = triples
+          .firstWhere(
+            (t) =>
+                t.subject == node1 &&
+                t.predicate == IriTerm('http://example.org/relatedTo'),
+          )
+          .object as BlankNodeTerm;
 
-      final node2RelatedTo =
-          triples
-                  .firstWhere(
-                    (t) =>
-                        t.subject == node2 &&
-                        t.predicate == IriTerm('http://example.org/relatedTo'),
-                  )
-                  .object
-              as BlankNodeTerm;
+      final node2RelatedTo = triples
+          .firstWhere(
+            (t) =>
+                t.subject == node2 &&
+                t.predicate == IriTerm('http://example.org/relatedTo'),
+          )
+          .object as BlankNodeTerm;
 
       // Check that relationships are consistent with identity
       expect(node1RelatedTo, equals(node2));
@@ -1085,49 +1074,45 @@ void main() {
       expect(triples.length, equals(4));
 
       // Find the first blank node
-      final subjectTriples =
-          triples
-              .where((t) => t.subject == IriTerm('http://example.org/subject'))
-              .toList();
+      final subjectTriples = triples
+          .where((t) => t.subject == IriTerm('http://example.org/subject'))
+          .toList();
       expect(subjectTriples.length, equals(1));
 
       final bn1 = subjectTriples[0].object as BlankNodeTerm;
 
       // Find level1 triple
-      final level1Triples =
-          triples
-              .where(
-                (t) =>
-                    t.subject == bn1 &&
-                    t.predicate == IriTerm('http://example.org/level1'),
-              )
-              .toList();
+      final level1Triples = triples
+          .where(
+            (t) =>
+                t.subject == bn1 &&
+                t.predicate == IriTerm('http://example.org/level1'),
+          )
+          .toList();
       expect(level1Triples.length, equals(1));
 
       final bn2 = level1Triples[0].object as BlankNodeTerm;
 
       // Find level2 triple
-      final level2Triples =
-          triples
-              .where(
-                (t) =>
-                    t.subject == bn2 &&
-                    t.predicate == IriTerm('http://example.org/level2'),
-              )
-              .toList();
+      final level2Triples = triples
+          .where(
+            (t) =>
+                t.subject == bn2 &&
+                t.predicate == IriTerm('http://example.org/level2'),
+          )
+          .toList();
       expect(level2Triples.length, equals(1));
 
       final bn3 = level2Triples[0].object as BlankNodeTerm;
 
       // Find level3 triple
-      final level3Triples =
-          triples
-              .where(
-                (t) =>
-                    t.subject == bn3 &&
-                    t.predicate == IriTerm('http://example.org/level3'),
-              )
-              .toList();
+      final level3Triples = triples
+          .where(
+            (t) =>
+                t.subject == bn3 &&
+                t.predicate == IriTerm('http://example.org/level3'),
+          )
+          .toList();
       expect(level3Triples.length, equals(1));
       expect(level3Triples[0].object, equals(LiteralTerm.string('Deep value')));
     });
@@ -1167,13 +1152,11 @@ void main() {
         expect(triples.length, equals(6));
 
         // Find the main blank node
-        final outerBn =
-            triples
-                    .firstWhere(
-                      (t) => t.subject == IriTerm('http://example.org/subject'),
-                    )
-                    .object
-                as BlankNodeTerm;
+        final outerBn = triples
+            .firstWhere(
+              (t) => t.subject == IriTerm('http://example.org/subject'),
+            )
+            .object as BlankNodeTerm;
 
         // Count properties on the main blank node
         final bnProps = triples.where((t) => t.subject == outerBn).toList();
@@ -1265,14 +1248,13 @@ void main() {
       expect(blankNode, isNotNull);
 
       // Verify the blank node has the correct properties
-      final blankNodeTriples =
-          triples
-              .where(
-                (t) =>
-                    t.subject == blankNode &&
-                    t.predicate != IriTerm('http://example.org/mainPredicate'),
-              )
-              .toList();
+      final blankNodeTriples = triples
+          .where(
+            (t) =>
+                t.subject == blankNode &&
+                t.predicate != IriTerm('http://example.org/mainPredicate'),
+          )
+          .toList();
       expect(blankNodeTriples.length, equals(2));
 
       // Check property1
@@ -1848,7 +1830,8 @@ void main() {
         expect(triplesWithFlag[0].object, equals(LiteralTerm.string('value')));
       });
 
-      test('should reject missing dot after prefix when flag is not enabled', () {
+      test('should reject missing dot after prefix when flag is not enabled',
+          () {
         // Setup: Parser without the flag
         final parserWithoutFlag = TurtleParser('''
           @prefix ex: <http://example.org/> 
@@ -2148,16 +2131,15 @@ void main() {
         expect(triples.length, equals(11));
 
         // Find all first triples to check the list items
-        final firstTriples =
-            triples
-                .where(
-                  (t) =>
-                      t.predicate ==
-                      IriTerm(
-                        'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',
-                      ),
-                )
-                .toList();
+        final firstTriples = triples
+            .where(
+              (t) =>
+                  t.predicate ==
+                  IriTerm(
+                    'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',
+                  ),
+            )
+            .toList();
         expect(firstTriples.length, equals(5));
 
         // Check each list item's type

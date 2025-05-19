@@ -111,15 +111,16 @@ class _CustomRdfGraphCodec extends RdfGraphCodec {
 
   @override
   Set<String> get supportedMimeTypes => {
-    'application/x-custom-rdf',
-    'text/x-custom',
-  };
+        'application/x-custom-rdf',
+        'text/x-custom',
+      };
 
   @override
   RdfGraphCodec withOptions({
     RdfGraphEncoderOptions? encoder,
     RdfGraphDecoderOptions? decoder,
-  }) => this;
+  }) =>
+      this;
 }
 
 class _CustomRdfDecoder extends RdfGraphDecoder {

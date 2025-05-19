@@ -54,10 +54,13 @@ void main(List<String> args) async {
   // Step 1: Check for clean working directory if in non-interactive mode
   if (nonInteractive) {
     print('Step 1/8: Checking git status (non-interactive mode)...');
-    final gitStatus = await _runProcess('git', [
-      'status',
-      '--porcelain',
-    ], captureOutput: true);
+    final gitStatus = await _runProcess(
+        'git',
+        [
+          'status',
+          '--porcelain',
+        ],
+        captureOutput: true);
 
     if (gitStatus.stdout.toString().trim().isNotEmpty) {
       print(
@@ -316,10 +319,13 @@ void main(List<String> args) async {
   if (!dryRun) {
     // Check if any files were changed by the doc update or interactive mode
     // Use captureOutput to properly capture changes
-    final statusAfterDocs = await _runProcess('git', [
-      'status',
-      '--porcelain',
-    ], captureOutput: true);
+    final statusAfterDocs = await _runProcess(
+        'git',
+        [
+          'status',
+          '--porcelain',
+        ],
+        captureOutput: true);
     final hasChanges = statusAfterDocs.stdout.toString().trim().isNotEmpty;
 
     if (hasChanges) {
@@ -335,11 +341,14 @@ void main(List<String> args) async {
       await _runProcess('git', ['add', 'doc/']);
 
       // Specifically check if any new files in doc/api weren't added and add them
-      final apiStatus = await _runProcess('git', [
-        'status',
-        '--porcelain',
-        'doc/api/',
-      ], captureOutput: true);
+      final apiStatus = await _runProcess(
+          'git',
+          [
+            'status',
+            '--porcelain',
+            'doc/api/',
+          ],
+          captureOutput: true);
 
       if (apiStatus.stdout.toString().trim().isNotEmpty) {
         await _runProcess('git', ['add', 'doc/api/']);
@@ -349,10 +358,13 @@ void main(List<String> args) async {
       await _runProcess('git', ['add', '-u']);
 
       // Show what will be committed
-      final filesToCommit = await _runProcess('git', [
-        'status',
-        '--short',
-      ], captureOutput: true);
+      final filesToCommit = await _runProcess(
+          'git',
+          [
+            'status',
+            '--short',
+          ],
+          captureOutput: true);
       print('  Files to be committed:');
       print(filesToCommit.stdout.toString().trim());
 

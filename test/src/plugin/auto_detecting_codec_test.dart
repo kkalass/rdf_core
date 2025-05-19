@@ -245,15 +245,16 @@ class _MockCodec extends RdfGraphCodec {
     bool canParse = false,
     bool willThrow = false,
     String errorMessage = 'Mock error',
-  }) : _canParse = canParse,
-       _willThrow = willThrow,
-       _errorMessage = errorMessage;
+  })  : _canParse = canParse,
+        _willThrow = willThrow,
+        _errorMessage = errorMessage;
 
   @override
   RdfGraphCodec withOptions({
     RdfGraphEncoderOptions? encoder,
     RdfGraphDecoderOptions? decoder,
-  }) => this;
+  }) =>
+      this;
 
   @override
   bool canParse(String content) => _canParse;

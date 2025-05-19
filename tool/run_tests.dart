@@ -14,10 +14,13 @@ Future<void> main() async {
   print('Running tests with coverage...');
 
   // Run tests with coverage
-  final testProcess = await Process.start('dart', [
-    'test',
-    '--coverage=coverage',
-  ], mode: ProcessStartMode.inheritStdio);
+  final testProcess = await Process.start(
+      'dart',
+      [
+        'test',
+        '--coverage=coverage',
+      ],
+      mode: ProcessStartMode.inheritStdio);
 
   final exitCode = await testProcess.exitCode;
   if (exitCode != 0) {
@@ -26,15 +29,18 @@ Future<void> main() async {
   }
 
   print('Converting coverage data to LCOV format...');
-  final formatProcess = await Process.start('dart', [
-    'run',
-    'coverage:format_coverage',
-    '--lcov',
-    '--in=coverage',
-    '--out=coverage/lcov.info',
-    '--packages=.dart_tool/package_config.json',
-    '--report-on=lib',
-  ], mode: ProcessStartMode.inheritStdio);
+  final formatProcess = await Process.start(
+      'dart',
+      [
+        'run',
+        'coverage:format_coverage',
+        '--lcov',
+        '--in=coverage',
+        '--out=coverage/lcov.info',
+        '--packages=.dart_tool/package_config.json',
+        '--report-on=lib',
+      ],
+      mode: ProcessStartMode.inheritStdio);
 
   final formatExitCode = await formatProcess.exitCode;
   if (formatExitCode != 0) {
@@ -45,11 +51,14 @@ Future<void> main() async {
   // Generate HTML report if lcov is installed
   try {
     print('Generating HTML coverage report...');
-    final lcovProcess = await Process.start('genhtml', [
-      'coverage/lcov.info',
-      '-o',
-      'coverage/html',
-    ], mode: ProcessStartMode.inheritStdio);
+    final lcovProcess = await Process.start(
+        'genhtml',
+        [
+          'coverage/lcov.info',
+          '-o',
+          'coverage/html',
+        ],
+        mode: ProcessStartMode.inheritStdio);
 
     final lcovExitCode = await lcovProcess.exitCode;
     if (lcovExitCode != 0) {

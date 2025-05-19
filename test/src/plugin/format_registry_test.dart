@@ -181,7 +181,8 @@ class _MockCodec extends RdfGraphCodec {
   RdfGraphCodec withOptions({
     RdfGraphEncoderOptions? encoder,
     RdfGraphDecoderOptions? decoder,
-  }) => this;
+  }) =>
+      this;
 }
 
 class _MockCodec2 extends RdfGraphCodec {
@@ -203,7 +204,8 @@ class _MockCodec2 extends RdfGraphCodec {
   RdfGraphCodec withOptions({
     RdfGraphEncoderOptions? encoder,
     RdfGraphDecoderOptions? decoder,
-  }) => this;
+  }) =>
+      this;
 }
 
 class _UndetectableButParsableCodec extends RdfGraphCodec {
@@ -225,7 +227,8 @@ class _UndetectableButParsableCodec extends RdfGraphCodec {
   RdfGraphCodec withOptions({
     RdfGraphEncoderOptions? encoder,
     RdfGraphDecoderOptions? decoder,
-  }) => this;
+  }) =>
+      this;
 }
 
 class _UndetectableAndFailingCodec extends RdfGraphCodec {
@@ -247,7 +250,8 @@ class _UndetectableAndFailingCodec extends RdfGraphCodec {
   RdfGraphCodec withOptions({
     RdfGraphEncoderOptions? encoder,
     RdfGraphDecoderOptions? decoder,
-  }) => this;
+  }) =>
+      this;
 }
 
 class _AnotherFailingCodec extends RdfGraphCodec {
@@ -269,7 +273,8 @@ class _AnotherFailingCodec extends RdfGraphCodec {
   RdfGraphCodec withOptions({
     RdfGraphEncoderOptions? encoder,
     RdfGraphDecoderOptions? decoder,
-  }) => this;
+  }) =>
+      this;
 }
 
 class _MockDecoder extends RdfGraphDecoder {
@@ -301,5 +306,6 @@ class _MockEncoder extends RdfGraphEncoder {
     RdfGraph graph, {
     String? baseUri,
     Map<String, String> customPrefixes = const {},
-  }) => 'mock serialized content';
+  }) =>
+      'mock serialized content';
 }

@@ -349,8 +349,8 @@ void main() {
           expect(dcGenerated, isTrue);
 
           // Test for dc pattern
-          final (elementsPrefix, elementsGenerated) = mappings
-              .getOrGeneratePrefix('http://purl.org/dc/elements/1.1/');
+          final (elementsPrefix, elementsGenerated) =
+              mappings.getOrGeneratePrefix('http://purl.org/dc/elements/1.1/');
           expect(elementsPrefix, equals('elements'));
           expect(elementsGenerated, isTrue);
 

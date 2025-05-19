@@ -41,7 +41,7 @@ void main() {
     /// 1. Whether the file can be parsed with specific flags
     /// 2. The required flags if parsing succeeded
     Future<({bool success, Set<TurtleParsingFlag> flags, List<Triple> triples})>
-    testFile(
+        testFile(
       String fileName,
       String namespace,
       Set<TurtleParsingFlag> specificFlags,

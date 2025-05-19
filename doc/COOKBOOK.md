@@ -268,4 +268,4 @@ For more detailed examples and advanced usage, check out:
 
 - [Getting Started](GETTING_STARTED.md) - Helps you getting started 
 - [Design Philosophy](DESIGN_PHILOSOPHY.md) - Core design principles of rdf_core
-- [API Documentation](api/index.html) - Complete API reference
+- [API Documentation](https://kkalass.github.io/rdf_core/api/index.html) - Complete API reference

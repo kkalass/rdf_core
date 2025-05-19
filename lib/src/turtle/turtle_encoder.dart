@@ -173,11 +173,12 @@ class TurtleEncoder extends RdfGraphEncoder {
   TurtleEncoder({
     RdfNamespaceMappings? namespaceMappings,
     TurtleEncoderOptions options = const TurtleEncoderOptions(),
-  }) : _options = options,
-       // Use default namespace mappings if none provided
-       _namespaceMappings = namespaceMappings ?? RdfNamespaceMappings();
+  })  : _options = options,
+        // Use default namespace mappings if none provided
+        _namespaceMappings = namespaceMappings ?? RdfNamespaceMappings();
 
   @override
+
   /// Creates a new encoder with the specified options, preserving the current namespace mappings.
   ///
   /// This method allows changing encoding options without creating a completely new
@@ -200,11 +201,12 @@ class TurtleEncoder extends RdfGraphEncoder {
   /// );
   /// ```
   RdfGraphEncoder withOptions(RdfGraphEncoderOptions options) => TurtleEncoder(
-    namespaceMappings: _namespaceMappings,
-    options: TurtleEncoderOptions.from(options),
-  );
+        namespaceMappings: _namespaceMappings,
+        options: TurtleEncoderOptions.from(options),
+      );
 
   @override
+
   /// Converts an RDF graph to a Turtle string representation.
   ///
   /// This method serializes the given RDF graph to the Turtle format with
@@ -600,13 +602,13 @@ class TurtleEncoder extends RdfGraphEncoder {
 
     // Write prefixes in alphabetical order for consistent output,
     // but handle empty prefix separately (should appear as ':')
-    final sortedPrefixes =
-        prefixes.entries.toList()..sort((a, b) {
-          // Empty prefix should come first in Turtle convention
-          if (a.key.isEmpty) return -1;
-          if (b.key.isEmpty) return 1;
-          return a.key.compareTo(b.key);
-        });
+    final sortedPrefixes = prefixes.entries.toList()
+      ..sort((a, b) {
+        // Empty prefix should come first in Turtle convention
+        if (a.key.isEmpty) return -1;
+        if (b.key.isEmpty) return 1;
+        return a.key.compareTo(b.key);
+      });
 
     for (final entry in sortedPrefixes) {
       final prefix = entry.key.isEmpty ? ':' : '${entry.key}:';
@@ -647,11 +649,9 @@ class TurtleEncoder extends RdfGraphEncoder {
       // Find the rdf:first triple for the current node
       final firstTriple = graph.triples.firstWhere(
         (t) => t.subject == currentNode && t.predicate == Rdf.first,
-        orElse:
-            () =>
-                throw Exception(
-                  'Invalid RDF collection: missing rdf:first for $currentNode',
-                ),
+        orElse: () => throw Exception(
+          'Invalid RDF collection: missing rdf:first for $currentNode',
+        ),
       );
 
       // Add the object to our items list
@@ -660,11 +660,9 @@ class TurtleEncoder extends RdfGraphEncoder {
       // Find the rdf:rest triple for the current node
       final restTriple = graph.triples.firstWhere(
         (t) => t.subject == currentNode && t.predicate == Rdf.rest,
-        orElse:
-            () =>
-                throw Exception(
-                  'Invalid RDF collection: missing rdf:rest for $currentNode',
-                ),
+        orElse: () => throw Exception(
+          'Invalid RDF collection: missing rdf:rest for $currentNode',
+        ),
       );
 
       // If we've reached rdf:nil, we're done
@@ -696,10 +694,9 @@ class TurtleEncoder extends RdfGraphEncoder {
 
     while (true) {
       // Find the rdf:rest triple
-      final restTriples =
-          graph.triples
-              .where((t) => t.subject == currentNode && t.predicate == Rdf.rest)
-              .toList();
+      final restTriples = graph.triples
+          .where((t) => t.subject == currentNode && t.predicate == Rdf.rest)
+          .toList();
 
       if (restTriples.isEmpty) {
         break;
@@ -858,21 +855,21 @@ class TurtleEncoder extends RdfGraphEncoder {
       }
     }
 
-    final sortedSubjects =
-        triplesBySubject.keys.toList()..sort((a, b) {
-          // Sort by IRI for consistent output
-          if (a is IriTerm && b is IriTerm) {
-            return a.iri.compareTo(b.iri);
-          }
-          if (a is IriTerm) {
-            return -1; // IRIs should come before blank nodes
-          }
-          if (b is IriTerm) {
-            return 1; // IRIs should come before blank nodes
-          }
-          // Blank nodes are sorted by their hash code
-          return identityHashCode(a).compareTo(identityHashCode(b));
-        });
+    final sortedSubjects = triplesBySubject.keys.toList()
+      ..sort((a, b) {
+        // Sort by IRI for consistent output
+        if (a is IriTerm && b is IriTerm) {
+          return a.iri.compareTo(b.iri);
+        }
+        if (a is IriTerm) {
+          return -1; // IRIs should come before blank nodes
+        }
+        if (b is IriTerm) {
+          return 1; // IRIs should come before blank nodes
+        }
+        // Blank nodes are sorted by their hash code
+        return identityHashCode(a).compareTo(identityHashCode(b));
+      });
     // Write each subject group
     var processedSubjectCount = 0;
     for (final subject in sortedSubjects) {
@@ -973,15 +970,15 @@ class TurtleEncoder extends RdfGraphEncoder {
           .putIfAbsent(triple.predicate, () => [])
           .add(triple.object);
     }
-    final sortedPredicates =
-        triplesByPredicate.keys.toList()..sort((a, b) {
-          // Rdf.type should always be first
-          if (a == Rdf.type) return -1;
-          if (b == Rdf.type) return 1;
+    final sortedPredicates = triplesByPredicate.keys.toList()
+      ..sort((a, b) {
+        // Rdf.type should always be first
+        if (a == Rdf.type) return -1;
+        if (b == Rdf.type) return 1;
 
-          // For all other predicates, sort alphabetically by IRI
-          return (a as IriTerm).iri.compareTo((b as IriTerm).iri);
-        });
+        // For all other predicates, sort alphabetically by IRI
+        return (a as IriTerm).iri.compareTo((b as IriTerm).iri);
+      });
     // Write predicates and objects
     var predicateIndex = 0;
     for (final predicate in sortedPredicates) {

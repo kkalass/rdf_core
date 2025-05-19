@@ -121,10 +121,9 @@ class RdfTypeException extends RdfValidationException {
 
   @override
   String toString() {
-    final typeInfo =
-        actualType != null
-            ? 'Expected: $expectedType, Found: $actualType'
-            : 'Expected: $expectedType';
+    final typeInfo = actualType != null
+        ? 'Expected: $expectedType, Found: $actualType'
+        : 'Expected: $expectedType';
     return 'RdfTypeException: $typeInfo - $message${source != null ? ' at $source' : ''}${cause != null ? '\nCaused by: $cause' : ''}';
   }
 }

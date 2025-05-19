@@ -199,7 +199,7 @@ class TurtleTokenizer {
   /// [parsingFlags] enables a more flexible tokenization for real-world
   /// Turtle files that may not strictly adhere to the specification.
   TurtleTokenizer(this._input, {Set<TurtleParsingFlag> parsingFlags = const {}})
-    : _parsingFlags = parsingFlags;
+      : _parsingFlags = parsingFlags;
 
   /// Checks if a specific parsing flag is enabled.
   bool _hasFlag(TurtleParsingFlag flag) => _parsingFlags.contains(flag);
@@ -682,8 +682,7 @@ class TurtleTokenizer {
     final startPos = _position;
 
     // Check for triple quotes (multi-line literal)
-    final isTripleQuoted =
-        _position + 2 < _input.length &&
+    final isTripleQuoted = _position + 2 < _input.length &&
         _input[_position] == '"' &&
         _input[_position + 1] == '"' &&
         _input[_position + 2] == '"';
@@ -836,8 +835,7 @@ class TurtleTokenizer {
     final buffer = StringBuffer();
 
     // Check for a digit at the start when allowDigitInLocalName is enabled
-    final isStartingWithDigit =
-        _position < _input.length &&
+    final isStartingWithDigit = _position < _input.length &&
         RegExp(r'[0-9]').hasMatch(_input[_position]) &&
         _hasFlag(TurtleParsingFlag.allowDigitInLocalName);
 

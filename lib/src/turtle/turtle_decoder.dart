@@ -76,8 +76,8 @@ class TurtleDecoder extends RdfGraphDecoder {
   TurtleDecoder({
     TurtleDecoderOptions options = const TurtleDecoderOptions(),
     required RdfNamespaceMappings namespaceMappings,
-  }) : _namespaceMappings = namespaceMappings,
-       _options = options;
+  })  : _namespaceMappings = namespaceMappings,
+        _options = options;
 
   /// Decodes a Turtle document into an RDF graph
   ///
@@ -122,9 +122,9 @@ class TurtleDecoder extends RdfGraphDecoder {
   ///   while preserving the original namespace mappings.
   @override
   RdfGraphDecoder withOptions(RdfGraphDecoderOptions options) => TurtleDecoder(
-    options: TurtleDecoderOptions.from(options),
-    namespaceMappings: _namespaceMappings,
-  );
+        options: TurtleDecoderOptions.from(options),
+        namespaceMappings: _namespaceMappings,
+      );
 }
 
 /// A parser for Turtle syntax, which is a text-based format for representing RDF data.
@@ -200,10 +200,10 @@ class TurtleParser {
     String? baseUri,
     Set<TurtleParsingFlag> parsingFlags = const {},
     RdfNamespaceMappings namespaceMappings = const RdfNamespaceMappings(),
-  }) : _tokenizer = TurtleTokenizer(input, parsingFlags: parsingFlags),
-       _baseUri = baseUri,
-       _parsingFlags = parsingFlags,
-       _namespaceMappings = namespaceMappings;
+  })  : _tokenizer = TurtleTokenizer(input, parsingFlags: parsingFlags),
+        _baseUri = baseUri,
+        _parsingFlags = parsingFlags,
+        _namespaceMappings = namespaceMappings;
 
   /// Parses the input and returns a list of RDF triples.
   ///
@@ -330,14 +330,13 @@ class TurtleParser {
 
       // Convert other exceptions to RdfSyntaxException
       _log.severe('Error during parsing', e, stack);
-      final source =
-          e is FormatException
-              ? SourceLocation(
-                line: _currentToken.line,
-                column: _currentToken.column,
-                context: _currentToken.value,
-              )
-              : null;
+      final source = e is FormatException
+          ? SourceLocation(
+              line: _currentToken.line,
+              column: _currentToken.column,
+              context: _currentToken.value,
+            )
+          : null;
 
       throw RdfSyntaxException(
         e.toString(),
@@ -427,10 +426,9 @@ class TurtleParser {
     // _log.finest('Found prefixed name: $prefixedName');
 
     // Handle empty prefix case
-    final prefix =
-        prefixedName == ':'
-            ? ''
-            : prefixedName.substring(0, prefixedName.length - 1);
+    final prefix = prefixedName == ':'
+        ? ''
+        : prefixedName.substring(0, prefixedName.length - 1);
     // _log.finest('Extracted prefix: "$prefix"');
 
     _currentToken = _tokenizer.nextToken();

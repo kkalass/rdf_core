@@ -390,10 +390,10 @@ final class AutoDetectingGraphCodec extends RdfGraphCodec {
     required RdfCodecRegistry registry,
     RdfGraphEncoderOptions? encoderOptions,
     RdfGraphDecoderOptions? decoderOptions,
-  }) : _defaultCodec = defaultCodec,
-       _registry = registry,
-       _encoderOptions = encoderOptions,
-       _decoderOptions = decoderOptions;
+  })  : _defaultCodec = defaultCodec,
+        _registry = registry,
+        _encoderOptions = encoderOptions,
+        _decoderOptions = decoderOptions;
 
   /// Creates a new instance with the specified options
   ///
@@ -408,12 +408,13 @@ final class AutoDetectingGraphCodec extends RdfGraphCodec {
   RdfGraphCodec withOptions({
     RdfGraphEncoderOptions? encoder,
     RdfGraphDecoderOptions? decoder,
-  }) => AutoDetectingGraphCodec(
-    defaultCodec: _defaultCodec,
-    registry: _registry,
-    encoderOptions: encoder ?? _encoderOptions,
-    decoderOptions: decoder ?? _decoderOptions,
-  );
+  }) =>
+      AutoDetectingGraphCodec(
+        defaultCodec: _defaultCodec,
+        registry: _registry,
+        encoderOptions: encoder ?? _encoderOptions,
+        decoderOptions: decoder ?? _decoderOptions,
+      );
 
   /// Returns the primary MIME type of the default codec
   ///
@@ -482,7 +483,7 @@ final class AutoDetectingGraphDecoder extends RdfGraphDecoder {
   /// The [_registry] parameter is the codec registry to use for format detection.
   /// The [options] parameter contains optional configuration options for the decoder.
   AutoDetectingGraphDecoder(this._registry, {RdfGraphDecoderOptions? options})
-    : _decoderOptions = options;
+      : _decoderOptions = options;
 
   /// Creates a new instance with the specified options
   ///

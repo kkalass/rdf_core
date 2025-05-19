@@ -278,10 +278,11 @@ final class RdfCore {
     String? contentType,
     String? documentUrl,
     RdfGraphDecoderOptions? options,
-  }) => codec(
-    contentType: contentType,
-    decoderOptions: options,
-  ).decode(content, documentUrl: documentUrl);
+  }) =>
+      codec(
+        contentType: contentType,
+        decoderOptions: options,
+      ).decode(content, documentUrl: documentUrl);
 
   /// Encode an RDF graph to a string representation
   ///
@@ -307,10 +308,11 @@ final class RdfCore {
     String? contentType,
     String? baseUri,
     RdfGraphEncoderOptions? options,
-  }) => codec(
-    contentType: contentType,
-    encoderOptions: options,
-  ).encode(graph, baseUri: baseUri);
+  }) =>
+      codec(
+        contentType: contentType,
+        encoderOptions: options,
+      ).encode(graph, baseUri: baseUri);
 
   /// Get a codec for a specific content type
   ///

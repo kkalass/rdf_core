@@ -116,10 +116,9 @@ class RdfNamespaceMappings {
   RdfNamespaceMappings.custom(
     Map<String, String> customMappings, {
     useDefaults = true,
-  }) : _mappings =
-           useDefaults
-               ? {..._rdfNamespaceMappings, ...customMappings}
-               : customMappings;
+  }) : _mappings = useDefaults
+            ? {..._rdfNamespaceMappings, ...customMappings}
+            : customMappings;
 
   /// Returns the number of mappings in this instance.
   ///
@@ -172,8 +171,7 @@ class RdfNamespaceMappings {
     String namespace, {
     Map<String, String> customMappings = const {},
   }) {
-    String? candidate =
-        _getKeyByValue(customMappings, namespace) ??
+    String? candidate = _getKeyByValue(customMappings, namespace) ??
         _getKeyByValue(_mappings, namespace);
     if (candidate != null) {
       return (candidate, false);
@@ -195,8 +193,8 @@ class RdfNamespaceMappings {
     do {
       prefix = '$computedPrefix$prefixNum';
       prefixNum++;
-    } while (customMappings.containsKey(prefix) &&
-        !_mappings.containsKey(prefix));
+    } while (
+        customMappings.containsKey(prefix) && !_mappings.containsKey(prefix));
 
     return (prefix, true);
   }
@@ -282,15 +280,14 @@ class RdfNamespaceMappings {
   /// Extracts a meaningful prefix from the path part of a URL
   String? _extractPathPrefix(String path) {
     // Split the path into components, removing empty parts
-    final components =
-        path
-            .split('/')
-            .where((p) => p.isNotEmpty)
-            .map(
-              (p) => p.split('#')[0].split('?')[0],
-            ) // Remove fragment and query
-            .where((p) => p.isNotEmpty)
-            .toList();
+    final components = path
+        .split('/')
+        .where((p) => p.isNotEmpty)
+        .map(
+          (p) => p.split('#')[0].split('?')[0],
+        ) // Remove fragment and query
+        .where((p) => p.isNotEmpty)
+        .toList();
 
     if (components.isEmpty) return null;
 

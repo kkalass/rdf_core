@@ -63,8 +63,8 @@ final class NTriplesCodec extends RdfGraphCodec {
   const NTriplesCodec({
     NTriplesEncoderOptions encoderOptions = const NTriplesEncoderOptions(),
     NTriplesDecoderOptions decoderOptions = const NTriplesDecoderOptions(),
-  }) : _encoderOptions = encoderOptions,
-       _decoderOptions = decoderOptions;
+  })  : _encoderOptions = encoderOptions,
+        _decoderOptions = decoderOptions;
 
   @override
   NTriplesCodec withOptions({
@@ -90,9 +90,9 @@ final class NTriplesCodec extends RdfGraphCodec {
   /// as there are no standardized alternative MIME types for this format.
   @override
   Set<String> get supportedMimeTypes => {
-    ...alternativeMimeTypes,
-    _primaryMimeType,
-  };
+        ...alternativeMimeTypes,
+        _primaryMimeType,
+      };
 
   /// Returns a decoder configured with the current decoder options
   ///

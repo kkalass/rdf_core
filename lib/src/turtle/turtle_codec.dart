@@ -91,9 +91,9 @@ final class TurtleCodec extends RdfGraphCodec {
     RdfNamespaceMappings? namespaceMappings,
     TurtleEncoderOptions encoderOptions = const TurtleEncoderOptions(),
     TurtleDecoderOptions decoderOptions = const TurtleDecoderOptions(),
-  }) : _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings(),
-       _encoderOptions = encoderOptions,
-       _decoderOptions = decoderOptions;
+  })  : _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings(),
+        _encoderOptions = encoderOptions,
+        _decoderOptions = decoderOptions;
 
   /// Creates a new instance with the specified options
   ///
@@ -146,9 +146,9 @@ final class TurtleCodec extends RdfGraphCodec {
   /// - A [TurtleDecoder] configured with this codec's settings
   @override
   RdfGraphDecoder get decoder => TurtleDecoder(
-    options: _decoderOptions,
-    namespaceMappings: _namespaceMappings,
-  );
+        options: _decoderOptions,
+        namespaceMappings: _namespaceMappings,
+      );
 
   /// Returns a Turtle encoder instance
   ///
@@ -160,9 +160,9 @@ final class TurtleCodec extends RdfGraphCodec {
   /// - A [TurtleEncoder] configured with this codec's settings
   @override
   RdfGraphEncoder get encoder => TurtleEncoder(
-    options: _encoderOptions,
-    namespaceMappings: _namespaceMappings,
-  );
+        options: _encoderOptions,
+        namespaceMappings: _namespaceMappings,
+      );
 
   /// Determines if the content is likely in Turtle format
   ///

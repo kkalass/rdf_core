@@ -87,7 +87,7 @@ class JsonLdEncoderOptions extends RdfGraphEncoderOptions {
   /// in the JSON-LD @context. These prefixes take precedence over standard prefixes
   /// if there are conflicts.
   const JsonLdEncoderOptions({Map<String, String> customPrefixes = const {}})
-    : super(customPrefixes: customPrefixes);
+      : super(customPrefixes: customPrefixes);
 
   /// Creates a JSON-LD encoder options object from generic RDF encoder options
   ///
@@ -162,14 +162,14 @@ final class JsonLdEncoder extends RdfGraphEncoder {
   const JsonLdEncoder({
     RdfNamespaceMappings? namespaceMappings,
     JsonLdEncoderOptions options = const JsonLdEncoderOptions(),
-  }) : _options = options,
-       _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings();
+  })  : _options = options,
+        _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings();
 
   @override
   RdfGraphEncoder withOptions(RdfGraphEncoderOptions options) => JsonLdEncoder(
-    namespaceMappings: _namespaceMappings,
-    options: JsonLdEncoderOptions.from(options),
-  );
+        namespaceMappings: _namespaceMappings,
+        options: JsonLdEncoderOptions.from(options),
+      );
 
   /// Converts an RDF graph to a JSON-LD string representation.
   ///
@@ -231,15 +231,14 @@ final class JsonLdEncoder extends RdfGraphEncoder {
       // Create a @graph structure for multiple subjects
       final Map<String, dynamic> result = {
         '@context': context,
-        '@graph':
-            subjectGroups.entries.map((entry) {
-              return _createNodeObject(
-                entry.key,
-                entry.value,
-                context,
-                blankNodeLabels,
-              );
-            }).toList(),
+        '@graph': subjectGroups.entries.map((entry) {
+          return _createNodeObject(
+            entry.key,
+            entry.value,
+            context,
+            blankNodeLabels,
+          );
+        }).toList(),
       };
 
       return JsonEncoder.withIndent('  ').convert(result);
@@ -514,10 +513,9 @@ final class JsonLdEncoder extends RdfGraphEncoder {
         result['@type'] = _getObjectValue(typeObjects[0], blankNodeLabels);
       } else {
         // Multiple types
-        result['@type'] =
-            typeObjects
-                .map((obj) => _getObjectValue(obj, blankNodeLabels))
-                .toList();
+        result['@type'] = typeObjects
+            .map((obj) => _getObjectValue(obj, blankNodeLabels))
+            .toList();
       }
     }
 
@@ -528,10 +526,9 @@ final class JsonLdEncoder extends RdfGraphEncoder {
         result[entry.key] = _getObjectValue(entry.value[0], blankNodeLabels);
       } else {
         // Multiple values for predicate
-        result[entry.key] =
-            entry.value
-                .map((obj) => _getObjectValue(obj, blankNodeLabels))
-                .toList();
+        result[entry.key] = entry.value
+            .map((obj) => _getObjectValue(obj, blankNodeLabels))
+            .toList();
       }
     }
 

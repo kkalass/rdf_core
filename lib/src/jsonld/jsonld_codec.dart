@@ -129,19 +129,20 @@ final class JsonLdGraphCodec extends RdfGraphCodec {
     RdfNamespaceMappings? namespaceMappings,
     JsonLdEncoderOptions encoderOptions = const JsonLdEncoderOptions(),
     JsonLdDecoderOptions decoderOptions = const JsonLdDecoderOptions(),
-  }) : _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings(),
-       _decoderOptions = decoderOptions,
-       _encoderOptions = encoderOptions;
+  })  : _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings(),
+        _decoderOptions = decoderOptions,
+        _encoderOptions = encoderOptions;
 
   @override
   JsonLdGraphCodec withOptions({
     RdfGraphEncoderOptions? encoder,
     RdfGraphDecoderOptions? decoder,
-  }) => JsonLdGraphCodec(
-    namespaceMappings: _namespaceMappings,
-    encoderOptions: JsonLdEncoderOptions.from(encoder ?? _encoderOptions),
-    decoderOptions: JsonLdDecoderOptions.from(decoder ?? _decoderOptions),
-  );
+  }) =>
+      JsonLdGraphCodec(
+        namespaceMappings: _namespaceMappings,
+        encoderOptions: JsonLdEncoderOptions.from(encoder ?? _encoderOptions),
+        decoderOptions: JsonLdDecoderOptions.from(decoder ?? _decoderOptions),
+      );
 
   @override
   String get primaryMimeType => _primaryMimeType;
@@ -154,9 +155,9 @@ final class JsonLdGraphCodec extends RdfGraphCodec {
 
   @override
   RdfGraphEncoder get encoder => JsonLdEncoder(
-    namespaceMappings: this._namespaceMappings,
-    options: this._encoderOptions,
-  );
+        namespaceMappings: this._namespaceMappings,
+        options: this._encoderOptions,
+      );
 
   @override
   bool canParse(String content) {

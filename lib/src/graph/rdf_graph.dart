@@ -92,7 +92,7 @@ final class RdfGraph {
   /// final graph = RdfGraph(triples: myTriples);
   /// ```
   RdfGraph({List<Triple> triples = const []})
-    : _triples = List.unmodifiable(List.from(triples));
+      : _triples = List.unmodifiable(List.from(triples));
 
   /// Creates an RDF graph from a list of triples (factory constructor)
   ///
@@ -183,13 +183,12 @@ final class RdfGraph {
     RdfPredicate? predicate,
     RdfObject? object,
   }) {
-    final filteredTriples =
-        _triples.where((triple) {
-          if (subject != null && triple.subject == subject) return false;
-          if (predicate != null && triple.predicate == predicate) return false;
-          if (object != null && triple.object == object) return false;
-          return true;
-        }).toList();
+    final filteredTriples = _triples.where((triple) {
+      if (subject != null && triple.subject == subject) return false;
+      if (predicate != null && triple.predicate == predicate) return false;
+      if (object != null && triple.object == object) return false;
+      return true;
+    }).toList();
 
     return RdfGraph(triples: filteredTriples);
   }

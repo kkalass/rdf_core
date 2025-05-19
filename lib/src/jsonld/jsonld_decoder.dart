@@ -180,8 +180,8 @@ class JsonLdParser {
   /// [baseUri] is the base URI against which relative IRIs should be resolved.
   /// If not provided, relative IRIs will be kept as-is.
   JsonLdParser(String input, {String? baseUri})
-    : _input = input,
-      _baseUri = baseUri;
+      : _input = input,
+        _baseUri = baseUri;
 
   /// Parses the JSON-LD input and returns a list of triples.
   ///
@@ -609,10 +609,9 @@ class JsonLdParser {
         // Reference to another resource
         final objectId = value['@id'] as String;
         final expandedIri = _expandIri(objectId);
-        final RdfObject objectTerm =
-            expandedIri.startsWith('_:')
-                ? _getOrCreateBlankNode(expandedIri)
-                : IriTerm(expandedIri);
+        final RdfObject objectTerm = expandedIri.startsWith('_:')
+            ? _getOrCreateBlankNode(expandedIri)
+            : IriTerm(expandedIri);
 
         triples.add(Triple(subject, predicate, objectTerm));
         _log.info(

@@ -232,16 +232,15 @@ class LiteralTerm extends RdfObject {
   /// final langLiteral = LiteralTerm('Bonjour', language: 'fr');
   /// ```
   const LiteralTerm(this.value, {IriTerm? datatype, this.language})
-    : assert(
-        datatype == null ||
-            (language == null && datatype != Rdf.langString) ||
-            (language != null && datatype == Rdf.langString),
-        'Language-tagged literals must use rdf:langString datatype, and rdf:langString must have a language tag',
-      ),
-      datatype =
-          datatype != null
-              ? datatype
-              : (language == null ? Xsd.string : Rdf.langString);
+      : assert(
+          datatype == null ||
+              (language == null && datatype != Rdf.langString) ||
+              (language != null && datatype == Rdf.langString),
+          'Language-tagged literals must use rdf:langString datatype, and rdf:langString must have a language tag',
+        ),
+        datatype = datatype != null
+            ? datatype
+            : (language == null ? Xsd.string : Rdf.langString);
 
   /// Create a typed literal with XSD datatype
   ///
@@ -463,10 +462,9 @@ class LiteralTerm extends RdfObject {
   /// print(typedLiteral); // Prints: "42"^^<http://www.w3.org/2001/XMLSchema#integer>
   /// ```
   @override
-  String toString() =>
-      language != null
-          ? '"$value"@$language'
-          : datatype == Xsd.string
+  String toString() => language != null
+      ? '"$value"@$language'
+      : datatype == Xsd.string
           ? '"$value"'
           : '"$value"^^$datatype';
 }

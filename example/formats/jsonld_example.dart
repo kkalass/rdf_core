@@ -1,8 +1,24 @@
-// A simple example demonstrating JSON-LD parsing and serialization with rdf_core.
+/// JSON-LD Format Example
+///
+/// This example demonstrates:
+/// - Parsing JSON-LD data into an RDF graph
+/// - Understanding JSON-LD context and term definitions
+/// - Querying the resulting graph
+/// - Serializing back to JSON-LD
+///
+/// JSON-LD is a JSON-based format to serialize Linked Data with support for
+/// contexts that map JSON properties to IRIs and JSON values to typed RDF literals.
+///
+/// See the JSON-LD specification at: https://w3c.github.io/json-ld-syntax/
+library;
+
 import 'package:rdf_core/rdf_core.dart';
 
 void main() {
-  // Example: Parse a simple JSON-LD document
+  print('JSON-LD Format Example');
+  print('=====================\n');
+
+  // Example: Parse a JSON-LD document with a context that maps properties to IRIs
   final jsonLd = '''
   {
     "@context": {

@@ -1,7 +1,18 @@
-// Example demonstrating the use of Schema.org PostalAddress in RDF
-//
-// This example shows how to create and query postal address data
-// using the Schema.org vocabulary in RDF Core.
+/// Postal Address Modeling Example
+///
+/// This example demonstrates practical application of RDF for modeling and
+/// querying structured address data using the Schema.org vocabulary:
+///
+/// Key concepts:
+/// - Using blank nodes for structured data
+/// - Modeling with established vocabularies (Schema.org)
+/// - Creating relationships between entities
+/// - Extracting structured data from graphs
+/// - Adding data to existing graphs
+///
+/// The example creates an organization with a postal address, queries the
+/// address information, and then adds a second location (branch office).
+library;
 
 import 'package:rdf_core/rdf_core.dart';
 
@@ -137,11 +148,10 @@ void printAddressInfo(RdfGraph graph, IriTerm entity) {
     ];
 
     for (final property in addressProperties) {
-      final values =
-          graph.triples
-              .where((t) => t.subject == addressNode && t.predicate == property)
-              .map((t) => t.object)
-              .toList();
+      final values = graph.triples
+          .where((t) => t.subject == addressNode && t.predicate == property)
+          .map((t) => t.object)
+          .toList();
 
       if (values.isNotEmpty) {
         final propertyName = property.iri.split('/').last;

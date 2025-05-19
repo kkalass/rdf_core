@@ -1,8 +1,21 @@
-// Example demonstrating the use of TurtleParsingFlags for handling non-standard Turtle documents
-// This example shows how to handle Turtle documents with syntax issues using different approaches:
-// 1. Using global convenience variables with options
-// 2. Creating custom configured RdfCore instances
-// 3. Working directly with codecs
+/// Advanced Turtle Parsing with Custom Flags
+///
+/// This example demonstrates how to handle non-standard or problematic Turtle
+/// documents using parser configuration options. It showcases three approaches:
+///
+/// 1. Using global convenience variables with parser options
+/// 2. Creating custom configured RdfCore instances with relaxed parsing
+/// 3. Working directly with configured codec instances
+///
+/// Common parsing issues addressed:
+/// - Missing statement terminators (dots)
+/// - Non-standard prefix declarations
+/// - Invalid local names with digits
+/// - Missing prefixes for type declarations
+///
+/// This example is especially useful when working with real-world data that
+/// may not strictly adhere to W3C specifications.
+library;
 
 import 'package:rdf_core/rdf_core.dart';
 

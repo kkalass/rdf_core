@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **TurtleDecoder**: Fixed parsing of prefixed names with colons in local parts
+  - Corrected prefixed name splitting to only split on the first colon, allowing colons in local names per W3C Turtle specification
+  - Updated parser to properly handle IRIs like `prefix:local:name` which are valid according to PN_LOCAL grammar
+
+- **TurtleTokenizer**: Enhanced local name validation according to PN_LOCAL specification
+  - Implemented proper PN_LOCAL grammar validation that prevents invalid patterns like dots at the end of local names
+  - Added validation to reject local names ending with dots (e.g., `author.me` → invalid)
+  - Added validation to reject local names starting with dots or hyphens
+  - Added validation to reject double dots and hyphen-dot patterns
+  - Improved tokenizer to properly handle dots in the middle of valid local names
+  - Fixed tokenizer backtracking when invalid trailing dots are detected
+
+- **RdfNamespaceMappings**: Enhanced IRI validation for prefix generation
+  - Added comprehensive `_isValidPnLocal` validation function that enforces W3C Turtle PN_LOCAL rules
+  - Improved `extractNamespaceAndLocalPart` to reject IRIs with invalid local name patterns
+  - Added validation for domain-like suffixes and percent encoding in local names
+  - Performance optimization: pre-compiled regex patterns as static final fields to avoid repeated compilation
+
+### Enhanced
+
+- **Performance**: Optimized regex usage in TurtleTokenizer by using static final compiled patterns
+  - Replaced inline `RegExp(r'[0-9]')` calls with pre-compiled `_isDigitRegExp`
+  - Replaced inline character class regexes with static compiled patterns for better performance
+
+### Added
+
+- **Testing**: Added comprehensive test suite for Turtle local name validation
+  - Tests for invalid PN_LOCAL patterns (dots at end, double dots, hyphen-dot combinations)
+  - Tests for valid PN_LOCAL patterns with dots in the middle
+  - Validation that invalid local names are serialized as full IRIs instead of using prefix notation
+
 ## [0.9.2] - 2025-05-15
 
 ### Fixed

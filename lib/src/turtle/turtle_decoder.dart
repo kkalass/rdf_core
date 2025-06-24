@@ -1111,8 +1111,9 @@ class TurtleParser {
       }
     }
 
-    final parts = prefixedName.split(':');
-    if (parts.length != 2) {
+    // Split only on the first colon since colons are allowed in local names per PN_LOCAL spec
+    final colonIndex = prefixedName.indexOf(':');
+    if (colonIndex == -1) {
       _log.severe('Invalid prefixed name format: $prefixedName');
       throw RdfSyntaxException(
         'Invalid prefixed name format',
@@ -1125,8 +1126,8 @@ class TurtleParser {
       );
     }
 
-    final prefix = parts[0];
-    final localName = parts[1];
+    final prefix = prefixedName.substring(0, colonIndex);
+    final localName = prefixedName.substring(colonIndex + 1);
 
     if (!_prefixes.containsKey(prefix)) {
       // In compatibility mode, we could try to guess the prefix

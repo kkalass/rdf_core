@@ -21,6 +21,22 @@ library rdf_namespaces;
 import 'package:rdf_core/src/vocab/rdf.dart';
 import 'package:rdf_core/src/vocab/xsd.dart';
 
+// Static compiled regex patterns for performance
+final _digitStartRegex = RegExp(r'^\d');
+final _uriRegex = RegExp(r'^https?://(?:www\.)?([^/]+)(.*)');
+final _versionOrDateRegex = RegExp(
+  r'^(v\d+(\.\d+)*|\d+\.\d+|\d{4}(-\d{2}(-\d{2})?)?|latest)$',
+);
+final _percentEncodingRegex = RegExp(r'%');
+final _doubleDotRegex = RegExp(r'\.\.');
+final _hyphenDotRegex = RegExp(r'-\.');
+final _domainSuffixRegex = RegExp(r'\.(me|com|org|net|edu|gov|mil)$');
+final _pnLocalStartRegex = RegExp(r'^[a-zA-Z0-9_:]');
+final _pnLocalSingleCharRegex = RegExp(r'^[a-zA-Z0-9_:]$');
+final _pnLocalEndCharRegex = RegExp(r'[a-zA-Z0-9_:-]$');
+final _pnLocalFullRegex =
+    RegExp(r'^[a-zA-Z0-9_:][a-zA-Z0-9_\-.:]*[a-zA-Z0-9_:-]$');
+
 /// Standard mappings between RDF namespace prefixes and their corresponding URIs.
 ///
 /// This constant provides a predefined set of common RDF namespace prefix-to-URI mappings
@@ -217,8 +233,7 @@ class RdfNamespaceMappings {
       }
 
       // Extract domain and path from HTTP/HTTPS URI
-      final uriRegex = RegExp(r'^https?://(?:www\.)?([^/]+)(.*)');
-      final match = uriRegex.firstMatch(namespace);
+      final match = _uriRegex.firstMatch(namespace);
       if (match == null || match.groupCount < 2) return null;
 
       final domain = match.group(1);
@@ -312,9 +327,7 @@ class RdfNamespaceMappings {
     };
 
     // List of patterns indicating version numbers or dates
-    final versionOrDatePattern = RegExp(
-      r'^(v\d+(\.\d+)*|\d+\.\d+|\d{4}(-\d{2}(-\d{2})?)?|latest)$',
-    );
+    final versionOrDatePattern = _versionOrDateRegex;
 
     // Special case for w3.org paths with 'ns' segment
     final nsIndex = components.indexOf('ns');
@@ -495,6 +508,85 @@ class RdfNamespaceMappings {
     return true;
   }
 
+  /// Validates whether a string is a valid PN_LOCAL according to Turtle specification.
+  ///
+  /// PN_LOCAL ::= (PN_CHARS_U | ':' | [0-9] | PLX) ((PN_CHARS | '.' | ':' | PLX)* (PN_CHARS | ':' | PLX))?
+  ///
+  /// Key rules:
+  /// - Can contain dots and colons in the middle
+  /// - Cannot start with a dot (handled by first part)
+  /// - Cannot end with a dot (enforced by the last part)
+  /// - Can start with digits (if allowed)
+  ///
+  /// Returns true if the string is a valid PN_LOCAL, false otherwise.
+  static bool _isValidPnLocal(String localPart,
+      {bool allowNumericLocalNames = true}) {
+    if (localPart.isEmpty) {
+      return true; // Empty local part is valid (e.g., "prefix:")
+    }
+
+    // Check if starts with digit and not allowed
+    if (!allowNumericLocalNames && _digitStartRegex.hasMatch(localPart)) {
+      return false;
+    }
+
+    // Check for invalid characters like percent encoding
+    if (_percentEncodingRegex.hasMatch(localPart)) {
+      return false;
+    }
+
+    // Cannot end with a dot according to PN_LOCAL grammar
+    if (localPart.endsWith('.')) {
+      return false;
+    }
+
+    // Cannot start with a dot
+    if (localPart.startsWith('.')) {
+      return false;
+    }
+
+    // Cannot start with hyphen
+    if (localPart.startsWith('-')) {
+      return false;
+    }
+
+    // Cannot contain double dots (not explicitly in spec but generally invalid)
+    if (_doubleDotRegex.hasMatch(localPart)) {
+      return false;
+    }
+
+    // Cannot have hyphen followed by dot (invalid pattern)
+    if (_hyphenDotRegex.hasMatch(localPart)) {
+      return false;
+    }
+
+    // For conservative approach, reject domain-like suffixes that end with dots followed by common TLDs
+    // This prevents confusion with domain names in URIs
+    if (_domainSuffixRegex.hasMatch(localPart)) {
+      return false;
+    }
+
+    // Basic character validation - must start with valid PN_CHARS_U or digit or colon
+    // and contain only valid characters
+    if (!_pnLocalStartRegex.hasMatch(localPart)) {
+      return false;
+    }
+
+    // For single character, it must be a valid ending character
+    if (localPart.length == 1) {
+      return _pnLocalSingleCharRegex.hasMatch(localPart);
+    }
+
+    // For multi-character strings, validate that it doesn't end with problematic characters
+    // According to PN_LOCAL grammar, last character must be PN_CHARS | ':' | PLX (not '.')
+    if (!_pnLocalEndCharRegex.hasMatch(localPart)) {
+      return false;
+    }
+
+    // Check that all characters are valid PN_LOCAL characters
+    return _pnLocalFullRegex.hasMatch(localPart);
+  }
+
   /// Creates an unmodifiable view of the underlying mappings.
   ///
   /// This method provides support for the spread operator by returning a Map that can be spread.
@@ -564,10 +656,16 @@ class RdfNamespaceMappings {
     // return the full IRI as namespace and an empty local part
     if (!allowNumericLocalNames &&
         localPart.isNotEmpty &&
-        RegExp(r'^\d').hasMatch(localPart)) {
+        _digitStartRegex.hasMatch(localPart)) {
       return (iri, '');
     }
-    if (localPart.contains('%')) {
+    if (_percentEncodingRegex.hasMatch(localPart)) {
+      return (iri, '');
+    }
+
+    // Validate PN_LOCAL according to Turtle specification
+    if (!_isValidPnLocal(localPart,
+        allowNumericLocalNames: allowNumericLocalNames)) {
       return (iri, '');
     }
 

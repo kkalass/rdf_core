@@ -185,6 +185,7 @@ class Token {
 /// }
 /// ```
 class TurtleTokenizer {
+  static final _isDigitRegExp = RegExp(r'[0-9]');
   final String _input;
   int _position = 0;
   int _line = 1;
@@ -242,8 +243,8 @@ class TurtleTokenizer {
         // Check if this is a decimal point in a number
         if (_position > 0 &&
             _position + 1 < _input.length &&
-            RegExp(r'[0-9]').hasMatch(_input[_position - 1]) &&
-            RegExp(r'[0-9]').hasMatch(_input[_position + 1])) {
+            _isDigitRegExp.hasMatch(_input[_position - 1]) &&
+            _isDigitRegExp.hasMatch(_input[_position + 1])) {
           return _parseDecimalLiteral();
         }
         _position++;
@@ -351,13 +352,13 @@ class TurtleTokenizer {
     // Handle negative numeric literals
     if (char == '-' &&
         _position + 1 < _input.length &&
-        RegExp(r'[0-9]').hasMatch(_input[_position + 1])) {
+        _isDigitRegExp.hasMatch(_input[_position + 1])) {
       // Look ahead to determine if this is a decimal or integer
       int lookAhead = _position + 1; // Skip the minus sign
       bool isDecimal = false;
 
       while (lookAhead < _input.length &&
-          RegExp(r'[0-9]').hasMatch(_input[lookAhead])) {
+          _isDigitRegExp.hasMatch(_input[lookAhead])) {
         lookAhead++;
       }
 
@@ -365,7 +366,7 @@ class TurtleTokenizer {
         lookAhead++;
         // Check if there's at least one digit after the decimal point
         if (lookAhead < _input.length &&
-            RegExp(r'[0-9]').hasMatch(_input[lookAhead])) {
+            _isDigitRegExp.hasMatch(_input[lookAhead])) {
           isDecimal = true;
         }
       }
@@ -378,13 +379,13 @@ class TurtleTokenizer {
     }
 
     // Handle numeric literals
-    if (RegExp(r'[0-9]').hasMatch(char)) {
+    if (_isDigitRegExp.hasMatch(char)) {
       // Look ahead to determine if this is a decimal or integer
       int lookAhead = _position;
       bool isDecimal = false;
 
       while (lookAhead < _input.length &&
-          RegExp(r'[0-9]').hasMatch(_input[lookAhead])) {
+          _isDigitRegExp.hasMatch(_input[lookAhead])) {
         lookAhead++;
       }
 
@@ -392,7 +393,7 @@ class TurtleTokenizer {
         lookAhead++;
         // Check if there's at least one digit after the decimal point
         if (lookAhead < _input.length &&
-            RegExp(r'[0-9]').hasMatch(_input[lookAhead])) {
+            _isDigitRegExp.hasMatch(_input[lookAhead])) {
           isDecimal = true;
         }
       }
@@ -429,7 +430,7 @@ class TurtleTokenizer {
     // In relaxed mode with allowDigitInLocalName, also handle digits at the start as potential prefixed names
     // This is particularly useful for files that mistakenly start prefixed names with digits
     if (_hasFlag(TurtleParsingFlag.allowDigitInLocalName) &&
-        RegExp(r'[0-9]').hasMatch(char)) {
+        _isDigitRegExp.hasMatch(char)) {
       _log.warning(
         'With allowDigitInLocalName: Found digit as first character at $_line:$_column',
       );
@@ -460,7 +461,7 @@ class TurtleTokenizer {
 
     // Parse digits
     while (_position < _input.length &&
-        RegExp(r'[0-9]').hasMatch(_input[_position])) {
+        _isDigitRegExp.hasMatch(_input[_position])) {
       buffer.write(_input[_position]);
       _position++;
       _column++;
@@ -494,7 +495,7 @@ class TurtleTokenizer {
 
     // Parse digits before decimal point
     while (_position < _input.length &&
-        RegExp(r'[0-9]').hasMatch(_input[_position])) {
+        _isDigitRegExp.hasMatch(_input[_position])) {
       buffer.write(_input[_position]);
       _position++;
       _column++;
@@ -508,7 +509,7 @@ class TurtleTokenizer {
 
       // Parse digits after decimal point
       while (_position < _input.length &&
-          RegExp(r'[0-9]').hasMatch(_input[_position])) {
+          _isDigitRegExp.hasMatch(_input[_position])) {
         buffer.write(_input[_position]);
         _position++;
         _column++;
@@ -836,7 +837,7 @@ class TurtleTokenizer {
 
     // Check for a digit at the start when allowDigitInLocalName is enabled
     final isStartingWithDigit = _position < _input.length &&
-        RegExp(r'[0-9]').hasMatch(_input[_position]) &&
+        _isDigitRegExp.hasMatch(_input[_position]) &&
         _hasFlag(TurtleParsingFlag.allowDigitInLocalName);
 
     // Handle empty prefix case (just a colon)
@@ -849,14 +850,29 @@ class TurtleTokenizer {
       if (_position < _input.length &&
           (_isNameStartChar(_input[_position]) ||
               (_hasFlag(TurtleParsingFlag.allowDigitInLocalName) &&
-                  RegExp(r'[0-9]').hasMatch(_input[_position])))) {
-        while (_position < _input.length &&
-            (_isNameChar(_input[_position]) ||
-                (_hasFlag(TurtleParsingFlag.allowDigitInLocalName) &&
-                    RegExp(r'[0-9]').hasMatch(_input[_position])))) {
-          buffer.write(_input[_position]);
-          _position++;
-          _column++;
+                  _isDigitRegExp.hasMatch(_input[_position])))) {
+        // Parse the local name according to PN_LOCAL grammar
+        while (_position < _input.length) {
+          final char = _input[_position];
+          if (_isLocalNameChar(char) ||
+              (_hasFlag(TurtleParsingFlag.allowDigitInLocalName) &&
+                  _isDigitRegExp.hasMatch(char))) {
+            buffer.write(char);
+            _position++;
+            _column++;
+          } else {
+            break;
+          }
+        }
+
+        // Check if the local name ends with a dot, which is invalid per PN_LOCAL rule
+        if (buffer.isNotEmpty && buffer.toString().endsWith('.')) {
+          // Remove the trailing dot and backtrack
+          final content = buffer.toString();
+          buffer.clear();
+          buffer.write(content.substring(0, content.length - 1));
+          _position--;
+          _column--;
         }
       }
       return Token(
@@ -883,7 +899,7 @@ class TurtleTokenizer {
       final char = _input[_position];
 
       if (_isNameChar(char) ||
-          (isStartingWithDigit && RegExp(r'[0-9]').hasMatch(char))) {
+          (isStartingWithDigit && _isDigitRegExp.hasMatch(char))) {
         buffer.write(char);
         _position++;
         _column++;
@@ -897,14 +913,30 @@ class TurtleTokenizer {
         if (_position < _input.length &&
             (_isNameStartChar(_input[_position]) ||
                 (_hasFlag(TurtleParsingFlag.allowDigitInLocalName) &&
-                    RegExp(r'[0-9]').hasMatch(_input[_position])))) {
-          while (_position < _input.length &&
-              (_isNameChar(_input[_position]) ||
-                  (_hasFlag(TurtleParsingFlag.allowDigitInLocalName) &&
-                      RegExp(r'[0-9]').hasMatch(_input[_position])))) {
-            buffer.write(_input[_position]);
-            _position++;
-            _column++;
+                    _isDigitRegExp.hasMatch(_input[_position])))) {
+          // Parse the local name according to PN_LOCAL grammar:
+          // PN_LOCAL ::= (PN_CHARS_U | ':' | [0-9] | PLX) ((PN_CHARS | '.' | ':' | PLX)* (PN_CHARS | ':' | PLX))?
+          while (_position < _input.length) {
+            final char = _input[_position];
+            if (_isLocalNameChar(char) ||
+                (_hasFlag(TurtleParsingFlag.allowDigitInLocalName) &&
+                    _isDigitRegExp.hasMatch(char))) {
+              buffer.write(char);
+              _position++;
+              _column++;
+            } else {
+              break;
+            }
+          }
+
+          // Check if the local name ends with a dot, which is invalid per PN_LOCAL rule
+          if (buffer.isNotEmpty && buffer.toString().endsWith('.')) {
+            // Remove the trailing dot and backtrack
+            final content = buffer.toString();
+            buffer.clear();
+            buffer.write(content.substring(0, content.length - 1));
+            _position--;
+            _column--;
           }
         }
         return Token(
@@ -996,9 +1028,13 @@ class TurtleTokenizer {
   ///
   /// Returns true if the character is valid as a name start character,
   /// false otherwise.
-  bool _isNameStartChar(String char) {
-    return RegExp(r'[a-zA-Z_:]').hasMatch(char);
-  }
+  static final _isNameStartCharRegExp = RegExp(r'[a-zA-Z_:]');
+  bool _isNameStartChar(String char) => _isNameStartCharRegExp.hasMatch(char);
+
+  // According to Turtle specification PN_CHARS rule:
+  // PN_CHARS ::= PN_CHARS_U | '-' | [0-9] | #x00B7 | [#x0300-#x036F] | [#x203F-#x2040]
+  // This includes basic alphanumeric plus underscore, hyphen
+  static final _isNameCharRegExp = RegExp(r'[a-zA-Z0-9_\-]');
 
   /// Checks if a character is valid within a name.
   ///
@@ -1011,7 +1047,16 @@ class TurtleTokenizer {
   /// This is used for the body of prefixed names and local names.
   ///
   /// Returns true if the character is valid within a name, false otherwise.
-  bool _isNameChar(String char) {
-    return RegExp(r'[a-zA-Z0-9_\-]').hasMatch(char);
-  }
+  bool _isNameChar(String char) => _isNameCharRegExp.hasMatch(char);
+
+  // PN_CHARS | '.' | ':' | PLX
+  // For now, we implement basic case: PN_CHARS + '.' + ':'
+  static final _isLocalNameCharRegExp = RegExp(r'[a-zA-Z0-9_\-\.\:]');
+
+  /// Checks if a character is valid in a local name part of a prefixed name.
+  ///
+  /// According to PN_LOCAL rule in Turtle grammar:
+  /// PN_LOCAL ::= (PN_CHARS_U | ':' | [0-9] | PLX) ((PN_CHARS | '.' | ':' | PLX)* (PN_CHARS | ':' | PLX))?
+  /// This means local names can include dots and colons in the middle.
+  bool _isLocalNameChar(String char) => _isLocalNameCharRegExp.hasMatch(char);
 }

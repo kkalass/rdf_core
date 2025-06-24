@@ -1043,13 +1043,17 @@ void main() {
       );
     });
 
-    test('should throw exception for invalid prefixed name format', () {
+    test('should handle prefixed names with colons in local part', () {
+      // According to W3C Turtle specification PN_LOCAL, colons are allowed in local names
       final parser = TurtleParser('''
         @prefix ex: <http://example.org/> .
         <http://example.org/subject> <http://example.org/predicate> ex:local:name .
       ''');
 
-      expect(() => parser.parse(), throwsA(isA<RdfSyntaxException>()));
+      final triples = parser.parse();
+      expect(triples.length, equals(1));
+      expect(
+          triples[0].object, equals(IriTerm('http://example.org/local:name')));
     });
 
     test('should handle deeply nested blank nodes', () {

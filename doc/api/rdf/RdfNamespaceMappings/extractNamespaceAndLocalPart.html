@@ -120,10 +120,16 @@ resulting in an empty local part and the full IRI as the namespace.</p>
   &#47;&#47; return the full IRI as namespace and an empty local part
   if (!allowNumericLocalNames &amp;&amp;
       localPart.isNotEmpty &amp;&amp;
-      RegExp(r&#39;^\d&#39;).hasMatch(localPart)) {
+      _digitStartRegex.hasMatch(localPart)) {
     return (iri, &#39;&#39;);
   }
-  if (localPart.contains(&#39;%&#39;)) {
+  if (_percentEncodingRegex.hasMatch(localPart)) {
+    return (iri, &#39;&#39;);
+  }
+
+  &#47;&#47; Validate PN_LOCAL according to Turtle specification
+  if (!_isValidPnLocal(localPart,
+      allowNumericLocalNames: allowNumericLocalNames)) {
     return (iri, &#39;&#39;);
   }
 

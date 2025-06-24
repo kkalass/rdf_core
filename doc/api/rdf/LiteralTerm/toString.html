@@ -97,10 +97,9 @@ print(typedLiteral); // Prints: "42"^^&lt;http://www.w3.org/2001/XMLSchema#integ
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-String toString() =&gt;
-    language != null
-        ? &#39;&quot;$value&quot;@$language&#39;
-        : datatype == Xsd.string
+String toString() =&gt; language != null
+    ? &#39;&quot;$value&quot;@$language&#39;
+    : datatype == Xsd.string
         ? &#39;&quot;$value&quot;&#39;
         : &#39;&quot;$value&quot;^^$datatype&#39;;</code></pre>
 </section>

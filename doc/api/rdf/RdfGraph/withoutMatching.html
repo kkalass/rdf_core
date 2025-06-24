@@ -101,13 +101,12 @@ final withoutContactInfo = graph.withoutMatching(
   RdfPredicate? predicate,
   RdfObject? object,
 }) {
-  final filteredTriples =
-      _triples.where((triple) {
-        if (subject != null &amp;&amp; triple.subject == subject) return false;
-        if (predicate != null &amp;&amp; triple.predicate == predicate) return false;
-        if (object != null &amp;&amp; triple.object == object) return false;
-        return true;
-      }).toList();
+  final filteredTriples = _triples.where((triple) {
+    if (subject != null &amp;&amp; triple.subject == subject) return false;
+    if (predicate != null &amp;&amp; triple.predicate == predicate) return false;
+    if (object != null &amp;&amp; triple.object == object) return false;
+    return true;
+  }).toList();
 
   return RdfGraph(triples: filteredTriples);
 }</code></pre>

@@ -90,11 +90,12 @@ method chaining and configuration without side effects.</p>
 JsonLdGraphCodec withOptions({
   RdfGraphEncoderOptions? encoder,
   RdfGraphDecoderOptions? decoder,
-}) =&gt; JsonLdGraphCodec(
-  namespaceMappings: _namespaceMappings,
-  encoderOptions: JsonLdEncoderOptions.from(encoder ?? _encoderOptions),
-  decoderOptions: JsonLdDecoderOptions.from(decoder ?? _decoderOptions),
-);</code></pre>
+}) =&gt;
+    JsonLdGraphCodec(
+      namespaceMappings: _namespaceMappings,
+      encoderOptions: JsonLdEncoderOptions.from(encoder ?? _encoderOptions),
+      decoderOptions: JsonLdDecoderOptions.from(decoder ?? _decoderOptions),
+    );</code></pre>
 </section>
 
 

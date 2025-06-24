@@ -54,46 +54,86 @@
 <a href="https://github.com/kkalass/rdf_core/actions"><img src="https://github.com/kkalass/rdf_core/actions/workflows/ci.yml/badge.svg" alt="build"></a>
 <a href="https://codecov.io/gh/kkalass/rdf_core"><img src="https://codecov.io/gh/kkalass/rdf_core/branch/main/graph/badge.svg" alt="codecov"></a>
 <a href="https://github.com/kkalass/rdf_core/blob/main/LICENSE"><img src="https://img.shields.io/github/license/kkalass/rdf_core.svg" alt="license"></a></p>
-<p><a href="https://kkalass.github.io/rdf_core/">🌐 <strong>Official Homepage</strong></a></p>
-<p>A type-safe, and extensible Dart library for representing and manipulating RDF data without any further dependencies.</p>
-<hr>
+<p>A type-safe and extensible Dart library for representing and manipulating RDF data without additional dependencies (except for logging).</p>
 <h2 id="core-of-a-whole-family-of-projects">Core of a whole family of projects</h2>
 <p>If you are looking for more rdf-related functionality, have a look at our companion projects:</p>
 <ul>
-<li>encode and decode rdf/xml format: <a href="https://github.com/kkalass/rdf_xml">rdf_xml</a></li>
-<li>easy-to-use constants for many well-known vocabularies: <a href="https://github.com/kkalass/rdf_vocabularies">rdf_vocabularies</a></li>
-<li>generate your own easy-to-use constants for other vocabularies with a build_runner: <a href="https://github.com/kkalass/rdf_vocabulary_to_dart">rdf_vocabulary_to_dart</a></li>
-<li>map Dart Objects ↔️ RDF: <a href="https://github.com/kkalass/rdf_mapper">rdf_mapper</a></li>
+<li>Encode and decode RDF/XML format: <a href="https://github.com/kkalass/rdf_xml">rdf_xml</a></li>
+<li>Easy-to-use constants for many well-known vocabularies: <a href="https://github.com/kkalass/rdf_vocabularies">rdf_vocabularies</a></li>
+<li>Generate your own easy-to-use constants for other vocabularies with a build_runner: <a href="https://github.com/kkalass/rdf_vocabulary_to_dart">rdf_vocabulary_to_dart</a></li>
+<li>Map Dart Objects ↔️ RDF: <a href="https://github.com/kkalass/rdf_mapper">rdf_mapper</a></li>
 </ul>
-<hr>
-<h2 id="-features">✨ Features</h2>
-<ul>
-<li><strong>Type-safe RDF model:</strong> IRIs, Literals, Triples, Graphs, and more</li>
-<li><strong>Serialization-agnostic:</strong> Clean separation from Turtle/JSON-LD/N-Triples</li>
-<li><strong>Extensible &amp; modular:</strong> Build your own adapters, plugins, and integrations</li>
-<li><strong>Spec-compliant:</strong> Follows <a href="https://www.w3.org/TR/rdf11-concepts/">W3C RDF 1.1</a> and related standards</li>
-<li><strong>Convenience global variables:</strong> Easy usage with <code>turtle</code>, <code>jsonld</code> and <code>ntriples</code> for quick encoding/decoding</li>
-</ul>
-<h2 id="-quick-start">🚀 Quick Start</h2>
-<h3 id="convenience-globals">Convenience Globals</h3>
-<p>The library provides global variables for quick and easy access:</p>
-<pre class="language-dart"><code class="language-dart">import 'package:rdf_core/rdf_core.dart';
-
-// Easy access to codecs through global variables
-final graphFromTurtle = turtle.decode(turtleData);
-final graphFromJsonLd = jsonldGraph.decode(jsonLdData);
-final graphFromNTriples = ntriples.decode(ntriplesData);
-
-// Or use the pre-configured RdfCore instance
-final graph = rdf.decode(data, contentType: 'text/turtle');
+<p><strong>Further Resources:</strong> <a href="doc/GETTING_STARTED.md">🚀 <strong>Getting Started Guide</strong></a> | <a href="doc/COOKBOOK.md">📚 <strong>Cookbook with Recipes</strong></a> | <a href="doc/DESIGN_PHILOSOPHY.md">🛠️ <strong>Design Philosophy</strong></a> | <a href="https://kkalass.github.io/rdf_core/">🌐 <strong>Official Homepage</strong></a></p>
+<h2 id="installation">Installation</h2>
+<pre class="language-dart"><code class="language-dart">dart pub add rdf_core
 </code></pre>
-<h3 id="manual-graph-creation">Manual Graph Creation</h3>
+<h2 id="-quick-start">🚀 Quick Start</h2>
 <pre class="language-dart"><code class="language-dart">import 'package:rdf_core/rdf_core.dart';
 
 void main() {
+  // Parse Turtle data
+  final turtleString = '''
+    @prefix foaf: &lt;http://xmlns.com/foaf/0.1/&gt; .
+    &lt;http://example.org/john&gt; foaf:name "John Doe" ; foaf:age 30 .
+  ''';
+  
+  // Decode turtle data to an RDF graph
+  final graph = turtle.decode(turtleString);
+  
+  // Find triples with specific subject and predicate
+  final nameTriples = graph.findTriples(
+    subject: IriTerm('http://example.org/john'),
+    predicate: IriTerm('http://xmlns.com/foaf/0.1/name')
+  );
+  
+  if (nameTriples.isNotEmpty) {
+    final name = (nameTriples.first.object as LiteralTerm).value;
+    print('Name: $name');
+  }
+  
+  // Create and add a new triple
+  final subject = IriTerm('http://example.org/john');
+  final predicate = IriTerm('http://xmlns.com/foaf/0.1/email');
+  final object = LiteralTerm.string('john@example.org');
+  final triple = Triple(subject, predicate, object);
+  final updatedGraph = graph.withTriple(triple);
+  
+  // Encode the graph as Turtle
+  print(turtle.encode(updatedGraph));
+}
+</code></pre>
+<h2 id="-features">✨ Features</h2>
+<ul>
+<li><strong>Type-safe RDF model:</strong> IRIs, literals, triples, graphs, and more</li>
+<li><strong>Serialization-agnostic:</strong> Clean separation of Turtle/JSON-LD/N-Triples</li>
+<li><strong>Extensible &amp; modular:</strong> Create your own adapters, plugins, and integrations</li>
+<li><strong>Specification compliant:</strong> Follows <a href="https://www.w3.org/TR/rdf11-concepts/">W3C RDF 1.1</a> and related standards</li>
+<li><strong>Convenient global variables:</strong> Easy to use with <code>turtle</code>, <code>jsonld</code> and <code>ntriples</code> for quick encoding/decoding</li>
+</ul>
+<h2 id="core-api-usage">Core API Usage</h2>
+<h3 id="global-variables-for-easy-access">Global Variables for Easy Access</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:rdf_core/rdf_core.dart';
+
+// Global variables for quick access to codecs
+final graphFromTurtle = turtle.decode(turtleString);
+final graphFromJsonLd = jsonldGraph.decode(jsonLdString);
+final graphFromNTriples = ntriples.decode(ntriplesString);
+
+// Or use the preconfigured RdfCore instance
+final graph = rdf.decode(data, contentType: 'text/turtle');
+final encoded = rdf.encode(graph, contentType: 'application/ld+json');
+</code></pre>
+<h3 id="manually-creating-a-graph">Manually Creating a Graph</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:rdf_core/rdf_core.dart';
+
+void main() {
+  // Create an empty graph
+  final graph = RdfGraph();
+  
+  // Create a triple
   final subject = IriTerm('http://example.org/alice');
   final predicate = IriTerm('http://xmlns.com/foaf/0.1/name');
-  final object = LiteralTerm.withLanguage('Alice', 'en');
+  final object = LiteralTerm.string('Alice');
   final triple = Triple(subject, predicate, object);
   final graph = RdfGraph(triples: [triple]);
 
@@ -343,6 +383,56 @@ final graph4 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 <li><a href="https://www.w3.org/TR/shacl/">SHACL: Shapes Constraint Language</a></li>
 </ul>
 <hr>
+<h2 id="-object-mapping-with-rdf_mapper">🧠 Object Mapping with rdf_mapper</h2>
+<p>For object-oriented access to RDF data, our companion project <code>rdf_mapper</code> allows seamless mapping between Dart objects and RDF. It works especially well with <code>rdf_vocabularies</code>, which provides constants for well-known vocabularies (like schema.org's <code>Person</code> available as the <code>SchemaPerson</code> class):</p>
+<pre class="language-dart"><code class="language-dart">// Our simple dart class
+class Person {
+  final String id;
+  final String givenName;
+
+  Person({required this.id, this.givenName})
+}
+
+// Define a Mapper with our API for mapping between RDF and Objects
+class PersonMapper implements IriNodeMapper&lt;Person&gt; {
+  @override
+  IriTerm? get typeIri =&gt; SchemaPerson.classIri;
+  
+  @override
+  (IriTerm, List&lt;Triple&gt;) toRdfNode(Person value, SerializationContext context, {RdfSubject? parentSubject}) {
+
+    // convert dart objects to triples using the fluent builder API
+    return context.nodeBuilder(IriTerm(value.id))
+      .literal(SchemaPerson.givenName, value.givenName)
+      .build();
+  }
+  
+  @override
+  Person fromRdfNode(IriTerm term, DeserializationContext context) {
+    final reader = context.reader(term);
+    
+    return Person(
+      id: term.iri,
+      name: reader.require&lt;String&gt;(SchemaPerson.givenName),
+    );
+  }
+}
+
+// Register our Mapper and create the rdfMapper facade
+final rdfMapper = RdfMapper.withMappers((registry) {
+  registry.registerMapper&lt;Person&gt;(PersonMapper());
+});
+
+// Create RDF representation from Dart objects
+final person = Person(id: "https://example.com/person/234234", givenName: "John");
+final turtle = rdfMapper.encode(person);
+
+// Create JSON-LD representation
+final jsonLd = rdfMapper.encode(person, contentType: 'application/ld+json');
+
+// Access the underlying RDF graph
+final graph = rdfMapper.graph.encode(person);
+</code></pre>
 <h2 id="-roadmap--next-steps">🛣️ Roadmap / Next Steps</h2>
 <ul>
 <li>RDF 1.1: Datasets with Named Graphs</li>

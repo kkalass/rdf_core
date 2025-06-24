@@ -92,10 +92,11 @@ Throws codec-specific exceptions for serialization errors.</p>
   String? contentType,
   String? baseUri,
   RdfGraphEncoderOptions? options,
-}) =&gt; codec(
-  contentType: contentType,
-  encoderOptions: options,
-).encode(graph, baseUri: baseUri);</code></pre>
+}) =&gt;
+    codec(
+      contentType: contentType,
+      encoderOptions: options,
+    ).encode(graph, baseUri: baseUri);</code></pre>
 </section>
 
 

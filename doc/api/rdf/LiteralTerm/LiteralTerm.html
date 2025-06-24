@@ -95,16 +95,15 @@ final langLiteral = LiteralTerm('Bonjour', language: 'fr');
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">const LiteralTerm(this.value, {IriTerm? datatype, this.language})
-  : assert(
-      datatype == null ||
-          (language == null &amp;&amp; datatype != Rdf.langString) ||
-          (language != null &amp;&amp; datatype == Rdf.langString),
-      &#39;Language-tagged literals must use rdf:langString datatype, and rdf:langString must have a language tag&#39;,
-    ),
-    datatype =
-        datatype != null
-            ? datatype
-            : (language == null ? Xsd.string : Rdf.langString);</code></pre>
+    : assert(
+        datatype == null ||
+            (language == null &amp;&amp; datatype != Rdf.langString) ||
+            (language != null &amp;&amp; datatype == Rdf.langString),
+        &#39;Language-tagged literals must use rdf:langString datatype, and rdf:langString must have a language tag&#39;,
+      ),
+      datatype = datatype != null
+          ? datatype
+          : (language == null ? Xsd.string : Rdf.langString);</code></pre>
 </section>
 
 

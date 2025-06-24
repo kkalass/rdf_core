@@ -88,12 +88,13 @@ The <code>decoder</code> parameter contains optional decoder options to use.</p>
 RdfGraphCodec withOptions({
   RdfGraphEncoderOptions? encoder,
   RdfGraphDecoderOptions? decoder,
-}) =&gt; AutoDetectingGraphCodec(
-  defaultCodec: _defaultCodec,
-  registry: _registry,
-  encoderOptions: encoder ?? _encoderOptions,
-  decoderOptions: decoder ?? _decoderOptions,
-);</code></pre>
+}) =&gt;
+    AutoDetectingGraphCodec(
+      defaultCodec: _defaultCodec,
+      registry: _registry,
+      encoderOptions: encoder ?? _encoderOptions,
+      decoderOptions: decoder ?? _decoderOptions,
+    );</code></pre>
 </section>
 
 

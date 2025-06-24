@@ -137,15 +137,14 @@ String convert(RdfGraph graph, {String? baseUri}) {
     &#47;&#47; Create a @graph structure for multiple subjects
     final Map&lt;String, dynamic&gt; result = {
       &#39;@context&#39;: context,
-      &#39;@graph&#39;:
-          subjectGroups.entries.map((entry) {
-            return _createNodeObject(
-              entry.key,
-              entry.value,
-              context,
-              blankNodeLabels,
-            );
-          }).toList(),
+      &#39;@graph&#39;: subjectGroups.entries.map((entry) {
+        return _createNodeObject(
+          entry.key,
+          entry.value,
+          context,
+          blankNodeLabels,
+        );
+      }).toList(),
     };
 
     return JsonEncoder.withIndent(&#39;  &#39;).convert(result);

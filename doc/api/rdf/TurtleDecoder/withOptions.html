@@ -92,9 +92,9 @@ while preserving the original namespace mappings.</li>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 RdfGraphDecoder withOptions(RdfGraphDecoderOptions options) =&gt; TurtleDecoder(
-  options: TurtleDecoderOptions.from(options),
-  namespaceMappings: _namespaceMappings,
-);</code></pre>
+      options: TurtleDecoderOptions.from(options),
+      namespaceMappings: _namespaceMappings,
+    );</code></pre>
 </section>
 
 

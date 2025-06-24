@@ -98,6 +98,7 @@ final newEncoder = encoder.withOptions(
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
+
 &#47;&#47;&#47; Creates a new encoder with the specified options, preserving the current namespace mappings.
 &#47;&#47;&#47;
 &#47;&#47;&#47; This method allows changing encoding options without creating a completely new
@@ -120,9 +121,9 @@ final newEncoder = encoder.withOptions(
 &#47;&#47;&#47; );
 &#47;&#47;&#47; ```
 RdfGraphEncoder withOptions(RdfGraphEncoderOptions options) =&gt; TurtleEncoder(
-  namespaceMappings: _namespaceMappings,
-  options: TurtleEncoderOptions.from(options),
-);</code></pre>
+      namespaceMappings: _namespaceMappings,
+      options: TurtleEncoderOptions.from(options),
+    );</code></pre>
 </section>
 
 

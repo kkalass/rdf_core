@@ -91,8 +91,7 @@ Instead, it will return a new prefix that can be used for custom mappings.</p>
   String namespace, {
   Map&lt;String, String&gt; customMappings = const {},
 }) {
-  String? candidate =
-      _getKeyByValue(customMappings, namespace) ??
+  String? candidate = _getKeyByValue(customMappings, namespace) ??
       _getKeyByValue(_mappings, namespace);
   if (candidate != null) {
     return (candidate, false);
@@ -114,8 +113,8 @@ Instead, it will return a new prefix that can be used for custom mappings.</p>
   do {
     prefix = &#39;$computedPrefix$prefixNum&#39;;
     prefixNum++;
-  } while (customMappings.containsKey(prefix) &amp;&amp;
-      !_mappings.containsKey(prefix));
+  } while (
+      customMappings.containsKey(prefix) &amp;&amp; !_mappings.containsKey(prefix));
 
   return (prefix, true);
 }</code></pre>

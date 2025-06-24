@@ -76,10 +76,9 @@ If <code>useDefaults</code> is true (default), the standard mappings are include
   <pre class="language-dart"><code class="language-dart">RdfNamespaceMappings.custom(
   Map&lt;String, String&gt; customMappings, {
   useDefaults = true,
-}) : _mappings =
-         useDefaults
-             ? {..._rdfNamespaceMappings, ...customMappings}
-             : customMappings;</code></pre>
+}) : _mappings = useDefaults
+          ? {..._rdfNamespaceMappings, ...customMappings}
+          : customMappings;</code></pre>
 </section>
 
 

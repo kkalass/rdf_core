@@ -88,10 +88,9 @@ mainly for debugging or logging.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 String toString() {
-  final typeInfo =
-      actualType != null
-          ? &#39;Expected: $expectedType, Found: $actualType&#39;
-          : &#39;Expected: $expectedType&#39;;
+  final typeInfo = actualType != null
+      ? &#39;Expected: $expectedType, Found: $actualType&#39;
+      : &#39;Expected: $expectedType&#39;;
   return &#39;RdfTypeException: $typeInfo - $message${source != null ? &#39; at $source&#39; : &#39;&#39;}${cause != null ? &#39;\nCaused by: $cause&#39; : &#39;&#39;}&#39;;
 }</code></pre>
 </section>

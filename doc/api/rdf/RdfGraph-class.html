@@ -25,24 +25,21 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">rdf_core</a></li>
-    <li><a href="../rdf">rdf_core.dart</a></li>
+    <li><a href="../rdf/">rdf_core.dart</a></li>
     <li class="self-crumb">RdfGraph class</li>
   </ol>
   <div class="self-name">RdfGraph</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
-  <div class="toggle" id="theme-button" title="Toggle brightness">
-    <label for="theme">
-      <input type="checkbox" id="theme" value="light-theme">
-      <span id="dark-theme-button" class="material-symbols-outlined">
-        dark_mode
-      </span>
-      <span id="light-theme-button" class="material-symbols-outlined">
-        light_mode
-      </span>
-    </label>
-  </div>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
 </header>
 <main>
 <div
@@ -88,8 +85,8 @@ final updatedGraph = graph.withTriple(Triple(jane, name, janeSmith));
   <section class="summary offset-anchor" id="constructors">
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
-        <dt id="RdfGraph" class="callable">
-          <span class="name"><a href="../rdf/RdfGraph/RdfGraph.html">RdfGraph</a></span><span class="signature">({<span class="parameter" id="-param-triples"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/Triple-class.html">Triple</a></span>&gt;</span></span> <span class="parameter-name">triples</span> = <span class="default-value">const []</span></span>})</span>
+        <dt id="RdfGraph.new" class="callable">
+          <span class="name"><a href="../rdf/RdfGraph/RdfGraph.html">RdfGraph.new</a></span><span class="signature">({<span class="parameter" id="-param-triples"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/Triple-class.html">Triple</a></span>&gt;</span></span> <span class="parameter-name">triples</span> = <span class="default-value">const []</span></span>})</span>
         </dt>
         <dd>
           Creates an immutable RDF graph from a list of triples
@@ -261,6 +258,19 @@ final updatedGraph = graph.withTriple(Triple(jane, name, janeSmith));
 
 </dd>
 
+        <dt id="without" class="callable">
+  <span class="name"><a href="../rdf/RdfGraph/without.html">without</a></span><span class="signature">(<wbr><span class="parameter" id="without-param-other"><span class="type-annotation"><a href="../rdf/RdfGraph-class.html">RdfGraph</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../rdf/RdfGraph-class.html">RdfGraph</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a new graph by removing all triples from another graph
+  
+
+</dd>
+
         <dt id="withoutMatching" class="callable">
   <span class="name"><a href="../rdf/RdfGraph/withoutMatching.html">withoutMatching</a></span><span class="signature">(<wbr>{<span class="parameter" id="withoutMatching-param-subject"><span class="type-annotation"><a href="../rdf/RdfSubject-class.html">RdfSubject</a>?</span> <span class="parameter-name">subject</span>, </span><span class="parameter" id="withoutMatching-param-predicate"><span class="type-annotation"><a href="../rdf/RdfPredicate-class.html">RdfPredicate</a>?</span> <span class="parameter-name">predicate</span>, </span><span class="parameter" id="withoutMatching-param-object"><span class="type-annotation"><a href="../rdf/RdfObject-class.html">RdfObject</a>?</span> <span class="parameter-name">object</span></span>})
     <span class="returntype parameter">&#8594; <a href="../rdf/RdfGraph-class.html">RdfGraph</a></span>
@@ -270,6 +280,19 @@ final updatedGraph = graph.withTriple(Triple(jane, name, janeSmith));
 </dt>
 <dd>
   Creates a new graph by filtering out triples that match a pattern
+  
+
+</dd>
+
+        <dt id="withoutTriples" class="callable">
+  <span class="name"><a href="../rdf/RdfGraph/withoutTriples.html">withoutTriples</a></span><span class="signature">(<wbr><span class="parameter" id="withoutTriples-param-triples"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/Triple-class.html">Triple</a></span>&gt;</span></span> <span class="parameter-name">triples</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../rdf/RdfGraph-class.html">RdfGraph</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a new graph with the specified triples removed
   
 
 </dd>
@@ -288,7 +311,7 @@ final updatedGraph = graph.withTriple(Triple(jane, name, janeSmith));
 </dd>
 
         <dt id="withTriples" class="callable">
-  <span class="name"><a href="../rdf/RdfGraph/withTriples.html">withTriples</a></span><span class="signature">(<wbr><span class="parameter" id="withTriples-param-triples"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/Triple-class.html">Triple</a></span>&gt;</span></span> <span class="parameter-name">triples</span></span>)
+  <span class="name"><a href="../rdf/RdfGraph/withTriples.html">withTriples</a></span><span class="signature">(<wbr><span class="parameter" id="withTriples-param-triples"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/Triple-class.html">Triple</a></span>&gt;</span></span> <span class="parameter-name">triples</span></span>)
     <span class="returntype parameter">&#8594; <a href="../rdf/RdfGraph-class.html">RdfGraph</a></span>
   </span>
   
@@ -356,7 +379,7 @@ because we want to compare the sets of triples, not the order
 </header>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../index.html">rdf_core</a></li>
-    <li><a href="../rdf">rdf</a></li>
+    <li><a href="../rdf/">rdf</a></li>
     <li class="self-crumb">RdfGraph class</li>
 </ol>
 
@@ -369,7 +392,7 @@ because we want to compare the sets of triples, not the order
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.3
+      0.9.4
   </span>
   
 </footer>

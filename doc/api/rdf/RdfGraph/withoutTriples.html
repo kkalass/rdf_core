@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the convert method from the NTriplesEncoder class, for the Dart programming language.">
-  <title>convert method - NTriplesEncoder class - rdf library - Dart API</title>
+  <meta name="description" content="API docs for the withoutTriples method from the RdfGraph class, for the Dart programming language.">
+  <title>withoutTriples method - RdfGraph class - rdf library - Dart API</title>
 
 
   
@@ -26,10 +26,10 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rdf_core</a></li>
     <li><a href="../../rdf/">rdf_core.dart</a></li>
-    <li><a href="../../rdf/NTriplesEncoder-class.html">NTriplesEncoder</a></li>
-    <li class="self-crumb">convert method</li>
+    <li><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></li>
+    <li class="self-crumb">withoutTriples method</li>
   </ol>
-  <div class="self-name">convert</div>
+  <div class="self-name">withoutTriples</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -46,63 +46,58 @@
 <div
     id="dartdoc-main-content"
     class="main-content"
-    data-above-sidebar="rdf&#47;NTriplesEncoder-class-sidebar.html"
+    data-above-sidebar="rdf&#47;RdfGraph-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">convert</span> method 
+<h1><span class="kind-method">withoutTriples</span> method 
 </h1></div>
 
     <section class="multi-line-signature">
       
-  <div>
-    <ol class="annotation-list">
-        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
-    </ol>
-  </div>
-<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
-<span class="name ">convert</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="convert-param-graph"><span class="type-annotation"><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></span> <span class="parameter-name">graph</span>, {</span></li>
-<li><span class="parameter" id="convert-param-baseUri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">baseUri</span>, </span></li>
-</ol>})
+<span class="returntype"><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></span>
+<span class="name ">withoutTriples</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="withoutTriples-param-triples"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/Triple-class.html">Triple</a></span>&gt;</span></span> <span class="parameter-name">triples</span></span></li>
+</ol>)
 
-      <div class="features"><span class="feature">override</span></div>
+      
 
     </section>
     
 <section class="desc markdown">
-  <p>Encodes an RDF graph to a string representation in a specific format.</p>
-<p>Transforms an in-memory RDF graph into an encoded text format that can be
-stored or transmitted. The exact output format depends on the implementing class.</p>
+  <p>Creates a new graph with the specified triples removed</p>
+<p>Since RdfGraph is immutable, this returns a new instance with
+all existing triples except those specified for removal. The original
+graph remains unchanged.</p>
+<p>This method performs set subtraction - it removes all triples that
+exactly match those in the provided collection. Triple matching is
+based on exact equality of subject, predicate, and object components.</p>
 <p>Parameters:</p>
 <ul>
-<li><code>graph</code> The RDF graph to encode.</li>
-<li><code>baseUri</code> Optional base URI for resolving/shortening IRIs in the output.
-When provided, the encoder may use this to produce more compact output.</li>
+<li><code>triples</code> The collection of triples to remove from the graph</li>
 </ul>
-<p>Returns:</p>
-<ul>
-<li>The serialized representation of the graph as a string.</li>
-</ul>
+<p>Returns:
+A new graph instance with the specified triples removed. If none of the
+specified triples exist in the original graph, returns a new graph
+identical to the original.</p>
+<p>Example:</p>
+<pre class="language-dart"><code class="language-dart">// Remove multiple outdated statements about John
+final updatedGraph = graph.withoutTriples([
+  Triple(john, email, LiteralTerm.string('old@example.com')),
+  Triple(john, age, LiteralTerm.integer(25))
+]);
+
+// Remove all triples from a temporary working set
+final cleanGraph = graph.withoutTriples(temporaryTriples);
+</code></pre>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">@override
-String convert(RdfGraph graph, {String? baseUri}) {
-  _logger.fine(&#39;Serializing graph to N-Triples&#39;);
-
-  &#47;&#47; N-Triples ignores baseUri and customPrefixes as it doesn&#39;t support
-  &#47;&#47; relative IRIs or prefixed names
-
-  final buffer = StringBuffer();
-
-  for (final triple in graph.triples) {
-    _writeTriple(buffer, triple);
-    buffer.writeln();
-  }
-
-  return buffer.toString();
+  <pre class="language-dart"><code class="language-dart">RdfGraph withoutTriples(Iterable&lt;Triple&gt; triples) {
+  final newTriples = {..._triples}
+    ..removeWhere((triple) =&gt; triples.contains(triple));
+  return RdfGraph(triples: newTriples.toList());
 }</code></pre>
 </section>
 
@@ -118,11 +113,11 @@ String convert(RdfGraph graph, {String? baseUri}) {
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rdf_core</a></li>
     <li><a href="../../rdf/">rdf</a></li>
-    <li><a href="../../rdf/NTriplesEncoder-class.html">NTriplesEncoder</a></li>
-    <li class="self-crumb">convert method</li>
+    <li><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></li>
+    <li class="self-crumb">withoutTriples method</li>
 </ol>
 
-    <h5>NTriplesEncoder class</h5>
+    <h5>RdfGraph class</h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-->
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">

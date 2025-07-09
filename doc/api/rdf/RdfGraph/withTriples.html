@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rdf_core</a></li>
-    <li><a href="../../rdf">rdf_core.dart</a></li>
+    <li><a href="../../rdf/">rdf_core.dart</a></li>
     <li><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></li>
     <li class="self-crumb">withTriples method</li>
   </ol>
@@ -33,17 +33,14 @@
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
-  <div class="toggle" id="theme-button" title="Toggle brightness">
-    <label for="theme">
-      <input type="checkbox" id="theme" value="light-theme">
-      <span id="dark-theme-button" class="material-symbols-outlined">
-        dark_mode
-      </span>
-      <span id="light-theme-button" class="material-symbols-outlined">
-        light_mode
-      </span>
-    </label>
-  </div>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
 </header>
 <main>
 <div
@@ -58,7 +55,7 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></span>
-<span class="name ">withTriples</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="withTriples-param-triples"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/Triple-class.html">Triple</a></span>&gt;</span></span> <span class="parameter-name">triples</span></span></li>
+<span class="name ">withTriples</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="withTriples-param-triples"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/Triple-class.html">Triple</a></span>&gt;</span></span> <span class="parameter-name">triples</span></span></li>
 </ol>)
 
       
@@ -69,18 +66,27 @@
   <p>Creates a new graph with all the specified triples added</p>
 <p>Since RdfGraph is immutable, this returns a new instance with
 all existing and new triples. The original graph remains unchanged.</p>
+<p>This method automatically removes duplicate triples, treating the graph
+as a mathematical set. The order of triples in the resulting graph is
+not guaranteed to be preserved from either the original graph or the
+added triples collection.</p>
 <p>Parameters:</p>
 <ul>
-<li><code>triples</code> The list of triples to add to the graph</li>
+<li><code>triples</code> The collection of triples to add to the graph</li>
 </ul>
 <p>Returns:
-A new graph instance with the added triples</p>
+A new graph instance with the added triples, duplicates removed,
+and no guaranteed ordering</p>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">// Add multiple statements about Jane
 final newGraph = graph.withTriples([
   Triple(jane, email, LiteralTerm.string('jane@example.com')),
   Triple(jane, age, LiteralTerm.integer(28))
 ]);
+
+// Duplicate triples are automatically removed
+final graphWithDuplicates = graph.withTriples([existingTriple, newTriple]);
+// Result contains each unique triple only once
 </code></pre>
 </section>
 
@@ -88,8 +94,10 @@ final newGraph = graph.withTriples([
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">RdfGraph withTriples(List&lt;Triple&gt; triples) {
-  final newTriples = List&lt;Triple&gt;.from(_triples)..addAll(triples);
+  <pre class="language-dart"><code class="language-dart">RdfGraph withTriples(Iterable&lt;Triple&gt; triples) {
+  final newTriples =
+      {..._triples, ...triples}.toList(); &#47;&#47; Use a set to avoid duplicates
+
   return RdfGraph(triples: newTriples);
 }</code></pre>
 </section>
@@ -105,7 +113,7 @@ final newGraph = graph.withTriples([
 </header>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rdf_core</a></li>
-    <li><a href="../../rdf">rdf</a></li>
+    <li><a href="../../rdf/">rdf</a></li>
     <li><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></li>
     <li class="self-crumb">withTriples method</li>
 </ol>
@@ -119,7 +127,7 @@ final newGraph = graph.withTriples([
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.3
+      0.9.4
   </span>
   
 </footer>

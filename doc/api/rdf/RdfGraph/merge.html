@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rdf_core</a></li>
-    <li><a href="../../rdf">rdf_core.dart</a></li>
+    <li><a href="../../rdf/">rdf_core.dart</a></li>
     <li><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></li>
     <li class="self-crumb">merge method</li>
   </ol>
@@ -33,17 +33,14 @@
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
-  <div class="toggle" id="theme-button" title="Toggle brightness">
-    <label for="theme">
-      <input type="checkbox" id="theme" value="light-theme">
-      <span id="dark-theme-button" class="material-symbols-outlined">
-        dark_mode
-      </span>
-      <span id="light-theme-button" class="material-symbols-outlined">
-        light_mode
-      </span>
-    </label>
-  </div>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
 </header>
 <main>
 <div
@@ -68,17 +65,22 @@
 <section class="desc markdown">
   <p>Merges this graph with another, producing a new graph</p>
 <p>This creates a union of the two graphs, combining all their triples.
-If both graphs contain the same triple, it will appear only once in
-the result (since RDF graphs are sets).</p>
+Duplicate triples are automatically removed, as RDF graphs are mathematical
+sets where each triple can appear at most once. The order of triples in
+the resulting graph is not guaranteed to be preserved from either source graph.</p>
 <p>Parameters:</p>
 <ul>
 <li><code>other</code> The graph to merge with this one</li>
 </ul>
 <p>Returns:
-A new graph containing all triples from both graphs</p>
+A new graph containing all unique triples from both graphs,
+with duplicates removed and no guaranteed ordering</p>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">// Merge two graphs to combine their information
 final combinedGraph = personGraph.merge(addressGraph);
+
+// Duplicate triples between graphs are automatically removed
+final merged = graph1.merge(graph2); // Each unique triple appears only once
 </code></pre>
 </section>
 
@@ -102,7 +104,7 @@ final combinedGraph = personGraph.merge(addressGraph);
 </header>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rdf_core</a></li>
-    <li><a href="../../rdf">rdf</a></li>
+    <li><a href="../../rdf/">rdf</a></li>
     <li><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></li>
     <li class="self-crumb">merge method</li>
 </ol>
@@ -116,7 +118,7 @@ final combinedGraph = personGraph.merge(addressGraph);
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.3
+      0.9.4
   </span>
   
 </footer>

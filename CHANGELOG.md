@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.4] - 2025-07-09
+
+### Added
+
+- **RdfGraph**: Added `without(RdfGraph other)` method for graph subtraction operations
+  - Enables removing all triples from another graph to compute graph differences
+  - Useful for removing knowledge subsets, undoing merge operations, and comparing graph versions
+  - Returns a new immutable graph instance with specified triples removed
+
+- **RdfGraph**: Added `withoutTriples(Iterable<Triple> triples)` method for bulk triple removal
+  - Performs set subtraction to remove multiple triples in a single operation
+  - Supports removing collections of triples based on exact equality matching
+  - Optimized for removing temporary working sets or outdated statements
+
+### Changed
+
+- **RdfGraph**: `merge(RdfGraph other)` and `withTriples(Iterable<Triple> triples)` behavior updated
+  - Now automatically remove duplicate triples to enforce mathematical set semantics
+  - **BREAKING**: Triple ordering is no longer preserved in the resulting graph
+  - Aligns with RDF specification that treats graphs as sets rather than ordered collections
+  - Improves performance by eliminating redundant triple storage
+
+### Enhanced
+
+- **Documentation**: Comprehensive API documentation added for new graph subtraction methods
+  - Added detailed method descriptions, parameter documentation, and usage examples
+  - Included performance considerations and common use case scenarios
+  - Enhanced code examples showing practical applications in RDF data management
+  - Updated documentation for `merge` and `withTriples` to reflect new deduplication behavior
+
 ## [0.9.3] 2025-06-24
 
 ### Fixed

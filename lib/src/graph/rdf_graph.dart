@@ -134,11 +134,17 @@ final class RdfGraph {
   /// Since RdfGraph is immutable, this returns a new instance with
   /// all existing and new triples. The original graph remains unchanged.
   ///
+  /// This method automatically removes duplicate triples, treating the graph
+  /// as a mathematical set. The order of triples in the resulting graph is
+  /// not guaranteed to be preserved from either the original graph or the
+  /// added triples collection.
+  ///
   /// Parameters:
-  /// - [triples] The list of triples to add to the graph
+  /// - [triples] The collection of triples to add to the graph
   ///
   /// Returns:
-  /// A new graph instance with the added triples
+  /// A new graph instance with the added triples, duplicates removed,
+  /// and no guaranteed ordering
   ///
   /// Example:
   /// ```dart
@@ -147,10 +153,51 @@ final class RdfGraph {
   ///   Triple(jane, email, LiteralTerm.string('jane@example.com')),
   ///   Triple(jane, age, LiteralTerm.integer(28))
   /// ]);
+  ///
+  /// // Duplicate triples are automatically removed
+  /// final graphWithDuplicates = graph.withTriples([existingTriple, newTriple]);
+  /// // Result contains each unique triple only once
   /// ```
-  RdfGraph withTriples(List<Triple> triples) {
-    final newTriples = List<Triple>.from(_triples)..addAll(triples);
+  RdfGraph withTriples(Iterable<Triple> triples) {
+    final newTriples =
+        {..._triples, ...triples}.toList(); // Use a set to avoid duplicates
+
     return RdfGraph(triples: newTriples);
+  }
+
+  /// Creates a new graph with the specified triples removed
+  ///
+  /// Since RdfGraph is immutable, this returns a new instance with
+  /// all existing triples except those specified for removal. The original
+  /// graph remains unchanged.
+  ///
+  /// This method performs set subtraction - it removes all triples that
+  /// exactly match those in the provided collection. Triple matching is
+  /// based on exact equality of subject, predicate, and object components.
+  ///
+  /// Parameters:
+  /// - [triples] The collection of triples to remove from the graph
+  ///
+  /// Returns:
+  /// A new graph instance with the specified triples removed. If none of the
+  /// specified triples exist in the original graph, returns a new graph
+  /// identical to the original.
+  ///
+  /// Example:
+  /// ```dart
+  /// // Remove multiple outdated statements about John
+  /// final updatedGraph = graph.withoutTriples([
+  ///   Triple(john, email, LiteralTerm.string('old@example.com')),
+  ///   Triple(john, age, LiteralTerm.integer(25))
+  /// ]);
+  ///
+  /// // Remove all triples from a temporary working set
+  /// final cleanGraph = graph.withoutTriples(temporaryTriples);
+  /// ```
+  RdfGraph withoutTriples(Iterable<Triple> triples) {
+    final newTriples = {..._triples}
+      ..removeWhere((triple) => triples.contains(triple));
+    return RdfGraph(triples: newTriples.toList());
   }
 
   /// Creates a new graph by filtering out triples that match a pattern
@@ -311,22 +358,59 @@ final class RdfGraph {
   /// Merges this graph with another, producing a new graph
   ///
   /// This creates a union of the two graphs, combining all their triples.
-  /// If both graphs contain the same triple, it will appear only once in
-  /// the result (since RDF graphs are sets).
+  /// Duplicate triples are automatically removed, as RDF graphs are mathematical
+  /// sets where each triple can appear at most once. The order of triples in
+  /// the resulting graph is not guaranteed to be preserved from either source graph.
   ///
   /// Parameters:
   /// - [other] The graph to merge with this one
   ///
   /// Returns:
-  /// A new graph containing all triples from both graphs
+  /// A new graph containing all unique triples from both graphs,
+  /// with duplicates removed and no guaranteed ordering
   ///
   /// Example:
   /// ```dart
   /// // Merge two graphs to combine their information
   /// final combinedGraph = personGraph.merge(addressGraph);
+  ///
+  /// // Duplicate triples between graphs are automatically removed
+  /// final merged = graph1.merge(graph2); // Each unique triple appears only once
   /// ```
   RdfGraph merge(RdfGraph other) {
     return withTriples(other._triples);
+  }
+
+  /// Creates a new graph by removing all triples from another graph
+  ///
+  /// This method performs graph subtraction - it removes all triples present
+  /// in the other graph from this graph. Since RdfGraph is immutable, this
+  /// returns a new instance with the remaining triples.
+  ///
+  /// This operation is useful for:
+  /// - Removing a specific subset of knowledge from a graph
+  /// - Computing the difference between two graphs
+  /// - Undoing the effects of a previous merge operation
+  ///
+  /// Parameters:
+  /// - [other] The graph whose triples should be removed from this graph
+  ///
+  /// Returns:
+  /// A new graph containing all triples from this graph except those that
+  /// also exist in the other graph. If the graphs share no common triples,
+  /// returns a new graph identical to the original.
+  ///
+  /// Example:
+  /// ```dart
+  /// // Remove all personal information from a combined dataset
+  /// final publicGraph = fullGraph.without(personalInfoGraph);
+  ///
+  /// // Compute the difference between two versions of a graph
+  /// final changesOnly = newVersion.without(oldVersion);
+  ///
+  /// ```
+  RdfGraph without(RdfGraph other) {
+    return withoutTriples(other._triples);
   }
 
   /// Get all triples in the graph

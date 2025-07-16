@@ -91,7 +91,7 @@ final class RdfGraph {
   /// // Graph with initial triples
   /// final graph = RdfGraph(triples: myTriples);
   /// ```
-  RdfGraph({List<Triple> triples = const []})
+  RdfGraph({Iterable<Triple> triples = const []})
       : _triples = List.unmodifiable(List.from(triples));
 
   /// Creates an RDF graph from a list of triples (factory constructor)
@@ -102,7 +102,7 @@ final class RdfGraph {
   /// ```dart
   /// final graph = RdfGraph.fromTriples(myTriples);
   /// ```
-  static RdfGraph fromTriples(List<Triple> triples) =>
+  static RdfGraph fromTriples(Iterable<Triple> triples) =>
       RdfGraph(triples: triples);
 
   /// Creates a new graph with the specified triple added

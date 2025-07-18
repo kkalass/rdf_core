@@ -7,13 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.6] - 2025-07-18
 
-### Enhanced
+### Fixed
 
 - **NTriplesDecoder**: Improved blank node identity consistency during parsing
   - Blank nodes with the same label (e.g., `_:node1`) now map to identical `BlankNodeTerm` instances throughout the document
   - Maintains proper RDF semantics where blank node labels within a document scope refer to the same resource
   - Uses efficient label-to-instance mapping to ensure reference identity consistency
   - Critical for applications that rely on blank node identity for data integrity and graph operations
+
+- **NTriplesEncoder**: Implemented proper blank node labeling with sequential numbering
+  - Blank nodes now receive consistent, sequential labels (b0, b1, b2, etc.) following N-Triples best practices
+  - Maintains stable mapping of `BlankNodeTerm` instances to labels throughout serialization
+  - Replaced non-deterministic hash-based labeling with predictable counter-based approach
+  - Ensures same blank node instance always serializes to the same label across multiple references
+  - Added comprehensive test coverage for blank node consistency and sequential labeling
 
 ## [0.9.5] - 2025-07-16
 

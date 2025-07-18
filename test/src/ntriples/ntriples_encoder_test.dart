@@ -222,5 +222,82 @@ void main() {
           .length;
       expect(langLiteralCount, equals(redecodedLangLiteralCount));
     });
+
+    test('maintains consistent blank node labels and uses sequential numbering',
+        () {
+      // Create multiple blank nodes, some used multiple times
+      final blankNode1 = BlankNodeTerm();
+      final blankNode2 = BlankNodeTerm();
+      final blankNode3 = BlankNodeTerm();
+
+      final predicate1 = IriTerm('http://example.org/predicate1');
+      final predicate2 = IriTerm('http://example.org/predicate2');
+      final subject = IriTerm('http://example.org/subject');
+
+      // Create triples where same blank nodes appear multiple times
+      final graph = RdfGraph.fromTriples([
+        Triple(blankNode1, predicate1, LiteralTerm.string('value1')),
+        Triple(blankNode1, predicate2,
+            LiteralTerm.string('value2')), // same blank node again
+        Triple(
+            blankNode2, predicate1, blankNode1), // blankNode1 appears as object
+        Triple(subject, predicate1,
+            blankNode1), // blankNode1 appears as object again
+        Triple(blankNode3, predicate1, LiteralTerm.string('value3')),
+      ]);
+
+      final ntriples = rdf.encode(graph, contentType: 'application/n-triples');
+      final lines = ntriples.trim().split('\n');
+
+      // Verify we have 5 lines (one per triple)
+      expect(lines.length, equals(5));
+
+      // Extract all blank node references from the output
+      final blankNodePattern = RegExp(r'_:(b\d+)');
+      final blankNodeReferences = <String>[];
+
+      for (final line in lines) {
+        final matches = blankNodePattern.allMatches(line);
+        for (final match in matches) {
+          blankNodeReferences.add(match.group(1)!);
+        }
+      }
+
+      // Should have 7 blank node references total (some nodes appear multiple times)
+      expect(blankNodeReferences.length, equals(6));
+
+      // Check that labels follow sequential numbering (b0, b1, b2)
+      final uniqueLabels = blankNodeReferences.toSet().toList()..sort();
+      expect(uniqueLabels, equals(['b0', 'b1', 'b2']));
+
+      // Verify consistency: count occurrences of each label
+      final labelCounts = <String, int>{};
+      for (final label in blankNodeReferences) {
+        labelCounts[label] = (labelCounts[label] ?? 0) + 1;
+      }
+
+      // blankNode1 should appear 4 times (as subject twice, as object twice)
+      // blankNode2 should appear 1 time (as subject once)
+      // blankNode3 should appear 1 time (as subject once)
+      // We can't know which physical blank node maps to which label, but we know the counts
+      final counts = labelCounts.values.toList()..sort();
+      expect(counts, equals([1, 1, 4]));
+
+      // Verify specific consistency: same blank node always gets same label
+      // Find which label corresponds to the blank node that appears 4 times
+      final frequentLabel =
+          labelCounts.entries.firstWhere((entry) => entry.value == 4).key;
+
+      // Count how many lines contain this frequent label
+      int linesWithFrequentLabel = 0;
+      for (final line in lines) {
+        if (line.contains('_:$frequentLabel')) {
+          linesWithFrequentLabel++;
+        }
+      }
+
+      // The frequent blank node should appear in exactly 4 lines
+      expect(linesWithFrequentLabel, equals(4));
+    });
   });
 }

@@ -87,9 +87,11 @@ final class NTriplesEncoder extends RdfGraphEncoder {
     // relative IRIs or prefixed names
 
     final buffer = StringBuffer();
+    final Map<BlankNodeTerm, String> blankNodeLabels = {};
+    final _BlankNodeCounter counter = _BlankNodeCounter();
 
     for (final triple in graph.triples) {
-      _writeTriple(buffer, triple);
+      _writeTriple(buffer, triple, blankNodeLabels, counter);
       buffer.writeln();
     }
 
@@ -97,23 +99,25 @@ final class NTriplesEncoder extends RdfGraphEncoder {
   }
 
   /// Writes a single triple in N-Triples format to the buffer
-  void _writeTriple(StringBuffer buffer, Triple triple) {
-    _writeTerm(buffer, triple.subject);
+  void _writeTriple(StringBuffer buffer, Triple triple, Map<BlankNodeTerm, String> blankNodeLabels, _BlankNodeCounter counter) {
+    _writeTerm(buffer, triple.subject, blankNodeLabels, counter);
     buffer.write(' ');
-    _writeTerm(buffer, triple.predicate);
+    _writeTerm(buffer, triple.predicate, blankNodeLabels, counter);
     buffer.write(' ');
-    _writeTerm(buffer, triple.object);
+    _writeTerm(buffer, triple.object, blankNodeLabels, counter);
     buffer.write(' .');
   }
 
   /// Writes a term in N-Triples format to the buffer
-  void _writeTerm(StringBuffer buffer, RdfTerm term) {
+  void _writeTerm(StringBuffer buffer, RdfTerm term, Map<BlankNodeTerm, String> blankNodeLabels, _BlankNodeCounter counter) {
     if (term is IriTerm) {
       buffer.write('<${_escapeIri(term.iri)}>');
     } else if (term is BlankNodeTerm) {
-      // Use the identityHashCode as a stable identifier for this blank node
-      // In a real implementation, you would maintain a mapping of blank nodes to labels
-      buffer.write('_:b${identityHashCode(term)}');
+      // Maintain a stable mapping of blank nodes to labels using sequential numbering
+      final label = blankNodeLabels.putIfAbsent(term, () {
+        return 'b${counter.next()}';
+      });
+      buffer.write('_:$label');
     } else if (term is LiteralTerm) {
       buffer.write('"${_escapeLiteral(term.value)}"');
 
@@ -147,4 +151,15 @@ final class NTriplesEncoder extends RdfGraphEncoder {
         .replaceAll('\b', '\\b')
         .replaceAll('\f', '\\f');
   }
+}
+
+/// Counter for generating sequential blank node labels
+///
+/// Generates labels in the format b0, b1, b2, etc. following best practices
+/// for blank node labeling in N-Triples serialization.
+class _BlankNodeCounter {
+  int _counter = 0;
+  
+  /// Gets the next blank node label number
+  int next() => _counter++;
 }

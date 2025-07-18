@@ -96,9 +96,11 @@ String convert(RdfGraph graph, {String? baseUri}) {
   &#47;&#47; relative IRIs or prefixed names
 
   final buffer = StringBuffer();
+  final Map&lt;BlankNodeTerm, String&gt; blankNodeLabels = {};
+  final _BlankNodeCounter counter = _BlankNodeCounter();
 
   for (final triple in graph.triples) {
-    _writeTriple(buffer, triple);
+    _writeTriple(buffer, triple, blankNodeLabels, counter);
     buffer.writeln();
   }
 
@@ -131,7 +133,7 @@ String convert(RdfGraph graph, {String? baseUri}) {
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.5
+      0.9.6
   </span>
   
 </footer>

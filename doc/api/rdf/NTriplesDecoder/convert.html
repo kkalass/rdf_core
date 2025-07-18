@@ -100,6 +100,7 @@ RdfGraph convert(String input, {String? documentUrl}) {
 
   final List&lt;Triple&gt; triples = [];
   final List&lt;String&gt; lines = input.split(&#39;\n&#39;);
+  final Map&lt;String, BlankNodeTerm&gt; blankNodeMap = {};
   int lineNumber = 0;
 
   for (final line in lines) {
@@ -112,7 +113,7 @@ RdfGraph convert(String input, {String? documentUrl}) {
     }
 
     try {
-      final triple = _parseLine(trimmed, lineNumber);
+      final triple = _parseLine(trimmed, lineNumber, blankNodeMap);
       triples.add(triple);
     } catch (e) {
       throw RdfDecoderException(
@@ -156,7 +157,7 @@ RdfGraph convert(String input, {String? documentUrl}) {
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.5
+      0.9.6
   </span>
   
 </footer>

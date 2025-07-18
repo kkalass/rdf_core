@@ -1,10 +1,13 @@
 import 'dart:io';
 
+import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_core/src/turtle/turtle_decoder.dart';
 import 'package:rdf_core/src/vocab/xsd.dart';
 import 'package:test/test.dart';
+
+final _log = Logger('turtle_realworld_test');
 
 /// A test suite for testing the turtle parser against real-world turtle files.
 /// This test ensures that the parser can handle complex and real-world turtle files
@@ -56,7 +59,7 @@ void main() {
         baseUri: namespace,
       );
       final triples = parser.parse();
-      print(
+      _log.info(
         'Successfully parsed $fileName with specific flags: ${triples.length} triples',
       );
       return (success: true, flags: specificFlags, triples: triples);

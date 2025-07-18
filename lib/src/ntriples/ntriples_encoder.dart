@@ -99,7 +99,8 @@ final class NTriplesEncoder extends RdfGraphEncoder {
   }
 
   /// Writes a single triple in N-Triples format to the buffer
-  void _writeTriple(StringBuffer buffer, Triple triple, Map<BlankNodeTerm, String> blankNodeLabels, _BlankNodeCounter counter) {
+  void _writeTriple(StringBuffer buffer, Triple triple,
+      Map<BlankNodeTerm, String> blankNodeLabels, _BlankNodeCounter counter) {
     _writeTerm(buffer, triple.subject, blankNodeLabels, counter);
     buffer.write(' ');
     _writeTerm(buffer, triple.predicate, blankNodeLabels, counter);
@@ -109,7 +110,8 @@ final class NTriplesEncoder extends RdfGraphEncoder {
   }
 
   /// Writes a term in N-Triples format to the buffer
-  void _writeTerm(StringBuffer buffer, RdfTerm term, Map<BlankNodeTerm, String> blankNodeLabels, _BlankNodeCounter counter) {
+  void _writeTerm(StringBuffer buffer, RdfTerm term,
+      Map<BlankNodeTerm, String> blankNodeLabels, _BlankNodeCounter counter) {
     if (term is IriTerm) {
       buffer.write('<${_escapeIri(term.iri)}>');
     } else if (term is BlankNodeTerm) {
@@ -159,7 +161,7 @@ final class NTriplesEncoder extends RdfGraphEncoder {
 /// for blank node labeling in N-Triples serialization.
 class _BlankNodeCounter {
   int _counter = 0;
-  
+
   /// Gets the next blank node label number
   int next() => _counter++;
 }

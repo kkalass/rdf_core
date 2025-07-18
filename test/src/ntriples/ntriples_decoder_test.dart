@@ -69,6 +69,65 @@ _:b1 <http://example.org/predicate> <http://example.org/object> .
       expect(triple2.object, isA<BlankNodeTerm>());
     });
 
+    test('maintains blank node identity consistency', () {
+      final input = '''
+_:node1 <http://example.org/predicate1> "value1" .
+_:node1 <http://example.org/predicate2> "value2" .
+_:node2 <http://example.org/predicate> _:node1 .
+<http://example.org/subject> <http://example.org/predicate> _:node1 .
+''';
+      final graph = rdf.decode(input, contentType: 'application/n-triples');
+      expect(graph.triples.length, equals(4));
+
+      // Find all BlankNodeTerm instances
+      final allBlankNodes = <BlankNodeTerm>[];
+      for (final triple in graph.triples) {
+        if (triple.subject is BlankNodeTerm) {
+          allBlankNodes.add(triple.subject as BlankNodeTerm);
+        }
+        if (triple.object is BlankNodeTerm) {
+          allBlankNodes.add(triple.object as BlankNodeTerm);
+        }
+      }
+
+      // Should have 5 references total: 4 to _:node1, 1 to _:node2
+      expect(allBlankNodes.length, equals(5));
+
+      // Group by identity to find which blank nodes are the same
+      final nodeGroups = <BlankNodeTerm, List<BlankNodeTerm>>{};
+      for (final node in allBlankNodes) {
+        bool found = false;
+        for (final key in nodeGroups.keys) {
+          if (identical(node, key)) {
+            nodeGroups[key]!.add(node);
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          nodeGroups[node] = [node];
+        }
+      }
+
+      // Should have exactly 2 unique blank node instances
+      expect(nodeGroups.length, equals(2));
+
+      // One should appear 4 times (_:node1), one should appear 1 time (_:node2)
+      final groupSizes = nodeGroups.values.map((group) => group.length).toList()
+        ..sort();
+      expect(groupSizes, equals([1, 4]));
+
+      // Verify that the same label maps to identical instances
+      final node1Instances =
+          nodeGroups.values.firstWhere((group) => group.length == 4);
+      final firstInstance = node1Instances.first;
+      for (final instance in node1Instances) {
+        expect(identical(instance, firstInstance), isTrue,
+            reason:
+                'All references to the same blank node label should be identical instances');
+      }
+    });
+
     test('decodes literals with language tags', () {
       final input = '''
 <http://example.org/subject> <http://example.org/predicate> "Plain literal" .
@@ -480,6 +539,39 @@ _:b1 <http://example.org/predicate> <http://example.org/object> .
       // Überprüfen, dass der Backslash richtig entschlüsselt wurde
       final value = (graph.triples.first.object as LiteralTerm).value;
       expect(value, equals('Backslash at end:\\'));
+    });
+
+    test('handles blank nodes correctly', () {
+      final input = '''
+<http://example.org/library/lib:test001> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/vocab#Library> .
+<http://example.org/library/lib:test001> <http://example.org/vocab#collaborators> _:b391342662 .
+_:b391342662 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
+_:b391342662 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> "Alice" .
+_:b391342662 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:b843014800 .
+_:b843014800 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> "Bob" .
+_:b843014800 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:b951476073 .
+_:b951476073 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> "Charlie" .
+_:b951476073 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+<http://example.org/library/lib:test001> <http://example.org/vocab#tags> _:b489677454 .
+_:b489677454 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Seq> .
+_:b489677454 <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> "science" .
+_:b489677454 <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "technology" .
+_:b489677454 <http://www.w3.org/1999/02/22-rdf-syntax-ns#_3> "research" .
+<http://example.org/library/lib:test001> <http://example.org/vocab#members> "member1" .
+<http://example.org/library/lib:test001> <http://example.org/vocab#members> "member2" .
+<http://example.org/library/lib:test001> <http://example.org/vocab#members> "member3" .
+''';
+      final graph = rdf.decode(input, contentType: 'application/n-triples');
+      expect(graph.triples.length, equals(17));
+      final triplesBySubject = <RdfSubject, List<Triple>>{};
+      for (final triple in graph.triples) {
+        triplesBySubject.putIfAbsent(triple.subject, () => []).add(triple);
+      }
+      expect(triplesBySubject.keys.length, equals(5));
+      expect(
+        triplesBySubject.keys.whereType<BlankNodeTerm>().length,
+        equals(4),
+      );
     });
   });
 }

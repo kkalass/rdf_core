@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.6] - 2025-07-18
+
+### Enhanced
+
+- **NTriplesDecoder**: Improved blank node identity consistency during parsing
+  - Blank nodes with the same label (e.g., `_:node1`) now map to identical `BlankNodeTerm` instances throughout the document
+  - Maintains proper RDF semantics where blank node labels within a document scope refer to the same resource
+  - Uses efficient label-to-instance mapping to ensure reference identity consistency
+  - Critical for applications that rely on blank node identity for data integrity and graph operations
+
 ## [0.9.5] - 2025-07-16
 
 ### Changed

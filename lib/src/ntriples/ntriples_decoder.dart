@@ -78,6 +78,7 @@ final class NTriplesDecoder extends RdfGraphDecoder {
 
     final List<Triple> triples = [];
     final List<String> lines = input.split('\n');
+    final Map<String, BlankNodeTerm> blankNodeMap = {};
     int lineNumber = 0;
 
     for (final line in lines) {
@@ -90,7 +91,7 @@ final class NTriplesDecoder extends RdfGraphDecoder {
       }
 
       try {
-        final triple = _parseLine(trimmed, lineNumber);
+        final triple = _parseLine(trimmed, lineNumber, blankNodeMap);
         triples.add(triple);
       } catch (e) {
         throw RdfDecoderException(
@@ -109,7 +110,8 @@ final class NTriplesDecoder extends RdfGraphDecoder {
   }
 
   /// Parses a single line of N-Triples format into a Triple
-  Triple _parseLine(String line, int lineNumber) {
+  Triple _parseLine(
+      String line, int lineNumber, Map<String, BlankNodeTerm> blankNodeMap) {
     // Check that the line ends with a period
     if (!line.trim().endsWith('.')) {
       throw RdfDecoderException(
@@ -140,9 +142,9 @@ final class NTriplesDecoder extends RdfGraphDecoder {
       );
     }
 
-    final subject = _parseSubject(parts[0].trim(), lineNumber);
+    final subject = _parseSubject(parts[0].trim(), lineNumber, blankNodeMap);
     final predicate = _parsePredicate(parts[1].trim(), lineNumber);
-    final object = _parseObject(parts[2].trim(), lineNumber);
+    final object = _parseObject(parts[2].trim(), lineNumber, blankNodeMap);
 
     return Triple(subject, predicate, object);
   }
@@ -207,17 +209,16 @@ final class NTriplesDecoder extends RdfGraphDecoder {
   }
 
   /// Parses the subject part of a triple (IRI or blank node)
-  RdfSubject _parseSubject(String subject, int lineNumber) {
+  RdfSubject _parseSubject(
+      String subject, int lineNumber, Map<String, BlankNodeTerm> blankNodeMap) {
     if (subject.startsWith('<') && subject.endsWith('>')) {
       // IRI
       final iri = _parseIri(subject, lineNumber);
       return IriTerm(iri);
     } else if (subject.startsWith('_:')) {
       // Blank node
-      // Note: BlankNodeTerm doesn't take a label parameter in the constructor
-      // We'll create a generic BlankNode - in real usage, a blank node mapping
-      // would be maintained throughout the parse to ensure consistency
-      return BlankNodeTerm();
+      final label = subject.substring(2); // Remove '_:' prefix
+      return blankNodeMap.putIfAbsent(label, () => BlankNodeTerm());
     } else {
       throw RdfDecoderException(
         'Invalid subject: $subject. Must be an IRI or blank node',
@@ -251,14 +252,16 @@ final class NTriplesDecoder extends RdfGraphDecoder {
   }
 
   /// Parses the object part of a triple (IRI, blank node, or literal)
-  RdfObject _parseObject(String object, int lineNumber) {
+  RdfObject _parseObject(
+      String object, int lineNumber, Map<String, BlankNodeTerm> blankNodeMap) {
     if (object.startsWith('<') && object.endsWith('>')) {
       // IRI
       final iri = _parseIri(object, lineNumber);
       return IriTerm(iri);
     } else if (object.startsWith('_:')) {
       // Blank node
-      return BlankNodeTerm();
+      final label = object.substring(2); // Remove '_:' prefix
+      return blankNodeMap.putIfAbsent(label, () => BlankNodeTerm());
     } else if (object.startsWith('"')) {
       // Literal
       return _parseLiteral(object, lineNumber);

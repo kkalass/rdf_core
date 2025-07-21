@@ -141,7 +141,7 @@ class RdfNamespaceMappings {
   /// This property provides a convenient way to determine how many prefix-to-URI
   /// mappings are defined in this instance, which is useful for debugging and
   /// for determining if custom mappings have been added.
-  get length => _mappings.length;
+  int get length => _mappings.length;
 
   /// Operator for retrieving a namespace URI by its prefix.
   ///

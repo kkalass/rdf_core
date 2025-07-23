@@ -197,6 +197,46 @@ library highly testable and extensible.</p>
   BlankNode (anonymous resource) in RDF
 </dd>
 
+          <dt id="CompactIri">
+  <span class="name "><a href="../rdf/CompactIri-class.html">CompactIri</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="FullIri">
+  <span class="name "><a href="../rdf/FullIri-class.html">FullIri</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="IriCompaction">
+  <span class="name "><a href="../rdf/IriCompaction-class.html">IriCompaction</a></span> 
+
+</dt>
+<dd>
+  Utility class for analyzing RDF graphs and generating namespace prefixes.
+</dd>
+
+          <dt id="IriCompactionResult">
+  <span class="name "><a href="../rdf/IriCompactionResult-class.html">IriCompactionResult</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="IriCompactionSettings">
+  <span class="name "><a href="../rdf/IriCompactionSettings-class.html">IriCompactionSettings</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
           <dt id="IriTerm">
   <span class="name "><a href="../rdf/IriTerm-class.html">IriTerm</a></span> 
 
@@ -291,6 +331,14 @@ library highly testable and extensible.</p>
 </dt>
 <dd>
   Options for configuring the N-Triples encoder behavior.
+</dd>
+
+          <dt id="PrefixedIri">
+  <span class="name "><a href="../rdf/PrefixedIri-class.html">PrefixedIri</a></span> 
+
+</dt>
+<dd>
+  
 </dd>
 
           <dt id="RdfCodecRegistry">
@@ -397,12 +445,28 @@ library highly testable and extensible.</p>
   Base type for all RDF terms
 </dd>
 
+          <dt id="RelativeIri">
+  <span class="name "><a href="../rdf/RelativeIri-class.html">RelativeIri</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
           <dt id="SourceLocation">
   <span class="name "><a href="../rdf/SourceLocation-class.html">SourceLocation</a></span> 
 
 </dt>
 <dd>
   Contains information about source location where an error occurred
+</dd>
+
+          <dt id="SpecialIri">
+  <span class="name "><a href="../rdf/SpecialIri-class.html">SpecialIri</a></span> 
+
+</dt>
+<dd>
+  
 </dd>
 
           <dt id="Triple">
@@ -459,6 +523,22 @@ library highly testable and extensible.</p>
     <section class="summary offset-anchor" id="enums">
       <h2>Enums</h2>
       <dl>
+          <dt id="IriCompactionType">
+  <span class="name "><a href="../rdf/IriCompactionType.html">IriCompactionType</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="IriRole">
+  <span class="name "><a href="../rdf/IriRole.html">IriRole</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
           <dt id="TurtleParsingFlag">
   <span class="name "><a href="../rdf/TurtleParsingFlag.html">TurtleParsingFlag</a></span> 
 
@@ -477,6 +557,18 @@ library highly testable and extensible.</p>
     <section class="summary offset-anchor" id="properties">
       <h2>Properties</h2>
       <dl class="properties">
+          <dt id="allowedCompactionTypesAll" class="property">
+  <span class="name"><a href="../rdf/allowedCompactionTypesAll.html">allowedCompactionTypesAll</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/IriRole.html">IriRole</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/IriCompactionType.html">IriCompactionType</a></span>&gt;</span></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
           <dt id="jsonldGraph" class="property">
   <span class="name"><a href="../rdf/jsonldGraph.html">jsonldGraph</a></span>
   <span class="signature">&#8594; <a href="../rdf/JsonLdGraphCodec-class.html">JsonLdGraphCodec</a></span>
@@ -530,6 +622,40 @@ with standard codecs pre-registered
     </section>
 
 
+    <section class="summary offset-anchor" id="typedefs">
+      <h2>Typedefs</h2>
+      <dl>
+          
+  <dt id="AllowedCompactionTypes" class="">
+  <span class="name"><a href="../rdf/AllowedCompactionTypes.html">AllowedCompactionTypes</a></span>
+    = <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/IriRole.html">IriRole</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/IriCompactionType.html">IriCompactionType</a></span>&gt;</span></span>&gt;</span>
+  </span>
+  
+
+</dt>
+<dd>
+  
+  
+
+</dd>
+
+
+          
+  <dt id="IriFilter" class="callable">
+    <span class="name"><a href="../rdf/IriFilter.html">IriFilter</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-iri"><span class="type-annotation"><a href="../rdf/IriTerm-class.html">IriTerm</a></span> <span class="parameter-name">iri</span>, {</span><span class="parameter" id="param-role"><span>required</span> <span class="type-annotation"><a href="../rdf/IriRole.html">IriRole</a></span> <span class="parameter-name">role</span></span>})</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Function type for filtering IRIs that should be considered for prefix generation.
+    
+
+  </dd>
+
+      </dl>
+    </section>
 
     <section class="summary offset-anchor" id="exceptions">
       <h2>Exceptions / Errors</h2>
@@ -657,6 +783,7 @@ with standard codecs pre-registered
     <ol>
       <li class="section-title">Libraries</li>
       <li><a href="../rdf/">rdf_core</a></li>
+      <li><a href="../rdf_core_extend/">rdf_core_extend</a></li>
 </ol>
 
   </div>
@@ -667,7 +794,7 @@ with standard codecs pre-registered
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.8
+      0.9.9
   </span>
   
 </footer>

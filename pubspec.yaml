@@ -1,6 +1,6 @@
 name: rdf_core
 description: A type-safe, modular Dart library for modeling, encoding, and decoding RDF data.
-version: 0.9.9-dev
+version: 0.9.9
 homepage: https://kkalass.github.io/rdf_core/
 repository: https://github.com/kkalass/rdf_core
 issue_tracker: https://github.com/kkalass/rdf_core/issues

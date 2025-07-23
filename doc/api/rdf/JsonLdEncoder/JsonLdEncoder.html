@@ -73,23 +73,30 @@
 })  : _options = options,
       _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings() {
   _iriCompaction = IriCompaction(
-    _namespaceMappings,
-    IriCompactionSettings(
-        generateMissingPrefixes: options.generateMissingPrefixes,
-        useNumericLocalNames: true,
-        allowRelativeIriForPredicate: false,
-        specialPredicates: {
-          Rdf.type,
-        },
-        specialDatatypes: {
-          _booleanDatatype,
-          _decimalDatatype,
-          _doubleDatatype,
-          _integerDatatype,
-          _stringDatatype,
-          Rdf.langString,
-        }),
-  );
+      _namespaceMappings,
+      IriCompactionSettings(
+          generateMissingPrefixes: options.generateMissingPrefixes,
+          allowedCompactionTypes: {
+            ...allowedCompactionTypesAll,
+            IriRole.predicate: {
+              IriCompactionType.full,
+              &#47;&#47; relative IRIs are not allowed for predicates in jsonld
+              IriCompactionType.prefixed
+            }
+          },
+          specialPredicates: {
+            Rdf.type,
+          },
+          specialDatatypes: {
+            _booleanDatatype,
+            _decimalDatatype,
+            _doubleDatatype,
+            _integerDatatype,
+            _stringDatatype,
+            Rdf.langString,
+          }),
+      (String localPart) =&gt; RdfNamespaceMappings.isValidLocalPart(localPart,
+          allowNumericLocalNames: _useNumericLocalNames));
 }</code></pre>
 </section>
 
@@ -118,7 +125,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.8
+      0.9.9
   </span>
   
 </footer>

@@ -113,22 +113,6 @@ resulting in an empty local part and the full IRI as the namespace.</p>
     return (iri, &#39;&#39;);
   }
 
-  &#47;&#47; If local part starts with a digit and numeric local names aren&#39;t allowed,
-  &#47;&#47; return the full IRI as namespace and an empty local part
-  if (!allowNumericLocalNames &amp;&amp;
-      localPart.isNotEmpty &amp;&amp;
-      _digitStartRegex.hasMatch(localPart)) {
-    return (iri, &#39;&#39;);
-  }
-  if (_percentEncodingRegex.hasMatch(localPart)) {
-    return (iri, &#39;&#39;);
-  }
-
-  &#47;&#47; Validate PN_LOCAL according to Turtle specification
-  if (!_isValidPnLocal(localPart,
-      allowNumericLocalNames: allowNumericLocalNames)) {
-    return (iri, &#39;&#39;);
-  }
   if (!isValidLocalPart(localPart,
       allowNumericLocalNames: allowNumericLocalNames)) {
     return (iri, &#39;&#39;);
@@ -162,7 +146,7 @@ resulting in an empty local part and the full IRI as the namespace.</p>
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.8
+      0.9.9
   </span>
   
 </footer>

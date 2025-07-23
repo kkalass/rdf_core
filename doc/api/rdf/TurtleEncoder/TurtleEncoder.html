@@ -91,8 +91,14 @@ final encoder = TurtleEncoder(
     _namespaceMappings,
     IriCompactionSettings(
         generateMissingPrefixes: options.generateMissingPrefixes,
-        useNumericLocalNames: options.useNumericLocalNames,
-        allowRelativeIriForPredicate: false,
+        allowedCompactionTypes: {
+          ...allowedCompactionTypesAll,
+          IriRole.predicate: {
+            IriCompactionType.full,
+            &#47;&#47; relative IRIs are not allowed for predicates in Turtle
+            IriCompactionType.prefixed
+          }
+        },
         specialPredicates: {
           Rdf.type,
         },
@@ -104,6 +110,8 @@ final encoder = TurtleEncoder(
           _stringDatatype,
           Rdf.langString,
         }),
+    (String localPart) =&gt; RdfNamespaceMappings.isValidLocalPart(localPart,
+        allowNumericLocalNames: options.useNumericLocalNames),
   );
 }</code></pre>
 </section>
@@ -133,7 +141,7 @@ final encoder = TurtleEncoder(
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.8
+      0.9.9
   </span>
   
 </footer>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="rdf_core_extend library API docs, for the Dart programming language.">
+  <title>rdf_core_extend library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">rdf_core</a></li>
+    <li class="self-crumb">rdf_core_extend.dart</li>
+  </ol>
+  <div class="self-name">rdf_core_extend</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar=""
+    data-below-sidebar="rdf_core_extend&#47;rdf_core_extend-library-sidebar.html">
+  
+    <div>
+      
+
+      <h1>
+        <span class="kind-library">rdf_core_extend</span>
+        library 
+ 
+
+      </h1>
+    </div>
+
+    
+<section class="desc markdown">
+  <h1 id="rdf-core-extension-api">RDF Core Extension API</h1>
+<p>This library provides extension points for building custom RDF codecs
+and tools that integrate with rdf_core.</p>
+<p><strong>For implementers only</strong> - if you're working with RDF data,
+use <code>package:rdf_core/rdf_core.dart</code> instead.</p>
+<h2 id="target-audience">Target Audience</h2>
+<p>This API is designed for:</p>
+<ul>
+<li>Developers implementing custom RDF serialization formats</li>
+<li>Library authors building RDF processing tools</li>
+<li>Advanced users needing low-level IRI and namespace manipulation</li>
+<li>Codec implementers extending rdf_core with new formats</li>
+</ul>
+<h2 id="whats-included">What's Included</h2>
+<h3 id="iri-processing-utilities">IRI Processing Utilities</h3>
+<ul>
+<li><a href="../rdf_core_extend/relativizeIri.html">relativizeIri</a> - Convert absolute IRIs to relative form (RFC 3986 compliant)</li>
+<li><a href="../rdf_core_extend/resolveIri.html">resolveIri</a> - Resolve relative IRIs against base URIs</li>
+<li><a href="../rdf_core_extend/BaseIriRequiredException-class.html">BaseIriRequiredException</a> - Exception for missing base URI scenarios</li>
+</ul>
+<h3 id="namespace-and-prefix-management">Namespace and Prefix Management</h3>
+<ul>
+<li><a href="../rdf/IriCompaction-class.html">IriCompaction</a> - Unified prefix generation and IRI compaction logic</li>
+<li><a href="../rdf/IriCompactionResult-class.html">IriCompactionResult</a> - Results containing prefixes and compacted IRIs</li>
+<li><a href="../rdf/IriRole.html">IriRole</a> - Enum for different IRI usage contexts (subject, predicate, etc.)</li>
+<li><a href="../rdf/CompactIri-class.html">CompactIri</a> and its variants - Type-safe IRI compaction results</li>
+</ul>
+<h3 id="namespace-utilities">Namespace Utilities</h3>
+<ul>
+<li><a href="../rdf/RdfNamespaceMappings-class.html">RdfNamespaceMappings</a> - Standard namespace prefix mappings and generation</li>
+</ul>
+<h2 id="key-features">Key Features</h2>
+<h3 id="rfc-3986-compliant-iri-processing">RFC 3986 Compliant IRI Processing</h3>
+<p>The IRI utilities ensure roundtrip consistency: <code>resolveIri(relativizeIri(iri, base), base)</code>
+will always return the original IRI.</p>
+<h3 id="shared-compaction-logic">Shared Compaction Logic</h3>
+<p>Both Turtle and JSON-LD encoders use the same <a href="../rdf/IriCompaction-class.html">IriCompaction</a> system,
+ensuring consistent prefix generation and namespace handling across formats.</p>
+<h3 id="automatic-prefix-generation">Automatic Prefix Generation</h3>
+<p>The system can automatically generate meaningful prefixes for unknown
+namespaces while respecting RDF namespace delimiter conventions.</p>
+<h2 id="example-custom-codec-implementation">Example: Custom Codec Implementation</h2>
+<pre class="language-dart"><code class="language-dart">import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_core/rdf_core_extend.dart';
+
+class MyCustomEncoder extends RdfGraphEncoder {
+  final RdfNamespaceMappings _namespaceMappings;
+  late final IriCompaction _iriCompaction;
+
+  MyCustomEncoder({RdfNamespaceMappings? namespaceMappings})
+      : _namespaceMappings = namespaceMappings ?? RdfNamespaceMappings() {
+    _iriCompaction = IriCompaction(
+      _namespaceMappings,
+      IriCompactionSettings(
+        generateMissingPrefixes: true,
+        useNumericLocalNames: false,
+        allowRelativeIriForPredicate: false,
+        specialPredicates: {Rdf.type},
+        specialDatatypes: {Xsd.string, Xsd.integer},
+      ),
+    );
+  }
+
+  @override
+  String convert(RdfGraph graph, {String? baseUri}) {
+    // Use the IRI compaction system
+    final compactionResult = _iriCompaction.compactAllIris(
+      graph,
+      {}, // custom prefixes
+      baseUri: baseUri,
+    );
+
+    final buffer = StringBuffer();
+
+    // Write namespace declarations
+    for (final entry in compactionResult.prefixes.entries) {
+      buffer.writeln('NAMESPACE ${entry.key}: &lt;${entry.value}&gt;');
+    }
+
+    // Process triples using compacted IRIs
+    for (final triple in graph.triples) {
+      final subject = _renderTerm(triple.subject, IriRole.subject, compactionResult, baseUri);
+      final predicate = _renderTerm(triple.predicate, IriRole.predicate, compactionResult, baseUri);
+      final object = _renderTerm(triple.object, IriRole.object, compactionResult, baseUri);
+      buffer.writeln('$subject $predicate $object .');
+    }
+
+    return buffer.toString();
+  }
+
+  String _renderTerm(RdfTerm term, IriRole role, IriCompactionResult compaction, String? baseUri) {
+    switch (term) {
+      case IriTerm iri:
+        final compacted = compaction.compactIri(iri, role);
+        return switch (compacted) {
+          PrefixedIri prefixed =&gt; prefixed.colonSeparated,
+          RelativeIri relative =&gt; '&lt;${relative.relative}&gt;',
+          FullIri full =&gt; '&lt;${full.iri}&gt;',
+          SpecialIri special =&gt; '&lt;&lt;special:${special.iri.iri}&gt;&gt;',
+          null =&gt; '&lt;${iri.iri}&gt;',
+        };
+      case BlankNodeTerm blankNode:
+        return '_:b${blankNode.hashCode.abs()}';
+      case LiteralTerm literal:
+        return '"${literal.value}"';
+    }
+  }
+
+  @override
+  RdfGraphEncoder withOptions(RdfGraphEncoderOptions options) =&gt; this;
+}
+</code></pre>
+<h2 id="example-iri-utilities-usage">Example: IRI Utilities Usage</h2>
+<pre class="language-dart"><code class="language-dart">import 'package:rdf_core/rdf_core_extend.dart';
+
+// Relativize IRIs for compact serialization
+final baseUri = 'http://example.org/data/';
+final absoluteIri = 'http://example.org/data/person/john';
+final relative = relativizeIri(absoluteIri, baseUri); // Returns: 'person/john'
+
+// Resolve relative IRIs during parsing
+final resolvedBack = resolveIri(relative, baseUri); // Returns original IRI
+assert(resolvedBack == absoluteIri);
+
+// Handle base URI requirements
+try {
+  resolveIri('relative/path', null);
+} on BaseIriRequiredException catch (e) {
+  print('Cannot resolve ${e.relativeUri} without base URI');
+}
+</code></pre>
+<h2 id="stability-and-versioning">Stability and Versioning</h2>
+<p>This extension API may evolve more rapidly than the main rdf_core API
+as internal needs change. While we aim for stability, implementers should
+be prepared for occasional breaking changes in minor versions.</p>
+<p>For the most stable API, use the high-level interfaces in the main
+<code>rdf_core</code> library.</p>
+<h2 id="see-also">See Also</h2>
+<ul>
+<li>Main library: <code>package:rdf_core/rdf_core.dart</code></li>
+<li>Built-in codec implementations in <code>lib/src/turtle/</code> and <code>lib/src/jsonld/</code></li>
+<li>RFC 3986 (URI Generic Syntax): <a href="https://tools.ietf.org/html/rfc3986">https://tools.ietf.org/html/rfc3986</a></li>
+<li>RDF concepts: <a href="https://www.w3.org/TR/rdf-concepts/">https://www.w3.org/TR/rdf-concepts/</a></li>
+</ul>
+</section>
+
+
+    <section class="summary offset-anchor" id="classes">
+      <h2>Classes</h2>
+      <dl>
+          <dt id="CompactIri">
+  <span class="name "><a href="../rdf/CompactIri-class.html">CompactIri</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="FullIri">
+  <span class="name "><a href="../rdf/FullIri-class.html">FullIri</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="IriCompaction">
+  <span class="name "><a href="../rdf/IriCompaction-class.html">IriCompaction</a></span> 
+
+</dt>
+<dd>
+  Utility class for analyzing RDF graphs and generating namespace prefixes.
+</dd>
+
+          <dt id="IriCompactionResult">
+  <span class="name "><a href="../rdf/IriCompactionResult-class.html">IriCompactionResult</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="IriCompactionSettings">
+  <span class="name "><a href="../rdf/IriCompactionSettings-class.html">IriCompactionSettings</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="PrefixedIri">
+  <span class="name "><a href="../rdf/PrefixedIri-class.html">PrefixedIri</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="RdfNamespaceMappings">
+  <span class="name "><a href="../rdf/RdfNamespaceMappings-class.html">RdfNamespaceMappings</a></span> 
+
+</dt>
+<dd>
+  A class that provides access to RDF namespace mappings with support for custom mappings.
+</dd>
+
+          <dt id="RelativeIri">
+  <span class="name "><a href="../rdf/RelativeIri-class.html">RelativeIri</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="SpecialIri">
+  <span class="name "><a href="../rdf/SpecialIri-class.html">SpecialIri</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="enums">
+      <h2>Enums</h2>
+      <dl>
+          <dt id="IriCompactionType">
+  <span class="name "><a href="../rdf/IriCompactionType.html">IriCompactionType</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="IriRole">
+  <span class="name "><a href="../rdf/IriRole.html">IriRole</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+      </dl>
+    </section>
+
+
+
+
+
+    <section class="summary offset-anchor" id="properties">
+      <h2>Properties</h2>
+      <dl class="properties">
+          <dt id="allowedCompactionTypesAll" class="property">
+  <span class="name"><a href="../rdf/allowedCompactionTypesAll.html">allowedCompactionTypesAll</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/IriRole.html">IriRole</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/IriCompactionType.html">IriCompactionType</a></span>&gt;</span></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="functions">
+      <h2>Functions</h2>
+      <dl class="callables">
+          <dt id="relativizeIri" class="callable">
+  <span class="name"><a href="../rdf_core_extend/relativizeIri.html">relativizeIri</a></span><span class="signature">(<wbr><span class="parameter" id="relativizeIri-param-iri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">iri</span>, </span><span class="parameter" id="relativizeIri-param-baseIri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">baseIri</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Converts an absolute IRI to a relative form when possible.
+  
+
+</dd>
+
+          <dt id="resolveIri" class="callable">
+  <span class="name"><a href="../rdf_core_extend/resolveIri.html">resolveIri</a></span><span class="signature">(<wbr><span class="parameter" id="resolveIri-param-iri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">iri</span>, </span><span class="parameter" id="resolveIri-param-baseIri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">baseIri</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Converts a relative IRI to absolute form using a base IRI.
+  
+
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="typedefs">
+      <h2>Typedefs</h2>
+      <dl>
+          
+  <dt id="AllowedCompactionTypes" class="">
+  <span class="name"><a href="../rdf/AllowedCompactionTypes.html">AllowedCompactionTypes</a></span>
+    = <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/IriRole.html">IriRole</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/IriCompactionType.html">IriCompactionType</a></span>&gt;</span></span>&gt;</span>
+  </span>
+  
+
+</dt>
+<dd>
+  
+  
+
+</dd>
+
+
+          
+  <dt id="IriFilter" class="callable">
+    <span class="name"><a href="../rdf/IriFilter.html">IriFilter</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-iri"><span class="type-annotation"><a href="../rdf/IriTerm-class.html">IriTerm</a></span> <span class="parameter-name">iri</span>, {</span><span class="parameter" id="param-role"><span>required</span> <span class="type-annotation"><a href="../rdf/IriRole.html">IriRole</a></span> <span class="parameter-name">role</span></span>})</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Function type for filtering IRIs that should be considered for prefix generation.
+    
+
+  </dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="exceptions">
+      <h2>Exceptions / Errors</h2>
+      <dl>
+          <dt id="BaseIriRequiredException">
+  <span class="name "><a href="../rdf_core_extend/BaseIriRequiredException-class.html">BaseIriRequiredException</a></span> 
+
+</dt>
+<dd>
+  Exception thrown when a base IRI is required but not provided.
+</dd>
+
+      </dl>
+    </section>
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">rdf_core</a></li>
+    <li class="self-crumb">rdf_core_extend.dart</li>
+</ol>
+
+    <h5><span class="package-name">rdf_core</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="../rdf/">rdf_core</a></li>
+      <li><a href="../rdf_core_extend/">rdf_core_extend</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    <h5>rdf_core_extend library</h5>
+  </div><!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    rdf_core
+      0.9.9
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

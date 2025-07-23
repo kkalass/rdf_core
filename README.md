@@ -402,7 +402,7 @@ final graph = rdfMapper.graph.encode(person);
 ## 🛣️ Roadmap / Next Steps
 
 - RDF 1.1: Datasets with Named Graphs 
-- Improve jsonld decoder/encoder (full RdfDataset support, better support for base uri, include realworld tests for e.g. foaf.jsonld)
+- Improve jsonld decoder/encoder (full RdfDataset support, better support for base uri, include realworld tests for e.g. foaf.jsonld, support @vocab)
 - RDF 1.2: Rdf-Star
 - SHACL and schema validation
 - Performance optimizations for large graphs

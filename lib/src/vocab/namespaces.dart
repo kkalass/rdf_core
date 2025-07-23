@@ -668,7 +668,34 @@ class RdfNamespaceMappings {
         allowNumericLocalNames: allowNumericLocalNames)) {
       return (iri, '');
     }
-
+    if (!isValidLocalPart(localPart,
+        allowNumericLocalNames: allowNumericLocalNames)) {
+      return (iri, '');
+    }
     return (namespace, localPart);
+  }
+
+  static bool isValidLocalPart(
+    String localPart, {
+    bool allowNumericLocalNames = true,
+  }) {
+    // If local part starts with a digit and numeric local names aren't allowed,
+    // return the full IRI as namespace and an empty local part
+    if (!allowNumericLocalNames &&
+        localPart.isNotEmpty &&
+        _digitStartRegex.hasMatch(localPart)) {
+      return false;
+    }
+    if (_percentEncodingRegex.hasMatch(localPart)) {
+      return false;
+    }
+
+    // Validate PN_LOCAL according to Turtle specification
+    if (!_isValidPnLocal(localPart,
+        allowNumericLocalNames: allowNumericLocalNames)) {
+      return false;
+    }
+
+    return true;
   }
 }

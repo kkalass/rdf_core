@@ -5,6 +5,64 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.8] - 2025-07-23
+
+### Added
+
+- **IRI Utilities**: New `iri_util.dart` library providing standardized IRI relativization and resolution
+  - `relativizeIri()` function converts absolute IRIs to relative form when possible  
+  - `resolveIri()` function resolves relative IRIs against base URIs with RFC 3986 compliance
+  - Ensures roundtrip consistency between relativization and resolution operations
+  - Handles edge cases including malformed IRIs, international characters, and various URI schemes
+  - Used internally by serializers for consistent base URI handling
+
+- **IRI Compaction System**: New centralized prefix management and IRI compaction infrastructure
+  - `IriCompaction` class provides unified logic for namespace prefix extraction and generation
+  - Shared between Turtle and JSON-LD encoders for consistent behavior
+  - Automatic prefix generation for unknown namespaces with proper RDF delimiter validation  
+  - Smart handling of overlapping prefixes (selects most specific match)
+  - Validates local name compliance with format-specific requirements
+
+### Enhanced
+
+- **TurtleEncoder**: Major improvements to prefix handling and base URI support
+  - Added `includeBaseDeclaration` option to control `@base` directive output
+  - Improved automatic prefix generation with validation of numeric local names
+  - Better handling of relative IRIs when base URI is provided
+  - Enhanced validation prevents generation of invalid Turtle syntax
+  - Predicates now always use prefixes or full IRIs (never relative IRIs for better compliance)
+
+- **JsonLdEncoder**: Enhanced context generation and base URI handling  
+  - Added `includeBaseDeclaration` option for `@base` in JSON-LD context
+  - Improved automatic prefix generation with shared logic from IRI compaction system
+  - Better relative IRI handling in JSON-LD objects
+  - Enhanced `@type` serialization (now outputs compact IRI strings instead of `@id` objects)
+  - More efficient namespace detection and context minimization
+
+- **JsonLdDecoder**: Improved IRI resolution and context handling
+  - Better relative IRI resolution using centralized `resolveIri()` function
+  - Enhanced context processing for prefix expansion
+  - More robust handling of base URI resolution edge cases
+
+- **TurtleDecoder**: Enhanced IRI resolution with centralized utilities
+  - Uses new `resolveIri()` function for consistent relative IRI handling
+  - Better error messages for missing base URI scenarios
+  - Improved RFC 3986 compliance for IRI resolution
+
+### Changed
+
+- **RdfNamespaceMappings**: Enhanced validation and local name checking
+  - Added `isValidLocalPart()` method for validating local name components
+  - Better handling of numeric local names and special characters
+  - Improved validation prevents generation of invalid namespace prefixes
+
+### Fixed
+
+- **Cross-format consistency**: Both Turtle and JSON-LD now use identical prefix generation logic
+- **Base URI handling**: Consistent relative IRI resolution across all decoders and encoders
+- **Prefix conflicts**: Better detection and handling of overlapping namespace prefixes
+- **Test compatibility**: Updated test expectations to reflect improved prefix generation behavior
+
 ## [0.9.7] - 2025-07-18
 
 ### Fixed

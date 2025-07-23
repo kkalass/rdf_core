@@ -47,6 +47,7 @@ import 'package:rdf_core/src/graph/rdf_graph.dart';
 import 'package:rdf_core/src/graph/rdf_term.dart';
 import 'package:rdf_core/src/graph/triple.dart';
 import 'package:rdf_core/src/rdf_encoder.dart';
+import 'package:rdf_core/src/vocab/iri_compaction.dart';
 import 'package:rdf_core/src/vocab/namespaces.dart';
 import 'package:rdf_core/src/vocab/rdf.dart';
 import 'package:rdf_core/src/vocab/xsd.dart';
@@ -81,13 +82,68 @@ final _log = Logger("rdf.jsonld");
 /// final encoder = JsonLdEncoder(options: options);
 /// ```
 class JsonLdEncoderOptions extends RdfGraphEncoderOptions {
+  /// Controls automatic generation of namespace prefixes for IRIs without matching prefixes.
+  ///
+  /// When set to `true` (default), the encoder will automatically generate namespace
+  /// prefixes for IRIs that don't have a matching prefix in either the custom prefixes
+  /// or the standard namespace mappings.
+  ///
+  /// The prefix generation process:
+  /// 1. Attempts to extract a meaningful namespace from the IRI (splitting at '/' or '#')
+  /// 2. Skips IRIs with only protocol specifiers (e.g., "http://")
+  /// 3. Only generates prefixes for namespaces ending with '/' or '#'
+  ///    (proper RDF namespace delimiters)
+  /// 4. Uses RdfNamespaceMappings.getOrGeneratePrefix to create a compact, unique prefix
+  ///
+  /// Setting this to `false` will result in all IRIs without matching prefixes being
+  /// written as full IRIs in the JSON-LD output.
+  ///
+  /// This option is particularly useful for:
+  /// - Reducing the verbosity of the JSON-LD output
+  /// - Making the serialized data more human-readable
+  /// - Automatically handling unknown namespaces without manual prefix declaration
+  final bool generateMissingPrefixes;
+
+  /// Whether to include base URI declarations in the output
+  ///
+  /// This option only applies when a baseUri is provided during encoding.
+  /// When true and a baseUri is provided, the serializer includes the base URI
+  /// declaration in the format-specific way (e.g., @base in Turtle, @base in JSON-LD context).
+  /// When false, the baseUri is still used for URI relativization but not declared in the output.
+  /// Has no effect if no baseUri is provided during encoding.
+  final bool includeBaseDeclaration;
+
   /// Creates a new JSON-LD encoder options object
   ///
   /// [customPrefixes] A map of prefix to namespace URI pairs that will be used
   /// in the JSON-LD @context. These prefixes take precedence over standard prefixes
   /// if there are conflicts.
-  const JsonLdEncoderOptions({Map<String, String> customPrefixes = const {}})
-      : super(customPrefixes: customPrefixes);
+  /// [generateMissingPrefixes] When true (default), the encoder will automatically
+  /// generate prefix declarations for IRIs that don't have a matching prefix.
+  /// [includeBaseDeclaration] Whether to include base URI declarations in the output.
+  /// Defaults to true if not provided.
+  const JsonLdEncoderOptions({
+    Map<String, String> customPrefixes = const {},
+    bool generateMissingPrefixes = true,
+    bool includeBaseDeclaration = true,
+  })  : generateMissingPrefixes = generateMissingPrefixes,
+        includeBaseDeclaration = includeBaseDeclaration,
+        super(
+          customPrefixes: customPrefixes,
+        );
+
+  JsonLdEncoderOptions copyWith({
+    Map<String, String>? customPrefixes,
+    bool? generateMissingPrefixes,
+    bool? includeBaseDeclaration,
+  }) =>
+      JsonLdEncoderOptions(
+        customPrefixes: customPrefixes ?? this.customPrefixes,
+        generateMissingPrefixes:
+            generateMissingPrefixes ?? this.generateMissingPrefixes,
+        includeBaseDeclaration:
+            includeBaseDeclaration ?? this.includeBaseDeclaration,
+      );
 
   /// Creates a JSON-LD encoder options object from generic RDF encoder options
   ///
@@ -96,13 +152,21 @@ class JsonLdEncoderOptions extends RdfGraphEncoderOptions {
   ///
   /// If the provided options are already a [JsonLdEncoderOptions] instance, they are
   /// returned as-is. Otherwise, a new instance is created with the custom prefixes
-  /// from the generic options.
+  /// and default values for generateMissingPrefixes and includeBaseDeclaration.
   static JsonLdEncoderOptions from(RdfGraphEncoderOptions options) =>
       switch (options) {
         JsonLdEncoderOptions _ => options,
-        _ => JsonLdEncoderOptions(customPrefixes: options.customPrefixes),
+        _ => JsonLdEncoderOptions(
+            customPrefixes: options.customPrefixes,
+          ),
       };
 }
+
+const _stringDatatype = Xsd.string;
+const _integerDatatype = Xsd.integer;
+const _doubleDatatype = Xsd.double;
+const _decimalDatatype = Xsd.decimal;
+const _booleanDatatype = Xsd.boolean;
 
 /// Encoder for converting RDF graphs to JSON-LD format.
 ///
@@ -157,13 +221,33 @@ final class JsonLdEncoder extends RdfGraphEncoder {
   /// Well-known common prefixes used for more readable JSON-LD output.
   final RdfNamespaceMappings _namespaceMappings;
   final JsonLdEncoderOptions _options;
+  late final IriCompaction _iriCompaction;
 
   /// Creates a new JSON-LD serializer.
-  const JsonLdEncoder({
+  JsonLdEncoder({
     RdfNamespaceMappings? namespaceMappings,
     JsonLdEncoderOptions options = const JsonLdEncoderOptions(),
   })  : _options = options,
-        _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings();
+        _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings() {
+    _iriCompaction = IriCompaction(
+      _namespaceMappings,
+      IriCompactionSettings(
+          generateMissingPrefixes: options.generateMissingPrefixes,
+          useNumericLocalNames: true,
+          allowRelativeIriForPredicate: false,
+          specialPredicates: {
+            Rdf.type,
+          },
+          specialDatatypes: {
+            _booleanDatatype,
+            _decimalDatatype,
+            _doubleDatatype,
+            _integerDatatype,
+            _stringDatatype,
+            Rdf.langString,
+          }),
+    );
+  }
 
   @override
   RdfGraphEncoder withOptions(RdfGraphEncoderOptions options) => JsonLdEncoder(
@@ -189,7 +273,8 @@ final class JsonLdEncoder extends RdfGraphEncoder {
   /// - Handles typed literals appropriately
   ///
   /// [graph] The RDF graph to convert to JSON-LD.
-  /// [baseUri] Optional base URI for relative IRIs (not currently used).
+  /// [baseUri] Optional base URI for relative IRIs. When provided and
+  /// includeBaseDeclaration is true, it will be included in the @context.
   ///
   /// Returns a formatted JSON-LD string with 2-space indentation.
   @override
@@ -205,8 +290,14 @@ final class JsonLdEncoder extends RdfGraphEncoder {
     final Map<BlankNodeTerm, String> blankNodeLabels = {};
     _generateBlankNodeLabels(graph, blankNodeLabels);
 
-    // Create context with prefixes
-    final context = _createContext(graph, _options.customPrefixes);
+    // Create context with prefixes and optional base URI
+    final (context: context, compactedIris: compactedIris) = _createContext(
+      graph,
+      _options.customPrefixes,
+      baseUri: baseUri,
+      includeBaseDeclaration: _options.includeBaseDeclaration,
+      generateMissingPrefixes: _options.generateMissingPrefixes,
+    );
 
     // Group triples by subject
     final subjectGroups = _groupTriplesBySubject(graph.triples);
@@ -219,11 +310,8 @@ final class JsonLdEncoder extends RdfGraphEncoder {
       // Add the single subject node
       final entry = subjectGroups.entries.first;
       final subjectNode = _createNodeObject(
-        entry.key,
-        entry.value,
-        context,
-        blankNodeLabels,
-      );
+          entry.key, entry.value, context, blankNodeLabels,
+          compactedIris: compactedIris);
       result.addAll(subjectNode);
 
       return JsonEncoder.withIndent('  ').convert(result);
@@ -233,11 +321,8 @@ final class JsonLdEncoder extends RdfGraphEncoder {
         '@context': context,
         '@graph': subjectGroups.entries.map((entry) {
           return _createNodeObject(
-            entry.key,
-            entry.value,
-            context,
-            blankNodeLabels,
-          );
+              entry.key, entry.value, context, blankNodeLabels,
+              compactedIris: compactedIris);
         }).toList(),
       };
 
@@ -280,155 +365,45 @@ final class JsonLdEncoder extends RdfGraphEncoder {
   /// 1. Starts with any custom prefixes provided by the user
   /// 2. Analyzes the graph to determine which standard prefixes are actually used
   /// 3. Adds only those namespaces that are referenced by IRIs in the graph
+  /// 4. Optionally generates new prefixes for unknown namespaces when generateMissingPrefixes is true
   ///
   /// This produces a minimal, relevant context that makes the JSON-LD more compact
   /// and readable while still maintaining the complete semantic information.
   ///
   /// Custom prefixes always take precedence over standard ones if there's a conflict.
-  Map<String, String> _createContext(
+  ({Map<String, dynamic> context, IriCompactionResult compactedIris})
+      _createContext(
     RdfGraph graph,
-    Map<String, String> customPrefixes,
-  ) {
-    final context = <String, String>{};
+    Map<String, String> customPrefixes, {
+    String? baseUri,
+    bool includeBaseDeclaration = true,
+    bool generateMissingPrefixes = true,
+  }) {
+    final context = <String, dynamic>{};
+
+    // Add base URI if provided and includeBaseDeclaration is true
+    if (baseUri != null && includeBaseDeclaration) {
+      context['@base'] = baseUri;
+    }
 
     // Add all custom prefixes
     context.addAll(customPrefixes);
 
     // Add common prefixes that are used in the graph
-    final allPrefixes = {..._namespaceMappings.asMap(), ...customPrefixes};
-    final usedPrefixes = _extractUsedPrefixes(graph, allPrefixes);
+    final compactedIris = _iriCompaction.compactAllIris(
+      graph,
+      customPrefixes,
+      baseUri: baseUri,
+    );
 
     // Add prefixes that don't conflict with custom ones
-    for (final entry in usedPrefixes.entries) {
+    for (final entry in compactedIris.prefixes.entries) {
       if (!customPrefixes.containsKey(entry.key)) {
         context[entry.key] = entry.value;
       }
     }
 
-    return context;
-  }
-
-  /// Extracts only those prefixes that are actually used in the graph's triples.
-  ///
-  /// This optimization method analyzes the graph to determine which namespace
-  /// prefixes are actually referenced by IRIs within the triples. It:
-  ///
-  /// 1. Examines all subjects, predicates, objects, and datatype IRIs in the graph
-  /// 2. Finds matching prefixes for each IRI encountered
-  /// 3. Selects the most specific (longest) prefix when multiple prefixes match an IRI
-  ///
-  /// This ensures the resulting JSON-LD context only contains prefixes that are
-  /// actually used in the document, reducing the size of the context and making
-  /// the output more concise and relevant.
-  ///
-  /// The [graph] parameter is the RDF graph to analyze.
-  /// The [prefixCandidates] parameter provides map of prefix-to-namespace pairs to consider.
-  /// Returns map of used prefixes to their namespace IRIs.
-  Map<String, String> _extractUsedPrefixes(
-    RdfGraph graph,
-    Map<String, String> prefixCandidates,
-  ) {
-    final usedPrefixes = <String, String>{};
-
-    // Create an inverted index for quick lookup
-    final iriToPrefixMap = Map<String, String>.fromEntries(
-      prefixCandidates.entries.map((e) => MapEntry(e.value, e.key)),
-    );
-
-    for (final triple in graph.triples) {
-      // Check subject
-      if (triple.subject is IriTerm) {
-        _checkTermForPrefix(
-          triple.subject as IriTerm,
-          iriToPrefixMap,
-          usedPrefixes,
-          prefixCandidates,
-        );
-      }
-
-      // Check predicate
-      if (triple.predicate is IriTerm) {
-        _checkTermForPrefix(
-          triple.predicate as IriTerm,
-          iriToPrefixMap,
-          usedPrefixes,
-          prefixCandidates,
-        );
-      }
-
-      // Check object
-      if (triple.object is IriTerm) {
-        _checkTermForPrefix(
-          triple.object as IriTerm,
-          iriToPrefixMap,
-          usedPrefixes,
-          prefixCandidates,
-        );
-      } else if (triple.object is LiteralTerm) {
-        final literal = triple.object as LiteralTerm;
-        if (literal.datatype != Xsd.string) {
-          _checkTermForPrefix(
-            literal.datatype,
-            iriToPrefixMap,
-            usedPrefixes,
-            prefixCandidates,
-          );
-        }
-      }
-    }
-
-    return usedPrefixes;
-  }
-
-  /// Checks if a term's IRI matches any prefix and adds it to the usedPrefixes if it does.
-  ///
-  /// This method performs two types of matching for each IRI:
-  ///
-  /// 1. **Exact match**: First checks if the IRI exactly matches a namespace (e.g., http://schema.org/)
-  ///    This handles cases where a namespace itself is used as an IRI.
-  ///
-  /// 2. **Prefix match**: If no exact match is found, looks for namespaces that are prefixes
-  ///    of the IRI and selects the longest (most specific) match. For example, with the IRI
-  ///    "http://example.org/vocabulary/term", it would match "http://example.org/vocabulary/"
-  ///    rather than just "http://example.org/".
-  ///
-  /// When a match is found, the corresponding prefix is added to the usedPrefixes map.
-  ///
-  /// The [term] parameter is the IRI term to check.
-  /// The [iriToPrefixMap] parameter is an inverted map from namespace IRIs to prefixes (for quick lookup).
-  /// The [usedPrefixes] parameter is an output map where matching prefixes are added.
-  /// The [prefixCandidates] parameter is a map of prefix-to-namespace pairs to consider for prefix matches.
-  void _checkTermForPrefix(
-    IriTerm term,
-    Map<String, String> iriToPrefixMap,
-    Map<String, String> usedPrefixes,
-    Map<String, String> prefixCandidates,
-  ) {
-    final iri = term.iri;
-
-    // First try direct match (for namespaces that are used completely)
-    if (iriToPrefixMap.containsKey(iri)) {
-      final prefix = iriToPrefixMap[iri]!;
-      usedPrefixes[prefix] = iri;
-      return;
-    }
-
-    // For prefix match, use the longest matching prefix (most specific)
-    // This handles overlapping prefixes correctly (e.g., http://example.org/ and http://example.org/vocabulary/)
-    var bestMatch = '';
-    var bestPrefix = '';
-
-    for (final entry in prefixCandidates.entries) {
-      final namespace = entry.value;
-      if (iri.startsWith(namespace) && namespace.length > bestMatch.length) {
-        bestMatch = namespace;
-        bestPrefix = entry.key;
-      }
-    }
-
-    if (bestPrefix.isNotEmpty) {
-      usedPrefixes[bestPrefix] = bestMatch;
-    }
+    return (context: context, compactedIris: compactedIris);
   }
 
   /// Groups triples by their subject for easier JSON-LD structure creation.
@@ -467,7 +442,7 @@ final class JsonLdEncoder extends RdfGraphEncoder {
   /// This method transforms an RDF subject and its associated triples into a
   /// structured JSON-LD object by:
   ///
-  /// 1. Setting the `@id` property to identify the subject
+  /// 1. Setting the `@id` property to identify the subject (relative to baseUri if applicable)
   /// 2. Handling `rdf:type` statements specially by converting them to `@type` properties
   /// 3. Grouping remaining triples by predicate to create JSON-LD properties
   /// 4. Rendering single values directly and multiple values as arrays
@@ -480,18 +455,18 @@ final class JsonLdEncoder extends RdfGraphEncoder {
   /// [triples] The list of triples where this subject is the subject
   /// [context] The JSON-LD context for compaction
   /// [blankNodeLabels] Mapping of blank nodes to consistent labels
+  /// [compactedIris] The compacted IRIs for this context
   ///
   /// Returns a JSON-LD object representing the RDF node
   Map<String, dynamic> _createNodeObject(
     RdfSubject subject,
     List<Triple> triples,
-    Map<String, String> context,
-    Map<BlankNodeTerm, String> blankNodeLabels,
-  ) {
-    final result = <String, dynamic>{
-      '@id': _getSubjectId(subject, blankNodeLabels),
-    };
-
+    Map<String, dynamic> context,
+    Map<BlankNodeTerm, String> blankNodeLabels, {
+    required IriCompactionResult compactedIris,
+  }) {
+    Map<String, dynamic> result = createSubjectObject(
+        subject, IriRole.subject, compactedIris, blankNodeLabels);
     // Group triples by predicate
     final predicateGroups = <String, List<RdfObject>>{};
     final typeObjects = <RdfObject>[];
@@ -501,7 +476,7 @@ final class JsonLdEncoder extends RdfGraphEncoder {
         // Handle rdf:type specially
         typeObjects.add(triple.object);
       } else {
-        final predicateKey = _getPredicateKey(triple.predicate, context);
+        final predicateKey = _getPredicateKey(triple.predicate, compactedIris);
         predicateGroups.putIfAbsent(predicateKey, () => []).add(triple.object);
       }
     }
@@ -509,12 +484,14 @@ final class JsonLdEncoder extends RdfGraphEncoder {
     // Add types to the result
     if (typeObjects.isNotEmpty) {
       if (typeObjects.length == 1) {
-        // Single type
-        result['@type'] = _getObjectValue(typeObjects[0], blankNodeLabels);
+        // Single type - for @type, we use the IRI directly, not wrapped in @id
+        result['@type'] = _getTypeValue(typeObjects[0],
+            compactedIris: compactedIris, blankNodeLabels: blankNodeLabels);
       } else {
         // Multiple types
         result['@type'] = typeObjects
-            .map((obj) => _getObjectValue(obj, blankNodeLabels))
+            .map((obj) => _getTypeValue(obj,
+                compactedIris: compactedIris, blankNodeLabels: blankNodeLabels))
             .toList();
       }
     }
@@ -523,11 +500,13 @@ final class JsonLdEncoder extends RdfGraphEncoder {
     for (final entry in predicateGroups.entries) {
       if (entry.value.length == 1) {
         // Single value for predicate
-        result[entry.key] = _getObjectValue(entry.value[0], blankNodeLabels);
+        result[entry.key] = _getObjectValue(entry.value[0], blankNodeLabels,
+            compactedIris: compactedIris);
       } else {
         // Multiple values for predicate
         result[entry.key] = entry.value
-            .map((obj) => _getObjectValue(obj, blankNodeLabels))
+            .map((obj) => _getObjectValue(obj, blankNodeLabels,
+                compactedIris: compactedIris))
             .toList();
       }
     }
@@ -535,86 +514,90 @@ final class JsonLdEncoder extends RdfGraphEncoder {
     return result;
   }
 
-  /// Returns the appropriate string ID for a subject term.
-  String _getSubjectId(
-    RdfSubject subject,
-    Map<BlankNodeTerm, String> blankNodeLabels,
-  ) {
-    if (subject is IriTerm) {
-      return subject.iri;
-    } else if (subject is BlankNodeTerm) {
-      final label = blankNodeLabels[subject];
-      if (label == null) {
-        _log.warning(
-          'No label generated for blank node subject, using fallback label',
-        );
-        return '_:b${identityHashCode(subject)}';
-      }
-      return '_:$label';
-    } else {
-      return subject.toString();
+  Map<String, dynamic> createSubjectObject(
+      RdfSubject subject,
+      IriRole role,
+      IriCompactionResult compactedIris,
+      Map<BlankNodeTerm, String> blankNodeLabels) {
+    final result = <String, dynamic>{};
+    switch (subject) {
+      case IriTerm iri:
+        result['@id'] = _renderIri(iri, role, compactedIris);
+      case BlankNodeTerm blankNode:
+
+        // For blank nodes, we use the generated label
+        result['@id'] = _renderBlankNode(blankNode, blankNodeLabels);
     }
+    return result;
+  }
+
+  String _renderIri(
+          IriTerm iri, IriRole role, IriCompactionResult compactedIris) =>
+      switch (compactedIris.compactIri(iri, role)) {
+        FullIri(iri: var fullIri) => fullIri,
+        RelativeIri(relative: var relativeIri) => relativeIri,
+        PrefixedIri prefixedIri => prefixedIri.colonSeparated,
+        SpecialIri(iri: var specialIri) => () {
+            _log.warning(
+                'Unexpected special IRI type: ${specialIri.iri} for $role');
+            return specialIri.iri;
+          }(),
+        null => throw ArgumentError(
+            'No compacted IRI found for ${role}: $iri',
+          ),
+      };
+
+  String _renderBlankNode(
+      BlankNodeTerm blankNode, Map<BlankNodeTerm, String> blankNodeLabels) {
+    final label = blankNodeLabels[blankNode];
+    if (label == null) {
+      // This should not happen if labels are generated correctly
+      _log.warning(
+        'No label generated for blank node subject, using fallback label',
+      );
+      return '_:b${identityHashCode(blankNode)}';
+    }
+    return '_:$label';
   }
 
   /// Returns the appropriate key name for a predicate.
   /// Uses prefixed notation when a matching prefix is available in the context.
-  String _getPredicateKey(RdfPredicate predicate, Map<String, String> context) {
-    if (predicate is! IriTerm) {
-      return predicate.toString();
-    }
-
-    final iri = predicate.iri;
-
-    // Find the longest (most specific) matching prefix in the context
-    var bestMatch = '';
-    var bestPrefix = '';
-
-    for (final entry in context.entries) {
-      final prefix = entry.key;
-      final namespace = entry.value;
-
-      if (iri.startsWith(namespace) && namespace.length > bestMatch.length) {
-        bestMatch = namespace;
-        bestPrefix = prefix;
-      }
-    }
-
-    // If we found a matching prefix, use it to compact the IRI
-    if (bestPrefix.isNotEmpty) {
-      final localName = iri.substring(bestMatch.length);
-      if (localName.isNotEmpty) {
-        return '$bestPrefix:$localName';
-      } else {
-        return '$bestPrefix:';
-      }
-    }
-
-    // If no prefix matches, use the full IRI
-    return iri;
-  }
+  String _getPredicateKey(
+          RdfPredicate predicate, IriCompactionResult compactedIris) =>
+      switch (predicate) {
+        IriTerm iri => _renderIri(iri, IriRole.predicate, compactedIris),
+      };
 
   /// Converts an RDF object to its appropriate JSON-LD representation.
+  /// If baseUri is provided, relativizes IRI objects against the base URI.
   dynamic _getObjectValue(
     RdfObject object,
-    Map<BlankNodeTerm, String> blankNodeLabels,
-  ) {
-    if (object is IriTerm) {
-      return {'@id': object.iri};
-    } else if (object is BlankNodeTerm) {
-      final label = blankNodeLabels[object];
-      if (label == null) {
-        _log.warning(
-          'No label generated for blank node object, using fallback label',
-        );
-        return {'@id': '_:b${identityHashCode(object)}'};
-      }
-      return {'@id': '_:$label'};
-    } else if (object is LiteralTerm) {
-      return _getLiteralValue(object);
-    } else {
-      return object.toString();
-    }
-  }
+    Map<BlankNodeTerm, String> blankNodeLabels, {
+    required IriCompactionResult compactedIris,
+  }) =>
+      switch (object) {
+        IriTerm iri => createSubjectObject(
+            iri, IriRole.object, compactedIris, blankNodeLabels),
+        BlankNodeTerm blankNode => createSubjectObject(
+            blankNode, IriRole.object, compactedIris, blankNodeLabels),
+        LiteralTerm literal => _getLiteralValue(literal),
+      };
+
+  /// Gets the IRI value for @type properties.
+  ///
+  /// Unlike _getObjectValue, this method returns the IRI directly as a string
+  /// rather than wrapping it in an @id object, which is the correct format
+  /// for @type values in JSON-LD.
+  String _getTypeValue(RdfObject object,
+          {required IriCompactionResult compactedIris,
+          required Map<BlankNodeTerm, String> blankNodeLabels}) =>
+      switch (object) {
+        IriTerm iri => _renderIri(iri, IriRole.object, compactedIris),
+        BlankNodeTerm blankNode => _renderBlankNode(blankNode, blankNodeLabels),
+        LiteralTerm literal => throw ArgumentError(
+            'Literal terms should not be used as @type values: $literal',
+          ),
+      };
 
   /// Converts an RDF literal to its appropriate JSON-LD representation.
   ///
@@ -653,21 +636,21 @@ final class JsonLdEncoder extends RdfGraphEncoder {
     final datatype = literal.datatype;
 
     // String literals (default datatype)
-    if (datatype == Xsd.string) {
+    if (datatype == _stringDatatype) {
       return value;
     }
 
     // Number literals
-    if (datatype == Xsd.integer) {
+    if (datatype == _integerDatatype) {
       return int.tryParse(value) ?? {'@value': value, '@type': datatype.iri};
     }
 
-    if (datatype == Xsd.double || datatype == Xsd.decimal) {
+    if (datatype == _doubleDatatype || datatype == _decimalDatatype) {
       return double.tryParse(value) ?? {'@value': value, '@type': datatype.iri};
     }
 
     // Boolean literals
-    if (datatype == Xsd.boolean) {
+    if (datatype == _booleanDatatype) {
       if (value == 'true') return true;
       if (value == 'false') return false;
       return {'@value': value, '@type': datatype.iri};

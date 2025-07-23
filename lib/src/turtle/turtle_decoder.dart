@@ -1,5 +1,6 @@
 import 'package:logging/logging.dart';
 import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_core/src/iri_util.dart';
 
 import 'package:rdf_core/src/vocab/rdf.dart';
 
@@ -784,13 +785,9 @@ class TurtleParser {
   ///
   /// Throws [RdfInvalidIriException] if the IRI is relative and no base URI is available.
   String _resolveIri(String iri) {
-    // If the IRI is already absolute, return it as is
-    if (Uri.parse(iri).hasScheme) {
-      return iri;
-    }
-
-    // If there's no base URI but the IRI is relative, throw a helpful exception
-    if (_baseUri == null) {
+    try {
+      return resolveIri(iri, _baseUri);
+    } on BaseIriRequiredException catch (_) {
       throw RdfInvalidIriException(
         'Cannot use relative IRI without a base URI. Either provide a base URI when creating the parser, or use absolute IRIs.',
         iri: iri,
@@ -802,11 +799,6 @@ class TurtleParser {
         ),
       );
     }
-
-    // Resolve the relative IRI against the base URI
-    final resolved = Uri.parse(_baseUri!).resolve(iri).toString();
-    // _log.finest('Resolved relative IRI: $iri -> $resolved');
-    return resolved;
   }
 
   /// Parses a blank node expression.

@@ -144,12 +144,8 @@ void main() {
         );
         final jsonLdOutput = encoder.convert(graph);
 
-        // Print the JSON-LD for debugging if needed
-        // print(jsonLdOutput);
-
         final parser = JsonLdParser(jsonLdOutput);
         final roundtripTriples = parser.parse();
-
         // Create a new graph from the parsed triples
         final roundtripGraph = RdfGraph(triples: roundtripTriples);
 
@@ -161,6 +157,113 @@ void main() {
         _compareGraphStructure(graph, roundtripGraph);
       },
     );
+
+    test(
+        'should preserve triples in roundtrip conversion with complex graph with documentUri',
+        () {
+      // Create a more complex RDF graph with various RDF term types
+      var graph = RdfGraph(
+        triples: [
+          // Add person with various property types
+          Triple(
+            IriTerm('http://example.org/person/john'),
+            Rdf.type,
+            IriTerm('http://xmlns.com/foaf/0.1/Person'),
+          ),
+          Triple(
+            IriTerm('http://example.org/person/john'),
+            IriTerm('http://xmlns.com/foaf/0.1/name'),
+            LiteralTerm.string('John Smith'),
+          ),
+          Triple(
+            IriTerm('http://example.org/person/john'),
+            IriTerm('http://xmlns.com/foaf/0.1/age'),
+            LiteralTerm.typed('42', 'integer'),
+          ),
+          Triple(
+            IriTerm('http://example.org/person/john'),
+            IriTerm('http://purl.org/dc/terms/created'),
+            LiteralTerm.typed('2025-04-23T12:00:00Z', 'dateTime'),
+          ),
+          // Add language-tagged literals
+          Triple(
+            IriTerm('http://example.org/person/john'),
+            IriTerm('http://xmlns.com/foaf/0.1/title'),
+            LiteralTerm.withLanguage('Dr.', 'en'),
+          ),
+          Triple(
+            IriTerm('http://example.org/person/john'),
+            IriTerm('http://xmlns.com/foaf/0.1/title'),
+            LiteralTerm.withLanguage('Doktor', 'de'),
+          ),
+          // Add boolean value
+          Triple(
+            IriTerm('http://example.org/person/john'),
+            IriTerm('http://schema.org/active'),
+            LiteralTerm.typed('true', 'boolean'),
+          ),
+          // Add relationship to another IRI
+          Triple(
+            IriTerm('http://example.org/person/john'),
+            IriTerm('http://xmlns.com/foaf/0.1/knows'),
+            IriTerm('http://example.org/person/jane'),
+          ),
+        ],
+      );
+
+      // Add blank node relationship - using a new BlankNodeTerm without label
+      final addressNode = BlankNodeTerm();
+
+      graph = graph.withTriples([
+        Triple(
+          IriTerm('http://example.org/person/john'),
+          IriTerm('http://schema.org/address'),
+          addressNode,
+        ),
+        Triple(
+          addressNode,
+          Rdf.type,
+          IriTerm('http://schema.org/PostalAddress'),
+        ),
+        Triple(
+          addressNode,
+          IriTerm('http://schema.org/streetAddress'),
+          LiteralTerm.string('123 Main St'),
+        ),
+        Triple(
+          addressNode,
+          IriTerm('http://schema.org/postalCode'),
+          LiteralTerm.string('12345'),
+        ),
+      ]);
+
+      // Perform roundtrip conversion
+      final encoder = JsonLdEncoder(
+        options: JsonLdEncoderOptions(
+          includeBaseDeclaration: false,
+          customPrefixes: {
+            'foaf': 'http://xmlns.com/foaf/0.1/',
+            'schema': 'http://schema.org/',
+            'dcterms': 'http://purl.org/dc/terms/',
+          },
+        ),
+      );
+      final jsonLdOutput =
+          encoder.convert(graph, baseUri: 'http://example.org/person/john');
+
+      final decoder = JsonLdDecoder(
+        options: JsonLdDecoderOptions(),
+      );
+      final roundtripGraph = decoder.convert(jsonLdOutput,
+          documentUrl: 'http://example.org/person/john');
+
+      // Verify the graphs have the same number of triples
+      expect(roundtripGraph.triples.length, equals(graph.triples.length));
+
+      // Since blank nodes have identity-based equality, we need to focus on the structure
+      // rather than direct triple-by-triple comparison
+      _compareGraphStructure(graph, roundtripGraph);
+    });
   });
 }
 

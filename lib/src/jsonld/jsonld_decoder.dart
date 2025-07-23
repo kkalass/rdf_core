@@ -24,6 +24,7 @@ import 'dart:convert';
 
 import 'package:logging/logging.dart';
 import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_core/src/iri_util.dart';
 
 final _log = Logger("rdf.jsonld");
 const _format = "JSON-LD";
@@ -370,7 +371,7 @@ class JsonLdParser {
     final triples = <Triple>[];
 
     // Determine the subject
-    final String subjectStr = _getSubjectId(node);
+    final String subjectStr = _getSubjectId(node, context);
     final subject = _createSubjectTerm(subjectStr);
     _log.info('Processing node with subject: $subject');
 
@@ -425,7 +426,7 @@ class JsonLdParser {
   }
 
   /// Get the subject identifier from a node
-  String _getSubjectId(Map<String, dynamic> node) {
+  String _getSubjectId(Map<String, dynamic> node, Map<String, String> context) {
     if (node.containsKey('@id')) {
       final id = node['@id'];
 
@@ -433,15 +434,12 @@ class JsonLdParser {
         throw RdfSyntaxException('@id value must be a string', format: _format);
       }
 
-      // First expand any prefixes using the context
-      final context = _extractContext(node);
+      // First expand any prefixes using the provided context
       final expandedId = _expandPrefixedIri(id, context);
 
       // Resolve relative IRIs against the base URI if one is provided
-      if (_baseUri != null &&
-          !expandedId.contains('://') &&
-          !expandedId.startsWith('_:')) {
-        return Uri.parse(_baseUri).resolve(expandedId).toString();
+      if (!expandedId.startsWith('_:')) {
+        return resolveIri(expandedId, _baseUri);
       }
 
       return expandedId;
@@ -608,14 +606,17 @@ class JsonLdParser {
       if (value.containsKey('@id')) {
         // Reference to another resource
         final objectId = value['@id'] as String;
-        final expandedIri = _expandIri(objectId);
-        final RdfObject objectTerm = expandedIri.startsWith('_:')
-            ? _getOrCreateBlankNode(expandedIri)
-            : IriTerm(expandedIri);
+        final expandedIri = _expandPrefixedIri(objectId, context);
+        final resolvedIri = expandedIri.startsWith('_:')
+            ? expandedIri
+            : resolveIri(expandedIri, _baseUri);
+        final RdfObject objectTerm = resolvedIri.startsWith('_:')
+            ? _getOrCreateBlankNode(resolvedIri)
+            : IriTerm(resolvedIri);
 
         triples.add(Triple(subject, predicate, objectTerm));
         _log.info(
-          'Added object reference triple: $subject -> $predicate -> $expandedIri',
+          'Added object reference triple: $subject -> $predicate -> $resolvedIri',
         );
 
         // If the object has more properties, process it recursively
@@ -693,31 +694,5 @@ class JsonLdParser {
 
     // Otherwise try to expand as a prefixed IRI
     return _expandPrefixedIri(key, context);
-  }
-
-  /// Expand an IRI using the base URI if needed
-  String _expandIri(String iri) {
-    if (iri.startsWith('http://') ||
-        iri.startsWith('https://') ||
-        iri.startsWith('_:')) {
-      return iri;
-    }
-
-    // Try to resolve against base URI if available
-    if (_baseUri != null) {
-      try {
-        return Uri.parse(_baseUri).resolve(iri).toString();
-      } catch (e) {
-        _log.warning('Failed to resolve IRI against base URI: $iri', e);
-        throw RdfInvalidIriException(
-          'Failed to resolve IRI against base URI',
-          iri: iri,
-          format: _format,
-          cause: e,
-        );
-      }
-    }
-
-    return iri;
   }
 }

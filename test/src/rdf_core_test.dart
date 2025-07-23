@@ -235,7 +235,7 @@ void main() {
           graphWithTriple,
           contentType: 'text/turtle',
           baseUri: 'http://example.com/',
-          options: RdfGraphEncoderOptions(
+          options: TurtleEncoderOptions(
             customPrefixes: {'ex': 'http://example.org/'},
           ),
         );

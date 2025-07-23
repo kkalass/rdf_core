@@ -1,14 +1,21 @@
+import 'package:rdf_core/src/vocab/iri_compaction.dart';
 import 'package:test/test.dart';
 import 'package:rdf_core/src/graph/rdf_graph.dart';
 import 'package:rdf_core/src/graph/rdf_term.dart';
 import 'package:rdf_core/src/graph/triple.dart';
 import 'package:rdf_core/src/turtle/turtle_encoder.dart';
 
+String encodeLiteral(LiteralTerm langTerm) =>
+    TurtleEncoder().writeTerm(langTerm,
+        iriRole: IriRole.object,
+        compactedIris: IriCompactionResult(prefixes: {}, compactIris: {}),
+        blankNodeLabels: {});
+
 void main() {
   group('RdfGraph', () {
     test('langTerm', () {
       final langTerm = LiteralTerm.withLanguage('Hello', 'en');
-      expect(TurtleEncoder().writeTerm(langTerm), equals('"Hello"@en'));
+      expect(encodeLiteral(langTerm), equals('"Hello"@en'));
     });
 
     test('illegal langTerm', () {
@@ -36,7 +43,7 @@ void main() {
         datatype: IriTerm("$baseIri$type"),
         language: 'en',
       );
-      expect(TurtleEncoder().writeTerm(langTerm), equals('"Hello"@en'));
+      expect(encodeLiteral(langTerm), equals('"Hello"@en'));
     });
 
     // Tests for the new immutable RdfGraph implementation

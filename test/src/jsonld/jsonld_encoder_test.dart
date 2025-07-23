@@ -11,9 +11,10 @@ import 'package:test/test.dart';
 void main() {
   group('JSON-LD Encoder', () {
     late JsonLdEncoder encoder;
-
+    late JsonLdEncoderOptions options;
     setUp(() {
-      encoder = JsonLdEncoder();
+      options = JsonLdEncoderOptions(generateMissingPrefixes: false);
+      encoder = JsonLdEncoder(options: options);
     });
 
     test('should serialize empty graph to empty JSON object', () {
@@ -52,12 +53,11 @@ void main() {
       ]);
 
       final result = encoder.convert(graph);
+
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
-      expect(jsonObj['@context']['rdf'], equals(Rdf.namespace));
       expect(jsonObj['@id'], equals('http://example.org/subject'));
-      expect(jsonObj['@type'], isA<Map<String, dynamic>>());
-      expect(jsonObj['@type']['@id'], equals('http://example.org/Class'));
+      expect(jsonObj['@type'], equals('http://example.org/Class'));
     });
 
     test('should use @graph for multiple subjects', () {
@@ -95,6 +95,7 @@ void main() {
       ]);
 
       final result = encoder.convert(graph);
+
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
       expect(
@@ -135,11 +136,12 @@ void main() {
       ]);
 
       final result = encoder.convert(graph);
+
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
       expect(
-        jsonObj['@context']['xsd'],
-        equals('http://www.w3.org/2001/XMLSchema#'),
+        jsonObj['@context'].containsKey('xsd'),
+        isFalse,
       );
       expect(jsonObj['http://example.org/intValue'], equals(42));
       expect(jsonObj['http://example.org/floatValue'], equals(3.14));
@@ -179,7 +181,7 @@ void main() {
       };
 
       final result = encoder
-          .withOptions(JsonLdEncoderOptions(customPrefixes: customPrefixes))
+          .withOptions(options.copyWith(customPrefixes: customPrefixes))
           .convert(graph);
 
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
@@ -231,19 +233,20 @@ void main() {
       ]);
 
       final result = encoder.convert(graph);
+
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
       expect(jsonObj['@context']['foaf'], equals('http://xmlns.com/foaf/0.1/'));
-      expect(jsonObj['@context']['rdf'], equals(Rdf.namespace));
       expect(jsonObj.containsKey('@graph'), isTrue);
+      expect(jsonObj['@context'].containsKey('xsd'), isFalse);
 
       final graph1 = jsonObj['@graph'].firstWhere(
         (node) => node['@id'] == 'http://example.org/person/john',
       );
 
       expect(
-        graph1['@type']['@id'],
-        equals('http://xmlns.com/foaf/0.1/Person'),
+        graph1['@type'],
+        equals('foaf:Person'),
       );
       expect(graph1['foaf:name'], equals('John Doe'));
       expect(graph1['foaf:age'], equals(42));
@@ -254,6 +257,75 @@ void main() {
 
       final graph2 = jsonObj['@graph'].firstWhere(
         (node) => node['@id'] == 'http://example.org/person/jane',
+      );
+      expect(graph2['foaf:name'], equals('Jane Smith'));
+    });
+    test(
+        'should serialize complex graph correctly using prefixes and baseUrl without base attribute',
+        () {
+      final graph = RdfGraph.fromTriples([
+        Triple(
+          IriTerm('http://example.org/person/john'),
+          Rdf.type,
+          IriTerm('http://xmlns.com/foaf/0.1/Person'),
+        ),
+        Triple(
+          IriTerm('http://example.org/person/john'),
+          IriTerm('http://xmlns.com/foaf/0.1/name'),
+          LiteralTerm.string('John Doe'),
+        ),
+        Triple(
+          IriTerm('http://example.org/person/john'),
+          IriTerm('http://xmlns.com/foaf/0.1/age'),
+          LiteralTerm(
+            '42',
+            datatype: IriTerm('http://www.w3.org/2001/XMLSchema#integer'),
+          ),
+        ),
+        Triple(
+          IriTerm('http://example.org/person/john'),
+          IriTerm('http://xmlns.com/foaf/0.1/knows'),
+          IriTerm('http://example.org/person/jane'),
+        ),
+        Triple(
+          IriTerm('http://example.org/person/jane'),
+          Rdf.type,
+          IriTerm('http://xmlns.com/foaf/0.1/Person'),
+        ),
+        Triple(
+          IriTerm('http://example.org/person/jane'),
+          IriTerm('http://xmlns.com/foaf/0.1/name'),
+          LiteralTerm.string('Jane Smith'),
+        ),
+      ]);
+
+      final result = encoder
+          .withOptions(options.copyWith(includeBaseDeclaration: false))
+          .convert(graph, baseUri: "http://example.org/person/");
+
+      final jsonObj = jsonDecode(result) as Map<String, dynamic>;
+
+      expect(jsonObj['@context']['foaf'], equals('http://xmlns.com/foaf/0.1/'));
+      expect(jsonObj.containsKey('@graph'), isTrue);
+
+      final graph1 = jsonObj['@graph'].firstWhere(
+        // baseUri given, so we expect relative IDs
+        (node) => node['@id'] == 'john',
+      );
+
+      expect(
+        graph1['@type'],
+        equals('foaf:Person'),
+      );
+      expect(graph1['foaf:name'], equals('John Doe'));
+      expect(graph1['foaf:age'], equals(42));
+      expect(
+        graph1['foaf:knows']['@id'],
+        equals('jane'),
+      );
+
+      final graph2 = jsonObj['@graph'].firstWhere(
+        (node) => node['@id'] == 'jane',
       );
       expect(graph2['foaf:name'], equals('Jane Smith'));
     });
@@ -276,6 +348,7 @@ void main() {
 
         final encoder2 = JsonLdEncoder();
         final result = encoder2.convert(graph);
+
         final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
         expect(
@@ -284,7 +357,7 @@ void main() {
         );
         expect(jsonObj['@context']['xsd'], isNull);
         expect(jsonObj['foaf:name'], equals('Alice'));
-        expect(jsonObj['foaf:knows']['@id'], equals('http://example.org/bob'));
+        expect(jsonObj['foaf:knows']['@id'], equals('ex:bob'));
       },
     );
 
@@ -311,6 +384,7 @@ void main() {
       ]);
 
       final result = encoder.convert(graph);
+
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
       // Extract all blank node IDs from the serialized JSON-LD
@@ -432,7 +506,7 @@ void main() {
       expect(jsonObj['@type'], isA<List>());
       expect(jsonObj['@type'].length, equals(2));
 
-      final typeIds = jsonObj['@type'].map((t) => t['@id']).toList();
+      final typeIds = jsonObj['@type'] as List;
       expect(typeIds, contains('http://example.org/Type1'));
       expect(typeIds, contains('http://example.org/Type2'));
     });
@@ -481,7 +555,7 @@ void main() {
       };
 
       final result = encoder
-          .withOptions(JsonLdEncoderOptions(customPrefixes: customPrefixes))
+          .withOptions(options.copyWith(customPrefixes: customPrefixes))
           .convert(graph);
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
@@ -502,7 +576,7 @@ void main() {
       final customPrefixes = {'vocab': 'http://example.org/vocabulary/'};
 
       final result = encoder
-          .withOptions(JsonLdEncoderOptions(customPrefixes: customPrefixes))
+          .withOptions(options.copyWith(customPrefixes: customPrefixes))
           .convert(graph);
       final jsonObj = jsonDecode(result) as Map<String, dynamic>;
 
@@ -546,6 +620,216 @@ void main() {
 
       // The double value should be parsed and represented as a number
       expect(jsonObj['http://example.org/doubleValue'], equals(3.14159265));
+    });
+
+    group('Base URI declaration handling', () {
+      test('should include @base in context by default when baseUri provided',
+          () {
+        // Arrange
+        final graph = RdfGraph.fromTriples([
+          Triple(
+            IriTerm('http://example.org/subject'),
+            IriTerm('http://example.org/predicate'),
+            LiteralTerm.string('object'),
+          ),
+        ]);
+
+        // Act
+        final result = encoder.convert(
+          graph,
+          baseUri: 'http://example.org/base/',
+        );
+
+        // Assert
+        final jsonObj = jsonDecode(result) as Map<String, dynamic>;
+        final context = jsonObj['@context'] as Map<String, dynamic>;
+        expect(context['@base'], equals('http://example.org/base/'));
+      });
+
+      test(
+          'should not include @base in context when includeBaseDeclaration is false',
+          () {
+        // Arrange
+        final graph = RdfGraph.fromTriples([
+          Triple(
+            IriTerm('http://example.org/subject'),
+            IriTerm('http://example.org/predicate'),
+            LiteralTerm.string('object'),
+          ),
+        ]);
+
+        // Act
+        final result = encoder
+            .withOptions(options.copyWith(includeBaseDeclaration: false))
+            .convert(
+              graph,
+              baseUri: 'http://example.org/base/',
+            );
+
+        // Assert
+        final jsonObj = jsonDecode(result) as Map<String, dynamic>;
+        final context = jsonObj['@context'] as Map<String, dynamic>;
+        expect(context.containsKey('@base'), isFalse);
+      });
+
+      test(
+          'should include @base in context when includeBaseDeclaration is true explicitly',
+          () {
+        // Arrange
+        final graph = RdfGraph.fromTriples([
+          Triple(
+            IriTerm('http://example.org/subject'),
+            IriTerm('http://example.org/predicate'),
+            LiteralTerm.string('object'),
+          ),
+        ]);
+
+        // Act
+        final result = encoder
+            .withOptions(options.copyWith(includeBaseDeclaration: true))
+            .convert(
+              graph,
+              baseUri: 'http://example.org/base/',
+            );
+
+        // Assert
+        final jsonObj = jsonDecode(result) as Map<String, dynamic>;
+        final context = jsonObj['@context'] as Map<String, dynamic>;
+        expect(context['@base'], equals('http://example.org/base/'));
+      });
+
+      test('should not affect output when no baseUri is provided', () {
+        // Arrange
+        final graph = RdfGraph.fromTriples([
+          Triple(
+            IriTerm('http://example.org/subject'),
+            IriTerm('http://example.org/predicate'),
+            LiteralTerm.string('object'),
+          ),
+        ]);
+
+        // Act
+        final resultWithFlag = encoder
+            .withOptions(options.copyWith(includeBaseDeclaration: false))
+            .convert(graph);
+        final resultWithoutFlag = encoder.convert(graph);
+
+        // Assert
+        final jsonObjWithFlag =
+            jsonDecode(resultWithFlag) as Map<String, dynamic>;
+        final jsonObjWithoutFlag =
+            jsonDecode(resultWithoutFlag) as Map<String, dynamic>;
+
+        final contextWithFlag =
+            jsonObjWithFlag['@context'] as Map<String, dynamic>;
+        final contextWithoutFlag =
+            jsonObjWithoutFlag['@context'] as Map<String, dynamic>;
+
+        expect(contextWithFlag.containsKey('@base'), isFalse);
+        expect(contextWithoutFlag.containsKey('@base'), isFalse);
+        expect(resultWithFlag, equals(resultWithoutFlag));
+      });
+
+      test('should work with multiple subjects graph', () {
+        // Arrange
+        final graph = RdfGraph.fromTriples([
+          Triple(
+            IriTerm('http://example.org/subject1'),
+            IriTerm('http://example.org/predicate'),
+            LiteralTerm.string('object1'),
+          ),
+          Triple(
+            IriTerm('http://example.org/subject2'),
+            IriTerm('http://example.org/predicate'),
+            LiteralTerm.string('object2'),
+          ),
+        ]);
+
+        // Act
+        final result = encoder.convert(
+          graph,
+          baseUri: 'http://example.org/base/',
+        );
+
+        // Assert
+        final jsonObj = jsonDecode(result) as Map<String, dynamic>;
+        final context = jsonObj['@context'] as Map<String, dynamic>;
+        expect(context['@base'], equals('http://example.org/base/'));
+        expect(jsonObj.containsKey('@graph'), isTrue);
+      });
+
+      test(
+          'should handle empty relative IRIs (where IRI matches baseUri exactly)',
+          () {
+        // Arrange - Test where the IRI exactly matches the baseUri
+        final graph = RdfGraph.fromTriples([
+          Triple(
+            IriTerm('http://example.org/my'),
+            IriTerm('http://example.org/vocab/predicate'),
+            IriTerm('http://example.org/my'),
+          ),
+        ]);
+
+        // Act
+        final result = encoder
+            .withOptions(options.copyWith(
+              generateMissingPrefixes: true,
+            ))
+            .convert(
+              graph,
+              baseUri: 'http://example.org/my',
+            );
+
+        // Assert
+        final jsonObj = jsonDecode(result) as Map<String, dynamic>;
+        final context = jsonObj['@context'] as Map<String, dynamic>;
+
+        // Context should include the base
+        expect(context['@base'], equals('http://example.org/my'));
+        expect(context['ex'], equals('http://example.org/vocab/'));
+
+        // The subject should be an empty string (relative to base)
+        expect(jsonObj['@id'], equals(''));
+
+        // The object should also be an empty string (relative to base)
+        expect(jsonObj['ex:predicate']['@id'], equals(''));
+      });
+
+      test(
+          'should not include @base when includeBaseDeclaration is false for empty relative IRIs',
+          () {
+        // Arrange - Test that empty relative IRIs work without @base declaration
+        final graph = RdfGraph.fromTriples([
+          Triple(
+            IriTerm('http://example.org/my'),
+            IriTerm('http://example.org/vocab/predicate'),
+            IriTerm('http://example.org/my'),
+          ),
+        ]);
+
+        // Act
+        final result = encoder
+            .withOptions(options.copyWith(
+                includeBaseDeclaration: false, generateMissingPrefixes: true))
+            .convert(
+              graph,
+              baseUri: 'http://example.org/my',
+            );
+
+        // Assert
+        final jsonObj = jsonDecode(result) as Map<String, dynamic>;
+        final context = jsonObj['@context'] as Map<String, dynamic>;
+
+        // Context should NOT include @base
+        expect(context.containsKey('@base'), isFalse);
+        expect(context['ex'], equals('http://example.org/vocab/'));
+
+        // The subject should still be an empty string (relative to base)
+        expect(jsonObj['@id'], equals(''));
+
+        // The object should also still be an empty string (relative to base)
+        expect(jsonObj['ex:predicate']['@id'], equals(''));
+      });
     });
   });
 }

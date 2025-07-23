@@ -139,7 +139,7 @@ void main() {
         );
 
         // Assert
-        expect(jsonLdEncoded, contains('"@id": "http://example.org/subject"'));
+        expect(jsonLdEncoded, contains('"@id": "ex:subject"'));
       },
     );
 
@@ -330,7 +330,9 @@ void main() {
       expect(jsonldGraph.primaryMimeType, equals('application/ld+json'));
     });
 
-    test('jsonldGraph encoder serializes RDF graph to JSON-LD format', () {
+    test(
+        'jsonldGraph encoder serializes RDF graph to JSON-LD format using automatic prefix generation',
+        () {
       // Arrange
       final graph = RdfGraph().withTriple(
         Triple(
@@ -344,8 +346,12 @@ void main() {
       final encoded = jsonldGraph.encoder.convert(graph);
 
       // Assert
-      expect(encoded, contains('"@id": "http://example.org/subject"'));
-      expect(encoded, contains('"http://example.org/predicate": "object"'));
+      expect(encoded, contains('"@id": "ex:subject"'));
+      expect(encoded, contains('"ex:predicate": "object"'));
+      expect(encoded, contains('"ex": "http://example.org/"'));
+
+      final decoded = jsonldGraph.decoder.convert(encoded);
+      expect(decoded, equals(graph));
     });
 
     test('jsonldGraph decoder parses JSON-LD format to RDF graph', () {

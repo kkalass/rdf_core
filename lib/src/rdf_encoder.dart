@@ -31,7 +31,9 @@ class RdfGraphEncoderOptions {
   /// Parameters:
   /// - [customPrefixes] Custom namespace prefixes to use during encoding.
   ///   Defaults to an empty map if not provided.
-  const RdfGraphEncoderOptions({this.customPrefixes = const {}});
+  const RdfGraphEncoderOptions({
+    this.customPrefixes = const {},
+  });
 }
 
 /// Interface for encoding RDF graphs to different serialization formats.

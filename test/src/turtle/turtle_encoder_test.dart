@@ -44,7 +44,7 @@ void main() {
       // Assert
       expect(
         result,
-        contains('@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .'),
+        isNot(contains('@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .')),
       );
       expect(result, contains('@prefix ex: <http://example.org/> .'));
     });
@@ -154,7 +154,7 @@ void main() {
 
       // Überprüfe die strukturellen Eigenschaften der Ausgabe statt fester Zeilenanzahlen
       final lines = result.split('\n');
-      expect(lines.any((line) => line.contains('@prefix xsd:')), isTrue);
+      expect(lines.any((line) => line.contains('@prefix xsd:')), isFalse);
       expect(lines.any((line) => line.isEmpty), isTrue);
       expect(lines.any((line) => line.contains('ex:alice')), isTrue);
       expect(lines.any((line) => line.contains('ex:bob')), isTrue);
@@ -716,7 +716,7 @@ void main() {
       // Check the structure of the output
       expect(
         result,
-        contains('@prefix xsd: <http://www.w3.org/2001/XMLSchema#>'),
+        isNot(contains('@prefix xsd: <http://www.w3.org/2001/XMLSchema#>')),
       );
 
       // Check for proper grouping of triples by subject
@@ -1991,6 +1991,180 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
       );
 
       expect(decoded, equals(graph));
+    });
+
+    group('Base URI declaration handling', () {
+      test('should include @base directive by default when baseUri provided',
+          () {
+        // Arrange
+        final graph = RdfGraph(
+          triples: [
+            Triple(
+              IriTerm('http://example.org/base/subject'),
+              IriTerm('http://example.org/predicate'),
+              LiteralTerm('object'),
+            ),
+          ],
+        );
+
+        // Act
+        final result = encoder.convert(
+          graph,
+          baseUri: 'http://example.org/base/',
+        );
+
+        // Assert
+        expect(result, contains('@base <http://example.org/base/> .'));
+        expect(result, contains('<subject>'));
+      });
+
+      test(
+          'should not include @base directive when includeBaseDeclaration is false',
+          () {
+        // Arrange
+        final graph = RdfGraph(
+          triples: [
+            Triple(
+              IriTerm('http://example.org/base/subject'),
+              IriTerm('http://example.org/predicate'),
+              LiteralTerm('object'),
+            ),
+          ],
+        );
+
+        // Act
+        final result = encoder
+            .withOptions(TurtleEncoderOptions(includeBaseDeclaration: false))
+            .convert(
+              graph,
+              baseUri: 'http://example.org/base/',
+            );
+
+        // Assert
+        expect(result, isNot(contains('@base')));
+        expect(result, contains('<subject>')); // Still uses relative IRIs
+      });
+
+      test(
+          'should relativize subjects and objects but keep predicates as full IRIs when includeBaseDeclaration is false',
+          () {
+        // Arrange - Test that subjects/objects are relativized but predicates remain as full IRIs
+        final graph = RdfGraph(
+          triples: [
+            Triple(
+              IriTerm('http://example.org/base/subject'),
+              IriTerm('http://example.org/base/predicate'),
+              IriTerm('http://example.org/base/object'),
+            ),
+          ],
+        );
+
+        // Act
+        final result = encoder
+            .withOptions(TurtleEncoderOptions(
+              includeBaseDeclaration: false,
+              generateMissingPrefixes:
+                  false, // Disable prefix generation to avoid conflicts
+            ))
+            .convert(
+              graph,
+              baseUri: 'http://example.org/base/',
+            );
+
+        // Assert
+        expect(result, isNot(contains('@base')));
+        // Subjects and objects should be relativized
+        expect(result, contains('<subject>'));
+        expect(result, contains('<object>'));
+        // Predicates should use full IRIs when no prefix is available (not relative IRIs)
+        expect(result, contains('<http://example.org/base/predicate>'));
+      });
+
+      test(
+          'should relativize subjects and objects but keep predicates as full IRIs when includeBaseDeclaration is false, also for empty relative IRIs',
+          () {
+        // Arrange - Test that subjects/objects are relativized but predicates remain as full IRIs
+        final graph = RdfGraph(
+          triples: [
+            Triple(
+              IriTerm('http://example.org/my'),
+              IriTerm('http://example.org/vocab/predicate'),
+              IriTerm('http://example.org/my'),
+            ),
+          ],
+        );
+
+        // Act
+        final result = encoder
+            .withOptions(TurtleEncoderOptions(
+              includeBaseDeclaration: false,
+            ))
+            .convert(
+              graph,
+              baseUri: 'http://example.org/my',
+            );
+
+        // Assert
+        expect(
+            result,
+            equals('''
+@prefix ex: <http://example.org/vocab/> .
+
+<> ex:predicate <> .
+'''
+                .trim()));
+      });
+
+      test(
+          'should include @base directive when includeBaseDeclaration is true explicitly',
+          () {
+        // Arrange
+        final graph = RdfGraph(
+          triples: [
+            Triple(
+              IriTerm('http://example.org/base/subject'),
+              IriTerm('http://example.org/predicate'),
+              LiteralTerm('object'),
+            ),
+          ],
+        );
+
+        // Act
+        final result = encoder
+            .withOptions(TurtleEncoderOptions(includeBaseDeclaration: true))
+            .convert(
+              graph,
+              baseUri: 'http://example.org/base/',
+            );
+
+        // Assert
+        expect(result, contains('@base <http://example.org/base/> .'));
+        expect(result, contains('<subject>'));
+      });
+
+      test('should not affect output when no baseUri is provided', () {
+        // Arrange
+        final graph = RdfGraph(
+          triples: [
+            Triple(
+              IriTerm('http://example.org/subject'),
+              IriTerm('http://example.org/predicate'),
+              LiteralTerm('object'),
+            ),
+          ],
+        );
+
+        // Act
+        final resultWithFlag = encoder
+            .withOptions(TurtleEncoderOptions(includeBaseDeclaration: false))
+            .convert(graph);
+        final resultWithoutFlag = encoder.convert(graph);
+
+        // Assert
+        expect(resultWithFlag, isNot(contains('@base')));
+        expect(resultWithoutFlag, isNot(contains('@base')));
+        expect(resultWithFlag, equals(resultWithoutFlag));
+      });
     });
   });
 }

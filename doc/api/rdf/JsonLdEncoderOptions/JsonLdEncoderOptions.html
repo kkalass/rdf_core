@@ -55,6 +55,8 @@
     <section class="multi-line-signature">
       const
       <span class="name ">JsonLdEncoderOptions</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-customPrefixes"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">customPrefixes</span> = <span class="default-value">const {}</span>, </span></li>
+<li><span class="parameter" id="-param-generateMissingPrefixes"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateMissingPrefixes</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="-param-includeBaseDeclaration"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">includeBaseDeclaration</span> = <span class="default-value">true</span>, </span></li>
 </ol>})
     </section>
     
@@ -62,15 +64,26 @@
   <p>Creates a new JSON-LD encoder options object</p>
 <p><code>customPrefixes</code> A map of prefix to namespace URI pairs that will be used
 in the JSON-LD @context. These prefixes take precedence over standard prefixes
-if there are conflicts.</p>
+if there are conflicts.
+<code>generateMissingPrefixes</code> When true (default), the encoder will automatically
+generate prefix declarations for IRIs that don't have a matching prefix.
+<code>includeBaseDeclaration</code> Whether to include base URI declarations in the output.
+Defaults to true if not provided.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">const JsonLdEncoderOptions({Map&lt;String, String&gt; customPrefixes = const {}})
-    : super(customPrefixes: customPrefixes);</code></pre>
+  <pre class="language-dart"><code class="language-dart">const JsonLdEncoderOptions({
+  Map&lt;String, String&gt; customPrefixes = const {},
+  bool generateMissingPrefixes = true,
+  bool includeBaseDeclaration = true,
+})  : generateMissingPrefixes = generateMissingPrefixes,
+      includeBaseDeclaration = includeBaseDeclaration,
+      super(
+        customPrefixes: customPrefixes,
+      );</code></pre>
 </section>
 
 
@@ -98,7 +111,7 @@ if there are conflicts.</p>
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.7
+      0.9.8
   </span>
   
 </footer>

@@ -74,8 +74,8 @@ already a TurtleEncoderOptions instance.</li>
 <p>Returns:</p>
 <ul>
 <li>The input as-is if it's already a TurtleEncoderOptions instance,
-or a new instance with the input's customPrefixes and default
-Turtle-specific settings.</li>
+or a new instance with the input's customPrefixes and includeBaseDeclaration
+flag, using default Turtle-specific settings for other options.</li>
 </ul>
 </section>
 
@@ -86,7 +86,9 @@ Turtle-specific settings.</li>
   <pre class="language-dart"><code class="language-dart">static TurtleEncoderOptions from(RdfGraphEncoderOptions options) =&gt;
     switch (options) {
       TurtleEncoderOptions _ =&gt; options,
-      _ =&gt; TurtleEncoderOptions(customPrefixes: options.customPrefixes),
+      _ =&gt; TurtleEncoderOptions(
+          customPrefixes: options.customPrefixes,
+        ),
     };</code></pre>
 </section>
 
@@ -115,7 +117,7 @@ Turtle-specific settings.</li>
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.7
+      0.9.8
   </span>
   
 </footer>

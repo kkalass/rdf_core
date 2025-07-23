@@ -86,7 +86,26 @@ final encoder = TurtleEncoder(
   TurtleEncoderOptions options = const TurtleEncoderOptions(),
 })  : _options = options,
       &#47;&#47; Use default namespace mappings if none provided
-      _namespaceMappings = namespaceMappings ?? RdfNamespaceMappings();</code></pre>
+      _namespaceMappings = namespaceMappings ?? RdfNamespaceMappings() {
+  _iriCompaction = IriCompaction(
+    _namespaceMappings,
+    IriCompactionSettings(
+        generateMissingPrefixes: options.generateMissingPrefixes,
+        useNumericLocalNames: options.useNumericLocalNames,
+        allowRelativeIriForPredicate: false,
+        specialPredicates: {
+          Rdf.type,
+        },
+        specialDatatypes: {
+          _booleanDatatype,
+          _decimalDatatype,
+          &#47;&#47;_doubleDatatype,
+          _integerDatatype,
+          _stringDatatype,
+          Rdf.langString,
+        }),
+  );
+}</code></pre>
 </section>
 
 
@@ -114,7 +133,7 @@ final encoder = TurtleEncoder(
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.7
+      0.9.8
   </span>
   
 </footer>

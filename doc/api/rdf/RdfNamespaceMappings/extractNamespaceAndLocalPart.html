@@ -129,7 +129,10 @@ resulting in an empty local part and the full IRI as the namespace.</p>
       allowNumericLocalNames: allowNumericLocalNames)) {
     return (iri, &#39;&#39;);
   }
-
+  if (!isValidLocalPart(localPart,
+      allowNumericLocalNames: allowNumericLocalNames)) {
+    return (iri, &#39;&#39;);
+  }
   return (namespace, localPart);
 }</code></pre>
 </section>
@@ -159,7 +162,7 @@ resulting in an empty local part and the full IRI as the namespace.</p>
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.7
+      0.9.8
   </span>
   
 </footer>

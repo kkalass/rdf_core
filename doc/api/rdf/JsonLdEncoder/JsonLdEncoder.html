@@ -27,7 +27,7 @@
     <li><a href="../../index.html">rdf_core</a></li>
     <li><a href="../../rdf/">rdf_core.dart</a></li>
     <li><a href="../../rdf/JsonLdEncoder-class.html">JsonLdEncoder</a></li>
-    <li class="self-crumb">JsonLdEncoder.new const constructor</li>
+    <li class="self-crumb">JsonLdEncoder.new constructor</li>
   </ol>
   <div class="self-name">JsonLdEncoder.new</div>
   <form class="search navbar-right" role="search">
@@ -53,7 +53,7 @@
 </h1></div>
 
     <section class="multi-line-signature">
-      const
+      
       <span class="name ">JsonLdEncoder</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-namespaceMappings"><span class="type-annotation"><a href="../../rdf/RdfNamespaceMappings-class.html">RdfNamespaceMappings</a>?</span> <span class="parameter-name">namespaceMappings</span>, </span></li>
 <li><span class="parameter" id="-param-options"><span class="type-annotation"><a href="../../rdf/JsonLdEncoderOptions-class.html">JsonLdEncoderOptions</a></span> <span class="parameter-name">options</span> = <span class="default-value">const JsonLdEncoderOptions()</span>, </span></li>
 </ol>})
@@ -67,11 +67,30 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">const JsonLdEncoder({
+  <pre class="language-dart"><code class="language-dart">JsonLdEncoder({
   RdfNamespaceMappings? namespaceMappings,
   JsonLdEncoderOptions options = const JsonLdEncoderOptions(),
 })  : _options = options,
-      _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings();</code></pre>
+      _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings() {
+  _iriCompaction = IriCompaction(
+    _namespaceMappings,
+    IriCompactionSettings(
+        generateMissingPrefixes: options.generateMissingPrefixes,
+        useNumericLocalNames: true,
+        allowRelativeIriForPredicate: false,
+        specialPredicates: {
+          Rdf.type,
+        },
+        specialDatatypes: {
+          _booleanDatatype,
+          _decimalDatatype,
+          _doubleDatatype,
+          _integerDatatype,
+          _stringDatatype,
+          Rdf.langString,
+        }),
+  );
+}</code></pre>
 </section>
 
 
@@ -87,7 +106,7 @@
     <li><a href="../../index.html">rdf_core</a></li>
     <li><a href="../../rdf/">rdf</a></li>
     <li><a href="../../rdf/JsonLdEncoder-class.html">JsonLdEncoder</a></li>
-    <li class="self-crumb">JsonLdEncoder.new const constructor</li>
+    <li class="self-crumb">JsonLdEncoder.new constructor</li>
 </ol>
 
     <h5>JsonLdEncoder class</h5>
@@ -99,7 +118,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.7
+      0.9.8
   </span>
   
 </footer>

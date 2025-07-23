@@ -56,10 +56,9 @@
       
 <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
 <span class="name ">writeTerm</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="writeTerm-param-term"><span class="type-annotation"><a href="../../rdf/RdfTerm-class.html">RdfTerm</a></span> <span class="parameter-name">term</span>, {</span></li>
-<li><span class="parameter" id="writeTerm-param-prefixesByIri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">prefixesByIri</span> = <span class="default-value">const {}</span>, </span></li>
-<li><span class="parameter" id="writeTerm-param-blankNodeLabels"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/BlankNodeTerm-class.html">BlankNodeTerm</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">blankNodeLabels</span> = <span class="default-value">const {}</span>, </span></li>
-<li><span class="parameter" id="writeTerm-param-baseUri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">baseUri</span>, </span></li>
-<li><span class="parameter" id="writeTerm-param-isPredicate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isPredicate</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="writeTerm-param-iriRole"><span>required</span> <span class="type-annotation">IriRole</span> <span class="parameter-name">iriRole</span>, </span></li>
+<li><span class="parameter" id="writeTerm-param-compactedIris"><span>required</span> <span class="type-annotation">IriCompactionResult</span> <span class="parameter-name">compactedIris</span>, </span></li>
+<li><span class="parameter" id="writeTerm-param-blankNodeLabels"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/BlankNodeTerm-class.html">BlankNodeTerm</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">blankNodeLabels</span>, </span></li>
 </ol>})
 
       
@@ -74,78 +73,34 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">String writeTerm(
-  RdfTerm term, {
-  Map&lt;String, String&gt; prefixesByIri = const {},
-  Map&lt;BlankNodeTerm, String&gt; blankNodeLabels = const {},
-  String? baseUri,
-  bool isPredicate = false,
-}) {
+  <pre class="language-dart"><code class="language-dart">String writeTerm(RdfTerm term,
+    {required IriRole iriRole,
+    required IriCompactionResult compactedIris,
+    required Map&lt;BlankNodeTerm, String&gt; blankNodeLabels}) {
   switch (term) {
     case IriTerm _:
-      if (term == Rdf.type) {
-        return &#39;a&#39;;
-      } else {
-        &#47;&#47; Check if the predicate is a known prefix
-        final iri = term.iri;
-        final (
-          baseIri,
-          localPart,
-        ) = RdfNamespaceMappings.extractNamespaceAndLocalPart(
-          iri,
-          allowNumericLocalNames: _options.useNumericLocalNames,
-        );
-
-        &#47;&#47; If we have a valid local part
-        if (localPart.isNotEmpty || baseIri == iri) {
-          final prefix = prefixesByIri[baseIri];
-          if (prefix != null) {
-            &#47;&#47; Handle empty prefix specially
-            return prefix.isEmpty ? &#39;:$localPart&#39; : &#39;$prefix:$localPart&#39;;
-          } else {
-            final prefix = prefixesByIri[iri];
-            if (prefix != null) {
-              return prefix.isEmpty ? &#39;:&#39; : &#39;$prefix:&#39;;
-            }
+      &#47;&#47; Check if the predicate is a known prefix
+      final compacted = compactedIris.compactIri(term, iriRole);
+      switch (compacted) {
+        case PrefixedIri prefixed:
+          return prefixed.colonSeparated;
+        case FullIri(iri: var iri):
+          &#47;&#47; If we have a full IRI without a prefix
+          return &#39;&lt;$iri&gt;&#39;;
+        case RelativeIri(relative: var relativeIri):
+          return &#39;&lt;$relativeIri&gt;&#39;;
+        case SpecialIri(iri: var iri):
+          if (term == Rdf.type) {
+            return &#39;a&#39;;
           }
-        }
+          throw ArgumentError(
+            &#39;Unexpected special IRI: $iri. It should have been treated before&#39;,
+          );
+        case null:
+          throw ArgumentError(
+            &#39;There must have been some preprocessing error - no compacted Iri found for: $term&#39;,
+          );
       }
-
-      &#47;&#47; For predicates or terms with baseUri:
-      &#47;&#47; - For predicates, always use prefixes if they exist (handled above)
-      &#47;&#47; - For subject&#47;object under baseUri, check if there&#39;s a better prefix
-      &#47;&#47;   that is longer than baseUri, if not, use relative IRI
-
-      &#47;&#47; If we have a baseUri and this term starts with it
-      if (baseUri != null &amp;&amp; term.iri.startsWith(baseUri)) {
-        &#47;&#47; For non-predicates that start with baseUri, check if there&#39;s a
-        &#47;&#47; namespace prefix that&#39;s longer than baseUri
-        if (!isPredicate) {
-          bool betterPrefixExists = false;
-          for (final entry in prefixesByIri.entries) {
-            final namespace = entry.key;
-            &#47;&#47; If there&#39;s a namespace that:
-            &#47;&#47; 1. Is a prefix of this IRI
-            &#47;&#47; 2. Is longer than baseUri
-            &#47;&#47; 3. Has an associated prefix
-            if (term.iri.startsWith(namespace) &amp;&amp;
-                namespace.length &gt; baseUri.length) {
-              betterPrefixExists = true;
-              break;
-            }
-          }
-
-          &#47;&#47; If no better prefix exists, use relative IRI
-          if (!betterPrefixExists) {
-            final localPart = term.iri.substring(baseUri.length);
-            return &#39;&lt;$localPart&gt;&#39;;
-          }
-          &#47;&#47; Otherwise, fall through to the full IRI case below
-          &#47;&#47; (which might still find a prefix to use)
-        }
-      }
-
-      return &#39;&lt;${term.iri}&gt;&#39;;
     case BlankNodeTerm blankNode:
       &#47;&#47; Use the pre-generated label for this blank node
       var label = blankNodeLabels[blankNode];
@@ -160,13 +115,13 @@
       return &#39;_:$label&#39;;
     case LiteralTerm literal:
       &#47;&#47; Special cases for native Turtle literal representations
-      if (literal.datatype == Xsd.integer) {
+      if (literal.datatype == _integerDatatype) {
         return literal.value;
       }
-      if (literal.datatype == Xsd.decimal) {
+      if (literal.datatype == _decimalDatatype) {
         return literal.value;
       }
-      if (literal.datatype == Xsd.boolean) {
+      if (literal.datatype == _booleanDatatype) {
         return literal.value;
       }
 
@@ -175,8 +130,8 @@
       if (literal.language != null) {
         return &#39;&quot;$escapedLiteralValue&quot;@${literal.language}&#39;;
       }
-      if (literal.datatype != Xsd.string) {
-        return &#39;&quot;$escapedLiteralValue&quot;^^${writeTerm(literal.datatype, prefixesByIri: prefixesByIri, blankNodeLabels: blankNodeLabels)}&#39;;
+      if (literal.datatype != _stringDatatype) {
+        return &#39;&quot;$escapedLiteralValue&quot;^^${writeTerm(literal.datatype, iriRole: IriRole.datatype, compactedIris: compactedIris, blankNodeLabels: blankNodeLabels)}&#39;;
       }
       return &#39;&quot;$escapedLiteralValue&quot;&#39;;
   }
@@ -208,7 +163,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.7
+      0.9.8
   </span>
   
 </footer>

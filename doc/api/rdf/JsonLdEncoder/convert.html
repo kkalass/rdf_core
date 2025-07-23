@@ -87,7 +87,8 @@ a top-level <code>@graph</code> array containing all subject nodes</li>
 <li>Handles typed literals appropriately</li>
 </ul>
 <p><code>graph</code> The RDF graph to convert to JSON-LD.
-<code>baseUri</code> Optional base URI for relative IRIs (not currently used).</p>
+<code>baseUri</code> Optional base URI for relative IRIs. When provided and
+includeBaseDeclaration is true, it will be included in the @context.</p>
 <p>Returns a formatted JSON-LD string with 2-space indentation.</p>
 </section>
 
@@ -108,8 +109,14 @@ String convert(RdfGraph graph, {String? baseUri}) {
   final Map&lt;BlankNodeTerm, String&gt; blankNodeLabels = {};
   _generateBlankNodeLabels(graph, blankNodeLabels);
 
-  &#47;&#47; Create context with prefixes
-  final context = _createContext(graph, _options.customPrefixes);
+  &#47;&#47; Create context with prefixes and optional base URI
+  final (context: context, compactedIris: compactedIris) = _createContext(
+    graph,
+    _options.customPrefixes,
+    baseUri: baseUri,
+    includeBaseDeclaration: _options.includeBaseDeclaration,
+    generateMissingPrefixes: _options.generateMissingPrefixes,
+  );
 
   &#47;&#47; Group triples by subject
   final subjectGroups = _groupTriplesBySubject(graph.triples);
@@ -122,11 +129,8 @@ String convert(RdfGraph graph, {String? baseUri}) {
     &#47;&#47; Add the single subject node
     final entry = subjectGroups.entries.first;
     final subjectNode = _createNodeObject(
-      entry.key,
-      entry.value,
-      context,
-      blankNodeLabels,
-    );
+        entry.key, entry.value, context, blankNodeLabels,
+        compactedIris: compactedIris);
     result.addAll(subjectNode);
 
     return JsonEncoder.withIndent(&#39;  &#39;).convert(result);
@@ -136,11 +140,8 @@ String convert(RdfGraph graph, {String? baseUri}) {
       &#39;@context&#39;: context,
       &#39;@graph&#39;: subjectGroups.entries.map((entry) {
         return _createNodeObject(
-          entry.key,
-          entry.value,
-          context,
-          blankNodeLabels,
-        );
+            entry.key, entry.value, context, blankNodeLabels,
+            compactedIris: compactedIris);
       }).toList(),
     };
 
@@ -174,7 +175,7 @@ String convert(RdfGraph graph, {String? baseUri}) {
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.7
+      0.9.8
   </span>
   
 </footer>

@@ -83,8 +83,10 @@ advanced formatting features including:</p>
 <ul>
 <li><code>graph</code> The RDF graph to serialize to Turtle</li>
 <li><code>baseUri</code> Optional base URI to use for resolving relative IRIs and
-generating shorter references. If provided, a @base directive will be
-included in the output.</li>
+generating shorter references. When provided and includeBaseDeclaration
+is true, a @base directive will be included in the output. When
+includeBaseDeclaration is false, the baseUri is still used for URI
+relativization but not declared in the output.</li>
 </ul>
 <p>Returns:</p>
 <ul>
@@ -116,8 +118,10 @@ final turtle = encoder.convert(graph, baseUri: 'http://example.org/');
 &#47;&#47;&#47; Parameters:
 &#47;&#47;&#47; - [graph] The RDF graph to serialize to Turtle
 &#47;&#47;&#47; - [baseUri] Optional base URI to use for resolving relative IRIs and
-&#47;&#47;&#47;   generating shorter references. If provided, a @base directive will be
-&#47;&#47;&#47;   included in the output.
+&#47;&#47;&#47;   generating shorter references. When provided and includeBaseDeclaration
+&#47;&#47;&#47;   is true, a @base directive will be included in the output. When
+&#47;&#47;&#47;   includeBaseDeclaration is false, the baseUri is still used for URI
+&#47;&#47;&#47;   relativization but not declared in the output.
 &#47;&#47;&#47;
 &#47;&#47;&#47; Returns:
 &#47;&#47;&#47; - A properly formatted Turtle string representation of the input graph.
@@ -133,8 +137,8 @@ String convert(RdfGraph graph, {String? baseUri}) {
 
   final buffer = StringBuffer();
 
-  &#47;&#47; Write base directive if provided
-  if (baseUri != null) {
+  &#47;&#47; Write base directive if provided and includeBaseDeclaration is true
+  if (baseUri != null &amp;&amp; _options.includeBaseDeclaration) {
     buffer.writeln(&#39;@base &lt;$baseUri&gt; .&#39;);
   }
 
@@ -147,31 +151,19 @@ String convert(RdfGraph graph, {String? baseUri}) {
       _countBlankNodeOccurrences(graph);
 
   &#47;&#47; 1. Write prefixes
-  final prefixCandidates = {
-    ..._namespaceMappings.asMap(),
-    ..._options.customPrefixes,
-  };
   &#47;&#47; Identify which prefixes are actually used in the graph
-  final prefixes = _extractUsedAndGenerateMissingPrefixes(
-    graph,
-    prefixCandidates,
-    baseUri,
-  );
+  final compactedIris = _iriCompaction
+      .compactAllIris(graph, _options.customPrefixes, baseUri: baseUri);
 
-  _writePrefixes(buffer, prefixes);
-
-  final prefixesByIri = prefixes.map((prefix, iri) {
-    return MapEntry(iri, prefix);
-  });
+  _writePrefixes(buffer, compactedIris.prefixes);
 
   &#47;&#47; 2. Write triples grouped by subject
   _writeTriples(
     buffer,
     graph,
-    prefixesByIri,
+    compactedIris,
     blankNodeLabels,
     blankNodeOccurrences,
-    baseUri,
   );
 
   return buffer.toString();
@@ -203,7 +195,7 @@ String convert(RdfGraph graph, {String? baseUri}) {
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.7
+      0.9.8
   </span>
   
 </footer>

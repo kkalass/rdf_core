@@ -68,7 +68,7 @@
 to a method expecting JSON-LD-specific options, they are properly converted.</p>
 <p>If the provided options are already a <a href="../../rdf/JsonLdEncoderOptions-class.html">JsonLdEncoderOptions</a> instance, they are
 returned as-is. Otherwise, a new instance is created with the custom prefixes
-from the generic options.</p>
+and default values for generateMissingPrefixes and includeBaseDeclaration.</p>
 </section>
 
 
@@ -78,7 +78,9 @@ from the generic options.</p>
   <pre class="language-dart"><code class="language-dart">static JsonLdEncoderOptions from(RdfGraphEncoderOptions options) =&gt;
     switch (options) {
       JsonLdEncoderOptions _ =&gt; options,
-      _ =&gt; JsonLdEncoderOptions(customPrefixes: options.customPrefixes),
+      _ =&gt; JsonLdEncoderOptions(
+          customPrefixes: options.customPrefixes,
+        ),
     };</code></pre>
 </section>
 
@@ -107,7 +109,7 @@ from the generic options.</p>
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.7
+      0.9.8
   </span>
   
 </footer>

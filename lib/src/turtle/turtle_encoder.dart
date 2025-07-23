@@ -3,7 +3,7 @@ import 'package:rdf_core/src/graph/rdf_graph.dart';
 import 'package:rdf_core/src/graph/rdf_term.dart';
 import 'package:rdf_core/src/graph/triple.dart';
 import 'package:rdf_core/src/rdf_encoder.dart';
-import 'package:rdf_core/src/vocab/iri_compaction.dart';
+import 'package:rdf_core/src/iri_compaction.dart';
 import 'package:rdf_core/src/vocab/namespaces.dart';
 import 'package:rdf_core/src/vocab/rdf.dart';
 import 'package:rdf_core/src/vocab/xsd.dart';
@@ -205,8 +205,14 @@ class TurtleEncoder extends RdfGraphEncoder {
       _namespaceMappings,
       IriCompactionSettings(
           generateMissingPrefixes: options.generateMissingPrefixes,
-          useNumericLocalNames: options.useNumericLocalNames,
-          allowRelativeIriForPredicate: false,
+          allowedCompactionTypes: {
+            ...allowedCompactionTypesAll,
+            IriRole.predicate: {
+              IriCompactionType.full,
+              // relative IRIs are not allowed for predicates in Turtle
+              IriCompactionType.prefixed
+            }
+          },
           specialPredicates: {
             Rdf.type,
           },
@@ -218,6 +224,8 @@ class TurtleEncoder extends RdfGraphEncoder {
             _stringDatatype,
             Rdf.langString,
           }),
+      (String localPart) => RdfNamespaceMappings.isValidLocalPart(localPart,
+          allowNumericLocalNames: options.useNumericLocalNames),
     );
   }
 
@@ -514,6 +522,7 @@ class TurtleEncoder extends RdfGraphEncoder {
     List<RdfObject> items,
     RdfGraph graph,
     Set<BlankNodeTerm> processedCollectionNodes,
+    IriRole iriRole,
     IriCompactionResult compactedIris,
     Map<BlankNodeTerm, String> blankNodeLabels,
     Set<BlankNodeTerm> nodesToInline,
@@ -544,6 +553,7 @@ class TurtleEncoder extends RdfGraphEncoder {
             nestedItems,
             graph,
             processedCollectionNodes,
+            iriRole,
             compactedIris,
             blankNodeLabels,
             nodesToInline,
@@ -569,7 +579,7 @@ class TurtleEncoder extends RdfGraphEncoder {
           buffer.write(
             writeTerm(
               item,
-              iriRole: IriRole.object,
+              iriRole: iriRole,
               compactedIris: compactedIris,
               blankNodeLabels: blankNodeLabels,
             ),
@@ -580,7 +590,7 @@ class TurtleEncoder extends RdfGraphEncoder {
         buffer.write(
           writeTerm(
             item,
-            iriRole: IriRole.object,
+            iriRole: iriRole,
             compactedIris: compactedIris,
             blankNodeLabels: blankNodeLabels,
           ),
@@ -772,6 +782,7 @@ class TurtleEncoder extends RdfGraphEncoder {
     // Write predicates and objects
     var predicateIndex = 0;
     for (final predicate in sortedPredicates) {
+      final isType = predicate == Rdf.type;
       // Get objects and ensure uniqueness while preserving order
       final objects = <RdfObject>[];
       final seenObjects = <RdfObject>{};
@@ -850,6 +861,7 @@ class TurtleEncoder extends RdfGraphEncoder {
               collectionItems,
               graph,
               processedCollectionNodes,
+              IriRole.object,
               compactedIris,
               blankNodeLabels,
               nodesToInline,
@@ -860,7 +872,7 @@ class TurtleEncoder extends RdfGraphEncoder {
             buffer.write(
               writeTerm(
                 object,
-                iriRole: IriRole.object,
+                iriRole: isType ? IriRole.type : IriRole.object,
                 compactedIris: compactedIris,
                 blankNodeLabels: blankNodeLabels,
               ),
@@ -871,7 +883,7 @@ class TurtleEncoder extends RdfGraphEncoder {
           buffer.write(
             writeTerm(
               object,
-              iriRole: IriRole.object,
+              iriRole: isType ? IriRole.type : IriRole.object,
               compactedIris: compactedIris,
               blankNodeLabels: blankNodeLabels,
             ),
@@ -969,6 +981,7 @@ class TurtleEncoder extends RdfGraphEncoder {
             collectionItems,
             graph,
             processedCollectionNodes,
+            IriRole.object,
             compactedIris,
             blankNodeLabels,
             nodesToInline,

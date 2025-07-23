@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.9] - 2025-07-23
+
+### Added
+
+- **Extension API for Third-Party Codec Implementers**: New `rdf_core_extend.dart` library opens internal APIs
+  - **BREAKING THE ENCAPSULATION BARRIER**: Exposes previously internal utilities for external codec developers
+  - Makes `relativizeIri` and `resolveIri` functions available to libraries like `rdf_xml`.
+  - Provides public access to the `IriCompaction` system used internally by Turtle and JSON-LD encoders
+  - Enables external codecs to achieve the same level of namespace handling and IRI processing
+  - Includes comprehensive documentation and examples for building production-quality RDF serialization formats
+  - **Strategic API Decision**: Allows ecosystem growth while maintaining internal consistency across all formats
+
+### Changed
+
+- **IRI Compaction System Refactoring**: Major improvements to namespace and prefix handling
+  - Moved `IriCompaction` from `lib/src/vocab/` to `lib/src/` for better organization
+  - Added `IriRole.type` enum value for proper handling of `rdf:type` object IRIs
+  - Replaced boolean flags with type-safe `AllowedCompactionTypes` configuration
+  - `IriCompaction` constructor now accepts configurable local name validation function
+  - Enhanced type safety with sealed `CompactIri` classes and pattern matching
+  - Both Turtle and JSON-LD encoders now use unified compaction logic
+  - Improved handling of `rdf:type` objects in serializers for semantic accuracy
+
 ## [0.9.8] - 2025-07-23
 
 ### Added

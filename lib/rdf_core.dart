@@ -151,6 +151,7 @@ export 'src/rdf_encoder.dart';
 export 'src/turtle/turtle_codec.dart';
 export 'src/turtle/turtle_tokenizer.dart' show TurtleParsingFlag;
 export 'src/vocab/namespaces.dart';
+export 'src/iri_compaction.dart';
 
 /// RDF Core Library
 ///

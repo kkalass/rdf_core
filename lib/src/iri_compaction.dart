@@ -10,6 +10,7 @@ import 'package:rdf_core/src/graph/rdf_graph.dart';
 import 'package:rdf_core/src/graph/rdf_term.dart';
 import 'package:rdf_core/src/iri_util.dart';
 import 'package:rdf_core/src/vocab/namespaces.dart';
+import 'package:rdf_core/src/vocab/rdf.dart';
 
 final _log = Logger('rdf_core.iri_compaction');
 
@@ -17,7 +18,19 @@ enum IriRole {
   subject,
   predicate,
   object,
+  type,
   datatype,
+}
+
+enum IriCompactionType {
+  /// Use a prefix for the IRI
+  prefixed,
+
+  /// Use a full IRI in angle brackets
+  full,
+
+  /// Use a relative IRI (without base URI)
+  relative,
 }
 
 /// Function type for filtering IRIs that should be considered for prefix generation.
@@ -31,6 +44,10 @@ enum IriRole {
 ///
 /// Returns true if the IRI should be processed for prefix generation.
 typedef IriFilter = bool Function(IriTerm iri, {required IriRole role});
+typedef AllowedCompactionTypes = Map<IriRole, Set<IriCompactionType>>;
+final allowedCompactionTypesAll = {
+  for (final role in IriRole.values) role: {...IriCompactionType.values},
+};
 
 class IriCompactionSettings {
   /// Controls automatic generation of namespace prefixes for IRIs without matching prefixes.
@@ -55,23 +72,18 @@ class IriCompactionSettings {
   /// - Automatically handling unknown namespaces without manual prefix declaration
   final bool generateMissingPrefixes;
 
-  /// Whether to allow numeric local names in generated prefixes.
-  ///
-  /// Defaults to false, meaning numeric local names will not be allowed.
-  final bool useNumericLocalNames;
-
-  final bool allowRelativeIriForPredicate;
+  final AllowedCompactionTypes allowedCompactionTypes;
 
   final Set<IriTerm> specialPredicates;
   final Set<IriTerm> specialDatatypes;
 
   IriCompactionSettings({
     required this.generateMissingPrefixes,
-    required this.useNumericLocalNames,
-    required this.allowRelativeIriForPredicate,
+    required AllowedCompactionTypes? allowedCompactionTypes,
     required this.specialPredicates,
     required this.specialDatatypes,
-  });
+  }) : allowedCompactionTypes =
+            allowedCompactionTypes ?? allowedCompactionTypesAll;
 }
 
 sealed class CompactIri {}
@@ -129,7 +141,9 @@ final class IriCompactionResult {
 class IriCompaction {
   final RdfNamespaceMappings _namespaceMappings;
   final IriCompactionSettings _settings;
-  const IriCompaction(this._namespaceMappings, this._settings);
+  final bool Function(String) _isValidIriLocalPart;
+  const IriCompaction(
+      this._namespaceMappings, this._settings, this._isValidIriLocalPart);
 
   IriCompactionResult compactAllIris(
     RdfGraph graph,
@@ -164,7 +178,9 @@ class IriCompaction {
                 (triple.subject as IriTerm, IriRole.subject),
               if (triple.predicate is IriTerm)
                 (triple.predicate as IriTerm, IriRole.predicate),
-              if (triple.object is IriTerm)
+              if (triple.object is IriTerm && triple.predicate == Rdf.type)
+                (triple.object as IriTerm, IriRole.type),
+              if (triple.object is IriTerm && triple.predicate != Rdf.type)
                 (triple.object as IriTerm, IriRole.object),
               if (triple.object is LiteralTerm)
                 ((triple.object as LiteralTerm).datatype, IriRole.datatype),
@@ -222,11 +238,12 @@ class IriCompaction {
     }
 
     // In Turtle, predicates cannot be relativized (they must use prefixes or full IRIs)
-    final mayBeRelativized =
-        role != IriRole.predicate || _settings.allowRelativeIriForPredicate;
+    final allowedTypes = _settings.allowedCompactionTypes[role] ??
+        IriCompactionType.values.toSet();
 
-    final relativized =
-        mayBeRelativized ? relativizeIri(term.iri, baseUri) : term.iri;
+    final relativized = allowedTypes.contains(IriCompactionType.relative)
+        ? relativizeIri(term.iri, baseUri)
+        : term.iri;
     final relativeUrl = relativized == term.iri ? null : relativized;
 
     if (relativeUrl != null && relativeUrl.isEmpty) {
@@ -235,8 +252,9 @@ class IriCompaction {
       return RelativeIri(relativeUrl);
     }
     final iri = term.iri;
-
-    if (iriToPrefixMap.containsKey(iri)) {
+    final prefixAllowed = allowedTypes.contains(IriCompactionType.prefixed);
+    final fullAllowed = allowedTypes.contains(IriCompactionType.full);
+    if (prefixAllowed && iriToPrefixMap.containsKey(iri)) {
       final prefix = iriToPrefixMap[iri]!;
       return PrefixedIri(prefix, iri, null);
     }
@@ -244,13 +262,15 @@ class IriCompaction {
     if (relativeUrl != null) {
       // Special case: if we have a relative URL, check the custom prefixes
       // to see if any of them lead to a shorter local part than the relative URL
-      if (_bestMatch(iri, customPrefixes)
-          case (String bestPrefix, String bestMatch)) {
-        final localPart = _extractLocalPart(iri, bestMatch);
-        if (localPart.length < relativeUrl.length &&
-            isValidIriLocalPart(localPart)) {
-          // If the  local part of the best match is shorter than the relative one, use it instead
-          return PrefixedIri(bestPrefix, bestMatch, localPart);
+      if (prefixAllowed) {
+        if (_bestMatch(iri, customPrefixes)
+            case (String bestPrefix, String bestMatch)) {
+          final localPart = _extractLocalPart(iri, bestMatch);
+          if (localPart.length < relativeUrl.length &&
+              _isValidIriLocalPart(localPart)) {
+            // If the  local part of the best match is shorter than the relative one, use it instead
+            return PrefixedIri(bestPrefix, bestMatch, localPart);
+          }
         }
       }
       // Usually we want to use the relative URL if we have one
@@ -259,16 +279,18 @@ class IriCompaction {
 
     // For prefix match, use the longest matching prefix (most specific)
     // This handles overlapping prefixes correctly (e.g., http://example.org/ and http://example.org/vocabulary/)
-    if (_bestMatch(iri, prefixCandidates)
-        case (String bestPrefix, String bestMatch)) {
-      // If we have a prefix match, use it
-      final localPart = _extractLocalPart(iri, bestMatch);
-      if (isValidIriLocalPart(localPart)) {
-        return PrefixedIri(bestPrefix, bestMatch, localPart);
+    if (prefixAllowed) {
+      if (_bestMatch(iri, prefixCandidates)
+          case (String bestPrefix, String bestMatch)) {
+        // If we have a prefix match, use it
+        final localPart = _extractLocalPart(iri, bestMatch);
+        if (_isValidIriLocalPart(localPart)) {
+          return PrefixedIri(bestPrefix, bestMatch, localPart);
+        }
       }
     }
 
-    if (_settings.generateMissingPrefixes) {
+    if (prefixAllowed && _settings.generateMissingPrefixes) {
       // No existing prefix found, generate a new one using namespace mappings
 
       // Extract namespace from IRI
@@ -277,9 +299,9 @@ class IriCompaction {
         localPart,
       ) = RdfNamespaceMappings.extractNamespaceAndLocalPart(
         iri,
-        allowNumericLocalNames: _settings.useNumericLocalNames,
       );
-      if (localPart.isEmpty || !isValidIriLocalPart(localPart)) {
+      if (fullAllowed &&
+          (localPart.isEmpty || !_isValidIriLocalPart(localPart))) {
         // If we have no local part, we cannot generate a prefix
         return FullIri(iri);
       }
@@ -290,17 +312,19 @@ class IriCompaction {
           iri, namespace, prefixCandidates, "https://", "http://");
 
       // Skip generating prefixes for protocol-only URIs like "http://" or "https://"
-      if (namespace == "http://" ||
-          namespace == "https://" ||
-          namespace == "ftp://" ||
-          namespace == "file://") {
+      if (fullAllowed &&
+          (namespace == "http://" ||
+              namespace == "https://" ||
+              namespace == "ftp://" ||
+              namespace == "file://")) {
         // If it's just a protocol URI, don't add a prefix
         return FullIri(iri);
       }
 
       // Skip generating prefixes for namespaces that don't end with "/" or "#"
       // since these are not proper namespace delimiters in RDF
-      if (!namespace.endsWith('/') && !namespace.endsWith('#')) {
+      if (fullAllowed &&
+          (!namespace.endsWith('/') && !namespace.endsWith('#'))) {
         // For IRIs without proper namespace delimiters, don't add a prefix
         return FullIri(iri);
       }
@@ -311,6 +335,12 @@ class IriCompaction {
         customMappings: prefixCandidates,
       );
       return PrefixedIri(prefix, namespace, localPart);
+    }
+    if (!fullAllowed) {
+      throw ArgumentError(
+        'Cannot compact IRI "$iri" with role $role: '
+        'no allowed compaction types for this role.',
+      );
     }
     return FullIri(iri);
   }
@@ -355,10 +385,5 @@ class IriCompaction {
       return null;
     }
     return (bestPrefix, bestMatch);
-  }
-
-  bool isValidIriLocalPart(String localPart) {
-    return RdfNamespaceMappings.isValidLocalPart(localPart,
-        allowNumericLocalNames: _settings.useNumericLocalNames);
   }
 }

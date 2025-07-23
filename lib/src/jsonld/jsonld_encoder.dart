@@ -47,7 +47,7 @@ import 'package:rdf_core/src/graph/rdf_graph.dart';
 import 'package:rdf_core/src/graph/rdf_term.dart';
 import 'package:rdf_core/src/graph/triple.dart';
 import 'package:rdf_core/src/rdf_encoder.dart';
-import 'package:rdf_core/src/vocab/iri_compaction.dart';
+import 'package:rdf_core/src/iri_compaction.dart';
 import 'package:rdf_core/src/vocab/namespaces.dart';
 import 'package:rdf_core/src/vocab/rdf.dart';
 import 'package:rdf_core/src/vocab/xsd.dart';
@@ -222,6 +222,7 @@ final class JsonLdEncoder extends RdfGraphEncoder {
   final RdfNamespaceMappings _namespaceMappings;
   final JsonLdEncoderOptions _options;
   late final IriCompaction _iriCompaction;
+  final _useNumericLocalNames = true;
 
   /// Creates a new JSON-LD serializer.
   JsonLdEncoder({
@@ -230,23 +231,30 @@ final class JsonLdEncoder extends RdfGraphEncoder {
   })  : _options = options,
         _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings() {
     _iriCompaction = IriCompaction(
-      _namespaceMappings,
-      IriCompactionSettings(
-          generateMissingPrefixes: options.generateMissingPrefixes,
-          useNumericLocalNames: true,
-          allowRelativeIriForPredicate: false,
-          specialPredicates: {
-            Rdf.type,
-          },
-          specialDatatypes: {
-            _booleanDatatype,
-            _decimalDatatype,
-            _doubleDatatype,
-            _integerDatatype,
-            _stringDatatype,
-            Rdf.langString,
-          }),
-    );
+        _namespaceMappings,
+        IriCompactionSettings(
+            generateMissingPrefixes: options.generateMissingPrefixes,
+            allowedCompactionTypes: {
+              ...allowedCompactionTypesAll,
+              IriRole.predicate: {
+                IriCompactionType.full,
+                // relative IRIs are not allowed for predicates in jsonld
+                IriCompactionType.prefixed
+              }
+            },
+            specialPredicates: {
+              Rdf.type,
+            },
+            specialDatatypes: {
+              _booleanDatatype,
+              _decimalDatatype,
+              _doubleDatatype,
+              _integerDatatype,
+              _stringDatatype,
+              Rdf.langString,
+            }),
+        (String localPart) => RdfNamespaceMappings.isValidLocalPart(localPart,
+            allowNumericLocalNames: _useNumericLocalNames));
   }
 
   @override
@@ -592,7 +600,7 @@ final class JsonLdEncoder extends RdfGraphEncoder {
           {required IriCompactionResult compactedIris,
           required Map<BlankNodeTerm, String> blankNodeLabels}) =>
       switch (object) {
-        IriTerm iri => _renderIri(iri, IriRole.object, compactedIris),
+        IriTerm iri => _renderIri(iri, IriRole.type, compactedIris),
         BlankNodeTerm blankNode => _renderBlankNode(blankNode, blankNodeLabels),
         LiteralTerm literal => throw ArgumentError(
             'Literal terms should not be used as @type values: $literal',

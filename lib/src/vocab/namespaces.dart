@@ -652,22 +652,6 @@ class RdfNamespaceMappings {
       return (iri, '');
     }
 
-    // If local part starts with a digit and numeric local names aren't allowed,
-    // return the full IRI as namespace and an empty local part
-    if (!allowNumericLocalNames &&
-        localPart.isNotEmpty &&
-        _digitStartRegex.hasMatch(localPart)) {
-      return (iri, '');
-    }
-    if (_percentEncodingRegex.hasMatch(localPart)) {
-      return (iri, '');
-    }
-
-    // Validate PN_LOCAL according to Turtle specification
-    if (!_isValidPnLocal(localPart,
-        allowNumericLocalNames: allowNumericLocalNames)) {
-      return (iri, '');
-    }
     if (!isValidLocalPart(localPart,
         allowNumericLocalNames: allowNumericLocalNames)) {
       return (iri, '');

@@ -1,4 +1,4 @@
-import 'package:rdf_core/src/vocab/iri_compaction.dart';
+import 'package:rdf_core/src/iri_compaction.dart';
 import 'package:test/test.dart';
 import 'package:rdf_core/src/graph/rdf_graph.dart';
 import 'package:rdf_core/src/graph/rdf_term.dart';

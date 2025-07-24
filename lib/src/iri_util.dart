@@ -175,10 +175,10 @@ class BaseIriRequiredException extends RdfDecoderException {
   /// The [relativeUri] parameter should contain the relative IRI that
   /// triggered this exception.
   const BaseIriRequiredException({required this.relativeUri})
-    : super(
-        'Base IRI is required to resolve relative IRI: $relativeUri',
-        format: 'iri',
-      );
+      : super(
+          'Base IRI is required to resolve relative IRI: $relativeUri',
+          format: 'iri',
+        );
 }
 
 /// Converts a relative IRI to absolute form using a base IRI.
@@ -239,8 +239,7 @@ bool _isAbsoluteUri(String uri) {
   // Validate scheme characters (letters, digits, +, -, .)
   for (int i = 0; i < colonPos; i++) {
     final char = uri.codeUnitAt(i);
-    final isValidSchemeChar =
-        (char >= 97 && char <= 122) || // a-z
+    final isValidSchemeChar = (char >= 97 && char <= 122) || // a-z
         (char >= 65 && char <= 90) || // A-Z
         (char >= 48 && char <= 57) || // 0-9
         char == 43 || // +
@@ -266,10 +265,9 @@ bool _isAbsoluteUri(String uri) {
 String _manualResolveUri(String uri, String baseIri) {
   // Fragment identifier - replace fragment in base
   if (uri.startsWith('#')) {
-    final baseWithoutFragment =
-        baseIri.contains('#')
-            ? baseIri.substring(0, baseIri.indexOf('#'))
-            : baseIri;
+    final baseWithoutFragment = baseIri.contains('#')
+        ? baseIri.substring(0, baseIri.indexOf('#'))
+        : baseIri;
     return '$baseWithoutFragment$uri';
   }
 

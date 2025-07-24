@@ -130,7 +130,30 @@ final class IriCompactionResult {
     required this.compactIris,
   });
 
-  CompactIri? compactIri(IriTerm iri, IriRole role) => compactIris[(iri, role)];
+  CompactIri compactIri(IriTerm iri, IriRole role) {
+    final r = compactIris[(iri, role)];
+    if (r == null) {
+      final rolesForIri = compactIris.entries
+          .where((e) => e.key.$1 == iri)
+          .map((e) => e.key.$2)
+          .toList();
+      if (rolesForIri.isNotEmpty) {
+        _log.warning(
+          '''
+          No compact IRI found for $iri with role $role. Did you specify the correct IriRole? 
+          I found this IRI in the graph for the following roles: ${rolesForIri.map((e) => e.name).join(', ')}.
+          Will treat as full IRI.
+          ''',
+        );
+      } else {
+        _log.warning(
+          'No compact IRI found for $iri with role $role. Is this IRI used in the graph? Will treat as full IRI.',
+        );
+      }
+      return FullIri(iri.iri);
+    }
+    return r;
+  }
 }
 
 /// Utility class for analyzing RDF graphs and generating namespace prefixes.

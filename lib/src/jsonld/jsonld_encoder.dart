@@ -550,9 +550,6 @@ final class JsonLdEncoder extends RdfGraphEncoder {
                 'Unexpected special IRI type: ${specialIri.iri} for $role');
             return specialIri.iri;
           }(),
-        null => throw ArgumentError(
-            'No compacted IRI found for ${role}: $iri',
-          ),
       };
 
   String _renderBlankNode(

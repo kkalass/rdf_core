@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.10] - 2025-07-24
+
+### Improved
+
+- **Enhanced IRI Compaction Error Handling**: Improved robustness and reliability of namespace prefix handling
+  - `IriCompactionResult.compactIri()` now provides guaranteed non-null results with automatic fallback to full IRI format
+  - Added helpful warning messages when IRIs cannot be compacted, including suggestions for correct `IriRole` usage  
+  - Eliminates potential null pointer exceptions in serializers by ensuring graceful degradation
+  - Improved type safety in Turtle and JSON-LD encoders by removing null-handling branches
+  - Better handling of `rdf:type` object serialization with proper IRI role context
+
 ## [0.9.9] - 2025-07-23
 
 ### Added

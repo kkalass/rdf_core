@@ -923,7 +923,8 @@ class TurtleEncoder extends RdfGraphEncoder {
     for (final entry in triplesByPredicate.entries) {
       final predicate = entry.key;
       final objects = entry.value;
-
+      final isType = predicate == Rdf.type;
+      final objectIriRole = isType ? IriRole.type : IriRole.object;
       // Add separator between predicate-object groups
       if (predicateIndex > 0) {
         buffer.write(' ; ');
@@ -981,7 +982,7 @@ class TurtleEncoder extends RdfGraphEncoder {
             collectionItems,
             graph,
             processedCollectionNodes,
-            IriRole.object,
+            objectIriRole,
             compactedIris,
             blankNodeLabels,
             nodesToInline,
@@ -992,7 +993,7 @@ class TurtleEncoder extends RdfGraphEncoder {
           buffer.write(
             writeTerm(
               object,
-              iriRole: IriRole.object,
+              iriRole: objectIriRole,
               compactedIris: compactedIris,
               blankNodeLabels: blankNodeLabels,
             ),
@@ -1027,10 +1028,6 @@ class TurtleEncoder extends RdfGraphEncoder {
             }
             throw ArgumentError(
               'Unexpected special IRI: $iri. It should have been treated before',
-            );
-          case null:
-            throw ArgumentError(
-              'There must have been some preprocessing error - no compacted Iri found for: $term',
             );
         }
       case BlankNodeTerm blankNode:

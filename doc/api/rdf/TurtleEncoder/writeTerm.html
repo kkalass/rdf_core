@@ -96,10 +96,6 @@
           throw ArgumentError(
             &#39;Unexpected special IRI: $iri. It should have been treated before&#39;,
           );
-        case null:
-          throw ArgumentError(
-            &#39;There must have been some preprocessing error - no compacted Iri found for: $term&#39;,
-          );
       }
     case BlankNodeTerm blankNode:
       &#47;&#47; Use the pre-generated label for this blank node
@@ -163,7 +159,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.9
+      0.9.10
   </span>
   
 </footer>

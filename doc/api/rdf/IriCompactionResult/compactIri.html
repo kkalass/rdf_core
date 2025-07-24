@@ -54,7 +54,7 @@
 
     <section class="multi-line-signature">
       
-<span class="returntype"><a href="../../rdf/CompactIri-class.html">CompactIri</a>?</span>
+<span class="returntype"><a href="../../rdf/CompactIri-class.html">CompactIri</a></span>
 <span class="name ">compactIri</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="compactIri-param-iri"><span class="type-annotation"><a href="../../rdf/IriTerm-class.html">IriTerm</a></span> <span class="parameter-name">iri</span>, </span></li>
 <li><span class="parameter" id="compactIri-param-role"><span class="type-annotation"><a href="../../rdf/IriRole.html">IriRole</a></span> <span class="parameter-name">role</span></span></li>
 </ol>)
@@ -68,7 +68,30 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">CompactIri? compactIri(IriTerm iri, IriRole role) =&gt; compactIris[(iri, role)];</code></pre>
+  <pre class="language-dart"><code class="language-dart">CompactIri compactIri(IriTerm iri, IriRole role) {
+  final r = compactIris[(iri, role)];
+  if (r == null) {
+    final rolesForIri = compactIris.entries
+        .where((e) =&gt; e.key.$1 == iri)
+        .map((e) =&gt; e.key.$2)
+        .toList();
+    if (rolesForIri.isNotEmpty) {
+      _log.warning(
+        &#39;&#39;&#39;
+        No compact IRI found for $iri with role $role. Did you specify the correct IriRole?
+        I found this IRI in the graph for the following roles: ${rolesForIri.map((e) =&gt; e.name).join(&#39;, &#39;)}.
+        Will treat as full IRI.
+        &#39;&#39;&#39;,
+      );
+    } else {
+      _log.warning(
+        &#39;No compact IRI found for $iri with role $role. Is this IRI used in the graph? Will treat as full IRI.&#39;,
+      );
+    }
+    return FullIri(iri.iri);
+  }
+  return r;
+}</code></pre>
 </section>
 
 
@@ -96,7 +119,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.9
+      0.9.10
   </span>
   
 </footer>

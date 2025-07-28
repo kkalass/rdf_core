@@ -36,6 +36,18 @@ void main() {
         expect(result, equals('#section'));
       });
 
+      test(
+          'should relativize TTL file with fragment against same TTL file base',
+          () {
+        // Test case for potential bug with fragment relativization
+        final result = relativizeIri(
+          'http://example.org/storage/solidtask/task/task456.ttl#vectorclock-user123',
+          'http://example.org/storage/solidtask/task/task456.ttl',
+        );
+        // Expected: should return '#vectorclock-user123' since only fragment differs
+        expect(result, equals('#vectorclock-user123'));
+      });
+
       test('should relativize filename against fragment base', () {
         final result = relativizeIri(
           'http://my.host/foo',

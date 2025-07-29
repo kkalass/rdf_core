@@ -58,6 +58,8 @@
 <li><span class="parameter" id="-param-allowedCompactionTypes"><span>required</span> <span class="type-annotation"><a href="../../rdf/AllowedCompactionTypes.html">AllowedCompactionTypes</a>?</span> <span class="parameter-name">allowedCompactionTypes</span>, </span></li>
 <li><span class="parameter" id="-param-specialPredicates"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/IriTerm-class.html">IriTerm</a></span>&gt;</span></span> <span class="parameter-name">specialPredicates</span>, </span></li>
 <li><span class="parameter" id="-param-specialDatatypes"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/IriTerm-class.html">IriTerm</a></span>&gt;</span></span> <span class="parameter-name">specialDatatypes</span>, </span></li>
+<li><span class="parameter" id="-param-renderFragmentsAsPrefixed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">renderFragmentsAsPrefixed</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-iriRelativization"><span class="type-annotation"><a href="../../rdf/IriRelativizationOptions-class.html">IriRelativizationOptions</a></span> <span class="parameter-name">iriRelativization</span> = <span class="default-value">const IriRelativizationOptions.full()</span>, </span></li>
 </ol>})
     </section>
     
@@ -71,6 +73,8 @@
   required AllowedCompactionTypes? allowedCompactionTypes,
   required this.specialPredicates,
   required this.specialDatatypes,
+  this.renderFragmentsAsPrefixed = false,
+  this.iriRelativization = const IriRelativizationOptions.full(),
 }) : allowedCompactionTypes =
           allowedCompactionTypes ?? allowedCompactionTypesAll;</code></pre>
 </section>
@@ -100,7 +104,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.11
+      0.9.12
   </span>
   
 </footer>

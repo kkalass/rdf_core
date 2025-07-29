@@ -55,9 +55,10 @@
     <section class="multi-line-signature">
         
 <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
-<span class="name ">relativizeIri</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="relativizeIri-param-iri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">iri</span>, </span></li>
-<li><span class="parameter" id="relativizeIri-param-baseIri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">baseIri</span></span></li>
-</ol>)
+<span class="name ">relativizeIri</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="relativizeIri-param-iri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">iri</span>, </span></li>
+<li><span class="parameter" id="relativizeIri-param-baseIri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">baseIri</span>, {</span></li>
+<li><span class="parameter" id="relativizeIri-param-options"><span class="type-annotation"><a href="../rdf/IriRelativizationOptions-class.html">IriRelativizationOptions</a>?</span> <span class="parameter-name">options</span>, </span></li>
+</ol>})
 
         
 
@@ -72,6 +73,7 @@ This is useful for creating shorter, more readable RDF serializations.</p>
 <li><code>baseIri</code> is null or empty</li>
 <li>The IRI cannot be safely relativized</li>
 <li>The IRIs have different schemes or authorities</li>
+<li>The relativization would violate the provided <code>options</code> constraints</li>
 </ul>
 <p>Examples:</p>
 <pre class="language-dart"><code class="language-dart">relativizeIri('http://example.org/path/file.txt', 'http://example.org/path/')
@@ -82,8 +84,13 @@ relativizeIri('http://example.org/path#section', 'http://example.org/path#')
 
 relativizeIri('https://other.org/file', 'http://example.org/')
 // Returns: 'https://other.org/file' (unchanged - different domains)
+
+// With conservative options
+relativizeIri('http://example.org/other/file', 'http://example.org/path/',
+    options: IriRelativizationOptions.local())
+// Returns: 'http://example.org/other/file' (unchanged - no cross-directory navigation)
 </code></pre>
-<p>The function guarantees that <code>resolveIri(relativizeIri(iri, base), base)</code>
+<p>The function guarantees that <code>resolveIri(relativizeIri(iri, base, options: opts), base)</code>
 will return the original <code>iri</code>.</p>
 </section>
 
@@ -91,11 +98,22 @@ will return the original <code>iri</code>.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">String relativizeIri(String iri, String? baseIri) {
+  <pre class="language-dart"><code class="language-dart">String relativizeIri(String iri, String? baseIri,
+    {IriRelativizationOptions? options}) {
   if (baseIri == null || baseIri.isEmpty) {
     return iri;
   }
-  return _relativizeUri(iri, baseIri);
+  final relativizationOptions =
+      options ?? const IriRelativizationOptions.full();
+  final result = _relativizeUri(iri, baseIri, relativizationOptions);
+  if (result == iri) {
+    return iri;
+  }
+  if (iri != resolveIri(result, baseIri)) {
+    &#47;&#47; If the relativized IRI does not resolve back to the original, return original
+    return iri;
+  }
+  return result;
 }</code></pre>
 </section>
 
@@ -123,7 +141,7 @@ will return the original <code>iri</code>.</p>
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.11
+      0.9.12
   </span>
   
 </footer>

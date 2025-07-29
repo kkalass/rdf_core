@@ -61,7 +61,7 @@
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="IriCompactionSettings.new" class="callable">
-          <span class="name"><a href="../rdf/IriCompactionSettings/IriCompactionSettings.html">IriCompactionSettings.new</a></span><span class="signature">({<span class="parameter" id="-param-generateMissingPrefixes"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateMissingPrefixes</span>, </span><span class="parameter" id="-param-allowedCompactionTypes"><span>required</span> <span class="type-annotation"><a href="../rdf/AllowedCompactionTypes.html">AllowedCompactionTypes</a>?</span> <span class="parameter-name">allowedCompactionTypes</span>, </span><span class="parameter" id="-param-specialPredicates"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/IriTerm-class.html">IriTerm</a></span>&gt;</span></span> <span class="parameter-name">specialPredicates</span>, </span><span class="parameter" id="-param-specialDatatypes"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/IriTerm-class.html">IriTerm</a></span>&gt;</span></span> <span class="parameter-name">specialDatatypes</span></span>})</span>
+          <span class="name"><a href="../rdf/IriCompactionSettings/IriCompactionSettings.html">IriCompactionSettings.new</a></span><span class="signature">({<span class="parameter" id="-param-generateMissingPrefixes"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateMissingPrefixes</span>, </span><span class="parameter" id="-param-allowedCompactionTypes"><span>required</span> <span class="type-annotation"><a href="../rdf/AllowedCompactionTypes.html">AllowedCompactionTypes</a>?</span> <span class="parameter-name">allowedCompactionTypes</span>, </span><span class="parameter" id="-param-specialPredicates"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/IriTerm-class.html">IriTerm</a></span>&gt;</span></span> <span class="parameter-name">specialPredicates</span>, </span><span class="parameter" id="-param-specialDatatypes"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/IriTerm-class.html">IriTerm</a></span>&gt;</span></span> <span class="parameter-name">specialDatatypes</span>, </span><span class="parameter" id="-param-renderFragmentsAsPrefixed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">renderFragmentsAsPrefixed</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-iriRelativization"><span class="type-annotation"><a href="../rdf/IriRelativizationOptions-class.html">IriRelativizationOptions</a></span> <span class="parameter-name">iriRelativization</span> = <span class="default-value">const IriRelativizationOptions.full()</span></span>})</span>
         </dt>
         <dd>
           
@@ -107,6 +107,30 @@
 <dd class="inherited">
   The hash code for this object.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="iriRelativization" class="property">
+  <span class="name"><a href="../rdf/IriCompactionSettings/iriRelativization.html">iriRelativization</a></span>
+  <span class="signature">&#8594; <a href="../rdf/IriRelativizationOptions-class.html">IriRelativizationOptions</a></span>
+  
+
+</dt>
+<dd>
+  Options for controlling IRI relativization behavior during compaction.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="renderFragmentsAsPrefixed" class="property">
+  <span class="name"><a href="../rdf/IriCompactionSettings/renderFragmentsAsPrefixed.html">renderFragmentsAsPrefixed</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Controls how fragment IRIs are rendered.
+  <div class="features"><span class="feature">final</span></div>
 
 </dd>
 
@@ -231,7 +255,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.11
+      0.9.12
   </span>
   
 </footer>

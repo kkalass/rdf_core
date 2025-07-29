@@ -55,9 +55,11 @@
     <section class="multi-line-signature">
       const
       <span class="name ">TurtleEncoderOptions</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-customPrefixes"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">customPrefixes</span> = <span class="default-value">const {}</span>, </span></li>
+<li><span class="parameter" id="-param-iriRelativization"><span class="type-annotation"><a href="../../rdf/IriRelativizationOptions-class.html">IriRelativizationOptions</a></span> <span class="parameter-name">iriRelativization</span> = <span class="default-value">const IriRelativizationOptions.full()</span>, </span></li>
 <li><span class="parameter" id="-param-generateMissingPrefixes"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateMissingPrefixes</span> = <span class="default-value">true</span>, </span></li>
 <li><span class="parameter" id="-param-useNumericLocalNames"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">useNumericLocalNames</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-includeBaseDeclaration"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">includeBaseDeclaration</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="-param-renderFragmentsAsPrefixed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">renderFragmentsAsPrefixed</span> = <span class="default-value">true</span>, </span></li>
 </ol>})
     </section>
     
@@ -74,6 +76,8 @@ generate prefix declarations for IRIs that don't have a matching prefix.</li>
 with a digit will be written as full IRIs instead of using prefixed notation.</li>
 <li><code>includeBaseDeclaration</code> Whether to include base URI declarations in the output.
 Defaults to true if not provided.</li>
+<li><code>renderFragmentsAsPrefixed</code> Whether to render fragment IRIs as prefixed IRIs (true, default)
+or as relative IRIs (false).</li>
 </ul>
 </section>
 
@@ -82,14 +86,13 @@ Defaults to true if not provided.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">const TurtleEncoderOptions({
-  Map&lt;String, String&gt; customPrefixes = const {},
+  super.customPrefixes = const {},
+  super.iriRelativization = const IriRelativizationOptions.full(),
   this.generateMissingPrefixes = true,
   this.useNumericLocalNames = false,
   bool includeBaseDeclaration = true,
-})  : includeBaseDeclaration = includeBaseDeclaration,
-      super(
-        customPrefixes: customPrefixes,
-      );</code></pre>
+  this.renderFragmentsAsPrefixed = true,
+}) : includeBaseDeclaration = includeBaseDeclaration;</code></pre>
 </section>
 
 
@@ -117,7 +120,7 @@ Defaults to true if not provided.</li>
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.11
+      0.9.12
   </span>
   
 </footer>

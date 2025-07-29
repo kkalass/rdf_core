@@ -91,12 +91,15 @@ final encoder = TurtleEncoder(
     _namespaceMappings,
     IriCompactionSettings(
         generateMissingPrefixes: options.generateMissingPrefixes,
+        renderFragmentsAsPrefixed: options.renderFragmentsAsPrefixed,
+        iriRelativization: options.iriRelativization,
         allowedCompactionTypes: {
           ...allowedCompactionTypesAll,
           IriRole.predicate: {
             IriCompactionType.full,
-            &#47;&#47; relative IRIs are not allowed for predicates in Turtle
-            IriCompactionType.prefixed
+            IriCompactionType.prefixed,
+            &#47;&#47; Allow relative IRIs for predicates when fragments should be rendered as relative
+            if (!options.renderFragmentsAsPrefixed) IriCompactionType.relative
           }
         },
         specialPredicates: {
@@ -141,7 +144,7 @@ final encoder = TurtleEncoder(
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.11
+      0.9.12
   </span>
   
 </footer>

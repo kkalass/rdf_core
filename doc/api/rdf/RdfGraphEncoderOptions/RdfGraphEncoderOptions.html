@@ -55,6 +55,7 @@
     <section class="multi-line-signature">
       const
       <span class="name ">RdfGraphEncoderOptions</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-customPrefixes"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">customPrefixes</span> = <span class="default-value">const {}</span>, </span></li>
+<li><span class="parameter" id="-param-iriRelativization"><span class="type-annotation"><a href="../../rdf/IriRelativizationOptions-class.html">IriRelativizationOptions</a></span> <span class="parameter-name">iriRelativization</span> = <span class="default-value">const IriRelativizationOptions.full()</span>, </span></li>
 </ol>})
     </section>
     
@@ -64,6 +65,8 @@
 <ul>
 <li><code>customPrefixes</code> Custom namespace prefixes to use during encoding.
 Defaults to an empty map if not provided.</li>
+<li><code>iriRelativization</code> Options for IRI relativization behavior.
+Defaults to full relativization with length constraints for optimal balance.</li>
 </ul>
 </section>
 
@@ -73,6 +76,7 @@ Defaults to an empty map if not provided.</li>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">const RdfGraphEncoderOptions({
   this.customPrefixes = const {},
+  this.iriRelativization = const IriRelativizationOptions.full(),
 });</code></pre>
 </section>
 
@@ -101,7 +105,7 @@ Defaults to an empty map if not provided.</li>
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.11
+      0.9.12
   </span>
   
 </footer>

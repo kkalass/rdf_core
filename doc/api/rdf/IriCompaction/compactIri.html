@@ -91,11 +91,23 @@
   final allowedTypes = _settings.allowedCompactionTypes[role] ??
       IriCompactionType.values.toSet();
 
-  final relativized = allowedTypes.contains(IriCompactionType.relative)
-      ? relativizeIri(term.iri, baseUri)
-      : term.iri;
-  final relativeUrl = relativized == term.iri ? null : relativized;
+  final relativized =
+      relativizeIri(term.iri, baseUri, options: _settings.iriRelativization);
+  final relativeUrl = (!allowedTypes.contains(IriCompactionType.relative) ||
+          relativized == term.iri)
+      ? null
+      : relativized;
 
+  if (_settings.renderFragmentsAsPrefixed &amp;&amp; relativized.startsWith(&#39;#&#39;)) {
+    final existing = prefixCandidates[&#39;&#39;];
+    if (existing != null &amp;&amp; existing != &#39;#&#39;) {
+      _log.warning(
+          &#39;Empty prefix already mapped to &quot;$existing&quot;, cannot use it for fragment IRI &quot;$relativized&quot;.&#39;);
+    } else {
+      &#47;&#47; If the IRI is a fragment, render it as a prefixed IRI
+      return PrefixedIri(&#39;&#39;, &#39;#&#39;, relativized.substring(1));
+    }
+  }
   if (relativeUrl != null &amp;&amp; relativeUrl.isEmpty) {
     &#47;&#47; If we have a relative URL that is empty, we do not need to check
     &#47;&#47; for better matching prefixes, but use the relative URL directly
@@ -221,7 +233,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.11
+      0.9.12
   </span>
   
 </footer>

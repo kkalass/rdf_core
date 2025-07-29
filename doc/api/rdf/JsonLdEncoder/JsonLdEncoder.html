@@ -76,6 +76,7 @@
       _namespaceMappings,
       IriCompactionSettings(
           generateMissingPrefixes: options.generateMissingPrefixes,
+          iriRelativization: options.iriRelativization,
           allowedCompactionTypes: {
             ...allowedCompactionTypesAll,
             IriRole.predicate: {
@@ -125,7 +126,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.11
+      0.9.12
   </span>
   
 </footer>

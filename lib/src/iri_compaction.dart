@@ -77,11 +77,18 @@ class IriCompactionSettings {
   final Set<IriTerm> specialPredicates;
   final Set<IriTerm> specialDatatypes;
 
+  /// Controls how fragment IRIs are rendered.
+  ///
+  /// When true, fragment IRIs are rendered as prefixed IRIs with empty prefix.
+  /// When false (default), they are rendered as relative IRIs.
+  final bool renderFragmentsAsPrefixed;
+
   IriCompactionSettings({
     required this.generateMissingPrefixes,
     required AllowedCompactionTypes? allowedCompactionTypes,
     required this.specialPredicates,
     required this.specialDatatypes,
+    this.renderFragmentsAsPrefixed = false,
   }) : allowedCompactionTypes =
             allowedCompactionTypes ?? allowedCompactionTypesAll;
 }
@@ -264,11 +271,22 @@ class IriCompaction {
     final allowedTypes = _settings.allowedCompactionTypes[role] ??
         IriCompactionType.values.toSet();
 
-    final relativized = allowedTypes.contains(IriCompactionType.relative)
-        ? relativizeIri(term.iri, baseUri)
-        : term.iri;
-    final relativeUrl = relativized == term.iri ? null : relativized;
+    final relativized = relativizeIri(term.iri, baseUri);
+    final relativeUrl = (!allowedTypes.contains(IriCompactionType.relative) ||
+            relativized == term.iri)
+        ? null
+        : relativized;
 
+    if (_settings.renderFragmentsAsPrefixed && relativized.startsWith('#')) {
+      final existing = prefixCandidates[''];
+      if (existing != null && existing != '#') {
+        _log.warning(
+            'Empty prefix already mapped to "$existing", cannot use it for fragment IRI "$relativized".');
+      } else {
+        // If the IRI is a fragment, render it as a prefixed IRI
+        return PrefixedIri('', '#', relativized.substring(1));
+      }
+    }
     if (relativeUrl != null && relativeUrl.isEmpty) {
       // If we have a relative URL that is empty, we do not need to check
       // for better matching prefixes, but use the relative URL directly

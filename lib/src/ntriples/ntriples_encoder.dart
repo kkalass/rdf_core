@@ -45,6 +45,18 @@ class NTriplesEncoderOptions extends RdfGraphEncoderOptions {
         NTriplesEncoderOptions _ => options,
         _ => NTriplesEncoderOptions(),
       };
+
+  /// Creates a copy of this NTriplesEncoderOptions with the given fields replaced with new values.
+  ///
+  /// Since N-Triples format doesn't support configurable options currently,
+  /// this method returns a new instance with the same configuration.
+  /// This method is provided for consistency with the copyWith pattern
+  /// and future extensibility.
+  @override
+  NTriplesEncoderOptions copyWith({
+    Map<String, String>? customPrefixes,
+  }) =>
+      const NTriplesEncoderOptions();
 }
 
 /// Encoder for the N-Triples format.

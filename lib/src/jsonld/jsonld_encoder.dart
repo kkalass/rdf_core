@@ -132,6 +132,7 @@ class JsonLdEncoderOptions extends RdfGraphEncoderOptions {
           customPrefixes: customPrefixes,
         );
 
+  @override
   JsonLdEncoderOptions copyWith({
     Map<String, String>? customPrefixes,
     bool? generateMissingPrefixes,

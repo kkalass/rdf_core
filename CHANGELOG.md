@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Fragment IRI Rendering Control**: New `renderFragmentsAsPrefixed` option for Turtle encoder
+  - Controls how fragment IRIs are rendered in Turtle output (prefixed vs. relative format)
+  - When `true` (default): `http://example.org/doc#term` becomes `:term` with `@prefix : <#> .`
+  - When `false`: `http://example.org/doc#term` becomes `<#term>` when using base URI
+  - Provides flexibility for different RDF serialization preferences and use cases
+
+### Improved
+
+- **Enhanced Encoder Options API**: Added missing `copyWith()` methods for better developer experience
+  - `RdfGraphEncoderOptions.copyWith()` for immutable option updates
+  - `TurtleEncoderOptions.copyWith()` with full parameter support including new fragment rendering option
+  - `JsonLdEncoderOptions.copyWith()` and `NTriplesEncoderOptions.copyWith()` for consistency
+  - Enables fluent API patterns and easier configuration management
+- **Documentation Updates**: Updated roadmap with better Turtle relative IRI handling plans
+
 ## [0.9.11] - 2025-07-24
 
 ### Improved

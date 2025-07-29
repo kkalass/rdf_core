@@ -78,6 +78,37 @@ class TurtleEncoderOptions extends RdfGraphEncoderOptions {
   /// Has no effect if no baseUri is provided during encoding.
   final bool includeBaseDeclaration;
 
+  /// Controls how fragment IRIs are rendered in the output.
+  ///
+  /// When set to `true` (default), fragment IRIs from the current document are rendered
+  /// as prefixed IRIs using an empty prefix declaration. For example:
+  /// - `http://example.org/document#fragment` becomes `:fragment`
+  /// - Requires an empty prefix declaration: `@prefix : <http://example.org/document#> .`
+  ///
+  /// When set to `false`, fragment IRIs are rendered as relative IRIs when they belong
+  /// to the current document's namespace. For example:
+  /// - `http://example.org/document#fragment` becomes `#fragment`
+  /// - No empty prefix declaration is generated
+  ///
+  /// This setting only affects IRIs that have fragments and belong to a namespace
+  /// that ends with '#'. Non-fragment IRIs are processed according to other
+  /// compaction rules.
+  ///
+  /// Example with `renderFragmentsAsPrefixed: true` (default):
+  /// ```turtle
+  /// @prefix : <http://example.org/doc#> .
+  ///
+  /// :subject :property :object .
+  /// ```
+  ///
+  /// Example with `renderFragmentsAsPrefixed: false`:
+  /// ```turtle
+  /// @base <http://example.org/doc> .
+  ///
+  /// <#subject> <#property> <#object> .
+  /// ```
+  final bool renderFragmentsAsPrefixed;
+
   /// Creates a new TurtleEncoderOptions instance.
   ///
   /// Parameters:
@@ -90,11 +121,14 @@ class TurtleEncoderOptions extends RdfGraphEncoderOptions {
   ///   with a digit will be written as full IRIs instead of using prefixed notation.
   /// - [includeBaseDeclaration] Whether to include base URI declarations in the output.
   ///   Defaults to true if not provided.
+  /// - [renderFragmentsAsPrefixed] Whether to render fragment IRIs as prefixed IRIs (true, default)
+  ///   or as relative IRIs (false).
   const TurtleEncoderOptions({
     Map<String, String> customPrefixes = const {},
     this.generateMissingPrefixes = true,
     this.useNumericLocalNames = false,
     bool includeBaseDeclaration = true,
+    this.renderFragmentsAsPrefixed = true,
   })  : includeBaseDeclaration = includeBaseDeclaration,
         super(
           customPrefixes: customPrefixes,
@@ -120,6 +154,52 @@ class TurtleEncoderOptions extends RdfGraphEncoderOptions {
             customPrefixes: options.customPrefixes,
           ),
       };
+
+  ///
+  /// This method allows creating a new TurtleEncoderOptions instance based on
+  /// the current options, selectively overriding specific fields while keeping
+  /// all other settings unchanged.
+  ///
+  /// Parameters:
+  /// - [customPrefixes] Optional replacement for the custom namespace prefixes
+  /// - [generateMissingPrefixes] Optional replacement for the automatic prefix generation setting
+  /// - [useNumericLocalNames] Optional replacement for the numeric local names handling setting
+  /// - [includeBaseDeclaration] Optional replacement for the base declaration inclusion setting
+  /// - [renderFragmentsAsPrefixed] Optional replacement for the fragment rendering setting
+  ///
+  /// Returns:
+  /// - A new TurtleEncoderOptions instance with the specified changes applied
+  ///
+  /// Example:
+  /// ```dart
+  /// final originalOptions = TurtleEncoderOptions(
+  ///   generateMissingPrefixes: true,
+  ///   useNumericLocalNames: false
+  /// );
+  ///
+  /// final modifiedOptions = originalOptions.copyWith(
+  ///   generateMissingPrefixes: false,
+  ///   customPrefixes: {'ex': 'http://example.org/'}
+  /// );
+  /// ```
+  @override
+  TurtleEncoderOptions copyWith({
+    Map<String, String>? customPrefixes,
+    bool? generateMissingPrefixes,
+    bool? useNumericLocalNames,
+    bool? includeBaseDeclaration,
+    bool? renderFragmentsAsPrefixed,
+  }) =>
+      TurtleEncoderOptions(
+        customPrefixes: customPrefixes ?? this.customPrefixes,
+        generateMissingPrefixes:
+            generateMissingPrefixes ?? this.generateMissingPrefixes,
+        useNumericLocalNames: useNumericLocalNames ?? this.useNumericLocalNames,
+        includeBaseDeclaration:
+            includeBaseDeclaration ?? this.includeBaseDeclaration,
+        renderFragmentsAsPrefixed:
+            renderFragmentsAsPrefixed ?? this.renderFragmentsAsPrefixed,
+      );
 }
 
 const _integerDatatype = Xsd.integer;
@@ -205,12 +285,14 @@ class TurtleEncoder extends RdfGraphEncoder {
       _namespaceMappings,
       IriCompactionSettings(
           generateMissingPrefixes: options.generateMissingPrefixes,
+          renderFragmentsAsPrefixed: options.renderFragmentsAsPrefixed,
           allowedCompactionTypes: {
             ...allowedCompactionTypesAll,
             IriRole.predicate: {
               IriCompactionType.full,
-              // relative IRIs are not allowed for predicates in Turtle
-              IriCompactionType.prefixed
+              IriCompactionType.prefixed,
+              // Allow relative IRIs for predicates when fragments should be rendered as relative
+              if (!options.renderFragmentsAsPrefixed) IriCompactionType.relative
             }
           },
           specialPredicates: {
@@ -256,6 +338,7 @@ class TurtleEncoder extends RdfGraphEncoder {
         namespaceMappings: _namespaceMappings,
         options: TurtleEncoderOptions.from(options),
       );
+  RdfGraphEncoderOptions get options => _options;
 
   @override
 

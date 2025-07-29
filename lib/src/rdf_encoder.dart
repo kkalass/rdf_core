@@ -34,6 +34,23 @@ class RdfGraphEncoderOptions {
   const RdfGraphEncoderOptions({
     this.customPrefixes = const {},
   });
+
+  /// Creates a copy of this options instance with the specified overrides.
+  ///
+  /// This method follows the copyWith pattern commonly used in Dart for creating
+  /// modified copies of immutable objects while preserving the original instance.
+  ///
+  /// Parameters:
+  /// - [customPrefixes] New custom prefixes to use. If null, the current value is retained.
+  ///
+  /// Returns:
+  /// - A new [RdfGraphEncoderOptions] instance with the specified modifications.
+  RdfGraphEncoderOptions copyWith({
+    Map<String, String>? customPrefixes,
+  }) =>
+      RdfGraphEncoderOptions(
+        customPrefixes: customPrefixes ?? this.customPrefixes,
+      );
 }
 
 /// Interface for encoding RDF graphs to different serialization formats.

@@ -400,7 +400,7 @@ final graph = rdfMapper.graph.encode(person);
 ```
 
 ## 🛣️ Roadmap / Next Steps
-
+- better relative behaviour for turle: use `../` for relative IRIs where needed instead of generating prefixes
 - RDF 1.1: Datasets with Named Graphs 
 - Improve jsonld decoder/encoder (full RdfDataset support, better support for base uri, include realworld tests for e.g. foaf.jsonld, support @vocab)
 - RDF 1.2: Rdf-Star

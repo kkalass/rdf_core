@@ -9,19 +9,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Advanced IRI Relativization System**: Comprehensive configurable IRI relativization with dot notation support
+  - New `IriRelativizationOptions` class for fine-grained control over relative IRI generation
+  - Three built-in presets: `none()` (no relativization), `local()` (same-directory only), `full()` (maximum relativization)
+  - Configurable options: `maxUpLevels`, `maxAdditionalLength`, `allowSiblingDirectories`
+  - Support for dot notation paths like `../sibling/file.txt` and `../../parent/file.txt`
+  - Enhanced `relativizeIri()` function with options parameter for backward-compatible configuration
+  - All encoders (Turtle, JSON-LD, N-Triples) now support configurable relativization through options
 - **Fragment IRI Rendering Control**: New `renderFragmentsAsPrefixed` option for Turtle encoder
   - Controls how fragment IRIs are rendered in Turtle output (prefixed vs. relative format)
   - When `true` (default): `http://example.org/doc#term` becomes `:term` with `@prefix : <#> .`
   - When `false`: `http://example.org/doc#term` becomes `<#term>` when using base URI
   - Provides flexibility for different RDF serialization preferences and use cases
+- **Dot Notation Demo Example**: New example demonstrating enhanced IRI relativization capabilities
+  - Shows different relativization modes and their effects
+  - Demonstrates custom configuration options
+  - Includes roundtrip consistency verification
 
 ### Improved
 
-- **Enhanced Encoder Options API**: Added missing `copyWith()` methods for better developer experience
+- **Enhanced Encoder Options API**: Unified IRI relativization support across all encoders
+  - Added `iriRelativization` property to `RdfGraphEncoderOptions` base class
+  - Updated all encoder option classes (`TurtleEncoderOptions`, `JsonLdEncoderOptions`, `NTriplesEncoderOptions`) to support relativization configuration
+  - Enhanced `copyWith()` methods for immutable option updates with relativization support
   - `RdfGraphEncoderOptions.copyWith()` for immutable option updates
   - `TurtleEncoderOptions.copyWith()` with full parameter support including new fragment rendering option
   - `JsonLdEncoderOptions.copyWith()` and `NTriplesEncoderOptions.copyWith()` for consistency
   - Enables fluent API patterns and easier configuration management
+- **IRI Compaction Infrastructure**: Enhanced internal IRI processing with sophisticated dot notation support
+  - Improved `_tryDotNotationRelativization()` algorithm with comprehensive path analysis
+  - Added option-aware relativization constraints and length checking
+  - Enhanced roundtrip consistency verification for all relativization results
 - **Documentation Updates**: Updated roadmap with better Turtle relative IRI handling plans
 
 ## [0.9.11] - 2025-07-24

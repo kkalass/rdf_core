@@ -9,6 +9,7 @@ import 'package:logging/logging.dart';
 import 'package:rdf_core/src/graph/rdf_graph.dart';
 import 'package:rdf_core/src/graph/rdf_term.dart';
 import 'package:rdf_core/src/iri_util.dart';
+import 'package:rdf_core/src/rdf_encoder.dart';
 import 'package:rdf_core/src/vocab/namespaces.dart';
 import 'package:rdf_core/src/vocab/rdf.dart';
 
@@ -83,12 +84,19 @@ class IriCompactionSettings {
   /// When false (default), they are rendered as relative IRIs.
   final bool renderFragmentsAsPrefixed;
 
+  /// Options for controlling IRI relativization behavior during compaction.
+  ///
+  /// These options determine how aggressively IRIs are relativized when a base IRI
+  /// is provided. Different use cases may prefer different relativization strategies.
+  final IriRelativizationOptions iriRelativization;
+
   IriCompactionSettings({
     required this.generateMissingPrefixes,
     required AllowedCompactionTypes? allowedCompactionTypes,
     required this.specialPredicates,
     required this.specialDatatypes,
     this.renderFragmentsAsPrefixed = false,
+    this.iriRelativization = const IriRelativizationOptions.full(),
   }) : allowedCompactionTypes =
             allowedCompactionTypes ?? allowedCompactionTypesAll;
 }
@@ -271,7 +279,8 @@ class IriCompaction {
     final allowedTypes = _settings.allowedCompactionTypes[role] ??
         IriCompactionType.values.toSet();
 
-    final relativized = relativizeIri(term.iri, baseUri);
+    final relativized =
+        relativizeIri(term.iri, baseUri, options: _settings.iriRelativization);
     final relativeUrl = (!allowedTypes.contains(IriCompactionType.relative) ||
             relativized == term.iri)
         ? null

@@ -12,6 +12,7 @@
 /// resolving it back should produce the original IRI.
 library iri_util;
 
+import 'dart:math' as math;
 import 'package:rdf_core/rdf_core.dart';
 
 /// Converts an absolute IRI to a relative form when possible.
@@ -23,6 +24,7 @@ import 'package:rdf_core/rdf_core.dart';
 /// - [baseIri] is null or empty
 /// - The IRI cannot be safely relativized
 /// - The IRIs have different schemes or authorities
+/// - The relativization would violate the provided [options] constraints
 ///
 /// Examples:
 /// ```dart
@@ -34,15 +36,31 @@ import 'package:rdf_core/rdf_core.dart';
 ///
 /// relativizeIri('https://other.org/file', 'http://example.org/')
 /// // Returns: 'https://other.org/file' (unchanged - different domains)
+///
+/// // With conservative options
+/// relativizeIri('http://example.org/other/file', 'http://example.org/path/',
+///     options: IriRelativizationOptions.local())
+/// // Returns: 'http://example.org/other/file' (unchanged - no cross-directory navigation)
 /// ```
 ///
-/// The function guarantees that `resolveIri(relativizeIri(iri, base), base)`
+/// The function guarantees that `resolveIri(relativizeIri(iri, base, options: opts), base)`
 /// will return the original [iri].
-String relativizeIri(String iri, String? baseIri) {
+String relativizeIri(String iri, String? baseIri,
+    {IriRelativizationOptions? options}) {
   if (baseIri == null || baseIri.isEmpty) {
     return iri;
   }
-  return _relativizeUri(iri, baseIri);
+  final relativizationOptions =
+      options ?? const IriRelativizationOptions.full();
+  final result = _relativizeUri(iri, baseIri, relativizationOptions);
+  if (result == iri) {
+    return iri;
+  }
+  if (iri != resolveIri(result, baseIri)) {
+    // If the relativized IRI does not resolve back to the original, return original
+    return iri;
+  }
+  return result;
 }
 
 /// Implements RFC 3986 compliant IRI relativization with roundtrip consistency.
@@ -53,11 +71,15 @@ String relativizeIri(String iri, String? baseIri) {
 /// The algorithm tries several strategies in order of preference:
 /// 1. Empty string for identical IRIs
 /// 2. Fragment-only references (e.g., '#section')
-/// 3. Path-based relativization for hierarchical IRIs
-/// 4. Filename-only relativization for certain cases
+/// 3. Path-based relativization with dot notation (e.g., '../file', './file')
+/// 4. Simple path relativization for directory-based cases
+/// 5. Filename-only relativization for certain edge cases
+///
+/// The [options] parameter controls the aggressiveness and constraints of relativization.
 ///
 /// Falls back to returning the absolute IRI if no safe relativization is possible.
-String _relativizeUri(String iri, String baseIri) {
+String _relativizeUri(
+    String iri, String baseIri, IriRelativizationOptions options) {
   try {
     final baseUri = Uri.parse(baseIri);
     final uri = Uri.parse(iri);
@@ -73,7 +95,10 @@ String _relativizeUri(String iri, String baseIri) {
     if (baseUri.scheme != uri.scheme || baseUri.authority != uri.authority) {
       return iri;
     }
-
+    if (options.maxUpLevels != null && options.maxUpLevels! < 0) {
+      // Special case: negative maxUpLevels means no relativization allowed
+      return iri;
+    }
     // Special case: if URIs are identical, return empty string
     if (iri == baseIri) {
       return '';
@@ -84,63 +109,16 @@ String _relativizeUri(String iri, String baseIri) {
         baseUri.query == uri.query &&
         uri.hasFragment) {
       // Only the fragment differs, return just the fragment
-      final fragmentRef = '#${uri.fragment}';
-      final resolvedBack = resolveIri(fragmentRef, baseIri);
-      if (resolvedBack.toString() == iri) {
-        return fragmentRef;
-      }
+      return '#${uri.fragment}';
     }
 
-    // Try simple path-based relativization
-    if (!baseUri.hasQuery && !baseUri.hasFragment) {
-      final basePath = baseUri.path;
-      final iriPath = uri.path;
-
-      // For simple cases where base ends with / and IRI starts with base path
-      if (basePath.endsWith('/') && iriPath.startsWith(basePath)) {
-        final relativePath = iriPath.substring(basePath.length);
-
-        // Construct candidate relative URI
-        var relativeUri = relativePath;
-        if (uri.hasQuery) {
-          relativeUri += '?${uri.query}';
-        }
-        if (uri.hasFragment) {
-          relativeUri += '#${uri.fragment}';
-        }
-
-        // Verify roundtrip: resolve relative URI against base should give original
-        final resolvedBack = resolveIri(relativeUri, baseIri);
-        if (resolvedBack.toString() == iri) {
-          return relativeUri;
-        }
-      }
-    }
-
-    // Try filename-only relativization (for cases like http://my.host/foo vs http://my.host/path#)
-    // This is safe when:
-    // 1. Base has no query (queries affect resolution)
-    // 2. If base has fragment, it should not end with / (directory-like bases with fragments are ambiguous)
-    if (uri.pathSegments.isNotEmpty && !baseUri.hasQuery) {
-      // Additional check: if base has fragment and path ends with /, skip this relativization
-      if (baseUri.hasFragment && baseUri.path.endsWith('/')) {
-        // Skip this type of relativization for directory-like bases with fragments
-      } else {
-        final filename = uri.pathSegments.last;
-        if (filename.isNotEmpty) {
-          var candidate = filename;
-          if (uri.hasQuery) {
-            candidate += '?${uri.query}';
-          }
-          if (uri.hasFragment) {
-            candidate += '#${uri.fragment}';
-          }
-
-          final resolvedBack = resolveIri(candidate, baseIri);
-          if (resolvedBack.toString() == iri) {
-            return candidate;
-          }
-        }
+    // Try sophisticated path-based relativization with dot notation
+    if (!baseUri.hasQuery &&
+        (!baseUri.hasFragment || baseUri.fragment.isEmpty)) {
+      final dotNotationResult =
+          _tryDotNotationRelativization(uri, baseUri, options);
+      if (dotNotationResult != null) {
+        return dotNotationResult;
       }
     }
 
@@ -150,6 +128,126 @@ String _relativizeUri(String iri, String baseIri) {
     // If any parsing fails, return the absolute URI
     return iri;
   }
+}
+
+/// Attempts to create a relative path using dot notation (../, ./).
+///
+/// This function analyzes the path segments of both URIs to determine if
+/// a relative path with dot notation can be generated. It handles cases where
+/// the target IRI is in a different directory than the base IRI.
+///
+/// Returns a relative path string if successful, null if not possible.
+/// The result includes query and fragment components when present.
+///
+/// The [options] parameter controls the constraints and aggressiveness of relativization:
+/// - maxUpLevels: limits the number of "../" components
+/// - allowSiblingDirectories: whether to allow "../sibling/" patterns
+/// - maxAdditionalLength: prevents excessively long relative paths
+///
+/// Examples:
+/// - Base: http://example.org/a/b/ Target: http://example.org/a/c/file.txt → ../c/file.txt
+/// - Base: http://example.org/a/b/file Target: http://example.org/a/c/file.txt → ../c/file.txt
+/// - Base: http://example.org/a/ Target: http://example.org/a/b/file.txt → b/file.txt
+/// - Base: http://example.org/a/b/ Target: http://example.org/a/b/file.txt → file.txt
+String? _tryDotNotationRelativization(
+    Uri uri, Uri baseUri, IriRelativizationOptions options) {
+  final targetSegments = uri.pathSegments.toList();
+  final baseSegments = baseUri.pathSegments.toList();
+
+  // Remove empty segments at the end (trailing slashes)
+  while (baseSegments.isNotEmpty && baseSegments.last.isEmpty) {
+    baseSegments.removeLast();
+  }
+  while (targetSegments.isNotEmpty && targetSegments.last.isEmpty) {
+    targetSegments.removeLast();
+  }
+
+  // Handle the case where base doesn't end with / (file reference)
+  // In this case, we need to go up to the parent directory
+  if (!baseUri.path.endsWith('/') && baseSegments.isNotEmpty) {
+    baseSegments.removeLast();
+  }
+
+  // Find common prefix
+  int commonLength = 0;
+  final minLength = math.min(baseSegments.length, targetSegments.length);
+
+  for (int i = 0; i < minLength; i++) {
+    if (baseSegments[i] == targetSegments[i]) {
+      commonLength++;
+    } else {
+      break;
+    }
+  }
+
+  // Calculate how many directories to go up
+  final upLevels = baseSegments.length - commonLength;
+
+  // Apply options constraints
+  if (options.maxUpLevels != null && options.maxUpLevels! < 0) {
+    // Special case: negative maxUpLevels means no relativization allowed
+    return null;
+  }
+
+  if (options.maxUpLevels != null && upLevels > options.maxUpLevels!) {
+    return null;
+  }
+
+  // Conservative check: handle sibling directory constraints
+  if (upLevels > 0 && !options.allowSiblingDirectories) {
+    // Check if we're navigating to a sibling directory:
+    // - We go up at least one level (upLevels > 0), AND
+    // - We then go down into a different directory structure
+
+    // Count target directory segments after common prefix (excluding final file if any)
+    var targetDirSegmentsAfterCommon = targetSegments.length - commonLength;
+
+    // If target doesn't end with '/', the last segment might be a file
+    if (!uri.path.endsWith('/') && targetDirSegmentsAfterCommon > 0) {
+      targetDirSegmentsAfterCommon--; // Exclude potential file segment
+    }
+
+    if (targetDirSegmentsAfterCommon > 0) {
+      // This is sibling directory navigation: up then down to different directory
+      return null;
+    }
+    // If targetDirSegmentsAfterCommon == 0, it's just parent navigation (allowed)
+  }
+
+  // Build relative path
+  final pathParts = <String>[];
+
+  // Add ../ for each level up needed
+  for (int i = 0; i < upLevels; i++) {
+    pathParts.add('..');
+  }
+
+  // Add remaining target segments
+  for (int i = commonLength; i < targetSegments.length; i++) {
+    pathParts.add(targetSegments[i]);
+  }
+
+  // Build the relative path string
+  var relativePath = pathParts.join('/');
+
+  // Add query and fragment if present
+  if (uri.hasQuery) {
+    relativePath += '?${uri.query}';
+  }
+  if (uri.hasFragment) {
+    relativePath += '#${uri.fragment}';
+  }
+
+  // Check that the relative IRI is not too much longer than the absolute IRI
+  if (options.maxAdditionalLength != null) {
+    final absoluteIri = uri.toString();
+    final maxAllowed = absoluteIri.length + options.maxAdditionalLength!;
+    if (relativePath.length > maxAllowed) {
+      return null;
+    }
+  }
+
+  return relativePath;
 }
 
 /// Exception thrown when a base IRI is required but not provided.

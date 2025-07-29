@@ -9,6 +9,125 @@ import 'dart:convert';
 
 import 'graph/rdf_graph.dart';
 
+/// Configuration options for IRI relativization behavior.
+///
+/// Controls how IRIs are relativized when a base IRI is provided during encoding.
+/// Relativization can make RDF serializations more compact and readable by
+/// expressing IRIs relative to a base, but different use cases may prefer
+/// different levels of aggressiveness.
+class IriRelativizationOptions {
+  /// Maximum number of "../" path components allowed in relative paths.
+  ///
+  /// Higher values allow more aggressive relativization but may reduce readability.
+  /// Setting to 0 disables cross-directory navigation entirely, allowing only
+  /// same-directory and child directory relativization.
+  ///
+  /// Examples:
+  /// - -1: Special value to disable all relativization (use absolute IRIs only)
+  /// - 0: Only same-directory and child directory relativization
+  /// - 1: Allow one level up (../file.txt)
+  /// - 2: Allow two levels up (../../file.txt)
+  /// - null: No limit
+  final int? maxUpLevels;
+
+  /// Maximum additional length allowed for relative paths compared to absolute paths.
+  ///
+  /// Sometimes relative paths can be longer than absolute paths, especially
+  /// with deep "../../../" structures. This option limits how much longer
+  /// a relative path can be before falling back to absolute.
+  ///
+  /// Set to null to disable length checking entirely.
+  final int? maxAdditionalLength;
+
+  /// Whether to allow relativization between sibling directories with no common parent.
+  ///
+  /// When true, allows patterns like "../sibling/file.txt"
+  /// When false, only allows relativization when there's a shared directory structure.
+  final bool allowSiblingDirectories;
+
+  /// Creates new IRI relativization options with explicit configuration.
+  ///
+  /// All parameters are required to avoid ambiguity. For common use cases,
+  /// prefer the semantic constructors: [none], [local], or [full].
+  ///
+  /// Parameters:
+  /// - [maxUpLevels] Maximum "../" components allowed (null for unlimited)
+  /// - [maxAdditionalLength] Maximum extra length vs absolute
+  /// - [allowSiblingDirectories] Allow ../sibling patterns
+  const IriRelativizationOptions({
+    required this.maxUpLevels,
+    required this.maxAdditionalLength,
+    required this.allowSiblingDirectories,
+  });
+
+  /// No relativization - always use absolute IRIs.
+  ///
+  /// Produces only absolute IRIs for maximum clarity and unambiguity.
+  /// Useful for debugging, documentation, or when absolute references are required.
+  const IriRelativizationOptions.none()
+      : maxUpLevels = -1, // Special flag to disable all relativization
+        maxAdditionalLength = 0,
+        allowSiblingDirectories = false;
+
+  /// Local relativization - same directory and child directories only.
+  ///
+  /// Allows relative paths within the current directory and subdirectories.
+  /// Produces paths like "file.txt" and "subdir/file.txt" but never "../file.txt".
+  /// Provides safe, predictable relativization for security-sensitive contexts.
+  const IriRelativizationOptions.local()
+      : maxUpLevels = 0,
+        maxAdditionalLength = 0,
+        allowSiblingDirectories = false;
+
+  /// Full relativization - allow any valid relative path structure.
+  ///
+  /// Enables maximum relativization including complex navigation patterns.
+  /// Produces paths like "../sibling/file.txt" and "../../other/file.txt".
+  /// Prioritizes compactness while still respecting length constraints. Will
+  /// fall back to absolute IRIs if the length of the relative path exceeds the
+  /// length of the absolute IRI.
+  const IriRelativizationOptions.full()
+      : maxUpLevels = null,
+        maxAdditionalLength = 0,
+        allowSiblingDirectories = true;
+
+  /// Creates a copy of these options with specified overrides.
+  ///
+  /// Follows the standard copyWith pattern for immutable configuration objects.
+  IriRelativizationOptions copyWith({
+    int? maxUpLevels,
+    int? maxAdditionalLength,
+    bool? allowSiblingDirectories,
+  }) =>
+      IriRelativizationOptions(
+        maxUpLevels: maxUpLevels ?? this.maxUpLevels,
+        maxAdditionalLength: maxAdditionalLength ?? this.maxAdditionalLength,
+        allowSiblingDirectories:
+            allowSiblingDirectories ?? this.allowSiblingDirectories,
+      );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is IriRelativizationOptions &&
+          runtimeType == other.runtimeType &&
+          maxUpLevels == other.maxUpLevels &&
+          maxAdditionalLength == other.maxAdditionalLength &&
+          allowSiblingDirectories == other.allowSiblingDirectories;
+
+  @override
+  int get hashCode =>
+      maxUpLevels.hashCode ^
+      maxAdditionalLength.hashCode ^
+      allowSiblingDirectories.hashCode;
+
+  @override
+  String toString() => 'IriRelativizationOptions('
+      'maxUpLevels: $maxUpLevels, '
+      'maxAdditionalLength: $maxAdditionalLength, '
+      'allowSiblingDirectories: $allowSiblingDirectories)';
+}
+
 /// Configuration options for RDF graph encoders.
 ///
 /// This class provides configuration parameters that can be used to customize
@@ -26,13 +145,30 @@ class RdfGraphEncoderOptions {
   /// will need this only rarely and not for well-known IRIs like foaf.
   final Map<String, String> customPrefixes;
 
+  /// Options for controlling IRI relativization behavior.
+  ///
+  /// When a base IRI is provided during encoding, these options control
+  /// how aggressively IRIs are relativized to produce more compact output.
+  ///
+  /// Available presets:
+  /// - [IriRelativizationOptions.none]: No relativization, always use absolute IRIs
+  /// - [IriRelativizationOptions.local]: Only same-directory and child directories
+  /// - [IriRelativizationOptions.full]: Maximum relativization with length constraints
+  ///
+  /// For custom configurations, use the default constructor with explicit parameters
+  /// or modify existing options with [IriRelativizationOptions.copyWith].
+  final IriRelativizationOptions iriRelativization;
+
   /// Creates a new encoder options instance.
   ///
   /// Parameters:
   /// - [customPrefixes] Custom namespace prefixes to use during encoding.
   ///   Defaults to an empty map if not provided.
+  /// - [iriRelativization] Options for IRI relativization behavior.
+  ///   Defaults to full relativization with length constraints for optimal balance.
   const RdfGraphEncoderOptions({
     this.customPrefixes = const {},
+    this.iriRelativization = const IriRelativizationOptions.full(),
   });
 
   /// Creates a copy of this options instance with the specified overrides.
@@ -42,14 +178,17 @@ class RdfGraphEncoderOptions {
   ///
   /// Parameters:
   /// - [customPrefixes] New custom prefixes to use. If null, the current value is retained.
+  /// - [iriRelativization] New relativization options. If null, the current value is retained.
   ///
   /// Returns:
   /// - A new [RdfGraphEncoderOptions] instance with the specified modifications.
   RdfGraphEncoderOptions copyWith({
     Map<String, String>? customPrefixes,
+    IriRelativizationOptions? iriRelativization,
   }) =>
       RdfGraphEncoderOptions(
         customPrefixes: customPrefixes ?? this.customPrefixes,
+        iriRelativization: iriRelativization ?? this.iriRelativization,
       );
 }
 

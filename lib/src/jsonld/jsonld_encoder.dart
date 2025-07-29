@@ -123,27 +123,27 @@ class JsonLdEncoderOptions extends RdfGraphEncoderOptions {
   /// [includeBaseDeclaration] Whether to include base URI declarations in the output.
   /// Defaults to true if not provided.
   const JsonLdEncoderOptions({
-    Map<String, String> customPrefixes = const {},
+    super.customPrefixes = const {},
+    super.iriRelativization = const IriRelativizationOptions.full(),
     bool generateMissingPrefixes = true,
     bool includeBaseDeclaration = true,
   })  : generateMissingPrefixes = generateMissingPrefixes,
         includeBaseDeclaration = includeBaseDeclaration,
-        super(
-          customPrefixes: customPrefixes,
-        );
+        super();
 
   @override
-  JsonLdEncoderOptions copyWith({
-    Map<String, String>? customPrefixes,
-    bool? generateMissingPrefixes,
-    bool? includeBaseDeclaration,
-  }) =>
+  JsonLdEncoderOptions copyWith(
+          {Map<String, String>? customPrefixes,
+          bool? generateMissingPrefixes,
+          bool? includeBaseDeclaration,
+          IriRelativizationOptions? iriRelativization}) =>
       JsonLdEncoderOptions(
         customPrefixes: customPrefixes ?? this.customPrefixes,
         generateMissingPrefixes:
             generateMissingPrefixes ?? this.generateMissingPrefixes,
         includeBaseDeclaration:
             includeBaseDeclaration ?? this.includeBaseDeclaration,
+        iriRelativization: iriRelativization ?? this.iriRelativization,
       );
 
   /// Creates a JSON-LD encoder options object from generic RDF encoder options
@@ -159,6 +159,7 @@ class JsonLdEncoderOptions extends RdfGraphEncoderOptions {
         JsonLdEncoderOptions _ => options,
         _ => JsonLdEncoderOptions(
             customPrefixes: options.customPrefixes,
+            iriRelativization: options.iriRelativization,
           ),
       };
 }
@@ -235,6 +236,7 @@ final class JsonLdEncoder extends RdfGraphEncoder {
         _namespaceMappings,
         IriCompactionSettings(
             generateMissingPrefixes: options.generateMissingPrefixes,
+            iriRelativization: options.iriRelativization,
             allowedCompactionTypes: {
               ...allowedCompactionTypesAll,
               IriRole.predicate: {

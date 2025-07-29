@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:rdf_core/src/iri_util.dart';
+import 'package:rdf_core/rdf_core.dart';
 
 void main() {
   group('relativizeIri', () {
@@ -57,6 +58,171 @@ void main() {
       });
     });
 
+    group('dot notation relativization', () {
+      test('should generate ../ for sibling directories', () {
+        final result = relativizeIri(
+          'http://example.org/docs/other/file.txt',
+          'http://example.org/docs/current/',
+        );
+        expect(result, equals('../other/file.txt'));
+      });
+
+      test('should generate ../ for parent directory files', () {
+        final result = relativizeIri(
+          'http://example.org/docs/readme.txt',
+          'http://example.org/docs/current/page.html',
+        );
+        expect(result, equals('../readme.txt'));
+      });
+
+      test('should generate ../../ for files two levels up', () {
+        final result = relativizeIri(
+          'http://example.org/readme.txt',
+          'http://example.org/docs/current/',
+        );
+        expect(result, equals('../../readme.txt'));
+      });
+
+      test('should not generate more than 2 levels of ../..', () {
+        final result = relativizeIri(
+          'http://example.org/readme.txt',
+          'http://example.org/docs/deep/nested/',
+          options: IriRelativizationOptions.full().copyWith(
+            maxUpLevels: 2,
+          ),
+        );
+        // Should not relativize because it would require ../../../
+        expect(result, equals('http://example.org/readme.txt'));
+      });
+
+      test('should handle query and fragment in dot notation', () {
+        final result = relativizeIri(
+          'http://example.org/docs/other/file.txt?param=value#section',
+          'http://example.org/docs/current/',
+        );
+        expect(result, equals('../other/file.txt?param=value#section'));
+      });
+
+      test('should relativize subdirectory files without dots', () {
+        final result = relativizeIri(
+          'http://example.org/docs/current/sub/file.txt',
+          'http://example.org/docs/current/',
+        );
+        expect(result, equals('sub/file.txt'));
+      });
+
+      test('should maintain roundtrip consistency for dot notation', () {
+        const baseIri = 'http://example.org/docs/current/';
+        const originalIri = 'http://example.org/docs/other/file.txt';
+
+        final relative = relativizeIri(originalIri, baseIri);
+        final resolved = resolveIri(relative, baseIri);
+
+        expect(relative, equals('../other/file.txt'));
+        expect(resolved, equals(originalIri));
+      });
+
+      test('should not relativize unrelated paths', () {
+        final result = relativizeIri(
+          'http://example.org/completely/different/path/file.txt',
+          'http://example.org/docs/current/',
+          options: IriRelativizationOptions.full()
+              .copyWith(allowSiblingDirectories: false),
+        );
+        // No common prefix, should not relativize
+        expect(result,
+            equals('http://example.org/completely/different/path/file.txt'));
+      });
+
+      test('should prefer shorter relative paths', () {
+        final result = relativizeIri(
+          'http://a.org/b',
+          'http://a.org/a/very/long/path/name/so/much/longer/',
+        );
+        // Absolute iri "http://a.org/b" is shorter than "../../../../../../../b"
+        expect(result, equals('http://a.org/b'));
+      });
+    });
+
+    group('configurable relativization options', () {
+      test('conservative mode should limit relativization', () {
+        final result = relativizeIri(
+          'http://example.org/other/file',
+          'http://example.org/path/',
+          options: IriRelativizationOptions.local(),
+        );
+        // Conservative mode doesn't allow cross-directory navigation
+        expect(result, equals('http://example.org/other/file'));
+      });
+
+      test('aggressive mode should allow sibling directories', () {
+        final result = relativizeIri(
+          'http://example.org/other/file',
+          'http://example.org/path/',
+          options: IriRelativizationOptions.full(),
+        );
+        // Aggressive mode allows sibling directory navigation
+        expect(result, equals('../other/file'));
+      });
+
+      test('full mode should follow default behavior', () {
+        final resultWithOptions = relativizeIri(
+          'http://example.org/docs/other/file.txt',
+          'http://example.org/docs/current/',
+          options: IriRelativizationOptions.full(),
+        );
+        final resultDefault = relativizeIri(
+          'http://example.org/docs/other/file.txt',
+          'http://example.org/docs/current/',
+        );
+        expect(resultWithOptions, equals(resultDefault));
+        expect(resultWithOptions, equals('../other/file.txt'));
+      });
+
+      test('custom options should limit max up levels', () {
+        final result = relativizeIri(
+          'http://example.org/readme.txt',
+          'http://example.org/docs/very/deep/',
+          options: IriRelativizationOptions.full().copyWith(maxUpLevels: 2),
+        );
+        // Would require 3 "../" levels, but limit is 2
+        expect(result, equals('http://example.org/readme.txt'));
+      });
+
+      test('custom options should limit additional length', () {
+        final result = relativizeIri(
+          'http://e.org/f',
+          'http://e.org/very/deeply/nested/directory/so/very/deep',
+          options:
+              IriRelativizationOptions.full().copyWith(maxAdditionalLength: 3),
+        );
+        // Relative path "../../../../../../../f" is much longer than "/file"
+        expect(result, equals('http://e.org/f'));
+      });
+
+      test('serialization mode should be more aggressive than moderate', () {
+        final result = relativizeIri(
+          'http://example.org/other/file',
+          'http://example.org/path/',
+          options: IriRelativizationOptions.full(),
+        );
+        // Serialization mode should allow sibling directories
+        expect(result, equals('../other/file'));
+      });
+
+      test('options should allow roundtrip consistency', () {
+        const baseIri = 'http://example.org/docs/current/';
+        const originalIri = 'http://example.org/other/file.txt';
+
+        final options = IriRelativizationOptions.full();
+        final relative = relativizeIri(originalIri, baseIri, options: options);
+        final resolved = resolveIri(relative, baseIri);
+
+        expect(relative, equals('../../other/file.txt'));
+        expect(resolved, equals(originalIri));
+      });
+    });
+
     group('edge cases', () {
       test('should return original IRI when baseIri is null', () {
         final result = relativizeIri('http://example.org/file', null);
@@ -84,14 +250,57 @@ void main() {
         expect(result, equals('http://other.org/file'));
       });
 
+      test('should relativize to empty when path iri equals base', () {
+        final cases = [
+          'http://example.org/other/file',
+          'http://example.org/myFile.txt',
+        ];
+        final opts = [
+          (IriRelativizationOptions.none(), false),
+          (IriRelativizationOptions.local(), true),
+          (IriRelativizationOptions.full(), true)
+        ];
+        for (final f in cases) {
+          for (final (opt, isRelative) in opts) {
+            final result = relativizeIri(
+              f,
+              f,
+              options: opt,
+            );
+
+            expect(result, equals(isRelative ? '' : f),
+                reason: 'Failed for $f with options $opt');
+          }
+        }
+      });
       test('should not relativize when path does not match', () {
         final result = relativizeIri(
           'http://example.org/other/file',
           'http://example.org/path/',
+          options: IriRelativizationOptions.local(),
         );
         expect(result, equals('http://example.org/other/file'));
       });
 
+      test('should not relativize when relativization disabled', () {
+        final result = relativizeIri(
+          'http://example.org/path/file',
+          'http://example.org/path/',
+          options: IriRelativizationOptions.none(),
+        );
+        expect(result, equals('http://example.org/path/file'));
+        final localResult = relativizeIri(
+          'http://example.org/path/file',
+          'http://example.org/path/',
+          options: IriRelativizationOptions.local(),
+        );
+        expect(localResult, equals('file'));
+        final defaultResult = relativizeIri(
+          'http://example.org/path/file',
+          'http://example.org/path/',
+        );
+        expect(defaultResult, equals('file'));
+      });
       test('should handle malformed IRIs gracefully', () {
         final result = relativizeIri('not-a-valid-iri', 'http://example.org/');
         expect(result, equals('not-a-valid-iri'));

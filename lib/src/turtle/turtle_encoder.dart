@@ -124,15 +124,13 @@ class TurtleEncoderOptions extends RdfGraphEncoderOptions {
   /// - [renderFragmentsAsPrefixed] Whether to render fragment IRIs as prefixed IRIs (true, default)
   ///   or as relative IRIs (false).
   const TurtleEncoderOptions({
-    Map<String, String> customPrefixes = const {},
+    super.customPrefixes = const {},
+    super.iriRelativization = const IriRelativizationOptions.full(),
     this.generateMissingPrefixes = true,
     this.useNumericLocalNames = false,
     bool includeBaseDeclaration = true,
     this.renderFragmentsAsPrefixed = true,
-  })  : includeBaseDeclaration = includeBaseDeclaration,
-        super(
-          customPrefixes: customPrefixes,
-        );
+  }) : includeBaseDeclaration = includeBaseDeclaration;
 
   /// Creates a TurtleEncoderOptions instance from generic RdfGraphEncoderOptions.
   ///
@@ -152,6 +150,7 @@ class TurtleEncoderOptions extends RdfGraphEncoderOptions {
         TurtleEncoderOptions _ => options,
         _ => TurtleEncoderOptions(
             customPrefixes: options.customPrefixes,
+            iriRelativization: options.iriRelativization,
           ),
       };
 
@@ -183,13 +182,13 @@ class TurtleEncoderOptions extends RdfGraphEncoderOptions {
   /// );
   /// ```
   @override
-  TurtleEncoderOptions copyWith({
-    Map<String, String>? customPrefixes,
-    bool? generateMissingPrefixes,
-    bool? useNumericLocalNames,
-    bool? includeBaseDeclaration,
-    bool? renderFragmentsAsPrefixed,
-  }) =>
+  TurtleEncoderOptions copyWith(
+          {Map<String, String>? customPrefixes,
+          bool? generateMissingPrefixes,
+          bool? useNumericLocalNames,
+          bool? includeBaseDeclaration,
+          bool? renderFragmentsAsPrefixed,
+          IriRelativizationOptions? iriRelativization}) =>
       TurtleEncoderOptions(
         customPrefixes: customPrefixes ?? this.customPrefixes,
         generateMissingPrefixes:
@@ -199,6 +198,7 @@ class TurtleEncoderOptions extends RdfGraphEncoderOptions {
             includeBaseDeclaration ?? this.includeBaseDeclaration,
         renderFragmentsAsPrefixed:
             renderFragmentsAsPrefixed ?? this.renderFragmentsAsPrefixed,
+        iriRelativization: iriRelativization ?? this.iriRelativization,
       );
 }
 
@@ -286,6 +286,7 @@ class TurtleEncoder extends RdfGraphEncoder {
       IriCompactionSettings(
           generateMissingPrefixes: options.generateMissingPrefixes,
           renderFragmentsAsPrefixed: options.renderFragmentsAsPrefixed,
+          iriRelativization: options.iriRelativization,
           allowedCompactionTypes: {
             ...allowedCompactionTypesAll,
             IriRole.predicate: {

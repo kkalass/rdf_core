@@ -2165,6 +2165,38 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
         expect(resultWithoutFlag, isNot(contains('@base')));
         expect(resultWithFlag, equals(resultWithoutFlag));
       });
+
+      test(
+          'should use IriRelativizationOptions for dot notation relativization',
+          () {
+        // Arrange - Test that IriRelativizationOptions are properly used
+        final graph = RdfGraph(
+          triples: [
+            Triple(
+              IriTerm('http://example.org/docs/file1.ttl'),
+              IriTerm('http://example.org/vocab#relates'),
+              IriTerm('http://example.org/docs/subdir/file2.ttl'),
+            ),
+          ],
+        );
+
+        // Act - Use aggressive relativization which allows dot notation
+        final result = encoder
+            .withOptions(TurtleEncoderOptions(
+              includeBaseDeclaration: false,
+              generateMissingPrefixes: false,
+              iriRelativization: IriRelativizationOptions.full(),
+            ))
+            .convert(
+              graph,
+              baseUri: 'http://example.org/docs/',
+            );
+
+        // Assert - Should contain dot notation relative IRIs
+        expect(result, contains('<file1.ttl>'));
+        expect(result, contains('<subdir/file2.ttl>'));
+        expect(result, contains('relates'));
+      });
     });
   });
 }

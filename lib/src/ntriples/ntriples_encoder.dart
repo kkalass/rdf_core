@@ -53,9 +53,9 @@ class NTriplesEncoderOptions extends RdfGraphEncoderOptions {
   /// This method is provided for consistency with the copyWith pattern
   /// and future extensibility.
   @override
-  NTriplesEncoderOptions copyWith({
-    Map<String, String>? customPrefixes,
-  }) =>
+  NTriplesEncoderOptions copyWith(
+          {Map<String, String>? customPrefixes,
+          IriRelativizationOptions? iriRelativization}) =>
       const NTriplesEncoderOptions();
 }
 

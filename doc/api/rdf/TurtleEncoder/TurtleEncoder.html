@@ -100,7 +100,8 @@ final encoder = TurtleEncoder(
             IriCompactionType.prefixed,
             &#47;&#47; Allow relative IRIs for predicates when fragments should be rendered as relative
             if (!options.renderFragmentsAsPrefixed) IriCompactionType.relative
-          }
+          },
+          IriRole.type: {IriCompactionType.full, IriCompactionType.prefixed}
         },
         specialPredicates: {
           Rdf.type,
@@ -144,7 +145,7 @@ final encoder = TurtleEncoder(
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.12
+      0.9.13
   </span>
   
 </footer>

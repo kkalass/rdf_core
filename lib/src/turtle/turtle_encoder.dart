@@ -294,7 +294,8 @@ class TurtleEncoder extends RdfGraphEncoder {
               IriCompactionType.prefixed,
               // Allow relative IRIs for predicates when fragments should be rendered as relative
               if (!options.renderFragmentsAsPrefixed) IriCompactionType.relative
-            }
+            },
+            IriRole.type: {IriCompactionType.full, IriCompactionType.prefixed}
           },
           specialPredicates: {
             Rdf.type,

@@ -243,7 +243,11 @@ final class JsonLdEncoder extends RdfGraphEncoder {
                 IriCompactionType.full,
                 // relative IRIs are not allowed for predicates in jsonld
                 IriCompactionType.prefixed
-              }
+              },
+              IriRole.type: {
+                IriCompactionType.full,
+                IriCompactionType.prefixed,
+              },
             },
             specialPredicates: {
               Rdf.type,

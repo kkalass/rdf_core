@@ -1,5 +1,4 @@
-import 'package:rdf_core/src/exceptions/exceptions.dart';
-import 'package:rdf_core/src/graph/rdf_term.dart';
+import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_core/src/jsonld/jsonld_decoder.dart';
 import 'package:rdf_core/src/vocab/rdf.dart';
 import 'package:test/test.dart';
@@ -788,6 +787,372 @@ void main() {
       // The blank node objects should be the same instance
       expect(knowsTriple.object, equals(friendTriple.object));
       expect(identical(knowsTriple.object, friendTriple.object), isTrue);
+    });
+    group("canParse", () {
+      test("Real Life HTML", () {
+        final input = '''
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Solid Community AU</title>
+  <link rel="stylesheet" href="/.well-known/css/styles/main.css" type="text/css">
+</head>
+<body>
+  <header>
+    <a href=".."><img src="https://solidcommunity.au/solid.svg" alt="[Solid logo]" /></a>
+    <h1>Solid Community AU</h1>
+  </header>
+  <main>
+    <h1>Welcome to the <a href="https://solidcommunity.au/web" target="_blank">Solid Community AU</a> Server</h1>
+
+    <p>This experimental deployment of a <a
+    href="https://github.com/CommunitySolidServer/">Community Solid
+    Server</a> supports the <a
+    href="https://solid.github.io/specification/protocol"
+    target="_blank">Solid protocol</a> allowing users to create their
+    own <a href="https://solidproject.org/about" target="_blank">Solid
+    Pod</a> and identity. Whether you create a Solid Pod for yourself
+    here, or on any Solid Server world wide (or even on your own
+    deployed Solid Server), your Solid Pod based apps will just work.
+    And for our apps, showcased at <a
+    href="https://solidcommunity.au/web" target="_blank">Solid
+    Community AU</a>, we take a privacy first approach so that any app
+    data is hosted on the Solid Server, encrypted, supporting a Trust
+    No One approach.</p>
+
+    <h2 id="users">Getting Started</h2>
+    
+    <p id="registration-enabled"> If you like, <a
+      id="registration-link"
+      href="./.account/login/password/register/" target="_blank">Sign
+      up for an account</a> here to get started with your own Pod and
+      WebID. Once you have an account you can create your own Pod on
+      this server or else connect a pre-existing Pod from another
+      server through your WebID.  Once you have an Solid Pod you can
+      <a id="registration-link" href="./.account/login/password/"
+      target="_blank">login to manage it</a>.  </p>
+    
+
+    <h2 id="encryption">A Solidly Protected Flutter</h2>
+
+    <p>The ANU's <a href="https://sii.anu.edu.au"
+    target="_blank">Software Innovation Institute</a> is developing an
+    ecosystem of Solid Pod based apps using <a
+    href="https://survivor.togaware.com/gnulinux/flutter.html"
+    target="_blank">Flutter</a> with apps that run on any platform
+    (Linux, Android, Web, Windows, MacOS, Web, and iOS) with a secure
+    and privacy focus. </p>
+
+    <p>All user data is encrypted within the user's Solid Pod so that
+    not even the server admins have access to our data and we need not
+    be concerned about the server being compromised. SII are
+    supporting this through Flutter packages, including the
+    app-developer focused <a href="https://pub.dev/packages/solidpod"
+    target="_blank">solidpod</a>, which is built on top of <a
+    href="https://pub.dev/packages/solid_auth"
+    target="_blank">solid_auth</a>, <a
+    href="https://pub.dev/packages/solid_encrypt"
+    target="_blank">solid_encrypt</a>, and <a
+    href="https://pub.dev/packages/rdflib" target="_blank">rdflib</a>.
+    </p>
+
+    <h2>Apps to Try</h2>
+
+<p>Our apps are written in <a
+href="https://survivor.togaware.com/gnulinux/flutter.html"
+target="_blank">Flutter</a> and are open source, and run on any
+platform. You can try them out in the browser here or visit their
+github homes to learn from and to build your own apps with these as
+templates. We are also publishing them on the <a
+href="https://play.google.com/store/apps/developer?id=Togaware+Pty+Ltd"
+target="_blank">Google Play Store</a>. They are not all there yet, but
+keep an eye out for them. Visit the <a
+href="https://solidcommunity.au/web">Solid Community AU home page</a>
+to view the portfolio of apps.</p>
+    
+    <h2>A Solid Experience</h2>
+
+    <p>Learn more about Solid at <a href="https://solidproject.org/"
+    target="_blank">solidproject.org</a>.</p>
+
+    <p>
+
+
+    <p>A Tim Berners-Lee reflection published on Medium, 12 Mar 2024:
+    <a
+    href="https://medium.com/@timberners_lee/marking-the-webs-35th-birthday-an-open-letter-ebb410cc7d42">Marking
+    the Web's 35th Birthday</a> was reported on by <a
+    href="https://www.livescience.com/technology/communications/35-years-after-first-proposing-the-world-wide-web-what-does-its-creator-tim-berners-lee-have-in-mind-next-inrupt">LiveScience</a>
+
+    <p>A BBC News story on Inrupt, 8 Mar 2024: <a
+    href="https://www.bbc.com/news/business-68286395"
+    target="_blank">Your personal data all over the web - is there a
+    better way?</a>
+
+</main>
+
+<footer>
+
+  <p> Community Solid Server v7.0.2 ©2019–2023 <a
+      href="https://inrupt.com/" target="_blank">Inrupt Inc.</a> and <a
+      href="https://www.imec-int.com/" target="_blank">imec</a>. Hosted by <a
+      href="https://survivor.togaware.com/gnulinux/solid.html" target="_blank">Togaware</a>.
+      </p>
+    
+  </footer>
+</body>
+<script>
+  (async() => {
+    // Since this page is in the root of the server, we can determine other URLs relative to the current URL
+    const res = await fetch('.account/');
+    const registrationUrl = (await res.json())?.controls?.html?.password?.register;
+    // We specifically want to check if the HTML page that we link to exists
+    const resRegistrationPage = await fetch(registrationUrl, { headers: { accept: 'text/html' } });
+    const registrationEnabled = registrationUrl && resRegistrationPage.status === 200;
+
+    document.getElementById('registration-enabled').classList[registrationEnabled ? 'remove' : 'add']('hidden');
+    document.getElementById('registration-disabled').classList[registrationEnabled ? 'add' : 'remove']('hidden');
+    document.getElementById('registration-link').href = registrationUrl;
+  })();
+</script>
+</html>
+''';
+        // Act
+        final result = jsonldGraph.canParse(input);
+
+        // Assert
+        expect(result, isFalse);
+      });
+
+      test("Simple JSON-LD object with @context", () {
+        final input = '''
+        {
+          "@context": {
+            "name": "http://xmlns.com/foaf/0.1/name"
+          },
+          "@id": "http://example.org/person/john",
+          "name": "John Smith"
+        }
+        ''';
+        expect(jsonldGraph.canParse(input), isTrue);
+      });
+
+      test("JSON-LD with @id only", () {
+        final input = '''
+        {
+          "@id": "http://example.org/person/john",
+          "name": "John Smith"
+        }
+        ''';
+        expect(jsonldGraph.canParse(input), isTrue);
+      });
+
+      test("JSON-LD with @type only", () {
+        final input = '''
+        {
+          "@type": "Person",
+          "name": "John Smith"
+        }
+        ''';
+        expect(jsonldGraph.canParse(input), isTrue);
+      });
+
+      test("JSON-LD with @graph only", () {
+        final input = '''
+        {
+          "@graph": [
+            {
+              "name": "John Smith"
+            }
+          ]
+        }
+        ''';
+        expect(jsonldGraph.canParse(input), isTrue);
+      });
+
+      test("JSON-LD array format", () {
+        final input = '''
+        [
+          {
+            "@context": {
+              "name": "http://xmlns.com/foaf/0.1/name"
+            },
+            "@id": "http://example.org/person/john",
+            "name": "John Smith"
+          }
+        ]
+        ''';
+        expect(jsonldGraph.canParse(input), isTrue);
+      });
+
+      test("Complex JSON-LD with multiple keywords", () {
+        final input = '''
+        {
+          "@context": "http://schema.org/",
+          "@id": "http://example.org/person/john",
+          "@type": "Person",
+          "name": "John Smith"
+        }
+        ''';
+        expect(jsonldGraph.canParse(input), isTrue);
+      });
+
+      test("Plain JSON without JSON-LD keywords", () {
+        final input = '''
+        {
+          "name": "John Smith",
+          "age": 30,
+          "city": "New York"
+        }
+        ''';
+        expect(jsonldGraph.canParse(input), isFalse);
+      });
+
+      test("JSON array without JSON-LD keywords", () {
+        final input = '''
+        [
+          {
+            "name": "John Smith",
+            "age": 30
+          },
+          {
+            "name": "Jane Doe",
+            "age": 25
+          }
+        ]
+        ''';
+        expect(jsonldGraph.canParse(input), isFalse);
+      });
+
+      test("Not JSON - starts with text", () {
+        final input = 'This is just plain text content.';
+        expect(jsonldGraph.canParse(input), isFalse);
+      });
+
+      test("Not JSON - Turtle content", () {
+        final input = '''
+        @prefix ex: <http://example.org/> .
+        
+        ex:subject ex:predicate ex:object .
+        ''';
+        expect(jsonldGraph.canParse(input), isFalse);
+      });
+
+      test("XML content", () {
+        final input = '''
+        <?xml version="1.0"?>
+        <root>
+          <item>value</item>
+        </root>
+        ''';
+        expect(jsonldGraph.canParse(input), isFalse);
+      });
+
+      test("Empty content", () {
+        expect(jsonldGraph.canParse(''), isFalse);
+        expect(jsonldGraph.canParse('   '), isFalse);
+      });
+
+      test("Invalid JSON structure", () {
+        final input = '{name: "Invalid JSON"}';
+        expect(jsonldGraph.canParse(input), isFalse);
+      });
+
+      test("JSON string literal", () {
+        final input = '"Just a string"';
+        expect(jsonldGraph.canParse(input), isFalse);
+      });
+
+      test("JSON number", () {
+        final input = '42';
+        expect(jsonldGraph.canParse(input), isFalse);
+      });
+
+      test("JSON null", () {
+        final input = 'null';
+        expect(jsonldGraph.canParse(input), isFalse);
+      });
+
+      test("JSON boolean", () {
+        final input = 'true';
+        expect(jsonldGraph.canParse(input), isFalse);
+      });
+
+      test("Schema.org JSON-LD example", () {
+        final input = '''
+        {
+          "@context": "https://schema.org/",
+          "@type": "Person",
+          "name": "Jane Doe",
+          "jobTitle": "Professor",
+          "telephone": "(425) 123-4567",
+          "url": "http://www.janedoe.com"
+        }
+        ''';
+        expect(jsonldGraph.canParse(input), isTrue);
+      });
+
+      test("Complex context definition", () {
+        final input = '''
+        {
+          "@context": {
+            "foaf": "http://xmlns.com/foaf/0.1/",
+            "schema": "http://schema.org/",
+            "name": "foaf:name",
+            "jobTitle": "schema:jobTitle"
+          },
+          "@id": "http://example.org/person/jane",
+          "@type": "foaf:Person",
+          "name": "Jane Doe",
+          "jobTitle": "Professor"
+        }
+        ''';
+        expect(jsonldGraph.canParse(input), isTrue);
+      });
+
+      test("Edge case: JSON with @-prefixed but non-JSON-LD keys", () {
+        final input = '''
+        {
+          "@user": "john",
+          "@timestamp": "2023-01-01",
+          "message": "Hello world"
+        }
+        ''';
+        expect(jsonldGraph.canParse(input), isFalse);
+      });
+
+      test("JSON-LD keyword in string value (should not match)", () {
+        final input = '''
+        {
+          "description": "This text contains @context as a word in the description",
+          "note": "Also mentions @type here"
+        }
+        ''';
+        expect(jsonldGraph.canParse(input), isFalse);
+      });
+
+      test("Minimal valid JSON-LD", () {
+        final input = '{"@id":"http://example.org/"}';
+        expect(jsonldGraph.canParse(input), isTrue);
+      });
+
+      test("Array with mixed JSON-LD and plain objects", () {
+        final input = '''
+        [
+          {
+            "@id": "http://example.org/person/john",
+            "name": "John"
+          },
+          {
+            "name": "Jane",
+            "age": 30
+          }
+        ]
+        ''';
+        expect(jsonldGraph.canParse(input), isTrue);
+      });
     });
   });
 }

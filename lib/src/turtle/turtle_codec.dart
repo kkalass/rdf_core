@@ -183,16 +183,63 @@ final class TurtleCodec extends RdfGraphCodec {
     // Simple heuristics for detecting Turtle format
     final trimmed = content.trim();
 
-    // Check for common Turtle prefixes, predicates or statements
-    return trimmed.contains('@prefix') ||
+    // Early rejection: obvious HTML content
+    if (_isObviouslyHtml(trimmed)) {
+      return false;
+    }
+
+    // Check for explicit Turtle directives
+    if (trimmed.contains('@prefix') ||
         trimmed.contains('@base') ||
-        // Look for triple pattern ending with dot
-        RegExp(r'.*\s+.*\s+.*\s*\.$', multiLine: true).hasMatch(trimmed) ||
-        // Check for common RDF prefix declarations
         trimmed.contains('prefix rdf:') ||
         trimmed.contains('prefix rdfs:') ||
         trimmed.contains('prefix owl:') ||
-        trimmed.contains('prefix xsd:');
+        trimmed.contains('prefix xsd:')) {
+      return true;
+    }
+
+    // Look for Turtle-like triple patterns (more specific than before)
+    // Must have angle brackets for IRIs or prefixed names
+    final hasTriplePattern = RegExp(
+      r'(<[^>]+>|\w+:\w+)\s+(<[^>]+>|\w+:\w+|a)\s+(<[^>]+>|\w+:\w+|"[^"]*"|\d+|true|false)\s*\.',
+      multiLine: true,
+    ).hasMatch(trimmed);
+
+    if (hasTriplePattern) {
+      return true;
+    }
+
+    // Check for blank node patterns
+    final hasBlankNodes = RegExp(r'\[\s*\]|\[.*?\]').hasMatch(trimmed);
+    if (hasBlankNodes && trimmed.contains('.')) {
+      return true;
+    }
+
+    // Check for collection patterns
+    final hasCollections = RegExp(r'\(\s*\)|\([^)]+\)').hasMatch(trimmed);
+    if (hasCollections && trimmed.contains('.')) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /// Helper method to detect obvious HTML content that should be rejected
+  bool _isObviouslyHtml(String content) {
+    final lowerContent = content.toLowerCase();
+
+    // Check for HTML doctype
+    if (lowerContent.startsWith('<!doctype html')) {
+      return true;
+    }
+
+    // Check for HTML opening tag
+    if (lowerContent.startsWith('<html')) {
+      return true;
+    }
+
+    // Single HTML tag might be coincidental, but DOCTYPE or <html> is definitive
+    return false;
   }
 }
 

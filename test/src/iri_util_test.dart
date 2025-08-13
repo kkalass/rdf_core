@@ -13,6 +13,35 @@ void main() {
         expect(result, equals('file.txt'));
       });
 
+      test('path ending on slash, base not ending on slash', () {
+        final result = relativizeIri(
+          'https://example.com/user/account/',
+          'https://example.com/johndoe',
+        );
+        expect(result, equals('user/account/'));
+      });
+      test('path and base nearly equal, path ends on slash', () {
+        final result = relativizeIri(
+          'https://example.com/johndoe/',
+          'https://example.com/johndoe',
+        );
+        expect(result, equals('johndoe/'));
+      });
+      test('path and base nearly equal, base ends on slash', () {
+        final result = relativizeIri(
+          'https://example.com/johndoe',
+          'https://example.com/johndoe/',
+        );
+        expect(result, equals('/johndoe'));
+      });
+      test('path not ending on slash, base not ending on slash', () {
+        final result = relativizeIri(
+          'https://example.com/user/settings/private-index.ttl',
+          'https://example.com/johndoe',
+        );
+        expect(result, equals('user/settings/private-index.ttl'));
+      });
+
       test('should relativize nested path', () {
         final result = relativizeIri(
           'http://example.org/path/subdir/file.txt',
@@ -35,6 +64,14 @@ void main() {
           'http://example.org/path#',
         );
         expect(result, equals('#section'));
+      });
+
+      test('should relativize toplevel', () {
+        final result = relativizeIri(
+          'http://example.org/settings/prefs.ttl',
+          'http://example.org/kk/profile/card#me',
+        );
+        expect(result, equals('/settings/prefs.ttl'));
       });
 
       test(
@@ -79,6 +116,9 @@ void main() {
         final result = relativizeIri(
           'http://example.org/readme.txt',
           'http://example.org/docs/current/',
+          options: IriRelativizationOptions.full().copyWith(
+            allowAbsolutePath: false,
+          ),
         );
         expect(result, equals('../../readme.txt'));
       });
@@ -89,6 +129,7 @@ void main() {
           'http://example.org/docs/deep/nested/',
           options: IriRelativizationOptions.full().copyWith(
             maxUpLevels: 2,
+            allowAbsolutePath: false,
           ),
         );
         // Should not relativize because it would require ../../../
@@ -126,8 +167,8 @@ void main() {
         final result = relativizeIri(
           'http://example.org/completely/different/path/file.txt',
           'http://example.org/docs/current/',
-          options: IriRelativizationOptions.full()
-              .copyWith(allowSiblingDirectories: false),
+          options: IriRelativizationOptions.full().copyWith(
+              allowSiblingDirectories: false, allowAbsolutePath: false),
         );
         // No common prefix, should not relativize
         expect(result,
@@ -138,9 +179,52 @@ void main() {
         final result = relativizeIri(
           'http://a.org/b',
           'http://a.org/a/very/long/path/name/so/much/longer/',
+          options: IriRelativizationOptions.full().copyWith(
+            allowAbsolutePath: false,
+          ),
         );
         // Absolute iri "http://a.org/b" is shorter than "../../../../../../../b"
         expect(result, equals('http://a.org/b'));
+      });
+    });
+
+    group('absolute-path relativization', () {
+      test('should prefer absolute-path when shorter than dot notation', () {
+        final result = relativizeIri(
+          'http://example.org/simple.txt',
+          'http://example.org/a/very/long/path/file.html',
+        );
+        // '/simple.txt' is shorter than '../../../../simple.txt'
+        expect(result, equals('/simple.txt'));
+      });
+
+      test('should use absolute-path for toplevel relativization', () {
+        final result = relativizeIri(
+          'http://example.org/settings/prefs.ttl',
+          'http://example.org/kk/profile/card#me',
+        );
+        expect(result, equals('/settings/prefs.ttl'));
+      });
+
+      test('should use dot notation when shorter than absolute-path', () {
+        final result = relativizeIri(
+          'http://example.org/docs/other/file.txt',
+          'http://example.org/docs/current/',
+        );
+        // '../other/file.txt' is shorter than '/docs/other/file.txt'
+        expect(result, equals('../other/file.txt'));
+      });
+
+      test('should disable absolute-path when allowAbsolutePath is false', () {
+        final result = relativizeIri(
+          'http://example.org/simple.txt',
+          'http://example.org/a/very/long/path/file.html',
+          options: IriRelativizationOptions.full().copyWith(
+            allowAbsolutePath: false,
+          ),
+        );
+        // Should use dot notation or fall back to absolute IRI
+        expect(result, equals('../../../../simple.txt'));
       });
     });
 
@@ -159,7 +243,9 @@ void main() {
         final result = relativizeIri(
           'http://example.org/other/file',
           'http://example.org/path/',
-          options: IriRelativizationOptions.full(),
+          options: IriRelativizationOptions.full().copyWith(
+            allowAbsolutePath: false,
+          ),
         );
         // Aggressive mode allows sibling directory navigation
         expect(result, equals('../other/file'));
@@ -183,7 +269,10 @@ void main() {
         final result = relativizeIri(
           'http://example.org/readme.txt',
           'http://example.org/docs/very/deep/',
-          options: IriRelativizationOptions.full().copyWith(maxUpLevels: 2),
+          options: IriRelativizationOptions.full().copyWith(
+            maxUpLevels: 2,
+            allowAbsolutePath: false,
+          ),
         );
         // Would require 3 "../" levels, but limit is 2
         expect(result, equals('http://example.org/readme.txt'));
@@ -196,15 +285,17 @@ void main() {
           options:
               IriRelativizationOptions.full().copyWith(maxAdditionalLength: 3),
         );
-        // Relative path "../../../../../../../f" is much longer than "/file"
-        expect(result, equals('http://e.org/f'));
+        // Absolute-path "/f" is much shorter than both the original IRI and dot notation
+        expect(result, equals('/f'));
       });
 
       test('serialization mode should be more aggressive than moderate', () {
         final result = relativizeIri(
           'http://example.org/other/file',
           'http://example.org/path/',
-          options: IriRelativizationOptions.full(),
+          options: IriRelativizationOptions.full().copyWith(
+            allowAbsolutePath: false,
+          ),
         );
         // Serialization mode should allow sibling directories
         expect(result, equals('../other/file'));
@@ -218,7 +309,7 @@ void main() {
         final relative = relativizeIri(originalIri, baseIri, options: options);
         final resolved = resolveIri(relative, baseIri);
 
-        expect(relative, equals('../../other/file.txt'));
+        expect(relative, equals('/other/file.txt'));
         expect(resolved, equals(originalIri));
       });
     });
@@ -350,14 +441,14 @@ void main() {
         expect(result, equals('http://example.org/path/file'));
       });
 
-      test('should not relativize when base has fragment', () {
-        // According to RFC 3986, relativization against base with fragment is unsafe
-        // because resolution ignores the base's fragment component
+      test('should relativize when base has fragment', () {
+        // Per RFC 3986 Section 5.1, fragments in base URI should be stripped
+        // before relativization, making this relativization safe and correct
         final result = relativizeIri(
           'http://example.org/path/file',
           'http://example.org/path/#fragment',
         );
-        expect(result, equals('http://example.org/path/file'));
+        expect(result, equals('file'));
       });
     });
 

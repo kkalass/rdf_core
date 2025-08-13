@@ -7,8 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Absolute-Path Relativization**: New support for RFC 3986 absolute-path references in IRI relativization
+  - Added `allowAbsolutePath` option (defaults to true) to `IriRelativizationOptions` for controlling absolute-path relativization
+  - Enables generation of shorter relative IRIs like `/simple.txt` instead of `../../../../simple.txt`
+  - Automatically selects the shorter option between dot notation and absolute-path references
+
 ### Improved
 
+- **RFC 3986 Compliance**: Enhanced IRI relativization algorithm for better standards compliance
+  - Base URI fragments are now properly stripped per RFC 3986 Section 5.1 before relativization
+  - Improved handling of file vs. directory path segments in common prefix calculation
+  - Better preservation of trailing slashes in relative path generation
+  - Fixed edge cases in relativization when base IRI contains fragments
+- **IRI Relativization Algorithm**: Significant improvements to dot notation path generation
+  - Enhanced common prefix calculation for more accurate relative path generation
+  - Better handling of file vs. directory path components
+  - Improved sibling directory navigation with configurable constraints
+  - More robust edge case handling for malformed IRIs and complex path structures
 - **Enhanced Format Detection**: Improved Turtle and JSON-LD format detection accuracy
   - Enhanced Turtle `canParse` method with better HTML rejection and more specific pattern matching
   - Added comprehensive test coverage for format detection edge cases

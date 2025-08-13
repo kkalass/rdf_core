@@ -45,6 +45,16 @@ class IriRelativizationOptions {
   /// When false, only allows relativization when there's a shared directory structure.
   final bool allowSiblingDirectories;
 
+  /// Whether to allow absolute-path relativization (starting with '/').
+  ///
+  /// When true, allows RFC 3986 absolute-path references like "/path/file.txt"
+  /// when they would be shorter than relative paths with "../" navigation.
+  /// When false, only relative paths with explicit navigation are used.
+  ///
+  /// Per RFC 3986, absolute-path references are valid relative references
+  /// that begin with a single slash character.
+  final bool allowAbsolutePath;
+
   /// Creates new IRI relativization options with explicit configuration.
   ///
   /// All parameters are required to avoid ambiguity. For common use cases,
@@ -54,10 +64,12 @@ class IriRelativizationOptions {
   /// - [maxUpLevels] Maximum "../" components allowed (null for unlimited)
   /// - [maxAdditionalLength] Maximum extra length vs absolute
   /// - [allowSiblingDirectories] Allow ../sibling patterns
+  /// - [allowAbsolutePath] Allow absolute-path references like "/path/file.txt"
   const IriRelativizationOptions({
     required this.maxUpLevels,
     required this.maxAdditionalLength,
     required this.allowSiblingDirectories,
+    required this.allowAbsolutePath,
   });
 
   /// No relativization - always use absolute IRIs.
@@ -67,7 +79,8 @@ class IriRelativizationOptions {
   const IriRelativizationOptions.none()
       : maxUpLevels = -1, // Special flag to disable all relativization
         maxAdditionalLength = 0,
-        allowSiblingDirectories = false;
+        allowSiblingDirectories = false,
+        allowAbsolutePath = false;
 
   /// Local relativization - same directory and child directories only.
   ///
@@ -77,7 +90,8 @@ class IriRelativizationOptions {
   const IriRelativizationOptions.local()
       : maxUpLevels = 0,
         maxAdditionalLength = 0,
-        allowSiblingDirectories = false;
+        allowSiblingDirectories = false,
+        allowAbsolutePath = false;
 
   /// Full relativization - allow any valid relative path structure.
   ///
@@ -89,7 +103,8 @@ class IriRelativizationOptions {
   const IriRelativizationOptions.full()
       : maxUpLevels = null,
         maxAdditionalLength = 0,
-        allowSiblingDirectories = true;
+        allowSiblingDirectories = true,
+        allowAbsolutePath = true;
 
   /// Creates a copy of these options with specified overrides.
   ///
@@ -98,12 +113,14 @@ class IriRelativizationOptions {
     int? maxUpLevels,
     int? maxAdditionalLength,
     bool? allowSiblingDirectories,
+    bool? allowAbsolutePath,
   }) =>
       IriRelativizationOptions(
         maxUpLevels: maxUpLevels ?? this.maxUpLevels,
         maxAdditionalLength: maxAdditionalLength ?? this.maxAdditionalLength,
         allowSiblingDirectories:
             allowSiblingDirectories ?? this.allowSiblingDirectories,
+        allowAbsolutePath: allowAbsolutePath ?? this.allowAbsolutePath,
       );
 
   @override

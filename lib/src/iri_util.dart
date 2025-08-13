@@ -81,7 +81,9 @@ String relativizeIri(String iri, String? baseIri,
 String _relativizeUri(
     String iri, String baseIri, IriRelativizationOptions options) {
   try {
-    final baseUri = Uri.parse(baseIri);
+    // Per RFC 3986 Section 5.1: Base URI must be stripped of any fragment component
+    final effectiveBaseIri = _stripFragment(baseIri);
+    final baseUri = Uri.parse(effectiveBaseIri);
     final uri = Uri.parse(iri);
 
     // Only relativize if both URIs have scheme and authority
@@ -100,7 +102,7 @@ String _relativizeUri(
       return iri;
     }
     // Special case: if URIs are identical, return empty string
-    if (iri == baseIri) {
+    if (iri == effectiveBaseIri) {
       return '';
     }
 
@@ -113,12 +115,24 @@ String _relativizeUri(
     }
 
     // Try sophisticated path-based relativization with dot notation
-    if (!baseUri.hasQuery &&
-        (!baseUri.hasFragment || baseUri.fragment.isEmpty)) {
+    // Per RFC 3986, fragments in base URI should not prevent relativization
+    // since they are ignored during resolution (and stripped from base URI)
+    if (!baseUri.hasQuery) {
       final dotNotationResult =
           _tryDotNotationRelativization(uri, baseUri, options);
-      if (dotNotationResult != null) {
+      final absolutePathResult = options.allowAbsolutePath
+          ? _tryAbsolutePathRelativization(uri, baseUri)
+          : null;
+
+      // Choose the shorter result between dot notation and absolute path
+      if (dotNotationResult != null && absolutePathResult != null) {
+        return dotNotationResult.length <= absolutePathResult.length
+            ? dotNotationResult
+            : absolutePathResult;
+      } else if (dotNotationResult != null) {
         return dotNotationResult;
+      } else if (absolutePathResult != null) {
+        return absolutePathResult;
       }
     }
 
@@ -128,6 +142,19 @@ String _relativizeUri(
     // If any parsing fails, return the absolute URI
     return iri;
   }
+}
+
+/// Strips the fragment component from a URI according to RFC 3986 Section 5.1.
+///
+/// Per RFC 3986: "If the base URI is obtained from a URI reference, then that
+/// reference must be converted to absolute form and stripped of any fragment
+/// component prior to its use as a base URI."
+String _stripFragment(String uri) {
+  final hashIndex = uri.indexOf('#');
+  if (hashIndex == -1) {
+    return uri;
+  }
+  return uri.substring(0, hashIndex);
 }
 
 /// Attempts to create a relative path using dot notation (../, ./).
@@ -168,12 +195,23 @@ String? _tryDotNotationRelativization(
     baseSegments.removeLast();
   }
 
-  // Find common prefix
+  // For common prefix calculation, we need to handle file vs directory segments correctly
+  // Create copies to avoid modifying the original segments needed for path building
+  final targetSegmentsForCommon = targetSegments.toList();
+  final baseSegmentsForCommon = baseSegments.toList();
+
+  // If target doesn't end with /, the last segment is a file - exclude it from common prefix calculation
+  if (!uri.path.endsWith('/') && targetSegmentsForCommon.isNotEmpty) {
+    targetSegmentsForCommon.removeLast();
+  }
+
+  // Find common prefix using the adjusted segments
   int commonLength = 0;
-  final minLength = math.min(baseSegments.length, targetSegments.length);
+  final minLength =
+      math.min(baseSegmentsForCommon.length, targetSegmentsForCommon.length);
 
   for (int i = 0; i < minLength; i++) {
-    if (baseSegments[i] == targetSegments[i]) {
+    if (baseSegmentsForCommon[i] == targetSegmentsForCommon[i]) {
       commonLength++;
     } else {
       break;
@@ -229,6 +267,13 @@ String? _tryDotNotationRelativization(
 
   // Build the relative path string
   var relativePath = pathParts.join('/');
+
+  // Preserve trailing slash if original URI had one
+  if (uri.path.endsWith('/') &&
+      !relativePath.endsWith('/') &&
+      relativePath.isNotEmpty) {
+    relativePath += '/';
+  }
 
   // Add query and fragment if present
   if (uri.hasQuery) {
@@ -390,4 +435,46 @@ String _manualResolveUri(String uri, String baseIri) {
   } else {
     return '$baseIri/$uri';
   }
+}
+
+/// Attempts to create an absolute-path relative reference (starting with '/').
+///
+/// Per RFC 3986, an absolute-path reference begins with a single slash character
+/// and is relative to the authority component of the base URI.
+///
+/// This is useful when the target and base have the same scheme and authority
+/// but the relative path with dot notation would be longer than the absolute path.
+///
+/// Examples:
+/// - Base: http://example.org/a/very/deep/path/file.html
+/// - Target: http://example.org/simple.txt
+/// - Result: /simple.txt (shorter than ../../../../simple.txt)
+///
+/// Returns an absolute-path relative reference if beneficial, null otherwise.
+String? _tryAbsolutePathRelativization(Uri uri, Uri baseUri) {
+  // Only works for same scheme and authority
+  if (baseUri.scheme != uri.scheme || baseUri.authority != uri.authority) {
+    return null;
+  }
+
+  // Don't use absolute path if the URI has query parameters that differ from base
+  // or if base has query parameters (unsafe for relativization)
+  if (baseUri.hasQuery || (uri.hasQuery && uri.query != baseUri.query)) {
+    return null;
+  }
+
+  // Construct the absolute-path reference
+  String result = uri.path;
+
+  // Add query parameters if present
+  if (uri.hasQuery) {
+    result += '?${uri.query}';
+  }
+
+  // Add fragment if present
+  if (uri.hasFragment) {
+    result += '#${uri.fragment}';
+  }
+
+  return result;
 }

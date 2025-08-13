@@ -57,6 +57,7 @@
       <span class="name ">IriRelativizationOptions</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-maxUpLevels"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">maxUpLevels</span>, </span></li>
 <li><span class="parameter" id="-param-maxAdditionalLength"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">maxAdditionalLength</span>, </span></li>
 <li><span class="parameter" id="-param-allowSiblingDirectories"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">allowSiblingDirectories</span>, </span></li>
+<li><span class="parameter" id="-param-allowAbsolutePath"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">allowAbsolutePath</span>, </span></li>
 </ol>})
     </section>
     
@@ -69,6 +70,7 @@ prefer the semantic constructors: <a href="../../rdf/IriRelativizationOptions/Ir
 <li><code>maxUpLevels</code> Maximum "../" components allowed (null for unlimited)</li>
 <li><code>maxAdditionalLength</code> Maximum extra length vs absolute</li>
 <li><code>allowSiblingDirectories</code> Allow ../sibling patterns</li>
+<li><code>allowAbsolutePath</code> Allow absolute-path references like "/path/file.txt"</li>
 </ul>
 </section>
 
@@ -80,6 +82,7 @@ prefer the semantic constructors: <a href="../../rdf/IriRelativizationOptions/Ir
   required this.maxUpLevels,
   required this.maxAdditionalLength,
   required this.allowSiblingDirectories,
+  required this.allowAbsolutePath,
 });</code></pre>
 </section>
 
@@ -108,7 +111,7 @@ prefer the semantic constructors: <a href="../../rdf/IriRelativizationOptions/Ir
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.13
+      0.9.14
   </span>
   
 </footer>

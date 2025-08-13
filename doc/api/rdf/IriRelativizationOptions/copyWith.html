@@ -58,6 +58,7 @@
 <span class="name ">copyWith</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="copyWith-param-maxUpLevels"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">maxUpLevels</span>, </span></li>
 <li><span class="parameter" id="copyWith-param-maxAdditionalLength"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">maxAdditionalLength</span>, </span></li>
 <li><span class="parameter" id="copyWith-param-allowSiblingDirectories"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">allowSiblingDirectories</span>, </span></li>
+<li><span class="parameter" id="copyWith-param-allowAbsolutePath"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">allowAbsolutePath</span>, </span></li>
 </ol>})
 
       
@@ -77,12 +78,14 @@
   int? maxUpLevels,
   int? maxAdditionalLength,
   bool? allowSiblingDirectories,
+  bool? allowAbsolutePath,
 }) =&gt;
     IriRelativizationOptions(
       maxUpLevels: maxUpLevels ?? this.maxUpLevels,
       maxAdditionalLength: maxAdditionalLength ?? this.maxAdditionalLength,
       allowSiblingDirectories:
           allowSiblingDirectories ?? this.allowSiblingDirectories,
+      allowAbsolutePath: allowAbsolutePath ?? this.allowAbsolutePath,
     );</code></pre>
 </section>
 
@@ -111,7 +114,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.13
+      0.9.14
   </span>
   
 </footer>

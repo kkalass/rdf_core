@@ -93,16 +93,45 @@ bool canParse(String content) {
   &#47;&#47; Simple heuristics for detecting Turtle format
   final trimmed = content.trim();
 
-  &#47;&#47; Check for common Turtle prefixes, predicates or statements
-  return trimmed.contains(&#39;@prefix&#39;) ||
+  &#47;&#47; Early rejection: obvious HTML content
+  if (_isObviouslyHtml(trimmed)) {
+    return false;
+  }
+
+  &#47;&#47; Check for explicit Turtle directives
+  if (trimmed.contains(&#39;@prefix&#39;) ||
       trimmed.contains(&#39;@base&#39;) ||
-      &#47;&#47; Look for triple pattern ending with dot
-      RegExp(r&#39;.*\s+.*\s+.*\s*\.$&#39;, multiLine: true).hasMatch(trimmed) ||
-      &#47;&#47; Check for common RDF prefix declarations
       trimmed.contains(&#39;prefix rdf:&#39;) ||
       trimmed.contains(&#39;prefix rdfs:&#39;) ||
       trimmed.contains(&#39;prefix owl:&#39;) ||
-      trimmed.contains(&#39;prefix xsd:&#39;);
+      trimmed.contains(&#39;prefix xsd:&#39;)) {
+    return true;
+  }
+
+  &#47;&#47; Look for Turtle-like triple patterns (more specific than before)
+  &#47;&#47; Must have angle brackets for IRIs or prefixed names
+  final hasTriplePattern = RegExp(
+    r&#39;(&lt;[^&gt;]+&gt;|\w+:\w+)\s+(&lt;[^&gt;]+&gt;|\w+:\w+|a)\s+(&lt;[^&gt;]+&gt;|\w+:\w+|&quot;[^&quot;]*&quot;|\d+|true|false)\s*\.&#39;,
+    multiLine: true,
+  ).hasMatch(trimmed);
+
+  if (hasTriplePattern) {
+    return true;
+  }
+
+  &#47;&#47; Check for blank node patterns
+  final hasBlankNodes = RegExp(r&#39;\[\s*\]|\[.*?\]&#39;).hasMatch(trimmed);
+  if (hasBlankNodes &amp;&amp; trimmed.contains(&#39;.&#39;)) {
+    return true;
+  }
+
+  &#47;&#47; Check for collection patterns
+  final hasCollections = RegExp(r&#39;\(\s*\)|\([^)]+\)&#39;).hasMatch(trimmed);
+  if (hasCollections &amp;&amp; trimmed.contains(&#39;.&#39;)) {
+    return true;
+  }
+
+  return false;
 }</code></pre>
 </section>
 
@@ -131,7 +160,7 @@ bool canParse(String content) {
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.13
+      0.9.14
   </span>
   
 </footer>

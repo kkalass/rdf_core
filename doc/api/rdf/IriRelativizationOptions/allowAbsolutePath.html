@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the convert method from the RdfGraphEncoder class, for the Dart programming language.">
-  <title>convert method - RdfGraphEncoder class - rdf library - Dart API</title>
+  <meta name="description" content="API docs for the allowAbsolutePath property from the IriRelativizationOptions class, for the Dart programming language.">
+  <title>allowAbsolutePath property - IriRelativizationOptions class - rdf library - Dart API</title>
 
 
   
@@ -26,10 +26,10 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rdf_core</a></li>
     <li><a href="../../rdf/">rdf_core.dart</a></li>
-    <li><a href="../../rdf/RdfGraphEncoder-class.html">RdfGraphEncoder</a></li>
-    <li class="self-crumb">convert abstract method</li>
+    <li><a href="../../rdf/IriRelativizationOptions-class.html">IriRelativizationOptions</a></li>
+    <li class="self-crumb">allowAbsolutePath property</li>
   </ol>
-  <div class="self-name">convert</div>
+  <div class="self-name">allowAbsolutePath</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -46,50 +46,41 @@
 <div
     id="dartdoc-main-content"
     class="main-content"
-    data-above-sidebar="rdf&#47;RdfGraphEncoder-class-sidebar.html"
+    data-above-sidebar="rdf&#47;IriRelativizationOptions-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">convert</span> abstract method 
+<h1><span class="kind-property">allowAbsolutePath</span> property 
 </h1></div>
 
-    <section class="multi-line-signature">
-      
-<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
-<span class="name ">convert</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="convert-param-graph"><span class="type-annotation"><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></span> <span class="parameter-name">graph</span>, {</span></li>
-<li><span class="parameter" id="convert-param-baseUri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">baseUri</span>, </span></li>
-</ol>})
-
-      <div class="features"><span class="feature">override</span></div>
-
-    </section>
     
+      <section class="multi-line-signature">
+        
+        <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a>
+        <span class="name ">allowAbsolutePath</span>
+        <div class="features"><span class="feature">final</span></div>
+
+      </section>
+      
 <section class="desc markdown">
-  <p>Encodes an RDF graph to a string representation in a specific format.</p>
-<p>Transforms an in-memory RDF graph into an encoded text format that can be
-stored or transmitted. The exact output format depends on the implementing class.</p>
-<p>Parameters:</p>
-<ul>
-<li><code>graph</code> The RDF graph to encode.</li>
-<li><code>baseUri</code> Optional base URI for resolving/shortening IRIs in the output.
-When provided, the encoder may use this to produce more compact output.</li>
-</ul>
-<p>Returns:</p>
-<ul>
-<li>The serialized representation of the graph as a string.</li>
-</ul>
+  <p>Whether to allow absolute-path relativization (starting with '/').</p>
+<p>When true, allows RFC 3986 absolute-path references like "/path/file.txt"
+when they would be shorter than relative paths with "../" navigation.
+When false, only relative paths with explicit navigation are used.</p>
+<p>Per RFC 3986, absolute-path references are valid relative references
+that begin with a single slash character.</p>
 </section>
 
-
-    
+      
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">String convert(RdfGraph graph, {String? baseUri});</code></pre>
+  <pre class="language-dart"><code class="language-dart">final bool allowAbsolutePath;</code></pre>
 </section>
 
 
-  </div> <!-- /.main-content -->
-  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
-    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+    
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
   <form class="search-sidebar" role="search">
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
@@ -98,14 +89,14 @@ When provided, the encoder may use this to produce more compact output.</li>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rdf_core</a></li>
     <li><a href="../../rdf/">rdf</a></li>
-    <li><a href="../../rdf/RdfGraphEncoder-class.html">RdfGraphEncoder</a></li>
-    <li class="self-crumb">convert abstract method</li>
+    <li><a href="../../rdf/IriRelativizationOptions-class.html">IriRelativizationOptions</a></li>
+    <li class="self-crumb">allowAbsolutePath property</li>
 </ol>
 
-    <h5>RdfGraphEncoder class</h5>
-    <div id="dartdoc-sidebar-left-content"></div>
-  </div><!--/.sidebar-offcanvas-->
-  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>IriRelativizationOptions class</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div><!--/.sidebar-offcanvas-->
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
 </div><!--/.sidebar-offcanvas-->
 </main>
 <footer>

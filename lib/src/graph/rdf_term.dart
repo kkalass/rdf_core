@@ -5,7 +5,7 @@
 /// Example usage:
 /// ```dart
 /// import 'package:rdf_core/src/graph/rdf_term.dart';
-/// final subject = IriTerm('http://example.org/subject');
+/// final subject = IriTerm.validated('http://example.org/subject');
 ///
 /// // Advanced: create a blank node (uses identity hash code)
 /// final bnode = BlankNodeTerm();
@@ -17,8 +17,8 @@
 /// if (term is IriTerm) print('It is an IRI!');
 ///
 /// // Equality
-/// final a = IriTerm('x');
-/// final b = IriTerm('x');
+/// final a = IriTerm.validated('x');
+/// final b = IriTerm.validated('x');
 /// assert(a == b);
 /// ```
 ///
@@ -64,6 +64,8 @@ sealed class RdfPredicate extends RdfTerm {
   const RdfPredicate();
 }
 
+typedef IriTermFactory = IriTerm Function(String iri);
+
 /// IRI (Internationalized Resource Identifier) in RDF
 ///
 /// IRIs are used to identify resources in the RDF data model. They are
@@ -101,14 +103,14 @@ class IriTerm extends RdfPredicate implements RdfSubject {
     _validateAbsoluteIri(value);
   }
 
-  /// Ensures the IRI is valid and absolute - useful for late validation if 
+  /// Ensures the IRI is valid and absolute - useful for late validation if
   /// you assume that the const constructor was used without validation.
   void ensureValid() {
     _validateAbsoluteIri(value);
   }
 
   factory IriTerm.encodeFull(String rawIri) {
-    return IriTerm(Uri.encodeFull(rawIri));
+    return IriTerm.validated(Uri.encodeFull(rawIri));
   }
 
   /// Creates an IRI term from a prevalidated IRI string.

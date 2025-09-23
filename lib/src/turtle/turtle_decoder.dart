@@ -66,6 +66,7 @@ class TurtleDecoderOptions extends RdfGraphDecoderOptions {
 class TurtleDecoder extends RdfGraphDecoder {
   final TurtleDecoderOptions _options;
   final RdfNamespaceMappings _namespaceMappings;
+  final IriTermFactory _iriTermFactory;
 
   /// Creates a new Turtle decoder
   ///
@@ -77,8 +78,10 @@ class TurtleDecoder extends RdfGraphDecoder {
   TurtleDecoder({
     TurtleDecoderOptions options = const TurtleDecoderOptions(),
     required RdfNamespaceMappings namespaceMappings,
+    IriTermFactory iriTermFactory = IriTerm.validated,
   })  : _namespaceMappings = namespaceMappings,
-        _options = options;
+        _options = options,
+        _iriTermFactory = iriTermFactory;
 
   /// Decodes a Turtle document into an RDF graph
   ///
@@ -105,6 +108,7 @@ class TurtleDecoder extends RdfGraphDecoder {
       baseUri: documentUrl,
       parsingFlags: _options.parsingFlags,
       namespaceMappings: _namespaceMappings,
+      iriTermFactory: _iriTermFactory,
     );
     return RdfGraph.fromTriples(parser.parse());
   }
@@ -161,6 +165,7 @@ class TurtleParser {
   final Map<String, BlankNodeTerm> _blankNodesByLabels = {};
   final Set<TurtleParsingFlag> _parsingFlags;
   final RdfNamespaceMappings _namespaceMappings;
+  final IriTermFactory _iriTermFactory;
 
   /// Creates a new Turtle parser for the given input string.
   ///
@@ -201,10 +206,12 @@ class TurtleParser {
     String? baseUri,
     Set<TurtleParsingFlag> parsingFlags = const {},
     RdfNamespaceMappings namespaceMappings = const RdfNamespaceMappings(),
+    IriTermFactory iriTermFactory = IriTerm.validated,
   })  : _tokenizer = TurtleTokenizer(input, parsingFlags: parsingFlags),
         _baseUri = baseUri,
         _parsingFlags = parsingFlags,
-        _namespaceMappings = namespaceMappings;
+        _namespaceMappings = namespaceMappings,
+        _iriTermFactory = iriTermFactory;
 
   /// Parses the input and returns a list of RDF triples.
   ///
@@ -480,13 +487,13 @@ class TurtleParser {
     if (_currentToken.type == TokenType.iri) {
       final iriValue = _extractIriValue(_currentToken.value);
       final resolvedIri = _resolveIri(iriValue);
-      final subject = IriTerm(resolvedIri);
+      final subject = _iriTermFactory(resolvedIri);
       _currentToken = _tokenizer.nextToken();
       // _log.finest('Parsed IRI subject: $subject');
       return subject;
     } else if (_currentToken.type == TokenType.prefixedName) {
       final expandedIri = _expandPrefixedName(_currentToken.value);
-      final subject = IriTerm(expandedIri);
+      final subject = _iriTermFactory(expandedIri);
       _currentToken = _tokenizer.nextToken();
       // _log.finest('Parsed prefixed name subject: $subject');
       return subject;
@@ -623,13 +630,13 @@ class TurtleParser {
     } else if (_currentToken.type == TokenType.iri) {
       final iriValue = _extractIriValue(_currentToken.value);
       final resolvedIri = _resolveIri(iriValue);
-      final predicate = IriTerm(resolvedIri);
+      final predicate = _iriTermFactory(resolvedIri);
       _currentToken = _tokenizer.nextToken();
       // _log.finest('Parsed IRI predicate: $predicate');
       return predicate;
     } else if (_currentToken.type == TokenType.prefixedName) {
       final expandedIri = _expandPrefixedName(_currentToken.value);
-      final predicate = IriTerm(expandedIri);
+      final predicate = _iriTermFactory(expandedIri);
       _currentToken = _tokenizer.nextToken();
       // _log.finest('Parsed prefixed name predicate: $predicate');
       return predicate;
@@ -665,13 +672,13 @@ class TurtleParser {
     if (_currentToken.type == TokenType.iri) {
       final iriValue = _extractIriValue(_currentToken.value);
       final resolvedIri = _resolveIri(iriValue);
-      final object = IriTerm(resolvedIri);
+      final object = _iriTermFactory(resolvedIri);
       _currentToken = _tokenizer.nextToken();
       // _log.finest('Parsed IRI object: $object');
       return object;
     } else if (_currentToken.type == TokenType.prefixedName) {
       final expandedIri = _expandPrefixedName(_currentToken.value);
-      final object = IriTerm(expandedIri);
+      final object = _iriTermFactory(expandedIri);
       _currentToken = _tokenizer.nextToken();
       // _log.finest('Parsed prefixed name object: $object');
       return object;
@@ -907,7 +914,7 @@ class TurtleParser {
     // Check for datatype (^^<datatype>)
     final datatypeMatch = RegExp(r'\^\^<([^>]+)>$').firstMatch(literalToken);
     if (datatypeMatch != null) {
-      final datatype = IriTerm(datatypeMatch.group(1)!);
+      final datatype = _iriTermFactory(datatypeMatch.group(1)!);
       return LiteralTerm(value, datatype: datatype);
     }
 
@@ -918,7 +925,7 @@ class TurtleParser {
     if (prefixedDatatypeMatch != null) {
       final prefixedName = prefixedDatatypeMatch.group(1)!;
       final expandedIri = _expandPrefixedName(prefixedName);
-      final datatype = IriTerm(expandedIri);
+      final datatype = _iriTermFactory(expandedIri);
       return LiteralTerm(value, datatype: datatype);
     }
 

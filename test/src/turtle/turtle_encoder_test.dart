@@ -28,8 +28,8 @@ void main() {
       final graph = RdfGraph(
         triples: [
           Triple(
-            IriTerm("http://example.org/test"),
-            IriTerm("http://my-ontology.org/test#deleted"),
+            const IriTerm("http://example.org/test"),
+            const IriTerm("http://my-ontology.org/test#deleted"),
             LiteralTerm("true", datatype: Xsd.boolean),
           ),
         ],
@@ -54,9 +54,9 @@ void main() {
       final graph = RdfGraph(
         triples: [
           Triple(
-            IriTerm('http://example.org/alice'),
-            IriTerm('http://example.org/knows'),
-            IriTerm('http://example.org/bob'),
+            const IriTerm('http://example.org/alice'),
+            const IriTerm('http://example.org/knows'),
+            const IriTerm('http://example.org/bob'),
           ),
         ],
       );
@@ -74,9 +74,9 @@ void main() {
       final graph = RdfGraph(
         triples: [
           Triple(
-            IriTerm('http://example.org/alice'),
-            IriTerm('http://example.org/knows'),
-            IriTerm('http://example.org/bob'),
+            const IriTerm('http://example.org/alice'),
+            const IriTerm('http://example.org/knows'),
+            const IriTerm('http://example.org/bob'),
           ),
         ],
       );
@@ -101,9 +101,9 @@ void main() {
       final graph = RdfGraph(
         triples: [
           Triple(
-            IriTerm('http://example.org/alice'),
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
-            IriTerm('http://example.org/Person'),
+            const IriTerm('http://example.org/alice'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+            const IriTerm('http://example.org/Person'),
           ),
         ],
       );
@@ -124,21 +124,22 @@ void main() {
       final graph = RdfGraph(
         triples: [
           Triple(
-            IriTerm('http://example.org/alice'),
-            IriTerm('http://example.org/name'),
+            const IriTerm('http://example.org/alice'),
+            const IriTerm('http://example.org/name'),
             LiteralTerm.string('Alice'),
           ),
           Triple(
-            IriTerm('http://example.org/alice'),
-            IriTerm('http://example.org/age'),
+            const IriTerm('http://example.org/alice'),
+            const IriTerm('http://example.org/age'),
             LiteralTerm(
               "30",
-              datatype: IriTerm('http://www.w3.org/2001/XMLSchema#integer'),
+              datatype:
+                  const IriTerm('http://www.w3.org/2001/XMLSchema#integer'),
             ),
           ),
           Triple(
-            IriTerm('http://example.org/bob'),
-            IriTerm('http://example.org/name'),
+            const IriTerm('http://example.org/bob'),
+            const IriTerm('http://example.org/name'),
             LiteralTerm.string('Bob'),
           ),
         ],
@@ -166,14 +167,14 @@ void main() {
       final graph = RdfGraph(
         triples: [
           Triple(
-            IriTerm('http://example.org/alice'),
-            IriTerm('http://example.org/likes'),
-            IriTerm('http://example.org/chocolate'),
+            const IriTerm('http://example.org/alice'),
+            const IriTerm('http://example.org/likes'),
+            const IriTerm('http://example.org/chocolate'),
           ),
           Triple(
-            IriTerm('http://example.org/alice'),
-            IriTerm('http://example.org/likes'),
-            IriTerm('http://example.org/pizza'),
+            const IriTerm('http://example.org/alice'),
+            const IriTerm('http://example.org/likes'),
+            const IriTerm('http://example.org/pizza'),
           ),
         ],
       );
@@ -191,8 +192,8 @@ void main() {
       final graph = RdfGraph(
         triples: [
           Triple(
-            IriTerm('http://example.org/statement'),
-            IriTerm('http://example.org/source'),
+            const IriTerm('http://example.org/statement'),
+            const IriTerm('http://example.org/source'),
             blankNode,
           ),
         ],
@@ -211,8 +212,8 @@ void main() {
       final graph = RdfGraph(
         triples: [
           Triple(
-            IriTerm('http://example.org/book'),
-            IriTerm('http://example.org/title'),
+            const IriTerm('http://example.org/book'),
+            const IriTerm('http://example.org/title'),
             LiteralTerm.withLanguage('Le Petit Prince', 'fr'),
           ),
         ],
@@ -230,8 +231,8 @@ void main() {
       final graph = RdfGraph(
         triples: [
           Triple(
-            IriTerm('http://example.org/book'),
-            IriTerm('http://example.org/title'),
+            const IriTerm('http://example.org/book'),
+            const IriTerm('http://example.org/title'),
             LiteralTerm.string(
               'Le "Petit" \\ Prince\n hopes for a better world\r',
             ),
@@ -259,29 +260,29 @@ void main() {
           triples: [
             // Person 1
             Triple(
-              IriTerm('http://example.org/alice'),
-              IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
-              IriTerm('http://xmlns.com/foaf/0.1/Person'),
+              const IriTerm('http://example.org/alice'),
+              const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+              const IriTerm('http://xmlns.com/foaf/0.1/Person'),
             ),
             Triple(
-              IriTerm('http://example.org/alice'),
-              IriTerm('http://xmlns.com/foaf/0.1/name'),
+              const IriTerm('http://example.org/alice'),
+              const IriTerm('http://xmlns.com/foaf/0.1/name'),
               LiteralTerm.string('Alice'),
             ),
             Triple(
-              IriTerm('http://example.org/alice'),
-              IriTerm('http://xmlns.com/foaf/0.1/knows'),
-              IriTerm('http://example.org/bob'),
+              const IriTerm('http://example.org/alice'),
+              const IriTerm('http://xmlns.com/foaf/0.1/knows'),
+              const IriTerm('http://example.org/bob'),
             ),
             // Person 2
             Triple(
-              IriTerm('http://example.org/bob'),
-              IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
-              IriTerm('http://xmlns.com/foaf/0.1/Person'),
+              const IriTerm('http://example.org/bob'),
+              const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+              const IriTerm('http://xmlns.com/foaf/0.1/Person'),
             ),
             Triple(
-              IriTerm('http://example.org/bob'),
-              IriTerm('http://xmlns.com/foaf/0.1/name'),
+              const IriTerm('http://example.org/bob'),
+              const IriTerm('http://xmlns.com/foaf/0.1/name'),
               LiteralTerm.string('Bob'),
             ),
           ],
@@ -313,8 +314,8 @@ void main() {
       final graph = RdfGraph(
         triples: [
           Triple(
-            IriTerm('http://example.org/entity'),
-            IriTerm('http://example.org/label'),
+            const IriTerm('http://example.org/entity'),
+            const IriTerm('http://example.org/label'),
             LiteralTerm.string('Unicode: € ♥ © ≈ ♠ ⚓ 😀'),
           ),
         ],
@@ -348,8 +349,8 @@ void main() {
       final graph = RdfGraph(
         triples: [
           Triple(
-            IriTerm('http://example.org/entity'),
-            IriTerm('http://example.org/value'),
+            const IriTerm('http://example.org/entity'),
+            const IriTerm('http://example.org/value'),
             LiteralTerm.string('Control chars: \u0001 \u0007 \u001F'),
           ),
         ],
@@ -376,8 +377,8 @@ void main() {
       final graph = RdfGraph(
         triples: [
           Triple(
-            IriTerm('http://example.org/default#resource'),
-            IriTerm('http://example.org/default#property'),
+            const IriTerm('http://example.org/default#resource'),
+            const IriTerm('http://example.org/default#property'),
             LiteralTerm.string('value'),
           ),
         ],
@@ -400,23 +401,23 @@ void main() {
       final graph = RdfGraph(
         triples: [
           Triple(
-            IriTerm('http://example.org/subject'),
-            IriTerm('http://example.org/predicate1'),
+            const IriTerm('http://example.org/subject'),
+            const IriTerm('http://example.org/predicate1'),
             LiteralTerm.string('value1'),
           ),
           Triple(
-            IriTerm('http://example.org/subject'),
-            IriTerm('http://example.org/predicate1'),
+            const IriTerm('http://example.org/subject'),
+            const IriTerm('http://example.org/predicate1'),
             LiteralTerm.string('value2'),
           ),
           Triple(
-            IriTerm('http://example.org/subject'),
-            IriTerm('http://example.org/predicate2'),
+            const IriTerm('http://example.org/subject'),
+            const IriTerm('http://example.org/predicate2'),
             LiteralTerm.string('value3'),
           ),
           Triple(
-            IriTerm('http://example.org/subject'),
-            IriTerm('http://example.org/predicate2'),
+            const IriTerm('http://example.org/subject'),
+            const IriTerm('http://example.org/predicate2'),
             LiteralTerm.string('value4'),
           ),
         ],
@@ -440,18 +441,18 @@ void main() {
       final graph = RdfGraph(
         triples: [
           Triple(
-            IriTerm('http://example.org/book'),
-            IriTerm('http://example.org/title'),
+            const IriTerm('http://example.org/book'),
+            const IriTerm('http://example.org/title'),
             LiteralTerm.string('The Little Prince'),
           ),
           Triple(
-            IriTerm('http://example.org/book'),
-            IriTerm('http://example.org/title'),
+            const IriTerm('http://example.org/book'),
+            const IriTerm('http://example.org/title'),
             LiteralTerm.withLanguage('Le Petit Prince', 'fr'),
           ),
           Triple(
-            IriTerm('http://example.org/book'),
-            IriTerm('http://example.org/title'),
+            const IriTerm('http://example.org/book'),
+            const IriTerm('http://example.org/title'),
             LiteralTerm.withLanguage('Der kleine Prinz', 'de'),
           ),
         ],
@@ -474,8 +475,8 @@ void main() {
       final graph = RdfGraph(
         triples: [
           Triple(
-            IriTerm('http://example.org/book/littleprince'),
-            IriTerm('http://purl.org/dc/terms/title'),
+            const IriTerm('http://example.org/book/littleprince'),
+            const IriTerm('http://purl.org/dc/terms/title'),
             LiteralTerm.string('The Little Prince'),
           ),
         ],
@@ -506,14 +507,14 @@ void main() {
         final graph = RdfGraph(
           triples: [
             Triple(
-              IriTerm('http://example.org/alice'),
-              IriTerm('http://xmlns.com/foaf/0.1/name'),
+              const IriTerm('http://example.org/alice'),
+              const IriTerm('http://xmlns.com/foaf/0.1/name'),
               LiteralTerm.string('Alice'),
             ),
             Triple(
-              IriTerm('http://example.org/alice'),
-              IriTerm('http://xmlns.com/foaf/0.1/knows'),
-              IriTerm('http://example.org/bob'),
+              const IriTerm('http://example.org/alice'),
+              const IriTerm('http://xmlns.com/foaf/0.1/knows'),
+              const IriTerm('http://example.org/bob'),
             ),
           ],
         );
@@ -537,8 +538,8 @@ void main() {
       final graph = RdfGraph(
         triples: [
           Triple(
-            IriTerm('http://example.org/book/littleprince'),
-            IriTerm('http://purl.org/dc/terms/title'),
+            const IriTerm('http://example.org/book/littleprince'),
+            const IriTerm('http://purl.org/dc/terms/title'),
             LiteralTerm.string('The Little Prince'),
           ),
         ],
@@ -567,8 +568,8 @@ void main() {
       // Arrange
       final graph = RdfGraph.fromTriples([
         Triple(
-          IriTerm('http://example.org/subject'),
-          IriTerm('http://example.org/vocabulary/predicate'),
+          const IriTerm('http://example.org/subject'),
+          const IriTerm('http://example.org/vocabulary/predicate'),
           LiteralTerm.string('object'),
         ),
       ]);
@@ -605,18 +606,18 @@ void main() {
 
       final graph = RdfGraph.fromTriples([
         Triple(
-          IriTerm('http://example.org/resource1'),
-          IriTerm('http://example.org/property'),
+          const IriTerm('http://example.org/resource1'),
+          const IriTerm('http://example.org/property'),
           blankNode,
         ),
         Triple(
-          IriTerm('http://example.org/resource2'),
-          IriTerm('http://example.org/property'),
+          const IriTerm('http://example.org/resource2'),
+          const IriTerm('http://example.org/property'),
           blankNode,
         ),
         Triple(
           blankNode,
-          IriTerm('http://example.org/type'),
+          const IriTerm('http://example.org/type'),
           LiteralTerm.string('Shared blank node'),
         ),
       ]);
@@ -648,36 +649,36 @@ void main() {
         triples: [
           // Integer literal
           Triple(
-            IriTerm('http://example.org/resource1'),
-            IriTerm('http://example.org/hasInteger'),
+            const IriTerm('http://example.org/resource1'),
+            const IriTerm('http://example.org/hasInteger'),
             LiteralTerm.integer(42),
           ),
           // Decimal literal
           Triple(
-            IriTerm('http://example.org/resource1'),
-            IriTerm('http://example.org/hasDecimal'),
+            const IriTerm('http://example.org/resource1'),
+            const IriTerm('http://example.org/hasDecimal'),
             LiteralTerm.decimal(3.14),
           ),
           // Boolean literal
           Triple(
-            IriTerm('http://example.org/resource1'),
-            IriTerm('http://example.org/isEnabled'),
+            const IriTerm('http://example.org/resource1'),
+            const IriTerm('http://example.org/isEnabled'),
             LiteralTerm.boolean(true),
           ),
           // Multiple native literals with the same predicate
           Triple(
-            IriTerm('http://example.org/resource2'),
-            IriTerm('http://example.org/hasValue'),
+            const IriTerm('http://example.org/resource2'),
+            const IriTerm('http://example.org/hasValue'),
             LiteralTerm.integer(123),
           ),
           Triple(
-            IriTerm('http://example.org/resource2'),
-            IriTerm('http://example.org/hasValue'),
+            const IriTerm('http://example.org/resource2'),
+            const IriTerm('http://example.org/hasValue'),
             LiteralTerm.decimal(45.67),
           ),
           Triple(
-            IriTerm('http://example.org/resource2'),
-            IriTerm('http://example.org/hasValue'),
+            const IriTerm('http://example.org/resource2'),
+            const IriTerm('http://example.org/hasValue'),
             LiteralTerm.boolean(false),
           ),
         ],
@@ -732,43 +733,43 @@ void main() {
       final graph = RdfGraph.fromTriples([
         // Use the collection as an object in a triple
         Triple(
-          IriTerm('http://example.org/subject'),
-          IriTerm('http://example.org/predicate'),
+          const IriTerm('http://example.org/subject'),
+          const IriTerm('http://example.org/predicate'),
           head,
         ),
 
         // Define the collection structure
         Triple(
           head,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
           LiteralTerm.string('item1'),
         ),
         Triple(
           head,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
           node1,
         ),
 
         Triple(
           node1,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
           LiteralTerm.string('item2'),
         ),
         Triple(
           node1,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
           node2,
         ),
 
         Triple(
           node2,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
           LiteralTerm.string('item3'),
         ),
         Triple(
           node2,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
         ),
       ]);
 
@@ -811,66 +812,66 @@ void main() {
       final graph = RdfGraph.fromTriples([
         // Main triple using the outer collection
         Triple(
-          IriTerm('http://example.org/subject'),
-          IriTerm('http://example.org/predicate'),
+          const IriTerm('http://example.org/subject'),
+          const IriTerm('http://example.org/predicate'),
           outerHead,
         ),
 
         // Outer collection structure
         Triple(
           outerHead,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
           LiteralTerm.string('item1'),
         ),
         Triple(
           outerHead,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
           outerNode1,
         ),
 
         Triple(
           outerNode1,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
           innerHead,
         ), // This item is itself a collection
         Triple(
           outerNode1,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
           outerNode2,
         ),
 
         Triple(
           outerNode2,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
           LiteralTerm.string('item3'),
         ),
         Triple(
           outerNode2,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
         ),
 
         // Inner collection structure
         Triple(
           innerHead,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
           LiteralTerm.string('nested1'),
         ),
         Triple(
           innerHead,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
           innerNode1,
         ),
 
         Triple(
           innerNode1,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
           LiteralTerm.string('nested2'),
         ),
         Triple(
           innerNode1,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
         ),
       ]);
 
@@ -892,9 +893,9 @@ void main() {
       final graph = RdfGraph.fromTriples([
         // Use rdf:nil directly as object to represent an empty collection
         Triple(
-          IriTerm('http://example.org/subject'),
-          IriTerm('http://example.org/predicate'),
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+          const IriTerm('http://example.org/subject'),
+          const IriTerm('http://example.org/predicate'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
         ),
       ]);
 
@@ -920,54 +921,54 @@ void main() {
         final graph = RdfGraph.fromTriples([
           // Main triple using the collection
           Triple(
-            IriTerm('http://example.org/subject'),
-            IriTerm('http://example.org/predicate'),
+            const IriTerm('http://example.org/subject'),
+            const IriTerm('http://example.org/predicate'),
             head,
           ),
 
           // Collection with various types of values
           Triple(
             head,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
             LiteralTerm.string('string'),
           ),
           Triple(
             head,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
             node1,
           ),
 
           Triple(
             node1,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
             LiteralTerm.integer(42),
           ),
           Triple(
             node1,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
             node2,
           ),
 
           Triple(
             node2,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
             LiteralTerm.boolean(true),
           ),
           Triple(
             node2,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
             node3,
           ),
 
           Triple(
             node3,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
-            IriTerm('http://example.org/resource'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            const IriTerm('http://example.org/resource'),
           ),
           Triple(
             node3,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
           ),
         ]);
 
@@ -995,62 +996,62 @@ void main() {
       final graph = RdfGraph.fromTriples([
         // First triple with first collection
         Triple(
-          IriTerm('http://example.org/subject1'),
-          IriTerm('http://example.org/predicate1'),
+          const IriTerm('http://example.org/subject1'),
+          const IriTerm('http://example.org/predicate1'),
           collection1Head,
         ),
 
         // First collection structure
         Triple(
           collection1Head,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
           LiteralTerm.string('collection1-item1'),
         ),
         Triple(
           collection1Head,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
           collection1Node1,
         ),
 
         Triple(
           collection1Node1,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
           LiteralTerm.string('collection1-item2'),
         ),
         Triple(
           collection1Node1,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
         ),
 
         // Second triple with second collection
         Triple(
-          IriTerm('http://example.org/subject2'),
-          IriTerm('http://example.org/predicate2'),
+          const IriTerm('http://example.org/subject2'),
+          const IriTerm('http://example.org/predicate2'),
           collection2Head,
         ),
 
         // Second collection structure
         Triple(
           collection2Head,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
           LiteralTerm.string('collection2-item1'),
         ),
         Triple(
           collection2Head,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
           collection2Node1,
         ),
 
         Triple(
           collection2Node1,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
           LiteralTerm.string('collection2-item2'),
         ),
         Triple(
           collection2Node1,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
         ),
       ]);
 
@@ -1087,43 +1088,43 @@ void main() {
         final graph = RdfGraph.fromTriples([
           // Main triple using the collection
           Triple(
-            IriTerm('http://example.org/subject'),
-            IriTerm('http://example.org/predicate'),
+            const IriTerm('http://example.org/subject'),
+            const IriTerm('http://example.org/predicate'),
             collectionHead,
           ),
 
           // Collection structure
           Triple(
             collectionHead,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
             LiteralTerm.string('item1'),
           ),
           Triple(
             collectionHead,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
             collectionNode1,
           ),
 
           Triple(
             collectionNode1,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
             blankNodeItem,
           ),
           Triple(
             collectionNode1,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
           ),
 
           // The blank node item has its own properties
           Triple(
             blankNodeItem,
-            IriTerm('http://example.org/type'),
+            const IriTerm('http://example.org/type'),
             LiteralTerm.string('BlankNodeInCollection'),
           ),
           Triple(
-            IriTerm('http://example.org/somethingElse'),
-            IriTerm('http://example.org/relatedTo'),
+            const IriTerm('http://example.org/somethingElse'),
+            const IriTerm('http://example.org/relatedTo'),
             blankNodeItem,
           ),
         ]);
@@ -1165,62 +1166,62 @@ void main() {
         final graph = RdfGraph.fromTriples([
           // First triple with first collection: (A, B)
           Triple(
-            IriTerm('http://example.org/subject1'),
-            IriTerm('http://example.org/predicate'),
+            const IriTerm('http://example.org/subject1'),
+            const IriTerm('http://example.org/predicate'),
             collection1Head,
           ),
 
           // First collection structure: A, B
           Triple(
             collection1Head,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
             LiteralTerm.string('A'),
           ),
           Triple(
             collection1Head,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
             collection1Node1,
           ),
 
           Triple(
             collection1Node1,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
             LiteralTerm.string('B'),
           ),
           Triple(
             collection1Node1,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
           ),
 
           // Second triple with second collection: (B, A)
           Triple(
-            IriTerm('http://example.org/subject2'),
-            IriTerm('http://example.org/predicate'),
+            const IriTerm('http://example.org/subject2'),
+            const IriTerm('http://example.org/predicate'),
             collection2Head,
           ),
 
           // Second collection structure: B, A
           Triple(
             collection2Head,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
             LiteralTerm.string('B'),
           ),
           Triple(
             collection2Head,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
             collection2Node1,
           ),
 
           Triple(
             collection2Node1,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
             LiteralTerm.string('A'),
           ),
           Triple(
             collection2Node1,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
           ),
         ]);
 
@@ -1247,33 +1248,33 @@ void main() {
       final graph = RdfGraph.fromTriples([
         // Subject with multiple predicates
         Triple(
-          IriTerm('http://example.org/subject1'),
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
-          IriTerm('http://example.org/Type'),
+          const IriTerm('http://example.org/subject1'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+          const IriTerm('http://example.org/Type'),
         ),
         Triple(
-          IriTerm('http://example.org/subject1'),
-          IriTerm('http://example.org/name'),
+          const IriTerm('http://example.org/subject1'),
+          const IriTerm('http://example.org/name'),
           LiteralTerm.string('Example Subject'),
         ),
         Triple(
-          IriTerm('http://example.org/subject1'),
-          IriTerm('http://example.org/value'),
+          const IriTerm('http://example.org/subject1'),
+          const IriTerm('http://example.org/value'),
           LiteralTerm.integer(42),
         ),
 
         // Second subject with a different set of predicates
         Triple(
-          IriTerm('http://example.org/subject2'),
-          IriTerm('http://example.org/related'),
-          IriTerm('http://example.org/subject1'),
+          const IriTerm('http://example.org/subject2'),
+          const IriTerm('http://example.org/related'),
+          const IriTerm('http://example.org/subject1'),
         ),
         Triple(
-          IriTerm('http://example.org/subject2'),
-          IriTerm('http://example.org/created'),
+          const IriTerm('http://example.org/subject2'),
+          const IriTerm('http://example.org/created'),
           LiteralTerm(
             '2025-05-07',
-            datatype: IriTerm('http://www.w3.org/2001/XMLSchema#date'),
+            datatype: const IriTerm('http://www.w3.org/2001/XMLSchema#date'),
           ),
         ),
       ]);
@@ -1316,55 +1317,55 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
         final graph = RdfGraph.fromTriples([
           // Subject with a collection
           Triple(
-            IriTerm('http://example.org/subject'),
-            IriTerm('http://example.org/hasCollection'),
+            const IriTerm('http://example.org/subject'),
+            const IriTerm('http://example.org/hasCollection'),
             collectionHead,
           ),
 
           // Collection structure
           Triple(
             collectionHead,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
             LiteralTerm.string('item1'),
           ),
           Triple(
             collectionHead,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
             collectionNode1,
           ),
 
           Triple(
             collectionNode1,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
             LiteralTerm.string('item2'),
           ),
           Triple(
             collectionNode1,
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
           ),
 
           // Same subject with a set (multiple objects with same predicate)
           Triple(
-            IriTerm('http://example.org/subject'),
-            IriTerm('http://example.org/hasItem'),
+            const IriTerm('http://example.org/subject'),
+            const IriTerm('http://example.org/hasItem'),
             LiteralTerm.string('setItem1'),
           ),
           Triple(
-            IriTerm('http://example.org/subject'),
-            IriTerm('http://example.org/hasItem'),
+            const IriTerm('http://example.org/subject'),
+            const IriTerm('http://example.org/hasItem'),
             LiteralTerm.string('setItem2'),
           ),
           Triple(
-            IriTerm('http://example.org/subject'),
-            IriTerm('http://example.org/hasItem'),
+            const IriTerm('http://example.org/subject'),
+            const IriTerm('http://example.org/hasItem'),
             LiteralTerm.string('setItem3'),
           ),
 
           // Another predicate with a single value
           Triple(
-            IriTerm('http://example.org/subject'),
-            IriTerm('http://example.org/name'),
+            const IriTerm('http://example.org/subject'),
+            const IriTerm('http://example.org/name'),
             LiteralTerm.string('TestSubject'),
           ),
         ]);
@@ -1413,18 +1414,18 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
 
         final graph = RdfGraph.fromTriples([
           Triple(
-            IriTerm('http://example.org/person'),
-            IriTerm('http://xmlns.com/foaf/0.1/knows'),
+            const IriTerm('http://example.org/person'),
+            const IriTerm('http://xmlns.com/foaf/0.1/knows'),
             blankNode,
           ),
           Triple(
             blankNode,
-            IriTerm('http://xmlns.com/foaf/0.1/name'),
+            const IriTerm('http://xmlns.com/foaf/0.1/name'),
             LiteralTerm.string('John Smith'),
           ),
           Triple(
             blankNode,
-            IriTerm('http://xmlns.com/foaf/0.1/age'),
+            const IriTerm('http://xmlns.com/foaf/0.1/age'),
             LiteralTerm.integer(42),
           ),
         ]);
@@ -1462,23 +1463,23 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
 
       final graph = RdfGraph.fromTriples([
         Triple(
-          IriTerm('http://example.org/person'),
-          IriTerm('http://xmlns.com/foaf/0.1/knows'),
+          const IriTerm('http://example.org/person'),
+          const IriTerm('http://xmlns.com/foaf/0.1/knows'),
           outerBlankNode,
         ),
         Triple(
           outerBlankNode,
-          IriTerm('http://xmlns.com/foaf/0.1/name'),
+          const IriTerm('http://xmlns.com/foaf/0.1/name'),
           LiteralTerm.string('Alice'),
         ),
         Triple(
           outerBlankNode,
-          IriTerm('http://xmlns.com/foaf/0.1/knows'),
+          const IriTerm('http://xmlns.com/foaf/0.1/knows'),
           innerBlankNode,
         ),
         Triple(
           innerBlankNode,
-          IriTerm('http://xmlns.com/foaf/0.1/name'),
+          const IriTerm('http://xmlns.com/foaf/0.1/name'),
           LiteralTerm.string('Bob'),
         ),
       ]);
@@ -1517,18 +1518,18 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
 
         final graph = RdfGraph.fromTriples([
           Triple(
-            IriTerm('http://example.org/person1'),
-            IriTerm('http://xmlns.com/foaf/0.1/knows'),
+            const IriTerm('http://example.org/person1'),
+            const IriTerm('http://xmlns.com/foaf/0.1/knows'),
             blankNode,
           ),
           Triple(
-            IriTerm('http://example.org/person2'),
-            IriTerm('http://xmlns.com/foaf/0.1/knows'),
+            const IriTerm('http://example.org/person2'),
+            const IriTerm('http://xmlns.com/foaf/0.1/knows'),
             blankNode,
           ),
           Triple(
             blankNode,
-            IriTerm('http://xmlns.com/foaf/0.1/name'),
+            const IriTerm('http://xmlns.com/foaf/0.1/name'),
             LiteralTerm.string('John Smith'),
           ),
         ]);
@@ -1569,37 +1570,37 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
       final graph = RdfGraph.fromTriples([
         // Main triple with a collection
         Triple(
-          IriTerm('http://example.org/subject'),
-          IriTerm('http://example.org/hasCollection'),
+          const IriTerm('http://example.org/subject'),
+          const IriTerm('http://example.org/hasCollection'),
           collectionHead,
         ),
 
         // Collection structure
         Triple(
           collectionHead,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
           LiteralTerm.string('item1'),
         ),
         Triple(
           collectionHead,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
           collectionNode1,
         ),
         Triple(
           collectionNode1,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
           inlineNode,
         ),
         Triple(
           collectionNode1,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
         ),
 
         // Blank node with properties
         Triple(
           inlineNode,
-          IriTerm('http://xmlns.com/foaf/0.1/name'),
+          const IriTerm('http://xmlns.com/foaf/0.1/name'),
           LiteralTerm.string('John Smith'),
         ),
       ]);
@@ -1630,18 +1631,18 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
       final graph = RdfGraph(
         triples: [
           Triple(
-            IriTerm('http://example.org/organization'),
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
-            IriTerm('https://schema.org/Organization'),
+            const IriTerm('http://example.org/organization'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+            const IriTerm('https://schema.org/Organization'),
           ),
           Triple(
-            IriTerm('http://example.org/organization'),
-            IriTerm('https://schema.org/name'),
+            const IriTerm('http://example.org/organization'),
+            const IriTerm('https://schema.org/name'),
             LiteralTerm.string('Test Organization'),
           ),
           Triple(
-            IriTerm('http://example.org/organization'),
-            IriTerm('https://schema.org/address'),
+            const IriTerm('http://example.org/organization'),
+            const IriTerm('https://schema.org/address'),
             BlankNodeTerm(),
           ),
         ],
@@ -1669,26 +1670,26 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
         triples: [
           // Standard HTTP IRI
           Triple(
-            IriTerm('http://example.org/resource'),
-            IriTerm('http://example.org/property'),
+            const IriTerm('http://example.org/resource'),
+            const IriTerm('http://example.org/property'),
             LiteralTerm.string('value1'),
           ),
           // HTTPS IRI with subdomain
           Triple(
-            IriTerm('https://api.example.com/resource'),
-            IriTerm('https://api.example.com/property'),
+            const IriTerm('https://api.example.com/resource'),
+            const IriTerm('https://api.example.com/property'),
             LiteralTerm.string('value2'),
           ),
           // IRI with no path (would have created invalid ns:https:// before the fix)
           Triple(
-            IriTerm('https://example.net'),
-            IriTerm('https://example.org/refers-to'),
+            const IriTerm('https://example.net'),
+            const IriTerm('https://example.org/refers-to'),
             LiteralTerm.string('value3'),
           ),
           // IRI with just a protocol (would have created invalid ns:http:// before the fix)
           Triple(
-            IriTerm('http://'),
-            IriTerm('http://example.org/isProtocol'),
+            const IriTerm('http://'),
+            const IriTerm('http://example.org/isProtocol'),
             LiteralTerm.boolean(true),
           ),
         ],
@@ -1730,9 +1731,9 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
           final graph = RdfGraph(
             triples: [
               Triple(
-                IriTerm("http://example.org/subject"),
-                IriTerm("http://example.org/predicate"),
-                IriTerm("http://example.org/123numeric"),
+                const IriTerm("http://example.org/subject"),
+                const IriTerm("http://example.org/predicate"),
+                const IriTerm("http://example.org/123numeric"),
               ),
             ],
           );
@@ -1760,9 +1761,9 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
           final graph = RdfGraph(
             triples: [
               Triple(
-                IriTerm("http://example.org/subject"),
-                IriTerm("http://example.org/predicate"),
-                IriTerm("http://example.org/123numeric"),
+                const IriTerm("http://example.org/subject"),
+                const IriTerm("http://example.org/predicate"),
+                const IriTerm("http://example.org/123numeric"),
               ),
             ],
           );
@@ -1792,14 +1793,14 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
           final graph = RdfGraph(
             triples: [
               Triple(
-                IriTerm("http://example.org/subject"),
-                IriTerm("http://example.org/predicate"),
-                IriTerm("http://onlynumbers.org/123"),
+                const IriTerm("http://example.org/subject"),
+                const IriTerm("http://example.org/predicate"),
+                const IriTerm("http://onlynumbers.org/123"),
               ),
               Triple(
-                IriTerm("http://example.org/subject"),
-                IriTerm("http://example.org/predicate2"),
-                IriTerm("http://onlynumbers.org/456"),
+                const IriTerm("http://example.org/subject"),
+                const IriTerm("http://example.org/predicate2"),
+                const IriTerm("http://onlynumbers.org/456"),
               ),
             ],
           );
@@ -1837,14 +1838,14 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
           final graph = RdfGraph(
             triples: [
               Triple(
-                IriTerm("http://example.org/subject"),
-                IriTerm("http://example.org/predicate"),
-                IriTerm("http://mixed.org/123"),
+                const IriTerm("http://example.org/subject"),
+                const IriTerm("http://example.org/predicate"),
+                const IriTerm("http://mixed.org/123"),
               ),
               Triple(
-                IriTerm("http://example.org/subject"),
-                IriTerm("http://example.org/predicate2"),
-                IriTerm("http://mixed.org/text"),
+                const IriTerm("http://example.org/subject"),
+                const IriTerm("http://example.org/predicate2"),
+                const IriTerm("http://mixed.org/text"),
               ),
             ],
           );
@@ -1878,14 +1879,14 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
       final graph = RdfGraph(
         triples: [
           Triple(
-            IriTerm('http://kalass.de/dart/rdf/test-ontology#subject'),
-            IriTerm('http://kalass.de/dart/rdf/test-ontology#predicate'),
-            IriTerm('http://example-domain.org/object'),
+            const IriTerm('http://kalass.de/dart/rdf/test-ontology#subject'),
+            const IriTerm('http://kalass.de/dart/rdf/test-ontology#predicate'),
+            const IriTerm('http://example-domain.org/object'),
           ),
           Triple(
-            IriTerm('http://other-domain.com/resource'),
-            IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
-            IriTerm('http://example-domain.org/Class'),
+            const IriTerm('http://other-domain.com/resource'),
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+            const IriTerm('http://example-domain.org/Class'),
           ),
         ],
       );
@@ -1934,9 +1935,10 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
         final triples = urls
             .map(
               (url) => Triple(
-                IriTerm(url),
-                IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
-                IriTerm('http://example.org/Resource'),
+                IriTerm.validated(url),
+                const IriTerm(
+                    'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+                const IriTerm('http://example.org/Resource'),
               ),
             )
             .toList();
@@ -1966,9 +1968,9 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
       final graph = RdfGraph(
         triples: [
           Triple(
-            IriTerm('http://example.com/my%20test%20Resource'),
+            const IriTerm('http://example.com/my%20test%20Resource'),
             Rdf.type,
-            IriTerm('http://example.com/My%20Class'),
+            const IriTerm('http://example.com/My%20Class'),
           ),
         ],
       );
@@ -2000,8 +2002,8 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
         final graph = RdfGraph(
           triples: [
             Triple(
-              IriTerm('http://example.org/base/subject'),
-              IriTerm('http://example.org/predicate'),
+              const IriTerm('http://example.org/base/subject'),
+              const IriTerm('http://example.org/predicate'),
               LiteralTerm('object'),
             ),
           ],
@@ -2025,8 +2027,8 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
         final graph = RdfGraph(
           triples: [
             Triple(
-              IriTerm('http://example.org/base/subject'),
-              IriTerm('http://example.org/predicate'),
+              const IriTerm('http://example.org/base/subject'),
+              const IriTerm('http://example.org/predicate'),
               LiteralTerm('object'),
             ),
           ],
@@ -2052,9 +2054,9 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
         final graph = RdfGraph(
           triples: [
             Triple(
-              IriTerm('http://example.org/base/subject'),
-              IriTerm('http://example.org/base/predicate'),
-              IriTerm('http://example.org/base/object'),
+              const IriTerm('http://example.org/base/subject'),
+              const IriTerm('http://example.org/base/predicate'),
+              const IriTerm('http://example.org/base/object'),
             ),
           ],
         );
@@ -2087,9 +2089,9 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
         final graph = RdfGraph(
           triples: [
             Triple(
-              IriTerm('http://example.org/my'),
-              IriTerm('http://example.org/vocab/predicate'),
-              IriTerm('http://example.org/my'),
+              const IriTerm('http://example.org/my'),
+              const IriTerm('http://example.org/vocab/predicate'),
+              const IriTerm('http://example.org/my'),
             ),
           ],
         );
@@ -2122,8 +2124,8 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
         final graph = RdfGraph(
           triples: [
             Triple(
-              IriTerm('http://example.org/base/subject'),
-              IriTerm('http://example.org/predicate'),
+              const IriTerm('http://example.org/base/subject'),
+              const IriTerm('http://example.org/predicate'),
               LiteralTerm('object'),
             ),
           ],
@@ -2147,8 +2149,8 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
         final graph = RdfGraph(
           triples: [
             Triple(
-              IriTerm('http://example.org/subject'),
-              IriTerm('http://example.org/predicate'),
+              const IriTerm('http://example.org/subject'),
+              const IriTerm('http://example.org/predicate'),
               LiteralTerm('object'),
             ),
           ],
@@ -2173,9 +2175,9 @@ ex:subject2 ex:created "2025-05-07"^^xsd:date;
         final graph = RdfGraph(
           triples: [
             Triple(
-              IriTerm('http://example.org/docs/file1.ttl'),
-              IriTerm('http://example.org/vocab#relates'),
-              IriTerm('http://example.org/docs/subdir/file2.ttl'),
+              const IriTerm('http://example.org/docs/file1.ttl'),
+              const IriTerm('http://example.org/vocab#relates'),
+              const IriTerm('http://example.org/docs/subdir/file2.ttl'),
             ),
           ],
         );

@@ -54,6 +54,7 @@ class NTriplesDecoderOptions extends RdfGraphDecoderOptions {
 final class NTriplesDecoder extends RdfGraphDecoder {
   final _logger = Logger('rdf.ntriples.parser');
   static const _formatName = 'application/n-triples';
+  final IriTermFactory _iriTermFactory;
 
   // Decoders are always expected to have options, even if they are not used at
   // the moment. But maybe the NTriplesDecoder will have options in the future.
@@ -64,7 +65,9 @@ final class NTriplesDecoder extends RdfGraphDecoder {
   /// Creates a new N-Triples parser
   NTriplesDecoder({
     NTriplesDecoderOptions options = const NTriplesDecoderOptions(),
-  }) : _options = options;
+    IriTermFactory iriTermFactory = IriTerm.validated,
+  })  : _options = options,
+        _iriTermFactory = iriTermFactory;
 
   @override
   RdfGraphDecoder withOptions(RdfGraphDecoderOptions options) =>
@@ -214,7 +217,7 @@ final class NTriplesDecoder extends RdfGraphDecoder {
     if (subject.startsWith('<') && subject.endsWith('>')) {
       // IRI
       final iri = _parseIri(subject, lineNumber);
-      return IriTerm(iri);
+      return _iriTermFactory(iri);
     } else if (subject.startsWith('_:')) {
       // Blank node
       final label = subject.substring(2); // Remove '_:' prefix
@@ -237,7 +240,7 @@ final class NTriplesDecoder extends RdfGraphDecoder {
     if (predicate.startsWith('<') && predicate.endsWith('>')) {
       // IRI
       final iri = _parseIri(predicate, lineNumber);
-      return IriTerm(iri);
+      return _iriTermFactory(iri);
     } else {
       throw RdfDecoderException(
         'Invalid predicate: $predicate. Must be an IRI',
@@ -257,7 +260,7 @@ final class NTriplesDecoder extends RdfGraphDecoder {
     if (object.startsWith('<') && object.endsWith('>')) {
       // IRI
       final iri = _parseIri(object, lineNumber);
-      return IriTerm(iri);
+      return _iriTermFactory(iri);
     } else if (object.startsWith('_:')) {
       // Blank node
       final label = object.substring(2); // Remove '_:' prefix
@@ -346,7 +349,7 @@ final class NTriplesDecoder extends RdfGraphDecoder {
       final unescapedDatatypeIri = _unescapeString(datatypeIri);
 
       // Create the datatype IRI term
-      final datatypeIriTerm = IriTerm(unescapedDatatypeIri);
+      final datatypeIriTerm = _iriTermFactory(unescapedDatatypeIri);
       return LiteralTerm(valueUnescaped, datatype: datatypeIriTerm);
     } else {
       throw RdfDecoderException(

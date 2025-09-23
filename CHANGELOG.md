@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.14] - 2025-09-23
+
+### Changed
+
+- Updated all code examples and documentation to use `const IriTerm()` constructor
+  - All examples in README.md, documentation, and example files now consistently use the const constructor
+  - Follows the pattern established in v0.9.15 where `IriTerm` constructor became const-compatible
+  - Example: `IriTerm('http://example.org/subject')` → `const IriTerm('http://example.org/subject')`
+  - Improves compile-time optimization and developer experience with better const usage patterns
+- Introduced `IriTerm.validated()` non-const constructor to replace the old `IriTerm()` for cases where the input needs to be validated
+- Deprecated `IriTerm.prevalidated()` const constructor in favour of `const IriTerm()`
+- Deprecated `IriTerm.iri` attribute in favour of `IriTerm.value` which is more expected by most developers.
+
 ## [0.9.14] - 2025-08-13
 
 ### Added
@@ -527,7 +540,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING CHANGE**: Removed all deprecated vocabulary classes from the vocab directory
   - Removed all previously deprecated vocabulary classes (SchemaProperties, SchemaTypes, SchemaPersonProperties, etc.)
   - Users should now use direct IriTerm instances instead of vocabulary classes
-  - Example: replace `SchemaProperties.name` with `IriTerm('https://schema.org/name')`
+  - Example: replace `SchemaProperties.name` with `const IriTerm('https://schema.org/name')`
 - Updated examples to use direct IriTerm instances rather than vocabulary constants
 
 ### Added

@@ -55,7 +55,7 @@ import 'package:rdf_core/rdf_core.dart';
 final graph = turtle.decode('@prefix ex: <http://example.org/> . ex:s ex:p "o" .');
 
 // Search for data
-final results = graph.findTriples(predicate: IriTerm('http://example.org/p'));
+final results = graph.findTriples(predicate: const IriTerm('http://example.org/p'));
 
 // Export as JSON-LD
 final jsonld = jsonldGraph.encode(graph);

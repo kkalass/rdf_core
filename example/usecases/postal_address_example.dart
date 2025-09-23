@@ -31,7 +31,7 @@ void main() {
   print('\nTurtle serialization:\n\n```turtle\n$turtleStr\n```');
 
   // Extract and print the address information
-  final organization = IriTerm('http://example.org/acme');
+  final organization = const IriTerm('http://example.org/acme');
   printAddressInfo(graph, organization);
 
   // Add a second address (branch office)
@@ -48,7 +48,7 @@ void main() {
 /// Creates a graph with an organization and its postal address
 RdfGraph createOrganizationWithAddress() {
   // Define the subject for our organization
-  final organization = IriTerm('http://example.org/acme');
+  final organization = const IriTerm('http://example.org/acme');
 
   // Create a blank node for the postal address
   final address = BlankNodeTerm();
@@ -58,57 +58,57 @@ RdfGraph createOrganizationWithAddress() {
     // Define the organization
     Triple(
       organization,
-      IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
-      IriTerm('https://schema.org/Organization'),
+      const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+      const IriTerm('https://schema.org/Organization'),
     ),
     Triple(
       organization,
-      IriTerm('https://schema.org/name'),
+      const IriTerm('https://schema.org/name'),
       LiteralTerm.string('ACME Corporation'),
     ),
     Triple(
       organization,
-      IriTerm('https://schema.org/url'),
-      IriTerm('https://example.org'),
+      const IriTerm('https://schema.org/url'),
+      const IriTerm('https://example.org'),
     ),
     Triple(
       organization,
-      IriTerm('https://schema.org/legalName'),
+      const IriTerm('https://schema.org/legalName'),
       LiteralTerm.string('ACME Corporation GmbH'),
     ),
 
     // Link to address
-    Triple(organization, IriTerm('https://schema.org/address'), address),
+    Triple(organization, const IriTerm('https://schema.org/address'), address),
 
     // Define the address details
     Triple(
       address,
-      IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
-      IriTerm('https://schema.org/PostalAddress'),
+      const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+      const IriTerm('https://schema.org/PostalAddress'),
     ),
     Triple(
       address,
-      IriTerm('https://schema.org/streetAddress'),
+      const IriTerm('https://schema.org/streetAddress'),
       LiteralTerm.string('123 Main Street'),
     ),
     Triple(
       address,
-      IriTerm('https://schema.org/addressLocality'),
+      const IriTerm('https://schema.org/addressLocality'),
       LiteralTerm.string('Berlin'),
     ),
     Triple(
       address,
-      IriTerm('https://schema.org/postalCode'),
+      const IriTerm('https://schema.org/postalCode'),
       LiteralTerm.string('10115'),
     ),
     Triple(
       address,
-      IriTerm('https://schema.org/addressRegion'),
+      const IriTerm('https://schema.org/addressRegion'),
       LiteralTerm.string('Berlin'),
     ),
     Triple(
       address,
-      IriTerm('https://schema.org/addressCountry'),
+      const IriTerm('https://schema.org/addressCountry'),
       LiteralTerm.string('DE'),
     ),
   ];
@@ -131,7 +131,7 @@ void printAddressInfo(RdfGraph graph, IriTerm entity) {
   final addressTriples = graph.triples.where(
     (triple) =>
         triple.subject == entity &&
-        triple.predicate == IriTerm('https://schema.org/address'),
+        triple.predicate == const IriTerm('https://schema.org/address'),
   );
 
   for (final addressTriple in addressTriples) {
@@ -140,11 +140,11 @@ void printAddressInfo(RdfGraph graph, IriTerm entity) {
 
     // Find address properties
     final addressProperties = [
-      IriTerm('https://schema.org/streetAddress'),
-      IriTerm('https://schema.org/addressLocality'),
-      IriTerm('https://schema.org/addressRegion'),
-      IriTerm('https://schema.org/postalCode'),
-      IriTerm('https://schema.org/addressCountry'),
+      const IriTerm('https://schema.org/streetAddress'),
+      const IriTerm('https://schema.org/addressLocality'),
+      const IriTerm('https://schema.org/addressRegion'),
+      const IriTerm('https://schema.org/postalCode'),
+      const IriTerm('https://schema.org/addressCountry'),
     ];
 
     for (final property in addressProperties) {
@@ -164,45 +164,46 @@ void printAddressInfo(RdfGraph graph, IriTerm entity) {
 /// Adds a branch office to the organization and returns a new graph
 RdfGraph addBranchOffice(RdfGraph graph) {
   // Define the organization and new address
-  final organization = IriTerm('http://example.org/acme');
+  final organization = const IriTerm('http://example.org/acme');
   final branchAddress = BlankNodeTerm();
 
   // Create triples for the branch office
   final branchTriples = [
-    Triple(organization, IriTerm('https://schema.org/address'), branchAddress),
+    Triple(organization, const IriTerm('https://schema.org/address'),
+        branchAddress),
     Triple(
       branchAddress,
-      IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
-      IriTerm('https://schema.org/PostalAddress'),
+      const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+      const IriTerm('https://schema.org/PostalAddress'),
     ),
     Triple(
       branchAddress,
-      IriTerm('https://schema.org/streetAddress'),
+      const IriTerm('https://schema.org/streetAddress'),
       LiteralTerm.string('456 Innovation Blvd'),
     ),
     Triple(
       branchAddress,
-      IriTerm('https://schema.org/addressLocality'),
+      const IriTerm('https://schema.org/addressLocality'),
       LiteralTerm.string('Munich'),
     ),
     Triple(
       branchAddress,
-      IriTerm('https://schema.org/postalCode'),
+      const IriTerm('https://schema.org/postalCode'),
       LiteralTerm.string('80331'),
     ),
     Triple(
       branchAddress,
-      IriTerm('https://schema.org/addressRegion'),
+      const IriTerm('https://schema.org/addressRegion'),
       LiteralTerm.string('Bavaria'),
     ),
     Triple(
       branchAddress,
-      IriTerm('https://schema.org/addressCountry'),
+      const IriTerm('https://schema.org/addressCountry'),
       LiteralTerm.string('DE'),
     ),
     Triple(
       branchAddress,
-      IriTerm('https://schema.org/name'),
+      const IriTerm('https://schema.org/name'),
       LiteralTerm.string('Branch Office'),
     ),
   ];

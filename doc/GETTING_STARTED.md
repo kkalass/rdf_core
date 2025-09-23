@@ -28,8 +28,8 @@ void main() {
   final graph = turtle.decode(turtleData);
   
   // Find John's age
-  final johnNode = IriTerm('http://example.org/john');
-  final ageNode = IriTerm('http://xmlns.com/foaf/0.1/age');
+  final johnNode = const IriTerm('http://example.org/john');
+  final ageNode = const IriTerm('http://xmlns.com/foaf/0.1/age');
   
   final ageTriples = graph.findTriples(
     subject: johnNode,
@@ -61,8 +61,8 @@ void main() {
   
   // Find John's age using direct access
   final ageTriples = graph.findTriples(
-    subject: IriTerm('http://example.org/john'),
-    predicate: IriTerm('http://xmlns.com/foaf/0.1/age')
+    subject: const IriTerm('http://example.org/john'),
+    predicate: const IriTerm('http://xmlns.com/foaf/0.1/age')
   );
   
   if (ageTriples.isNotEmpty) {
@@ -72,8 +72,8 @@ void main() {
   
   // Create a new graph with additional data
   final email = Triple(
-    IriTerm('http://example.org/john'),
-    IriTerm('http://xmlns.com/foaf/0.1/email'),
+    const IriTerm('http://example.org/john'),
+    const IriTerm('http://xmlns.com/foaf/0.1/email'),
     LiteralTerm.string('john@example.org')
   );
   final newGraph = graph.withTriple(email);
@@ -95,8 +95,8 @@ void main() {
   final graph = RdfGraph();
   
   // Create subject, predicate, and object
-  final subject = IriTerm('http://example.org/book');
-  final titlePredicate = IriTerm('http://purl.org/dc/elements/1.1/title');
+  final subject = const IriTerm('http://example.org/book');
+  final titlePredicate = const IriTerm('http://purl.org/dc/elements/1.1/title');
   final titleObject = LiteralTerm.string('RDF Programming in Dart');
   
   // Create a triple and add it to the graph
@@ -117,24 +117,24 @@ void main() {
   // Create a graph with data
   final graph = RdfGraph(triples: [
     Triple(
-      IriTerm('http://example.org/book1'),
-      IriTerm('http://purl.org/dc/elements/1.1/title'),
+      const IriTerm('http://example.org/book1'),
+      const IriTerm('http://purl.org/dc/elements/1.1/title'),
       LiteralTerm.string('RDF Fundamentals')
     ),
     Triple(
-      IriTerm('http://example.org/book1'),
-      IriTerm('http://purl.org/dc/elements/1.1/author'),
-      IriTerm('http://example.org/john')
+      const IriTerm('http://example.org/book1'),
+      const IriTerm('http://purl.org/dc/elements/1.1/author'),
+      const IriTerm('http://example.org/john')
     ),
     Triple(
-      IriTerm('http://example.org/book2'),
-      IriTerm('http://purl.org/dc/elements/1.1/title'),
+      const IriTerm('http://example.org/book2'),
+      const IriTerm('http://purl.org/dc/elements/1.1/title'),
       LiteralTerm.string('Advanced RDF')
     )
   ]);
   
   // Find all books with their titles
-  final titlePredicate = IriTerm('http://purl.org/dc/elements/1.1/title');
+  final titlePredicate = const IriTerm('http://purl.org/dc/elements/1.1/title');
   final titleTriples = graph.findTriples(predicate: titlePredicate);
   
   for (final triple in titleTriples) {
@@ -156,13 +156,13 @@ void main() {
   // Create a simple graph
   final graph = RdfGraph(triples: [
     Triple(
-      IriTerm('http://example.org/person'),
-      IriTerm('http://xmlns.com/foaf/0.1/name'),
+      const IriTerm('http://example.org/person'),
+      const IriTerm('http://xmlns.com/foaf/0.1/name'),
       LiteralTerm.string('Jane Smith')
     ),
     Triple(
-      IriTerm('http://example.org/person'),
-      IriTerm('http://xmlns.com/foaf/0.1/age'),
+      const IriTerm('http://example.org/person'),
+      const IriTerm('http://xmlns.com/foaf/0.1/age'),
       LiteralTerm.integer(28)
     )
   ]);
@@ -186,8 +186,8 @@ void main() {
   // Create a graph
   final graph = RdfGraph(triples: [
     Triple(
-      IriTerm('http://example.org/resource'),
-      IriTerm('http://purl.org/dc/elements/1.1/creator'),
+      const IriTerm('http://example.org/resource'),
+      const IriTerm('http://purl.org/dc/elements/1.1/creator'),
       LiteralTerm.string('Example Creator')
     )
   ]);

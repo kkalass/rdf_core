@@ -38,8 +38,8 @@ void main() {
   print('PART 2: Querying RDF Data\n');
 
   // Find all people that Alice knows
-  final aliceNode = IriTerm('http://example.org/alice');
-  final knowsPredicate = IriTerm('http://xmlns.com/foaf/0.1/knows');
+  final aliceNode = const IriTerm('http://example.org/alice');
+  final knowsPredicate = const IriTerm('http://xmlns.com/foaf/0.1/knows');
 
   final friendTriples =
       graph.findTriples(subject: aliceNode, predicate: knowsPredicate);
@@ -51,7 +51,7 @@ void main() {
     // Find the name of each friend
     final nameTriples = graph.findTriples(
         subject: friendIri,
-        predicate: IriTerm('http://xmlns.com/foaf/0.1/name'));
+        predicate: const IriTerm('http://xmlns.com/foaf/0.1/name'));
 
     if (nameTriples.isNotEmpty) {
       final name = (nameTriples.first.object as LiteralTerm).value;
@@ -66,12 +66,12 @@ void main() {
 
   // Create some terms for our graph
   // NOTE: Always use canonical RDF vocabularies (e.g., http://xmlns.com/foaf/0.1/) with http://, not https://
-  final alice = IriTerm('http://example.org/alice');
-  final bob = IriTerm('http://example.org/bob');
-  final charlie = IriTerm('http://example.org/charlie');
-  final knows = IriTerm('http://xmlns.com/foaf/0.1/knows');
-  final name = IriTerm('http://xmlns.com/foaf/0.1/name');
-  final age = IriTerm('http://xmlns.com/foaf/0.1/age');
+  final alice = const IriTerm('http://example.org/alice');
+  final bob = const IriTerm('http://example.org/bob');
+  final charlie = const IriTerm('http://example.org/charlie');
+  final knows = const IriTerm('http://xmlns.com/foaf/0.1/knows');
+  final name = const IriTerm('http://xmlns.com/foaf/0.1/name');
+  final age = const IriTerm('http://xmlns.com/foaf/0.1/age');
 
   // Create a new graph with manual triples
   final newGraph = RdfGraph(

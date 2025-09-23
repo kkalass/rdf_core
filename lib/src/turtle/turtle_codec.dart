@@ -5,6 +5,7 @@
 /// syntax for encoding RDF graphs as text.
 library turtle_format;
 
+import 'package:rdf_core/src/graph/rdf_term.dart';
 import 'package:rdf_core/src/vocab/namespaces.dart';
 
 import '../plugin/rdf_codec.dart';
@@ -77,6 +78,7 @@ final class TurtleCodec extends RdfGraphCodec {
   final RdfNamespaceMappings _namespaceMappings;
   final TurtleEncoderOptions _encoderOptions;
   final TurtleDecoderOptions _decoderOptions;
+  final IriTermFactory _iriTermFactory;
 
   /// Creates a new Turtle codec
   ///
@@ -91,9 +93,11 @@ final class TurtleCodec extends RdfGraphCodec {
     RdfNamespaceMappings? namespaceMappings,
     TurtleEncoderOptions encoderOptions = const TurtleEncoderOptions(),
     TurtleDecoderOptions decoderOptions = const TurtleDecoderOptions(),
+    IriTermFactory iriTermFactory = IriTerm.validated,
   })  : _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings(),
         _encoderOptions = encoderOptions,
-        _decoderOptions = decoderOptions;
+        _decoderOptions = decoderOptions,
+        _iriTermFactory = iriTermFactory;
 
   /// Creates a new instance with the specified options
   ///
@@ -115,12 +119,13 @@ final class TurtleCodec extends RdfGraphCodec {
   TurtleCodec withOptions({
     RdfGraphEncoderOptions? encoder,
     RdfGraphDecoderOptions? decoder,
+    IriTermFactory? iriTermFactory,
   }) {
     return TurtleCodec(
-      namespaceMappings: _namespaceMappings,
-      encoderOptions: TurtleEncoderOptions.from(encoder ?? _encoderOptions),
-      decoderOptions: TurtleDecoderOptions.from(decoder ?? _decoderOptions),
-    );
+        namespaceMappings: _namespaceMappings,
+        encoderOptions: TurtleEncoderOptions.from(encoder ?? _encoderOptions),
+        decoderOptions: TurtleDecoderOptions.from(decoder ?? _decoderOptions),
+        iriTermFactory: iriTermFactory ?? _iriTermFactory);
   }
 
   /// Returns the primary MIME type for Turtle format
@@ -146,9 +151,9 @@ final class TurtleCodec extends RdfGraphCodec {
   /// - A [TurtleDecoder] configured with this codec's settings
   @override
   RdfGraphDecoder get decoder => TurtleDecoder(
-        options: _decoderOptions,
-        namespaceMappings: _namespaceMappings,
-      );
+      options: _decoderOptions,
+      namespaceMappings: _namespaceMappings,
+      iriTermFactory: _iriTermFactory);
 
   /// Returns a Turtle encoder instance
   ///

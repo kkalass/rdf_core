@@ -45,8 +45,8 @@ void main() {
   
   // Find triples with specific subject and predicate
   final nameTriples = graph.findTriples(
-    subject: IriTerm('http://example.org/john'),
-    predicate: IriTerm('http://xmlns.com/foaf/0.1/name')
+    subject: const IriTerm('http://example.org/john'),
+    predicate: const IriTerm('http://xmlns.com/foaf/0.1/name')
   );
   
   if (nameTriples.isNotEmpty) {
@@ -55,8 +55,8 @@ void main() {
   }
   
   // Create and add a new triple
-  final subject = IriTerm('http://example.org/john');
-  final predicate = IriTerm('http://xmlns.com/foaf/0.1/email');
+  final subject = const IriTerm('http://example.org/john');
+  final predicate = const IriTerm('http://xmlns.com/foaf/0.1/email');
   final object = LiteralTerm.string('john@example.org');
   final triple = Triple(subject, predicate, object);
   final updatedGraph = graph.withTriple(triple);
@@ -101,8 +101,8 @@ void main() {
   final graph = RdfGraph();
   
   // Create a triple
-  final subject = IriTerm('http://example.org/alice');
-  final predicate = IriTerm('http://xmlns.com/foaf/0.1/name');
+  final subject = const IriTerm('http://example.org/alice');
+  final predicate = const IriTerm('http://xmlns.com/foaf/0.1/name');
   final object = LiteralTerm.string('Alice');
   final triple = Triple(subject, predicate, object);
   final graph = RdfGraph(triples: [triple]);
@@ -367,7 +367,7 @@ class PersonMapper implements IriNodeMapper<Person> {
   (IriTerm, List<Triple>) toRdfNode(Person value, SerializationContext context, {RdfSubject? parentSubject}) {
 
     // convert dart objects to triples using the fluent builder API
-    return context.nodeBuilder(IriTerm(value.id))
+    return context.nodeBuilder(const IriTerm(value.id))
       .literal(SchemaPerson.givenName, value.givenName)
       .build();
   }

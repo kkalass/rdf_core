@@ -14,7 +14,8 @@ void main() {
     test('typeIri has correct value', () {
       expect(
         Rdf.type,
-        equals(IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')),
+        equals(
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')),
       );
     });
 

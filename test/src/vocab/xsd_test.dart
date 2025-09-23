@@ -11,46 +11,46 @@ void main() {
     test('stringIri has correct value', () {
       expect(
         Xsd.string,
-        equals(IriTerm('http://www.w3.org/2001/XMLSchema#string')),
+        equals(const IriTerm('http://www.w3.org/2001/XMLSchema#string')),
       );
     });
 
     test('booleanIri has correct value', () {
       expect(
         Xsd.boolean,
-        equals(IriTerm('http://www.w3.org/2001/XMLSchema#boolean')),
+        equals(const IriTerm('http://www.w3.org/2001/XMLSchema#boolean')),
       );
     });
 
     test('integerIri has correct value', () {
       expect(
         Xsd.integer,
-        equals(IriTerm('http://www.w3.org/2001/XMLSchema#integer')),
+        equals(const IriTerm('http://www.w3.org/2001/XMLSchema#integer')),
       );
     });
 
     test('decimalIri has correct value', () {
       expect(
         Xsd.decimal,
-        equals(IriTerm('http://www.w3.org/2001/XMLSchema#decimal')),
+        equals(const IriTerm('http://www.w3.org/2001/XMLSchema#decimal')),
       );
     });
 
     test('makeIri creates correct IRI from local name', () {
       expect(
         Xsd.makeIri('double'),
-        equals(IriTerm('http://www.w3.org/2001/XMLSchema#double')),
+        equals(const IriTerm('http://www.w3.org/2001/XMLSchema#double')),
       );
 
       expect(
         Xsd.makeIri('float'),
-        equals(IriTerm('http://www.w3.org/2001/XMLSchema#float')),
+        equals(const IriTerm('http://www.w3.org/2001/XMLSchema#float')),
       );
 
       // Verify custom types work too
       expect(
         Xsd.makeIri('customType'),
-        equals(IriTerm('http://www.w3.org/2001/XMLSchema#customType')),
+        equals(const IriTerm('http://www.w3.org/2001/XMLSchema#customType')),
       );
     });
 

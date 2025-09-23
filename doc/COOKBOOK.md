@@ -16,8 +16,8 @@ This collection of recipes shows you how to solve common RDF tasks quickly and e
 import 'package:rdf_core/rdf_core.dart';
 
 // Create a simple triple
-final subject = IriTerm('http://example.org/alice');
-final predicate = IriTerm('http://xmlns.com/foaf/0.1/name');
+final subject = const IriTerm('http://example.org/alice');
+final predicate = const IriTerm('http://xmlns.com/foaf/0.1/name');
 final object = LiteralTerm.string('Alice');
 final triple = Triple(subject, predicate, object);
 ```
@@ -32,8 +32,8 @@ final graph = RdfGraph();
 
 // Create a triple
 final triple = Triple(
-  IriTerm('http://example.org/alice'),
-  IriTerm('http://xmlns.com/foaf/0.1/name'),
+  const IriTerm('http://example.org/alice'),
+  const IriTerm('http://xmlns.com/foaf/0.1/name'),
   LiteralTerm.string('Alice')
 );
 
@@ -47,13 +47,13 @@ final updatedGraph = graph.withTriple(triple);
 import 'package:rdf_core/rdf_core.dart';
 
 // Find all triples for a specific subject
-final subjectNode = IriTerm('http://example.org/alice');
+final subjectNode = const IriTerm('http://example.org/alice');
 final aliceTriples = graph.findTriples(subject: subjectNode);
 
 // Find specific triple with subject and predicate
 final nameTriples = graph.findTriples(
-  subject: IriTerm('http://example.org/alice'),
-  predicate: IriTerm('http://xmlns.com/foaf/0.1/name')
+  subject: const IriTerm('http://example.org/alice'),
+  predicate: const IriTerm('http://xmlns.com/foaf/0.1/name')
 );
 ```
 
@@ -94,8 +94,8 @@ import 'package:rdf_core/rdf_core.dart';
 // Create a graph
 final graph = RdfGraph(triples: [
   Triple(
-    IriTerm('http://example.org/alice'),
-    IriTerm('http://xmlns.com/foaf/0.1/name'),
+    const IriTerm('http://example.org/alice'),
+    const IriTerm('http://xmlns.com/foaf/0.1/name'),
     LiteralTerm.string('Alice')
   )
 ]);
@@ -129,14 +129,14 @@ final blankNode = BlankNodeTerm();
 final graph = RdfGraph(triples: [
   // Person has an address (blank node)
   Triple(
-    IriTerm('http://example.org/john'),
-    IriTerm('http://example.org/hasAddress'),
+    const IriTerm('http://example.org/john'),
+    const IriTerm('http://example.org/hasAddress'),
     blankNode
   ),
   // The address has a city
   Triple(
     blankNode,  // Use the same instance
-    IriTerm('http://example.org/city'),
+    const IriTerm('http://example.org/city'),
     LiteralTerm.string('Berlin')
   )
 ]);
@@ -155,16 +155,16 @@ import 'package:rdf_core/rdf_core.dart';
 // Create two graphs
 final graph1 = RdfGraph(triples: [
   Triple(
-    IriTerm('http://example.org/alice'),
-    IriTerm('http://xmlns.com/foaf/0.1/name'),
+    const IriTerm('http://example.org/alice'),
+    const IriTerm('http://xmlns.com/foaf/0.1/name'),
     LiteralTerm.string('Alice')
   )
 ]);
 
 final graph2 = RdfGraph(triples: [
   Triple(
-    IriTerm('http://example.org/alice'),
-    IriTerm('http://xmlns.com/foaf/0.1/age'),
+    const IriTerm('http://example.org/alice'),
+    const IriTerm('http://xmlns.com/foaf/0.1/age'),
     LiteralTerm.integer(30)
   )
 ]);
@@ -190,35 +190,35 @@ final rdfs = 'http://www.w3.org/2000/01/rdf-schema#';
 final graph = RdfGraph(triples: [
   // Define classes
   Triple(
-    IriTerm('${ex}Person'),
-    IriTerm('${rdf}type'),
-    IriTerm('${rdfs}Class')
+    const IriTerm('${ex}Person'),
+    const IriTerm('${rdf}type'),
+    const IriTerm('${rdfs}Class')
   ),
   Triple(
-    IriTerm('${ex}Employee'),
-    IriTerm('${rdf}type'),
-    IriTerm('${rdfs}Class')
+    const IriTerm('${ex}Employee'),
+    const IriTerm('${rdf}type'),
+    const IriTerm('${rdfs}Class')
   ),
   Triple(
-    IriTerm('${ex}Employee'),
-    IriTerm('${rdfs}subClassOf'),
-    IriTerm('${ex}Person')
+    const IriTerm('${ex}Employee'),
+    const IriTerm('${rdfs}subClassOf'),
+    const IriTerm('${ex}Person')
   ),
   
   // Create instance
   Triple(
-    IriTerm('${ex}john'),
-    IriTerm('${rdf}type'),
-    IriTerm('${ex}Employee')
+    const IriTerm('${ex}john'),
+    const IriTerm('${rdf}type'),
+    const IriTerm('${ex}Employee')
   ),
   Triple(
-    IriTerm('${ex}john'),
-    IriTerm('${ex}name'),
+    const IriTerm('${ex}john'),
+    const IriTerm('${ex}name'),
     LiteralTerm.string('John Smith')
   ),
   Triple(
-    IriTerm('${ex}john'),
-    IriTerm('${ex}employeeID'),
+    const IriTerm('${ex}john'),
+    const IriTerm('${ex}employeeID'),
     LiteralTerm.string('E12345')
   )
 ]);
@@ -233,8 +233,8 @@ import 'package:rdf_core/rdf_core.dart';
 
 // Find all employees
 List<IriTerm> findAllEmployees(RdfGraph graph) {
-  final employeeClass = IriTerm('http://example.org/Employee');
-  final rdfType = IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type');
+  final employeeClass = const IriTerm('http://example.org/Employee');
+  final rdfType = const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type');
   
   final employeeTriples = graph.findTriples(
     predicate: rdfType,

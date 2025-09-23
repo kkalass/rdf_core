@@ -23,7 +23,7 @@ void main() {
       expect(graph.size, equals(1));
       expect(
         graph.triples.first.subject,
-        equals(IriTerm('http://example.org/subject')),
+        equals(const IriTerm('http://example.org/subject')),
       );
     });
 
@@ -49,7 +49,7 @@ void main() {
       expect(graph.size, equals(1));
       expect(
         graph.triples.first.subject,
-        equals(IriTerm('http://example.org/subject')),
+        equals(const IriTerm('http://example.org/subject')),
       );
     });
 
@@ -69,7 +69,7 @@ void main() {
       expect(graph.size, equals(1));
       expect(
         graph.triples.first.subject,
-        equals(IriTerm('http://example.org/subject')),
+        equals(const IriTerm('http://example.org/subject')),
       );
     });
 
@@ -147,8 +147,8 @@ void main() {
       // Arrange
       final originalGraph = RdfGraph().withTriple(
         Triple(
-          IriTerm('http://example.org/subject'),
-          IriTerm('http://example.org/predicate'),
+          const IriTerm('http://example.org/subject'),
+          const IriTerm('http://example.org/predicate'),
           LiteralTerm.string(
             'object with "quotes" and special chars: éñçödîñg',
           ),
@@ -221,8 +221,8 @@ void main() {
         // Arrange
         final graph = RdfGraph().withTriple(
           Triple(
-            IriTerm('http://example.org/subject'),
-            IriTerm('http://example.org/predicate'),
+            const IriTerm('http://example.org/subject'),
+            const IriTerm('http://example.org/predicate'),
             LiteralTerm.string('object'),
           ),
         );
@@ -243,8 +243,8 @@ void main() {
       // Arrange
       final graph = RdfGraph().withTriple(
         Triple(
-          IriTerm('http://example.org/subject'),
-          IriTerm('http://example.org/predicate'),
+          const IriTerm('http://example.org/subject'),
+          const IriTerm('http://example.org/predicate'),
           LiteralTerm.string('object'),
         ),
       );
@@ -271,7 +271,7 @@ void main() {
       expect(graph.size, equals(1));
       expect(
         graph.triples.first.subject,
-        equals(IriTerm('http://example.org/subject')),
+        equals(const IriTerm('http://example.org/subject')),
       );
     });
 
@@ -281,8 +281,8 @@ void main() {
         // Arrange
         final graph = RdfGraph().withTriple(
           Triple(
-            IriTerm('http://example.org/base/subject'),
-            IriTerm('http://example.org/predicate'),
+            const IriTerm('http://example.org/base/subject'),
+            const IriTerm('http://example.org/predicate'),
             LiteralTerm.string('object'),
           ),
         );
@@ -304,8 +304,8 @@ void main() {
         // Arrange
         final graph = RdfGraph().withTriple(
           Triple(
-            IriTerm('http://example.org/base/subject'),
-            IriTerm('http://example.org/predicate'),
+            const IriTerm('http://example.org/base/subject'),
+            const IriTerm('http://example.org/predicate'),
             LiteralTerm.string('object'),
           ),
         );
@@ -336,8 +336,8 @@ void main() {
       // Arrange
       final graph = RdfGraph().withTriple(
         Triple(
-          IriTerm('http://example.org/subject'),
-          IriTerm('http://example.org/predicate'),
+          const IriTerm('http://example.org/subject'),
+          const IriTerm('http://example.org/predicate'),
           LiteralTerm.string('object'),
         ),
       );
@@ -373,7 +373,7 @@ void main() {
       expect(graph.size, equals(1));
       expect(
         graph.triples.first.subject,
-        equals(IriTerm('http://example.org/subject')),
+        equals(const IriTerm('http://example.org/subject')),
       );
     });
 
@@ -399,7 +399,7 @@ void main() {
       expect(graph.triples.first.predicate, isA<IriTerm>());
       expect(
         graph.triples.first.predicate,
-        equals(IriTerm('https://schema.org/name')),
+        equals(const IriTerm('https://schema.org/name')),
       );
       // The object should be the string value
       expect(
@@ -420,8 +420,8 @@ void main() {
       // Arrange
       final graph = RdfGraph().withTriple(
         Triple(
-          IriTerm('http://example.org/subject'),
-          IriTerm('http://example.org/predicate'),
+          const IriTerm('http://example.org/subject'),
+          const IriTerm('http://example.org/predicate'),
           LiteralTerm.string('object'),
         ),
       );
@@ -451,7 +451,7 @@ void main() {
       expect(graph.size, equals(1));
       expect(
         graph.triples.first.subject,
-        equals(IriTerm('http://example.org/subject')),
+        equals(const IriTerm('http://example.org/subject')),
       );
     });
 
@@ -459,8 +459,8 @@ void main() {
       // Arrange
       final graph = RdfGraph().withTriple(
         Triple(
-          IriTerm('http://example.org/subject'),
-          IriTerm('http://example.org/predicate'),
+          const IriTerm('http://example.org/subject'),
+          const IriTerm('http://example.org/predicate'),
           LiteralTerm.string('Special chars: \r\n\t"\\'),
         ),
       );

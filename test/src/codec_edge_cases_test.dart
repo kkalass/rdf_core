@@ -265,8 +265,8 @@ void main() {
         // Arrange - graph with Unicode characters
         final graph = RdfGraph().withTriple(
           Triple(
-            IriTerm('http://example.org/subject'),
-            IriTerm('http://example.org/predicate'),
+            const IriTerm('http://example.org/subject'),
+            const IriTerm('http://example.org/predicate'),
             LiteralTerm.string('Unicode test: 日本語 Русский العربية'),
           ),
         );
@@ -293,8 +293,8 @@ void main() {
         // Arrange - graph with characters that need escaping
         final graph = RdfGraph().withTriple(
           Triple(
-            IriTerm('http://example.org/subject'),
-            IriTerm('http://example.org/predicate'),
+            const IriTerm('http://example.org/subject'),
+            const IriTerm('http://example.org/predicate'),
             LiteralTerm.string('Special chars: \r\n\t"\\'),
           ),
         );

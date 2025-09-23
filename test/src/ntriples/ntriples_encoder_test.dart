@@ -18,9 +18,9 @@ void main() {
     });
 
     test('endodes simple IRI triple', () {
-      final subject = IriTerm('http://example.org/subject');
-      final predicate = IriTerm('http://example.org/predicate');
-      final object = IriTerm('http://example.org/object');
+      final subject = const IriTerm('http://example.org/subject');
+      final predicate = const IriTerm('http://example.org/predicate');
+      final object = const IriTerm('http://example.org/object');
       final triple = Triple(subject, predicate, object);
       final graph = RdfGraph.fromTriples([triple]);
 
@@ -33,7 +33,7 @@ void main() {
 
     test('endodes triple with blank nodes', () {
       final subject = BlankNodeTerm();
-      final predicate = IriTerm('http://example.org/predicate');
+      final predicate = const IriTerm('http://example.org/predicate');
       final object = BlankNodeTerm();
       final triple = Triple(subject, predicate, object);
       final graph = RdfGraph.fromTriples([triple]);
@@ -46,8 +46,8 @@ void main() {
     });
 
     test('endodes triple with simple literal', () {
-      final subject = IriTerm('http://example.org/subject');
-      final predicate = IriTerm('http://example.org/predicate');
+      final subject = const IriTerm('http://example.org/subject');
+      final predicate = const IriTerm('http://example.org/predicate');
       final object = LiteralTerm.string('Simple literal');
       final triple = Triple(subject, predicate, object);
       final graph = RdfGraph.fromTriples([triple]);
@@ -62,8 +62,8 @@ void main() {
     });
 
     test('endodes triple with language-tagged literal', () {
-      final subject = IriTerm('http://example.org/subject');
-      final predicate = IriTerm('http://example.org/predicate');
+      final subject = const IriTerm('http://example.org/subject');
+      final predicate = const IriTerm('http://example.org/predicate');
       final object = LiteralTerm.withLanguage('English text', 'en');
       final triple = Triple(subject, predicate, object);
       final graph = RdfGraph.fromTriples([triple]);
@@ -78,12 +78,12 @@ void main() {
     });
 
     test('endodes triple with datatyped literal', () {
-      final subject = IriTerm('http://example.org/subject');
-      final predicate = IriTerm('http://example.org/predicate');
+      final subject = const IriTerm('http://example.org/subject');
+      final predicate = const IriTerm('http://example.org/predicate');
       // Create a typed literal using the correct term constructor
       final object = LiteralTerm(
         '42',
-        datatype: IriTerm('http://www.w3.org/2001/XMLSchema#integer'),
+        datatype: const IriTerm('http://www.w3.org/2001/XMLSchema#integer'),
       );
       final triple = Triple(subject, predicate, object);
       final graph = RdfGraph.fromTriples([triple]);
@@ -98,8 +98,8 @@ void main() {
     });
 
     test('escapes special characters in literals', () {
-      final subject = IriTerm('http://example.org/subject');
-      final predicate = IriTerm('http://example.org/predicate');
+      final subject = const IriTerm('http://example.org/subject');
+      final predicate = const IriTerm('http://example.org/predicate');
 
       // Test newlines, tabs, quotes, etc.
       final object = LiteralTerm.string(
@@ -119,9 +119,10 @@ void main() {
 
     test('escapes special characters in IRIs', () {
       // IRIs with characters that need escaping
-      final subject = IriTerm('http://example.org/subject');
-      final predicate = IriTerm('http://example.org/predicate');
-      final object = IriTerm('http://example.org/path>with<special>chars');
+      final subject = const IriTerm('http://example.org/subject');
+      final predicate = const IriTerm('http://example.org/predicate');
+      final object =
+          const IriTerm('http://example.org/path>with<special>chars');
       final triple = Triple(subject, predicate, object);
       final graph = RdfGraph.fromTriples([triple]);
 
@@ -135,12 +136,12 @@ void main() {
     });
 
     test('endodes multiple triples', () {
-      final subject1 = IriTerm('http://example.org/subject1');
-      final predicate1 = IriTerm('http://example.org/predicate1');
-      final object1 = IriTerm('http://example.org/object1');
+      final subject1 = const IriTerm('http://example.org/subject1');
+      final predicate1 = const IriTerm('http://example.org/predicate1');
+      final object1 = const IriTerm('http://example.org/object1');
 
-      final subject2 = IriTerm('http://example.org/subject2');
-      final predicate2 = IriTerm('http://example.org/predicate2');
+      final subject2 = const IriTerm('http://example.org/subject2');
+      final predicate2 = const IriTerm('http://example.org/predicate2');
       final object2 = LiteralTerm.string('Object 2');
 
       final graph = RdfGraph.fromTriples([
@@ -230,9 +231,9 @@ void main() {
       final blankNode2 = BlankNodeTerm();
       final blankNode3 = BlankNodeTerm();
 
-      final predicate1 = IriTerm('http://example.org/predicate1');
-      final predicate2 = IriTerm('http://example.org/predicate2');
-      final subject = IriTerm('http://example.org/subject');
+      final predicate1 = const IriTerm('http://example.org/predicate1');
+      final predicate2 = const IriTerm('http://example.org/predicate2');
+      final subject = const IriTerm('http://example.org/subject');
 
       // Create triples where same blank nodes appear multiple times
       final graph = RdfGraph.fromTriples([

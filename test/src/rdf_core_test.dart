@@ -150,11 +150,11 @@ void main() {
         expect(graph.size, equals(1));
         expect(
           graph.triples.first.subject,
-          equals(IriTerm('http://example.org/subject')),
+          equals(const IriTerm('http://example.org/subject')),
         );
         expect(
           graph.triples.first.predicate,
-          equals(IriTerm('http://example.org/predicate')),
+          equals(const IriTerm('http://example.org/predicate')),
         );
         expect(
           graph.triples.first.object,
@@ -194,15 +194,15 @@ void main() {
         // Assert - the relative URI should be resolved against the document URL
         expect(
           graph.triples.first.subject,
-          equals(IriTerm('http://example.com/resource')),
+          equals(const IriTerm('http://example.com/resource')),
         );
       });
 
       test('encode method properly encodes RDF graph with content type', () {
         // Arrange
         final graph = RdfGraph();
-        final subject = IriTerm('http://example.org/subject');
-        final predicate = IriTerm('http://example.org/predicate');
+        final subject = const IriTerm('http://example.org/subject');
+        final predicate = const IriTerm('http://example.org/predicate');
         final object = LiteralTerm.string('object');
         final triple = Triple(subject, predicate, object);
         final graphWithTriple = graph.withTriple(triple);
@@ -224,8 +224,8 @@ void main() {
       test('encode method uses baseUri when provided', () {
         // Arrange
         final graph = RdfGraph();
-        final subject = IriTerm('http://example.com/resource');
-        final predicate = IriTerm('http://example.org/predicate');
+        final subject = const IriTerm('http://example.com/resource');
+        final predicate = const IriTerm('http://example.org/predicate');
         final object = LiteralTerm.string('object');
         final triple = Triple(subject, predicate, object);
         final graphWithTriple = graph.withTriple(triple);
@@ -251,8 +251,8 @@ void main() {
           // Arrange
           final graph = RdfGraph().withTriple(
             Triple(
-              IriTerm('http://example.org/subject'),
-              IriTerm('http://example.org/predicate'),
+              const IriTerm('http://example.org/subject'),
+              const IriTerm('http://example.org/predicate'),
               LiteralTerm.string('object'),
             ),
           );
@@ -300,8 +300,8 @@ class _CustomRdfGraphDecoder extends RdfGraphDecoder {
     // For testing, just create a simple graph with one triple
     final graph = RdfGraph();
     final triple = Triple(
-      IriTerm('http://example.org/custom-subject'),
-      IriTerm('http://example.org/custom-predicate'),
+      const IriTerm('http://example.org/custom-subject'),
+      const IriTerm('http://example.org/custom-predicate'),
       LiteralTerm.string('custom-object'),
     );
     return graph.withTriple(triple);

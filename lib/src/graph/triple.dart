@@ -14,9 +14,9 @@
 /// import 'package:rdf_core/rdf_core.dart';
 ///
 /// // Basic triple with IRI terms
-/// final subject = IriTerm('http://example.org/resource');
-/// final predicate = IriTerm('http://example.org/property');
-/// final object = IriTerm('http://example.org/value');
+/// final subject = const IriTerm('http://example.org/resource');
+/// final predicate = const IriTerm('http://example.org/property');
+/// final object = const IriTerm('http://example.org/value');
 /// final triple = Triple(subject, predicate, object);
 ///
 /// // Advanced: blank node as subject
@@ -106,8 +106,8 @@ class Triple {
   /// Example:
   /// ```dart
   /// // Create a triple: <http://example.org/john> <http://xmlns.com/foaf/0.1/name> "John Smith"
-  /// final john = IriTerm('http://example.org/john');
-  /// final name = IriTerm('http://xmlns.com/foaf/0.1/name');
+  /// final john = const IriTerm('http://example.org/john');
+  /// final name = const IriTerm('http://xmlns.com/foaf/0.1/name');
   /// final johnSmith = LiteralTerm.string('John Smith');
   /// final triple = Triple(john, name, johnSmith);
   /// ```
@@ -136,8 +136,8 @@ class Triple {
   /// Example:
   /// ```dart
   /// final triple = Triple(
-  ///   IriTerm('http://example.org/john'),
-  ///   IriTerm('http://xmlns.com/foaf/0.1/name'),
+  ///   const IriTerm('http://example.org/john'),
+  ///   const IriTerm('http://xmlns.com/foaf/0.1/name'),
   ///   LiteralTerm.string('John Smith')
   /// );
   ///

@@ -7,9 +7,9 @@ void main() {
       // This is the bug case: IRIs ending with dots should not use prefix notation
       final graph = RdfGraph.fromTriples([
         Triple(
-          IriTerm('https://example.com/subject'),
-          IriTerm('https://example.com/predicate'),
-          IriTerm('https://example.com/author.me'),
+          const IriTerm('https://example.com/subject'),
+          const IriTerm('https://example.com/predicate'),
+          const IriTerm('https://example.com/author.me'),
         ),
       ]);
 
@@ -42,9 +42,9 @@ void main() {
       for (final iri in testCases) {
         final graph = RdfGraph.fromTriples([
           Triple(
-            IriTerm('https://example.com/subject'),
-            IriTerm('https://example.com/predicate'),
-            IriTerm(iri),
+            const IriTerm('https://example.com/subject'),
+            const IriTerm('https://example.com/predicate'),
+            IriTerm.validated(iri),
           ),
         ]);
 
@@ -70,9 +70,9 @@ void main() {
       for (final iri in validCases) {
         final graph = RdfGraph.fromTriples([
           Triple(
-            IriTerm('https://example.com/subject'),
-            IriTerm('https://example.com/predicate'),
-            IriTerm(iri),
+            const IriTerm('https://example.com/subject'),
+            const IriTerm('https://example.com/predicate'),
+            IriTerm.validated(iri),
           ),
         ]);
 

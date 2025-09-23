@@ -226,8 +226,8 @@ const _stringDatatype = Xsd.string;
 ///
 /// final graph = RdfGraph();
 /// graph.add(Triple(
-///   IriTerm('http://example.org/subject'),
-///   IriTerm('http://example.org/predicate'),
+///   const IriTerm('http://example.org/subject'),
+///   const IriTerm('http://example.org/predicate'),
 ///   LiteralTerm('object')
 /// ));
 ///

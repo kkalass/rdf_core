@@ -116,8 +116,8 @@ nav a:hover, nav a:focus {
 // Create a graph manually
 final graph = RdfGraph(triples: [
   Triple(
-    IriTerm('https://example.org/subject'),
-    IriTerm('https://example.org/predicate'),
+    const IriTerm('https://example.org/subject'),
+    const IriTerm('https://example.org/predicate'),
     LiteralTerm.string('Hello, World!'),
   ),
 ]);

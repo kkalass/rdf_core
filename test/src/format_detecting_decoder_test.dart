@@ -38,24 +38,24 @@ void main() {
 
       // Check for solid:storage triple
       final solidStorageTriples = graph.findTriples(
-        subject: IriTerm('https://example.com/profile#me'),
-        predicate: IriTerm('http://www.w3.org/ns/solid/terms#storage'),
+        subject: const IriTerm('https://example.com/profile#me'),
+        predicate: const IriTerm('http://www.w3.org/ns/solid/terms#storage'),
       );
       expect(solidStorageTriples.length, equals(1));
       expect(
         solidStorageTriples.first.object,
-        equals(IriTerm('https://example.com/storage/')),
+        equals(const IriTerm('https://example.com/storage/')),
       );
 
       // Check for space:storage triple
       final spaceStorageTriples = graph.findTriples(
-        subject: IriTerm('https://example.com/profile#me'),
-        predicate: IriTerm('http://www.w3.org/ns/solid/terms#storage'),
+        subject: const IriTerm('https://example.com/profile#me'),
+        predicate: const IriTerm('http://www.w3.org/ns/solid/terms#storage'),
       );
       expect(spaceStorageTriples.length, equals(1));
       expect(
         spaceStorageTriples.first.object,
-        equals(IriTerm('https://example.com/storage/')),
+        equals(const IriTerm('https://example.com/storage/')),
       );
     });
 
@@ -102,30 +102,33 @@ pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
 
       // Verify solid:account triple
       final solidAccountTriples = graph.findTriples(
-        subject: IriTerm('https://kkalass.datapod.igrant.io/profile/card#me'),
-        predicate: IriTerm('http://www.w3.org/ns/solid/terms#account'),
+        subject:
+            const IriTerm('https://kkalass.datapod.igrant.io/profile/card#me'),
+        predicate: const IriTerm('http://www.w3.org/ns/solid/terms#account'),
       );
       expect(solidAccountTriples.length, equals(1));
       expect(
         solidAccountTriples.first.object,
-        equals(IriTerm('https://kkalass.datapod.igrant.io/')),
+        equals(const IriTerm('https://kkalass.datapod.igrant.io/')),
       );
 
       // Verify space:storage triple
       final spaceStorageTriples = graph.findTriples(
-        subject: IriTerm('https://kkalass.datapod.igrant.io/profile/card#me'),
-        predicate: IriTerm('http://www.w3.org/ns/pim/space#storage'),
+        subject:
+            const IriTerm('https://kkalass.datapod.igrant.io/profile/card#me'),
+        predicate: const IriTerm('http://www.w3.org/ns/pim/space#storage'),
       );
       expect(spaceStorageTriples.length, equals(1));
       expect(
         spaceStorageTriples.first.object,
-        equals(IriTerm('https://kkalass.datapod.igrant.io/')),
+        equals(const IriTerm('https://kkalass.datapod.igrant.io/')),
       );
 
       // Verify foaf:name triple
       final nameTriples = graph.findTriples(
-        subject: IriTerm('https://kkalass.datapod.igrant.io/profile/card#me'),
-        predicate: IriTerm('http://xmlns.com/foaf/0.1/name'),
+        subject:
+            const IriTerm('https://kkalass.datapod.igrant.io/profile/card#me'),
+        predicate: const IriTerm('http://xmlns.com/foaf/0.1/name'),
       );
       expect(nameTriples.length, equals(1));
       expect(
@@ -147,8 +150,8 @@ pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
 
       // Find all storage triples
       final storageTriples = graph.findTriples(
-        subject: IriTerm('https://example.com/profile#me'),
-        predicate: IriTerm('http://www.w3.org/ns/solid/terms#storage'),
+        subject: const IriTerm('https://example.com/profile#me'),
+        predicate: const IriTerm('http://www.w3.org/ns/solid/terms#storage'),
       );
 
       expect(storageTriples.length, equals(2));
@@ -156,8 +159,10 @@ pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
       // Extract all storage URLs
       final storageUrls =
           storageTriples.map((triple) => triple.object).toList();
-      expect(storageUrls, contains(IriTerm('https://example.com/storage1/')));
-      expect(storageUrls, contains(IriTerm('https://example.com/storage2/')));
+      expect(storageUrls,
+          contains(const IriTerm('https://example.com/storage1/')));
+      expect(storageUrls,
+          contains(const IriTerm('https://example.com/storage2/')));
     });
 
     test('should handle type declarations', () {
@@ -174,24 +179,25 @@ pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
 
       // Verify type declaration
       final typeTriples = graph.findTriples(
-        subject: IriTerm('https://example.com/profile#me'),
-        predicate: IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+        subject: const IriTerm('https://example.com/profile#me'),
+        predicate:
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
       );
       expect(typeTriples.length, equals(1));
       expect(
         typeTriples.first.object,
-        equals(IriTerm('http://www.w3.org/ns/solid/terms#Profile')),
+        equals(const IriTerm('http://www.w3.org/ns/solid/terms#Profile')),
       );
 
       // Verify storage triple
       final storageTriples = graph.findTriples(
-        subject: IriTerm('https://example.com/profile#me'),
-        predicate: IriTerm('http://www.w3.org/ns/solid/terms#storage'),
+        subject: const IriTerm('https://example.com/profile#me'),
+        predicate: const IriTerm('http://www.w3.org/ns/solid/terms#storage'),
       );
       expect(storageTriples.length, equals(1));
       expect(
         storageTriples.first.object,
-        equals(IriTerm('https://example.com/storage/')),
+        equals(const IriTerm('https://example.com/storage/')),
       );
     });
 
@@ -217,28 +223,29 @@ pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
 
       // Verify profile type
       final profileTypeTriples = graph.findTriples(
-        subject: IriTerm('https://example.com/profile#me'),
-        predicate: IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+        subject: const IriTerm('https://example.com/profile#me'),
+        predicate:
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
       );
       expect(profileTypeTriples.length, equals(1));
 
       // Verify storage triples
       final solidStorageTriples = graph.findTriples(
-        subject: IriTerm('https://example.com/profile#me'),
-        predicate: IriTerm('http://www.w3.org/ns/solid/terms#storage'),
+        subject: const IriTerm('https://example.com/profile#me'),
+        predicate: const IriTerm('http://www.w3.org/ns/solid/terms#storage'),
       );
       expect(solidStorageTriples.length, equals(1));
 
       final spaceStorageTriples = graph.findTriples(
-        subject: IriTerm('https://example.com/profile#me'),
-        predicate: IriTerm('http://www.w3.org/ns/solid/terms#storage'),
+        subject: const IriTerm('https://example.com/profile#me'),
+        predicate: const IriTerm('http://www.w3.org/ns/solid/terms#storage'),
       );
       expect(spaceStorageTriples.length, equals(1));
 
       // Verify name triple
       final nameTriples = graph.findTriples(
-        subject: IriTerm('https://example.com/profile#me'),
-        predicate: IriTerm('http://xmlns.com/foaf/0.1/name'),
+        subject: const IriTerm('https://example.com/profile#me'),
+        predicate: const IriTerm('http://xmlns.com/foaf/0.1/name'),
       );
       expect(nameTriples.length, equals(1));
       expect(nameTriples.first.object, equals(LiteralTerm.string('John Doe')));

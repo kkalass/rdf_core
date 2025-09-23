@@ -88,7 +88,7 @@ void main() {
       expect(result.flags, equals(specificFlags));
       var graph = RdfGraph(triples: result.triples);
       var deprecated = graph.findTriples(
-        predicate: IriTerm('http://www.w3.org/2002/07/owl#deprecated'),
+        predicate: const IriTerm('http://www.w3.org/2002/07/owl#deprecated'),
       );
       deprecated.forEach((triple) {
         expect(triple.object, isA<LiteralTerm>());

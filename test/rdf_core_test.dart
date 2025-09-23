@@ -127,8 +127,8 @@ class _CustomRdfDecoder extends RdfGraphDecoder {
   @override
   RdfGraph convert(String input, {String? documentUrl}) {
     // For testing, always create a graph with one triple
-    final subject = IriTerm('http://example.org/subject');
-    final predicate = IriTerm('http://example.org/predicate');
+    final subject = const IriTerm('http://example.org/subject');
+    final predicate = const IriTerm('http://example.org/predicate');
     final object = LiteralTerm.string('Custom parsed content');
 
     return RdfGraph(triples: [Triple(subject, predicate, object)]);

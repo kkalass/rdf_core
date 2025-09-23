@@ -12,13 +12,13 @@ void main() {
         var graph = RdfGraph(
           triples: [
             Triple(
-              IriTerm('http://example.org/person/alice'),
+              const IriTerm('http://example.org/person/alice'),
               Rdf.type,
-              IriTerm('http://xmlns.com/foaf/0.1/Person'),
+              const IriTerm('http://xmlns.com/foaf/0.1/Person'),
             ),
             Triple(
-              IriTerm('http://example.org/person/alice'),
-              IriTerm('http://xmlns.com/foaf/0.1/name'),
+              const IriTerm('http://example.org/person/alice'),
+              const IriTerm('http://xmlns.com/foaf/0.1/name'),
               LiteralTerm.string('Alice'),
             ),
           ],
@@ -61,47 +61,47 @@ void main() {
           triples: [
             // Add person with various property types
             Triple(
-              IriTerm('http://example.org/person/john'),
+              const IriTerm('http://example.org/person/john'),
               Rdf.type,
-              IriTerm('http://xmlns.com/foaf/0.1/Person'),
+              const IriTerm('http://xmlns.com/foaf/0.1/Person'),
             ),
             Triple(
-              IriTerm('http://example.org/person/john'),
-              IriTerm('http://xmlns.com/foaf/0.1/name'),
+              const IriTerm('http://example.org/person/john'),
+              const IriTerm('http://xmlns.com/foaf/0.1/name'),
               LiteralTerm.string('John Smith'),
             ),
             Triple(
-              IriTerm('http://example.org/person/john'),
-              IriTerm('http://xmlns.com/foaf/0.1/age'),
+              const IriTerm('http://example.org/person/john'),
+              const IriTerm('http://xmlns.com/foaf/0.1/age'),
               LiteralTerm.typed('42', 'integer'),
             ),
             Triple(
-              IriTerm('http://example.org/person/john'),
-              IriTerm('http://purl.org/dc/terms/created'),
+              const IriTerm('http://example.org/person/john'),
+              const IriTerm('http://purl.org/dc/terms/created'),
               LiteralTerm.typed('2025-04-23T12:00:00Z', 'dateTime'),
             ),
             // Add language-tagged literals
             Triple(
-              IriTerm('http://example.org/person/john'),
-              IriTerm('http://xmlns.com/foaf/0.1/title'),
+              const IriTerm('http://example.org/person/john'),
+              const IriTerm('http://xmlns.com/foaf/0.1/title'),
               LiteralTerm.withLanguage('Dr.', 'en'),
             ),
             Triple(
-              IriTerm('http://example.org/person/john'),
-              IriTerm('http://xmlns.com/foaf/0.1/title'),
+              const IriTerm('http://example.org/person/john'),
+              const IriTerm('http://xmlns.com/foaf/0.1/title'),
               LiteralTerm.withLanguage('Doktor', 'de'),
             ),
             // Add boolean value
             Triple(
-              IriTerm('http://example.org/person/john'),
-              IriTerm('http://schema.org/active'),
+              const IriTerm('http://example.org/person/john'),
+              const IriTerm('http://schema.org/active'),
               LiteralTerm.typed('true', 'boolean'),
             ),
             // Add relationship to another IRI
             Triple(
-              IriTerm('http://example.org/person/john'),
-              IriTerm('http://xmlns.com/foaf/0.1/knows'),
-              IriTerm('http://example.org/person/jane'),
+              const IriTerm('http://example.org/person/john'),
+              const IriTerm('http://xmlns.com/foaf/0.1/knows'),
+              const IriTerm('http://example.org/person/jane'),
             ),
           ],
         );
@@ -111,23 +111,23 @@ void main() {
 
         graph = graph.withTriples([
           Triple(
-            IriTerm('http://example.org/person/john'),
-            IriTerm('http://schema.org/address'),
+            const IriTerm('http://example.org/person/john'),
+            const IriTerm('http://schema.org/address'),
             addressNode,
           ),
           Triple(
             addressNode,
             Rdf.type,
-            IriTerm('http://schema.org/PostalAddress'),
+            const IriTerm('http://schema.org/PostalAddress'),
           ),
           Triple(
             addressNode,
-            IriTerm('http://schema.org/streetAddress'),
+            const IriTerm('http://schema.org/streetAddress'),
             LiteralTerm.string('123 Main St'),
           ),
           Triple(
             addressNode,
-            IriTerm('http://schema.org/postalCode'),
+            const IriTerm('http://schema.org/postalCode'),
             LiteralTerm.string('12345'),
           ),
         ]);
@@ -166,47 +166,47 @@ void main() {
         triples: [
           // Add person with various property types
           Triple(
-            IriTerm('http://example.org/person/john'),
+            const IriTerm('http://example.org/person/john'),
             Rdf.type,
-            IriTerm('http://xmlns.com/foaf/0.1/Person'),
+            const IriTerm('http://xmlns.com/foaf/0.1/Person'),
           ),
           Triple(
-            IriTerm('http://example.org/person/john'),
-            IriTerm('http://xmlns.com/foaf/0.1/name'),
+            const IriTerm('http://example.org/person/john'),
+            const IriTerm('http://xmlns.com/foaf/0.1/name'),
             LiteralTerm.string('John Smith'),
           ),
           Triple(
-            IriTerm('http://example.org/person/john'),
-            IriTerm('http://xmlns.com/foaf/0.1/age'),
+            const IriTerm('http://example.org/person/john'),
+            const IriTerm('http://xmlns.com/foaf/0.1/age'),
             LiteralTerm.typed('42', 'integer'),
           ),
           Triple(
-            IriTerm('http://example.org/person/john'),
-            IriTerm('http://purl.org/dc/terms/created'),
+            const IriTerm('http://example.org/person/john'),
+            const IriTerm('http://purl.org/dc/terms/created'),
             LiteralTerm.typed('2025-04-23T12:00:00Z', 'dateTime'),
           ),
           // Add language-tagged literals
           Triple(
-            IriTerm('http://example.org/person/john'),
-            IriTerm('http://xmlns.com/foaf/0.1/title'),
+            const IriTerm('http://example.org/person/john'),
+            const IriTerm('http://xmlns.com/foaf/0.1/title'),
             LiteralTerm.withLanguage('Dr.', 'en'),
           ),
           Triple(
-            IriTerm('http://example.org/person/john'),
-            IriTerm('http://xmlns.com/foaf/0.1/title'),
+            const IriTerm('http://example.org/person/john'),
+            const IriTerm('http://xmlns.com/foaf/0.1/title'),
             LiteralTerm.withLanguage('Doktor', 'de'),
           ),
           // Add boolean value
           Triple(
-            IriTerm('http://example.org/person/john'),
-            IriTerm('http://schema.org/active'),
+            const IriTerm('http://example.org/person/john'),
+            const IriTerm('http://schema.org/active'),
             LiteralTerm.typed('true', 'boolean'),
           ),
           // Add relationship to another IRI
           Triple(
-            IriTerm('http://example.org/person/john'),
-            IriTerm('http://xmlns.com/foaf/0.1/knows'),
-            IriTerm('http://example.org/person/jane'),
+            const IriTerm('http://example.org/person/john'),
+            const IriTerm('http://xmlns.com/foaf/0.1/knows'),
+            const IriTerm('http://example.org/person/jane'),
           ),
         ],
       );
@@ -216,23 +216,23 @@ void main() {
 
       graph = graph.withTriples([
         Triple(
-          IriTerm('http://example.org/person/john'),
-          IriTerm('http://schema.org/address'),
+          const IriTerm('http://example.org/person/john'),
+          const IriTerm('http://schema.org/address'),
           addressNode,
         ),
         Triple(
           addressNode,
           Rdf.type,
-          IriTerm('http://schema.org/PostalAddress'),
+          const IriTerm('http://schema.org/PostalAddress'),
         ),
         Triple(
           addressNode,
-          IriTerm('http://schema.org/streetAddress'),
+          const IriTerm('http://schema.org/streetAddress'),
           LiteralTerm.string('123 Main St'),
         ),
         Triple(
           addressNode,
-          IriTerm('http://schema.org/postalCode'),
+          const IriTerm('http://schema.org/postalCode'),
           LiteralTerm.string('12345'),
         ),
       ]);

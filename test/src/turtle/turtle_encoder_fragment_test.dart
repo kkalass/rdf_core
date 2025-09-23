@@ -17,9 +17,9 @@ void main() {
         final graph = RdfGraph(
           triples: [
             Triple(
-              IriTerm('http://example.org/document#subject'),
-              IriTerm('http://example.org/document#predicate'),
-              IriTerm('http://example.org/document#object'),
+              const IriTerm('http://example.org/document#subject'),
+              const IriTerm('http://example.org/document#predicate'),
+              const IriTerm('http://example.org/document#object'),
             ),
           ],
         );
@@ -42,9 +42,9 @@ void main() {
         final graph = RdfGraph(
           triples: [
             Triple(
-              IriTerm('http://example.org/document#subject'),
-              IriTerm('http://example.org/document#predicate'),
-              IriTerm('http://example.org/document#object'),
+              const IriTerm('http://example.org/document#subject'),
+              const IriTerm('http://example.org/document#predicate'),
+              const IriTerm('http://example.org/document#object'),
             ),
           ],
         );
@@ -70,9 +70,9 @@ void main() {
         final graph = RdfGraph(
           triples: [
             Triple(
-              IriTerm('http://example.org/document#subject'),
-              IriTerm('http://example.org/document#predicate'),
-              IriTerm('http://example.org/document#object'),
+              const IriTerm('http://example.org/document#subject'),
+              const IriTerm('http://example.org/document#predicate'),
+              const IriTerm('http://example.org/document#object'),
             ),
           ],
         );
@@ -94,9 +94,9 @@ void main() {
         final graph = RdfGraph(
           triples: [
             Triple(
-              IriTerm('http://example.org/document#subject'),
-              IriTerm('http://example.org/document#predicate'),
-              IriTerm('http://example.org/other'),
+              const IriTerm('http://example.org/document#subject'),
+              const IriTerm('http://example.org/document#predicate'),
+              const IriTerm('http://example.org/other'),
             ),
           ],
         );
@@ -117,9 +117,9 @@ void main() {
         final graph = RdfGraph(
           triples: [
             Triple(
-              IriTerm('http://example.org/document#subject'),
-              IriTerm('http://example.org/document#predicate'),
-              IriTerm('http://example.org/document#object'),
+              const IriTerm('http://example.org/document#subject'),
+              const IriTerm('http://example.org/document#predicate'),
+              const IriTerm('http://example.org/document#object'),
             ),
           ],
         );
@@ -148,9 +148,9 @@ void main() {
         final graph = RdfGraph(
           triples: [
             Triple(
-              IriTerm('http://example.org/document#subject'),
-              IriTerm('http://example.org/document#predicate'),
-              IriTerm('http://example.org/document#object'),
+              const IriTerm('http://example.org/document#subject'),
+              const IriTerm('http://example.org/document#predicate'),
+              const IriTerm('http://example.org/document#object'),
             ),
           ],
         );
@@ -173,9 +173,9 @@ void main() {
         final graph = RdfGraph(
           triples: [
             Triple(
-              IriTerm('http://example.org/document#subject'),
-              IriTerm('http://example.org/document#predicate'),
-              IriTerm('http://example.org/other'),
+              const IriTerm('http://example.org/document#subject'),
+              const IriTerm('http://example.org/document#predicate'),
+              const IriTerm('http://example.org/other'),
             ),
           ],
         );
@@ -199,9 +199,9 @@ void main() {
         final graph = RdfGraph(
           triples: [
             Triple(
-              IriTerm('http://example.org/subject'),
-              IriTerm('http://example.org/predicate'),
-              IriTerm('http://example.org/object'),
+              const IriTerm('http://example.org/subject'),
+              const IriTerm('http://example.org/predicate'),
+              const IriTerm('http://example.org/object'),
             ),
           ],
         );
@@ -225,9 +225,9 @@ void main() {
         final graph = RdfGraph(
           triples: [
             Triple(
-              IriTerm('http://example.org/document#'),
-              IriTerm('http://example.org/predicate'),
-              IriTerm('http://example.org/document#object'),
+              const IriTerm('http://example.org/document#'),
+              const IriTerm('http://example.org/predicate'),
+              const IriTerm('http://example.org/document#object'),
             ),
           ],
         );
@@ -253,9 +253,9 @@ void main() {
         final graph = RdfGraph(
           triples: [
             Triple(
-              IriTerm('http://example.org/document#subject'),
-              IriTerm('http://example.org/document#predicate'),
-              IriTerm('http://example.org/document#object'),
+              const IriTerm('http://example.org/document#subject'),
+              const IriTerm('http://example.org/document#predicate'),
+              const IriTerm('http://example.org/document#object'),
             ),
           ],
         );

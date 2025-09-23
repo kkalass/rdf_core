@@ -79,7 +79,7 @@ void main() {
       expect(graphFromTurtle.size, equals(1));
       expect(
         graphFromTurtle.triples.first.subject,
-        equals(IriTerm('http://example.org/subject')),
+        equals(const IriTerm('http://example.org/subject')),
       );
 
       // Act & Assert - JSON-LD content should be parsed by the JSON-LD codec
@@ -87,7 +87,7 @@ void main() {
       expect(graphFromJsonLd.size, equals(1));
       expect(
         graphFromJsonLd.triples.first.subject,
-        equals(IriTerm('http://example.org/subject')),
+        equals(const IriTerm('http://example.org/subject')),
       );
     });
 
@@ -106,8 +106,8 @@ void main() {
       // Arrange
       final graph = RdfGraph().withTriple(
         Triple(
-          IriTerm('http://example.org/subject'),
-          IriTerm('http://example.org/predicate'),
+          const IriTerm('http://example.org/subject'),
+          const IriTerm('http://example.org/predicate'),
           LiteralTerm.string('object'),
         ),
       );

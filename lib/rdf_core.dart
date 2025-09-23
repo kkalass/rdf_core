@@ -66,8 +66,8 @@
 /// final graph = RdfGraph();
 ///
 /// // Create terms
-/// final subject = IriTerm('http://example.org/john');
-/// final predicate = IriTerm('http://xmlns.com/foaf/0.1/name');
+/// final subject = const IriTerm('http://example.org/john');
+/// final predicate = const IriTerm('http://xmlns.com/foaf/0.1/name');
 /// final object = LiteralTerm.string('John Smith');
 ///
 /// // Add a triple
@@ -128,6 +128,7 @@
 /// library highly testable and extensible.
 library rdf;
 
+import 'package:rdf_core/src/graph/rdf_term.dart';
 import 'package:rdf_core/src/rdf_decoder.dart';
 import 'package:rdf_core/src/rdf_encoder.dart';
 import 'package:rdf_core/src/vocab/namespaces.dart';
@@ -207,6 +208,7 @@ final class RdfCore {
   factory RdfCore.withStandardCodecs({
     RdfNamespaceMappings? namespaceMappings,
     List<RdfGraphCodec> additionalCodecs = const [],
+    IriTermFactory iriTermFactory = IriTerm.validated,
   }) {
     final registry = RdfCodecRegistry();
     final _namespaceMappings =
@@ -214,12 +216,16 @@ final class RdfCore {
 
     // Register standard formats
     registry.registerGraphCodec(
-      TurtleCodec(namespaceMappings: _namespaceMappings),
+      TurtleCodec(
+          namespaceMappings: _namespaceMappings,
+          iriTermFactory: iriTermFactory),
     );
     registry.registerGraphCodec(
-      JsonLdGraphCodec(namespaceMappings: _namespaceMappings),
+      JsonLdGraphCodec(
+          namespaceMappings: _namespaceMappings,
+          iriTermFactory: iriTermFactory),
     );
-    registry.registerGraphCodec(const NTriplesCodec());
+    registry.registerGraphCodec(NTriplesCodec(iriTermFactory: iriTermFactory));
 
     // Register additional codecs
     for (final codec in additionalCodecs) {

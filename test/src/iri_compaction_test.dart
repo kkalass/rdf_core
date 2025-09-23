@@ -29,16 +29,16 @@ void main() {
       test('should compact IRI with fragment against same IRI base', () {
         // Create a simple graph with our target IRI
         final graph = RdfGraph().withTriple(Triple(
-          IriTerm(
+          const IriTerm(
               'http://example.org/storage/solidtask/task/task456.ttl#vectorclock-user123'),
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
-          IriTerm('http://example.org/VectorClock'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+          const IriTerm('http://example.org/VectorClock'),
         ));
 
         final baseUri = 'http://example.org/storage/solidtask/task/task456.ttl';
         final result = compaction.compactAllIris(graph, {}, baseUri: baseUri);
 
-        final targetIri = IriTerm(
+        final targetIri = const IriTerm(
             'http://example.org/storage/solidtask/task/task456.ttl#vectorclock-user123');
         final compactedSubject = result.compactIri(targetIri, IriRole.subject);
 
@@ -55,10 +55,10 @@ void main() {
       test('should prefer relative IRI over prefix when shorter', () {
         // Test the specific logic that determines when to use relative vs prefixed
         final graph = RdfGraph().withTriple(Triple(
-          IriTerm(
+          const IriTerm(
               'http://example.org/storage/solidtask/task/task456.ttl#vectorclock-user123'),
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
-          IriTerm('http://example.org/VectorClock'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+          const IriTerm('http://example.org/VectorClock'),
         ));
 
         // Add a custom prefix that could match
@@ -70,7 +70,7 @@ void main() {
         final result =
             compaction.compactAllIris(graph, customPrefixes, baseUri: baseUri);
 
-        final targetIri = IriTerm(
+        final targetIri = const IriTerm(
             'http://example.org/storage/solidtask/task/task456.ttl#vectorclock-user123');
         final compactedSubject = result.compactIri(targetIri, IriRole.subject);
 
@@ -86,16 +86,17 @@ void main() {
 
       test('should handle empty relative IRI (same as base)', () {
         final graph = RdfGraph().withTriple(Triple(
-          IriTerm('http://example.org/storage/solidtask/task/task456.ttl'),
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
-          IriTerm('http://example.org/Document'),
+          const IriTerm(
+              'http://example.org/storage/solidtask/task/task456.ttl'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+          const IriTerm('http://example.org/Document'),
         ));
 
         final baseUri = 'http://example.org/storage/solidtask/task/task456.ttl';
         final result = compaction.compactAllIris(graph, {}, baseUri: baseUri);
 
-        final targetIri =
-            IriTerm('http://example.org/storage/solidtask/task/task456.ttl');
+        final targetIri = const IriTerm(
+            'http://example.org/storage/solidtask/task/task456.ttl');
         final compactedSubject = result.compactIri(targetIri, IriRole.subject);
 
         print('Compaction result for same-as-base: $compactedSubject');

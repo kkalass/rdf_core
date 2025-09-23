@@ -21,6 +21,7 @@
 /// - [JSON-LD Website](https://json-ld.org/)
 library jsonld_format;
 
+import 'package:rdf_core/src/graph/rdf_term.dart';
 import 'package:rdf_core/src/vocab/namespaces.dart';
 
 import '../plugin/rdf_codec.dart';
@@ -100,6 +101,7 @@ final class JsonLdGraphCodec extends RdfGraphCodec {
   final RdfNamespaceMappings _namespaceMappings;
   final JsonLdEncoderOptions _encoderOptions;
   final JsonLdDecoderOptions _decoderOptions;
+  final IriTermFactory _iriTermFactory;
 
   /// Creates a new JSON-LD codec with optional configuration
   ///
@@ -129,20 +131,23 @@ final class JsonLdGraphCodec extends RdfGraphCodec {
     RdfNamespaceMappings? namespaceMappings,
     JsonLdEncoderOptions encoderOptions = const JsonLdEncoderOptions(),
     JsonLdDecoderOptions decoderOptions = const JsonLdDecoderOptions(),
+    IriTermFactory iriTermFactory = IriTerm.validated,
   })  : _namespaceMappings = namespaceMappings ?? const RdfNamespaceMappings(),
         _decoderOptions = decoderOptions,
-        _encoderOptions = encoderOptions;
+        _encoderOptions = encoderOptions,
+        _iriTermFactory = iriTermFactory;
 
   @override
   JsonLdGraphCodec withOptions({
     RdfGraphEncoderOptions? encoder,
     RdfGraphDecoderOptions? decoder,
+    IriTermFactory? iriTermFactory,
   }) =>
       JsonLdGraphCodec(
-        namespaceMappings: _namespaceMappings,
-        encoderOptions: JsonLdEncoderOptions.from(encoder ?? _encoderOptions),
-        decoderOptions: JsonLdDecoderOptions.from(decoder ?? _decoderOptions),
-      );
+          namespaceMappings: _namespaceMappings,
+          encoderOptions: JsonLdEncoderOptions.from(encoder ?? _encoderOptions),
+          decoderOptions: JsonLdDecoderOptions.from(decoder ?? _decoderOptions),
+          iriTermFactory: iriTermFactory ?? _iriTermFactory);
 
   @override
   String get primaryMimeType => _primaryMimeType;
@@ -151,7 +156,8 @@ final class JsonLdGraphCodec extends RdfGraphCodec {
   Set<String> get supportedMimeTypes => _supportedMimeTypes;
 
   @override
-  RdfGraphDecoder get decoder => JsonLdDecoder(options: this._decoderOptions);
+  RdfGraphDecoder get decoder => JsonLdDecoder(
+      options: this._decoderOptions, iriTermFactory: _iriTermFactory);
 
   @override
   RdfGraphEncoder get encoder => JsonLdEncoder(

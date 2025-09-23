@@ -111,24 +111,24 @@ _:blank1 <http://example.org/property> "Value from blank node" .
   final customGraph = RdfGraph(
     triples: [
       Triple(
-        IriTerm('http://example.org/subject'),
-        IriTerm('http://example.org/predicate'),
+        const IriTerm('http://example.org/subject'),
+        const IriTerm('http://example.org/predicate'),
         LiteralTerm.string('String value'),
       ),
       Triple(
-        IriTerm('http://example.org/subject'),
-        IriTerm('http://example.org/predicate'),
+        const IriTerm('http://example.org/subject'),
+        const IriTerm('http://example.org/predicate'),
         LiteralTerm.integer(42),
       ),
       Triple(
-        IriTerm('http://example.org/subject'),
-        IriTerm('http://example.org/predicate'),
+        const IriTerm('http://example.org/subject'),
+        const IriTerm('http://example.org/predicate'),
         LiteralTerm.withLanguage('Text with language', 'en'),
       ),
       Triple(
         BlankNodeTerm(),
-        IriTerm('http://example.org/predicate'),
-        IriTerm('http://example.org/object'),
+        const IriTerm('http://example.org/predicate'),
+        const IriTerm('http://example.org/object'),
       ),
     ],
   );

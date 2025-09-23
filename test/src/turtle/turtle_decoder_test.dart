@@ -18,8 +18,10 @@ void main() {
       );
       final triples = parser.parse();
       expect(triples.length, equals(1));
-      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
-      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(
+          triples[0].subject, equals(const IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate,
+          equals(const IriTerm('http://example.com/bar')));
       expect(triples[0].object, equals(LiteralTerm.string('baz')));
     });
 
@@ -29,8 +31,10 @@ void main() {
       );
       final triples = parser.parse();
       expect(triples.length, equals(1));
-      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
-      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(
+          triples[0].subject, equals(const IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate,
+          equals(const IriTerm('http://example.com/bar')));
       expect(
         triples[0].object,
         equals(
@@ -47,8 +51,10 @@ void main() {
       );
       final triples = parser.parse();
       expect(triples.length, equals(1));
-      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
-      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(
+          triples[0].subject, equals(const IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate,
+          equals(const IriTerm('http://example.com/bar')));
       expect(triples[0].object, equals(LiteralTerm.typed('baz', 'boolean')));
     });
 
@@ -58,8 +64,10 @@ void main() {
       );
       final triples = parser.parse();
       expect(triples.length, equals(1));
-      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
-      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(
+          triples[0].subject, equals(const IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate,
+          equals(const IriTerm('http://example.com/bar')));
       expect(triples[0].object, equals(LiteralTerm.typed('true', 'boolean')));
     });
 
@@ -69,8 +77,10 @@ void main() {
       );
       final triples = parser.parse();
       expect(triples.length, equals(1));
-      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
-      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(
+          triples[0].subject, equals(const IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate,
+          equals(const IriTerm('http://example.com/bar')));
       expect(triples[0].object, equals(LiteralTerm.typed('false', 'boolean')));
     });
 
@@ -80,8 +90,10 @@ void main() {
       );
       final triples = parser.parse();
       expect(triples.length, equals(1));
-      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
-      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(
+          triples[0].subject, equals(const IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate,
+          equals(const IriTerm('http://example.com/bar')));
       expect(triples[0].object, equals(LiteralTerm.typed('42', 'integer')));
     });
 
@@ -91,8 +103,10 @@ void main() {
       );
       final triples = parser.parse();
       expect(triples.length, equals(1));
-      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
-      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(
+          triples[0].subject, equals(const IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate,
+          equals(const IriTerm('http://example.com/bar')));
       expect(triples[0].object, equals(LiteralTerm.typed('-15', 'integer')));
     });
 
@@ -102,8 +116,10 @@ void main() {
       );
       final triples = parser.parse();
       expect(triples.length, equals(1));
-      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
-      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(
+          triples[0].subject, equals(const IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate,
+          equals(const IriTerm('http://example.com/bar')));
       expect(triples[0].object, equals(LiteralTerm.typed('3.14', 'decimal')));
     });
 
@@ -113,8 +129,10 @@ void main() {
       );
       final triples = parser.parse();
       expect(triples.length, equals(1));
-      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
-      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(
+          triples[0].subject, equals(const IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate,
+          equals(const IriTerm('http://example.com/bar')));
       expect(triples[0].object, equals(LiteralTerm.typed('-2.718', 'decimal')));
     });
 
@@ -124,8 +142,10 @@ void main() {
       );
       final triples = parser.parse();
       expect(triples.length, equals(1));
-      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
-      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(
+          triples[0].subject, equals(const IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate,
+          equals(const IriTerm('http://example.com/bar')));
       expect(triples[0].object, equals(LiteralTerm.typed('0.0', 'decimal')));
     });
 
@@ -136,8 +156,10 @@ void main() {
       );
       final triples = parser.parse();
       expect(triples.length, equals(1));
-      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
-      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(
+          triples[0].subject, equals(const IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate,
+          equals(const IriTerm('http://example.com/bar')));
       expect(triples[0].object, equals(LiteralTerm.typed('baz', 'boolean')));
     });
 
@@ -147,8 +169,10 @@ void main() {
       );
       final triples = parser.parse();
       expect(triples.length, equals(1));
-      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
-      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(
+          triples[0].subject, equals(const IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate,
+          equals(const IriTerm('http://example.com/bar')));
       expect(triples[0].object, equals(LiteralTerm.withLanguage('baz', 'de')));
     });
 
@@ -160,11 +184,15 @@ void main() {
         ''');
       final triples = parser.parse();
       expect(triples.length, equals(2));
-      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
-      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(
+          triples[0].subject, equals(const IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate,
+          equals(const IriTerm('http://example.com/bar')));
       expect(triples[0].object, equals(LiteralTerm.string('baz')));
-      expect(triples[1].subject, equals(IriTerm('http://example.com/foo')));
-      expect(triples[1].predicate, equals(IriTerm('http://example.com/qux')));
+      expect(
+          triples[1].subject, equals(const IriTerm('http://example.com/foo')));
+      expect(triples[1].predicate,
+          equals(const IriTerm('http://example.com/qux')));
       expect(triples[1].object, equals(LiteralTerm.string('quux')));
     });
 
@@ -173,7 +201,8 @@ void main() {
       final triples = parser.parse();
       expect(triples.length, equals(1));
       expect(triples[0].subject, isA<BlankNodeTerm>());
-      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(triples[0].predicate,
+          equals(const IriTerm('http://example.com/bar')));
       expect(triples[0].object, equals(LiteralTerm.string('baz')));
     });
 
@@ -183,12 +212,15 @@ void main() {
       );
       final triples = parser.parse();
       expect(triples.length, equals(1));
-      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
+      expect(
+          triples[0].subject, equals(const IriTerm('http://example.com/foo')));
       expect(
         triples[0].predicate,
-        equals(IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')),
+        equals(
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')),
       );
-      expect(triples[0].object, equals(IriTerm('http://example.com/Bar')));
+      expect(
+          triples[0].object, equals(const IriTerm('http://example.com/Bar')));
     });
 
     test('should reject using "a" as a subject', () {
@@ -212,42 +244,43 @@ void main() {
       // Type declaration
       expect(
         triples[0].subject,
-        equals(IriTerm('https://example.com/profile#me')),
+        equals(const IriTerm('https://example.com/profile#me')),
       );
       expect(
         triples[0].predicate,
-        equals(IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')),
+        equals(
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')),
       );
       expect(
         triples[0].object,
-        equals(IriTerm('http://www.w3.org/ns/solid/terms#Profile')),
+        equals(const IriTerm('http://www.w3.org/ns/solid/terms#Profile')),
       );
 
       // Storage declarations
       expect(
         triples[1].subject,
-        equals(IriTerm('https://example.com/profile#me')),
+        equals(const IriTerm('https://example.com/profile#me')),
       );
       expect(
         triples[1].predicate,
-        equals(IriTerm('http://www.w3.org/ns/solid/terms#storage')),
+        equals(const IriTerm('http://www.w3.org/ns/solid/terms#storage')),
       );
       expect(
         triples[1].object,
-        equals(IriTerm('https://example.com/storage/')),
+        equals(const IriTerm('https://example.com/storage/')),
       );
 
       expect(
         triples[2].subject,
-        equals(IriTerm('https://example.com/profile#me')),
+        equals(const IriTerm('https://example.com/profile#me')),
       );
       expect(
         triples[2].predicate,
-        equals(IriTerm('http://www.w3.org/ns/pim/space#storage')),
+        equals(const IriTerm('http://www.w3.org/ns/pim/space#storage')),
       );
       expect(
         triples[2].object,
-        equals(IriTerm('https://example.com/storage/')),
+        equals(const IriTerm('https://example.com/storage/')),
       );
     });
 
@@ -270,43 +303,44 @@ void main() {
       // Check type declaration
       expect(
         triples[0].subject,
-        equals(IriTerm('https://example.com/profile#me')),
+        equals(const IriTerm('https://example.com/profile#me')),
       );
       expect(
         triples[0].predicate,
-        equals(IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')),
+        equals(
+            const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')),
       );
       expect(
         triples[0].object,
-        equals(IriTerm('http://www.w3.org/ns/solid/terms#Profile')),
+        equals(const IriTerm('http://www.w3.org/ns/solid/terms#Profile')),
       );
 
       // Check solid:storage
       expect(
         triples[1].subject,
-        equals(IriTerm('https://example.com/profile#me')),
+        equals(const IriTerm('https://example.com/profile#me')),
       );
       expect(
         triples[1].predicate,
-        equals(IriTerm('http://www.w3.org/ns/solid/terms#storage')),
+        equals(const IriTerm('http://www.w3.org/ns/solid/terms#storage')),
       );
       expect(
         triples[1].object,
-        equals(IriTerm('https://example.com/storage/')),
+        equals(const IriTerm('https://example.com/storage/')),
       );
 
       // Check space:storage
       expect(
         triples[2].subject,
-        equals(IriTerm('https://example.com/profile#me')),
+        equals(const IriTerm('https://example.com/profile#me')),
       );
       expect(
         triples[2].predicate,
-        equals(IriTerm('http://www.w3.org/ns/pim/space#storage')),
+        equals(const IriTerm('http://www.w3.org/ns/pim/space#storage')),
       );
       expect(
         triples[2].object,
-        equals(IriTerm('https://example.com/storage/')),
+        equals(const IriTerm('https://example.com/storage/')),
       );
     });
 
@@ -318,9 +352,12 @@ void main() {
       final triples = parser.parse();
 
       expect(triples.length, equals(1));
-      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
-      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
-      expect(triples[0].object, equals(IriTerm('http://example.com/baz')));
+      expect(
+          triples[0].subject, equals(const IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate,
+          equals(const IriTerm('http://example.com/bar')));
+      expect(
+          triples[0].object, equals(const IriTerm('http://example.com/baz')));
     });
 
     test('should resolve empty relative IRIs using the base URI', () {
@@ -334,13 +371,14 @@ void main() {
       expect(triples.length, equals(1));
       expect(
         triples[0].subject,
-        equals(IriTerm('https://solidproject.org/TR/wac')),
+        equals(const IriTerm('https://solidproject.org/TR/wac')),
       );
       expect(
         triples[0].predicate,
-        equals(IriTerm('http://xmlns.com/foaf/0.1/topic')),
+        equals(const IriTerm('http://xmlns.com/foaf/0.1/topic')),
       );
-      expect(triples[0].object, equals(IriTerm('http://my.example.com/')));
+      expect(
+          triples[0].object, equals(const IriTerm('http://my.example.com/')));
     });
 
     test('should handle prefixed names with empty prefix', () {
@@ -353,15 +391,15 @@ void main() {
       expect(triples.length, equals(1));
       expect(
         triples[0].subject,
-        equals(IriTerm('http://example.com/default#foo')),
+        equals(const IriTerm('http://example.com/default#foo')),
       );
       expect(
         triples[0].predicate,
-        equals(IriTerm('http://example.com/default#bar')),
+        equals(const IriTerm('http://example.com/default#bar')),
       );
       expect(
         triples[0].object,
-        equals(IriTerm('http://example.com/default#baz')),
+        equals(const IriTerm('http://example.com/default#baz')),
       );
     });
 
@@ -380,24 +418,27 @@ void main() {
       final triples = parser.parse();
 
       expect(triples.length, equals(3));
-      expect(triples[0].subject, equals(IriTerm('http://example.com/subject')));
+      expect(triples[0].subject,
+          equals(const IriTerm('http://example.com/subject')));
       expect(
         triples[0].predicate,
-        equals(IriTerm('http://example.com/predicate')),
+        equals(const IriTerm('http://example.com/predicate')),
       );
       expect(triples[0].object, equals(LiteralTerm.string('obj1')));
 
-      expect(triples[1].subject, equals(IriTerm('http://example.com/subject')));
+      expect(triples[1].subject,
+          equals(const IriTerm('http://example.com/subject')));
       expect(
         triples[1].predicate,
-        equals(IriTerm('http://example.com/predicate')),
+        equals(const IriTerm('http://example.com/predicate')),
       );
       expect(triples[1].object, equals(LiteralTerm.string('obj2')));
 
-      expect(triples[2].subject, equals(IriTerm('http://example.com/subject')));
+      expect(triples[2].subject,
+          equals(const IriTerm('http://example.com/subject')));
       expect(
         triples[2].predicate,
-        equals(IriTerm('http://example.com/predicate')),
+        equals(const IriTerm('http://example.com/predicate')),
       );
       expect(triples[2].object, equals(LiteralTerm.string('obj3')));
     });
@@ -409,8 +450,10 @@ void main() {
       final triples = parser.parse();
 
       expect(triples.length, equals(1));
-      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
-      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(
+          triples[0].subject, equals(const IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate,
+          equals(const IriTerm('http://example.com/bar')));
       expect(triples[0].object, equals(LiteralTerm.string('Copyright © 2025')));
     });
 
@@ -421,8 +464,10 @@ void main() {
       final triples = parser.parse();
 
       expect(triples.length, equals(1));
-      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
-      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(
+          triples[0].subject, equals(const IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate,
+          equals(const IriTerm('http://example.com/bar')));
       expect(triples[0].object, equals(LiteralTerm.string('Emoji: 😀')));
     });
 
@@ -479,7 +524,7 @@ void main() {
       expect(triples.length, equals(13));
 
       // Verify the main person triples
-      final johnIri = IriTerm('http://example.org/person/john');
+      final johnIri = const IriTerm('http://example.org/person/john');
       final johnTriples = triples.where((t) => t.subject == johnIri).toList();
       expect(johnTriples.length, equals(5));
 
@@ -488,8 +533,9 @@ void main() {
         johnTriples.any(
           (t) =>
               t.predicate ==
-                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type') &&
-              t.object == IriTerm('http://xmlns.com/foaf/0.1/Person'),
+                  const IriTerm(
+                      'http://www.w3.org/1999/02/22-rdf-syntax-ns#type') &&
+              t.object == const IriTerm('http://xmlns.com/foaf/0.1/Person'),
         ),
         isTrue,
       );
@@ -497,7 +543,7 @@ void main() {
       expect(
         johnTriples.any(
           (t) =>
-              t.predicate == IriTerm('http://xmlns.com/foaf/0.1/name') &&
+              t.predicate == const IriTerm('http://xmlns.com/foaf/0.1/name') &&
               t.object == LiteralTerm.string('John Smith'),
         ),
         isTrue,
@@ -507,7 +553,7 @@ void main() {
       expect(
         johnTriples.any(
           (t) =>
-              t.predicate == IriTerm('http://xmlns.com/foaf/0.1/knows') &&
+              t.predicate == const IriTerm('http://xmlns.com/foaf/0.1/knows') &&
               (t.object is BlankNodeTerm),
         ),
         isTrue,
@@ -515,7 +561,7 @@ void main() {
       expect(
         johnTriples.any(
           (t) =>
-              t.predicate == IriTerm('http://schema.org/address') &&
+              t.predicate == const IriTerm('http://schema.org/address') &&
               (t.object is BlankNodeTerm),
         ),
         isTrue,
@@ -533,8 +579,10 @@ void main() {
 
       final triples = parser.parse();
       expect(triples.length, equals(1));
-      expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
-      expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+      expect(
+          triples[0].subject, equals(const IriTerm('http://example.com/foo')));
+      expect(triples[0].predicate,
+          equals(const IriTerm('http://example.com/bar')));
       expect(triples[0].object, equals(LiteralTerm.string('baz')));
     });
 
@@ -934,7 +982,7 @@ void main() {
       final node1Triples = triples
           .where(
             (t) =>
-                t.predicate == IriTerm('http://example.org/name') &&
+                t.predicate == const IriTerm('http://example.org/name') &&
                 t.object == LiteralTerm.string("Node 1"),
           )
           .toList();
@@ -946,7 +994,7 @@ void main() {
       final node2Triples = triples
           .where(
             (t) =>
-                t.predicate == IriTerm('http://example.org/name') &&
+                t.predicate == const IriTerm('http://example.org/name') &&
                 t.object == LiteralTerm.string("Node 2"),
           )
           .toList();
@@ -959,7 +1007,7 @@ void main() {
           .firstWhere(
             (t) =>
                 t.subject == node1 &&
-                t.predicate == IriTerm('http://example.org/relatedTo'),
+                t.predicate == const IriTerm('http://example.org/relatedTo'),
           )
           .object as BlankNodeTerm;
 
@@ -967,7 +1015,7 @@ void main() {
           .firstWhere(
             (t) =>
                 t.subject == node2 &&
-                t.predicate == IriTerm('http://example.org/relatedTo'),
+                t.predicate == const IriTerm('http://example.org/relatedTo'),
           )
           .object as BlankNodeTerm;
 
@@ -986,7 +1034,7 @@ void main() {
       expect(triples[0].subject is BlankNodeTerm, isTrue);
       expect(
         triples[0].predicate,
-        equals(IriTerm('http://example.org/predicate')),
+        equals(const IriTerm('http://example.org/predicate')),
       );
       expect(triples[0].object, equals(LiteralTerm.string('object')));
     });
@@ -998,10 +1046,11 @@ void main() {
       final triples = parser.parse();
 
       expect(triples.length, equals(1));
-      expect(triples[0].subject, equals(IriTerm('http://example.org/subject')));
+      expect(triples[0].subject,
+          equals(const IriTerm('http://example.org/subject')));
       expect(
         triples[0].predicate,
-        equals(IriTerm('http://example.org/predicate')),
+        equals(const IriTerm('http://example.org/predicate')),
       );
       expect(triples[0].object is BlankNodeTerm, isTrue);
     });
@@ -1051,8 +1100,8 @@ void main() {
 
       final triples = parser.parse();
       expect(triples.length, equals(1));
-      expect(
-          triples[0].object, equals(IriTerm('http://example.org/local:name')));
+      expect(triples[0].object,
+          equals(const IriTerm('http://example.org/local:name')));
     });
 
     test('should handle deeply nested blank nodes', () {
@@ -1078,7 +1127,8 @@ void main() {
 
       // Find the first blank node
       final subjectTriples = triples
-          .where((t) => t.subject == IriTerm('http://example.org/subject'))
+          .where(
+              (t) => t.subject == const IriTerm('http://example.org/subject'))
           .toList();
       expect(subjectTriples.length, equals(1));
 
@@ -1089,7 +1139,7 @@ void main() {
           .where(
             (t) =>
                 t.subject == bn1 &&
-                t.predicate == IriTerm('http://example.org/level1'),
+                t.predicate == const IriTerm('http://example.org/level1'),
           )
           .toList();
       expect(level1Triples.length, equals(1));
@@ -1101,7 +1151,7 @@ void main() {
           .where(
             (t) =>
                 t.subject == bn2 &&
-                t.predicate == IriTerm('http://example.org/level2'),
+                t.predicate == const IriTerm('http://example.org/level2'),
           )
           .toList();
       expect(level2Triples.length, equals(1));
@@ -1113,7 +1163,7 @@ void main() {
           .where(
             (t) =>
                 t.subject == bn3 &&
-                t.predicate == IriTerm('http://example.org/level3'),
+                t.predicate == const IriTerm('http://example.org/level3'),
           )
           .toList();
       expect(level3Triples.length, equals(1));
@@ -1157,7 +1207,7 @@ void main() {
         // Find the main blank node
         final outerBn = triples
             .firstWhere(
-              (t) => t.subject == IriTerm('http://example.org/subject'),
+              (t) => t.subject == const IriTerm('http://example.org/subject'),
             )
             .object as BlankNodeTerm;
 
@@ -1169,7 +1219,7 @@ void main() {
         final prop3Triple = triples.firstWhere(
           (t) =>
               t.subject == outerBn &&
-              t.predicate == IriTerm('http://example.org/prop3'),
+              t.predicate == const IriTerm('http://example.org/prop3'),
         );
         expect(prop3Triple.object is BlankNodeTerm, isTrue);
 
@@ -1178,7 +1228,7 @@ void main() {
         final nestedTriple = triples.firstWhere((t) => t.subject == nestedBn);
         expect(
           nestedTriple.predicate,
-          equals(IriTerm('http://example.org/nestedProp')),
+          equals(const IriTerm('http://example.org/nestedProp')),
         );
         expect(nestedTriple.object, equals(LiteralTerm.string('nestedValue')));
       },
@@ -1209,15 +1259,18 @@ void main() {
 
       // Verify the subjects
       expect(
-        triples.any((t) => t.subject == IriTerm('http://example.org/subject1')),
+        triples.any(
+            (t) => t.subject == const IriTerm('http://example.org/subject1')),
         isTrue,
       );
       expect(
-        triples.any((t) => t.subject == IriTerm('http://example.org/subject2')),
+        triples.any(
+            (t) => t.subject == const IriTerm('http://example.org/subject2')),
         isTrue,
       );
       expect(
-        triples.any((t) => t.subject == IriTerm('http://example.org/subject3')),
+        triples.any(
+            (t) => t.subject == const IriTerm('http://example.org/subject3')),
         isTrue,
       );
     });
@@ -1241,7 +1294,8 @@ void main() {
       // Find the blank node used as subject
       BlankNodeTerm? blankNode;
       for (final triple in triples) {
-        if (triple.predicate == IriTerm('http://example.org/mainPredicate')) {
+        if (triple.predicate ==
+            const IriTerm('http://example.org/mainPredicate')) {
           blankNode = triple.subject as BlankNodeTerm;
           expect(triple.object, equals(LiteralTerm.string('mainObject')));
         }
@@ -1255,7 +1309,8 @@ void main() {
           .where(
             (t) =>
                 t.subject == blankNode &&
-                t.predicate != IriTerm('http://example.org/mainPredicate'),
+                t.predicate !=
+                    const IriTerm('http://example.org/mainPredicate'),
           )
           .toList();
       expect(blankNodeTriples.length, equals(2));
@@ -1264,7 +1319,7 @@ void main() {
       expect(
         blankNodeTriples.any(
           (t) =>
-              t.predicate == IriTerm('http://example.org/property1') &&
+              t.predicate == const IriTerm('http://example.org/property1') &&
               t.object == LiteralTerm.string('value1'),
         ),
         isTrue,
@@ -1274,7 +1329,7 @@ void main() {
       expect(
         blankNodeTriples.any(
           (t) =>
-              t.predicate == IriTerm('http://example.org/property2') &&
+              t.predicate == const IriTerm('http://example.org/property2') &&
               t.object == LiteralTerm.string('value2'),
         ),
         isTrue,
@@ -1288,8 +1343,10 @@ void main() {
         );
         final triples = parser.parse();
         expect(triples.length, equals(1));
-        expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
-        expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+        expect(triples[0].subject,
+            equals(const IriTerm('http://example.com/foo')));
+        expect(triples[0].predicate,
+            equals(const IriTerm('http://example.com/bar')));
         expect(triples[0].object, equals(LiteralTerm.string('Hello\nWorld')));
       });
 
@@ -1301,10 +1358,11 @@ void main() {
           );
           final triples = parser.parse();
           expect(triples.length, equals(1));
-          expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
+          expect(triples[0].subject,
+              equals(const IriTerm('http://example.com/foo')));
           expect(
             triples[0].predicate,
-            equals(IriTerm('http://example.com/bar')),
+            equals(const IriTerm('http://example.com/bar')),
           );
           expect(
             triples[0].object,
@@ -1319,8 +1377,10 @@ void main() {
         );
         final triples = parser.parse();
         expect(triples.length, equals(1));
-        expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
-        expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+        expect(triples[0].subject,
+            equals(const IriTerm('http://example.com/foo')));
+        expect(triples[0].predicate,
+            equals(const IriTerm('http://example.com/bar')));
         expect(
           triples[0].object,
           equals(LiteralTerm.withLanguage('Hello\nWorld', 'en')),
@@ -1333,8 +1393,10 @@ void main() {
         );
         final triples = parser.parse();
         expect(triples.length, equals(1));
-        expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
-        expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+        expect(triples[0].subject,
+            equals(const IriTerm('http://example.com/foo')));
+        expect(triples[0].predicate,
+            equals(const IriTerm('http://example.com/bar')));
         expect(
           triples[0].object,
           equals(LiteralTerm.typed('Hello\nWorld', 'string')),
@@ -1347,8 +1409,10 @@ void main() {
         );
         final triples = parser.parse();
         expect(triples.length, equals(1));
-        expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
-        expect(triples[0].predicate, equals(IriTerm('http://example.com/bar')));
+        expect(triples[0].subject,
+            equals(const IriTerm('http://example.com/foo')));
+        expect(triples[0].predicate,
+            equals(const IriTerm('http://example.com/bar')));
         expect(triples[0].object, equals(LiteralTerm.string('')));
       });
 
@@ -1360,10 +1424,11 @@ void main() {
           );
           final triples = parser.parse();
           expect(triples.length, equals(1));
-          expect(triples[0].subject, equals(IriTerm('http://example.com/foo')));
+          expect(triples[0].subject,
+              equals(const IriTerm('http://example.com/foo')));
           expect(
             triples[0].predicate,
-            equals(IriTerm('http://example.com/bar')),
+            equals(const IriTerm('http://example.com/bar')),
           );
           expect(
             triples[0].object,
@@ -1385,10 +1450,11 @@ void main() {
 
         final triples = parser.parse();
         expect(triples.length, equals(1));
-        expect(triples[0].subject, equals(IriTerm('http://example.org/term')));
+        expect(triples[0].subject,
+            equals(const IriTerm('http://example.org/term')));
         expect(
           triples[0].predicate,
-          equals(IriTerm('http://www.w3.org/2000/01/rdf-schema#comment')),
+          equals(const IriTerm('http://www.w3.org/2000/01/rdf-schema#comment')),
         );
 
         final expectedComment = '''This is a multiline
@@ -1423,7 +1489,7 @@ void main() {
 
           // Find the blank node
           final subjectTriple = triples.firstWhere(
-            (t) => t.subject == IriTerm('http://example.org/subject'),
+            (t) => t.subject == const IriTerm('http://example.org/subject'),
           );
           final blankNode = subjectTriple.object as BlankNodeTerm;
 
@@ -1431,7 +1497,7 @@ void main() {
           final descriptionTriple = triples.firstWhere(
             (t) =>
                 t.subject == blankNode &&
-                t.predicate == IriTerm('http://example.org/description'),
+                t.predicate == const IriTerm('http://example.org/description'),
           );
 
           final expectedDescription = '''This is a longer
@@ -1446,7 +1512,7 @@ void main() {
           final notesTriple = triples.firstWhere(
             (t) =>
                 t.subject == blankNode &&
-                t.predicate == IriTerm('http://example.org/notes'),
+                t.predicate == const IriTerm('http://example.org/notes'),
           );
 
           final expectedNotes = '''More notes
@@ -1483,9 +1549,11 @@ void main() {
           // Find the rdfs:comment for Person
           final personCommentTriple = triples.firstWhere(
             (t) =>
-                t.subject == IriTerm('http://example.org/vocabulary#Person') &&
+                t.subject ==
+                    const IriTerm('http://example.org/vocabulary#Person') &&
                 t.predicate ==
-                    IriTerm('http://www.w3.org/2000/01/rdf-schema#comment'),
+                    const IriTerm(
+                        'http://www.w3.org/2000/01/rdf-schema#comment'),
           );
 
           final expectedPersonComment = '''A person is defined as a human being 
@@ -1500,9 +1568,11 @@ void main() {
           // Find the rdfs:comment for name property
           final nameCommentTriple = triples.firstWhere(
             (t) =>
-                t.subject == IriTerm('http://example.org/vocabulary#name') &&
+                t.subject ==
+                    const IriTerm('http://example.org/vocabulary#name') &&
                 t.predicate ==
-                    IriTerm('http://www.w3.org/2000/01/rdf-schema#comment'),
+                    const IriTerm(
+                        'http://www.w3.org/2000/01/rdf-schema#comment'),
           );
 
           final expectedNameComment = '''The name of a person.
@@ -1533,11 +1603,11 @@ void main() {
         expect(triplesWithFlag[0].subject, isA<IriTerm>());
         expect(
           triplesWithFlag[0].predicate,
-          equals(IriTerm('http://example.org/predicate')),
+          equals(const IriTerm('http://example.org/predicate')),
         );
         expect(
           triplesWithFlag[0].subject,
-          equals(IriTerm('http://mytest.org/abc')),
+          equals(const IriTerm('http://mytest.org/abc')),
         );
         expect(triplesWithFlag[0].object, equals(LiteralTerm.string('value')));
       });
@@ -1575,11 +1645,11 @@ void main() {
           expect(triplesWithFlag[0].subject, isA<IriTerm>());
           expect(
             triplesWithFlag[0].predicate,
-            equals(IriTerm('http://example.org/predicate')),
+            equals(const IriTerm('http://example.org/predicate')),
           );
           expect(
             triplesWithFlag[0].subject,
-            equals(IriTerm('http://mytest3.org/base/abc')),
+            equals(const IriTerm('http://mytest3.org/base/abc')),
           );
           expect(
             triplesWithFlag[0].object,
@@ -1605,11 +1675,11 @@ void main() {
           expect(triplesWithFlag[0].subject, isA<IriTerm>());
           expect(
             triplesWithFlag[0].predicate,
-            equals(IriTerm('http://example.org/predicate')),
+            equals(const IriTerm('http://example.org/predicate')),
           );
           expect(
             triplesWithFlag[0].subject,
-            equals(IriTerm('http://mytest3.org/base/abc')),
+            equals(const IriTerm('http://mytest3.org/base/abc')),
           );
           expect(
             triplesWithFlag[0].object,
@@ -1648,15 +1718,15 @@ void main() {
         expect(triplesWithFlag.length, equals(1));
         expect(
           triplesWithFlag[0].subject,
-          equals(IriTerm('http://example.org/subject')),
+          equals(const IriTerm('http://example.org/subject')),
         );
         expect(
           triplesWithFlag[0].predicate,
-          equals(IriTerm('http://example.org/predicate')),
+          equals(const IriTerm('http://example.org/predicate')),
         );
         expect(
           triplesWithFlag[0].object,
-          equals(IriTerm('http://mytest2.org/abc')),
+          equals(const IriTerm('http://mytest2.org/abc')),
         );
         expect(triplesWithFlag[0].object, isA<IriTerm>());
       });
@@ -1694,15 +1764,15 @@ void main() {
           expect(triplesWithFlag.length, equals(1));
           expect(
             triplesWithFlag[0].subject,
-            equals(IriTerm('http://example.org/subject')),
+            equals(const IriTerm('http://example.org/subject')),
           );
           expect(
             triplesWithFlag[0].predicate,
-            equals(IriTerm('http://example.org/predicate')),
+            equals(const IriTerm('http://example.org/predicate')),
           );
           expect(
             triplesWithFlag[0].object,
-            equals(IriTerm('http://mytest3.org/base/abc')),
+            equals(const IriTerm('http://mytest3.org/base/abc')),
           );
           expect(triplesWithFlag[0].object, isA<IriTerm>());
         },
@@ -1726,15 +1796,15 @@ void main() {
           expect(triplesWithFlag.length, equals(1));
           expect(
             triplesWithFlag[0].subject,
-            equals(IriTerm('http://example.org/subject')),
+            equals(const IriTerm('http://example.org/subject')),
           );
           expect(
             triplesWithFlag[0].predicate,
-            equals(IriTerm('http://example.org/predicate')),
+            equals(const IriTerm('http://example.org/predicate')),
           );
           expect(
             triplesWithFlag[0].object,
-            equals(IriTerm('http://mytest3.org/base/abc')),
+            equals(const IriTerm('http://mytest3.org/base/abc')),
           );
           expect(triplesWithFlag[0].object, isA<IriTerm>());
         },
@@ -1778,15 +1848,16 @@ void main() {
         expect(triplesWithFlag.length, equals(1));
         expect(
           triplesWithFlag[0].subject,
-          equals(IriTerm('http://example.org/product')),
+          equals(const IriTerm('http://example.org/product')),
         );
         expect(
           triplesWithFlag[0].predicate,
-          equals(IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')),
+          equals(
+              const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')),
         );
         expect(
           triplesWithFlag[0].object,
-          equals(IriTerm('https://mytest.org/3DModel')),
+          equals(const IriTerm('https://mytest.org/3DModel')),
         );
       });
 
@@ -1824,11 +1895,11 @@ void main() {
         expect(triplesWithFlag.length, equals(1));
         expect(
           triplesWithFlag[0].subject,
-          equals(IriTerm('http://example.org/subject')),
+          equals(const IriTerm('http://example.org/subject')),
         );
         expect(
           triplesWithFlag[0].predicate,
-          equals(IriTerm('http://example.org/predicate')),
+          equals(const IriTerm('http://example.org/predicate')),
         );
         expect(triplesWithFlag[0].object, equals(LiteralTerm.string('value')));
       });
@@ -1862,15 +1933,17 @@ void main() {
         expect(triplesWithFlag.length, equals(1));
         expect(
           triplesWithFlag[0].subject,
-          equals(IriTerm('http://example.org/subject')),
+          equals(const IriTerm('http://example.org/subject')),
         );
         expect(
           triplesWithFlag[0].predicate,
-          equals(IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')),
+          equals(
+              const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')),
         );
         expect(
           triplesWithFlag[0].object,
-          equals(IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#List')),
+          equals(
+              const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#List')),
         );
       });
 
@@ -1907,11 +1980,11 @@ void main() {
         expect(triplesWithFlag.length, equals(1));
         expect(
           triplesWithFlag[0].subject,
-          equals(IriTerm('http://example.org/subject')),
+          equals(const IriTerm('http://example.org/subject')),
         );
         expect(
           triplesWithFlag[0].predicate,
-          equals(IriTerm('http://example.org/predicate')),
+          equals(const IriTerm('http://example.org/predicate')),
         );
         expect(triplesWithFlag[0].object, equals(LiteralTerm.string('value')));
       });
@@ -1944,11 +2017,11 @@ void main() {
         expect(triplesWithFlag.length, equals(1));
         expect(
           triplesWithFlag[0].subject,
-          equals(IriTerm('http://example.org/subject')),
+          equals(const IriTerm('http://example.org/subject')),
         );
         expect(
           triplesWithFlag[0].predicate,
-          equals(IriTerm('http://example.org/predicate')),
+          equals(const IriTerm('http://example.org/predicate')),
         );
         expect(triplesWithFlag[0].object, equals(LiteralTerm.string('value')));
       });
@@ -2015,15 +2088,16 @@ void main() {
         expect(triples.length, equals(1));
         expect(
           triples[0].subject,
-          equals(IriTerm('http://example.org/subject')),
+          equals(const IriTerm('http://example.org/subject')),
         );
         expect(
           triples[0].predicate,
-          equals(IriTerm('http://example.org/predicate')),
+          equals(const IriTerm('http://example.org/predicate')),
         );
         expect(
           triples[0].object,
-          equals(IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil')),
+          equals(
+              const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil')),
         );
       });
 
@@ -2045,11 +2119,11 @@ void main() {
 
         // Check the main triple pointing to the collection head
         final mainTriple = triples.firstWhere(
-          (t) => t.subject == IriTerm('http://example.org/subject'),
+          (t) => t.subject == const IriTerm('http://example.org/subject'),
         );
         expect(
           mainTriple.predicate,
-          equals(IriTerm('http://example.org/predicate')),
+          equals(const IriTerm('http://example.org/predicate')),
         );
         expect(mainTriple.object, isA<BlankNodeTerm>());
 
@@ -2061,7 +2135,8 @@ void main() {
           (t) =>
               t.subject == listHead &&
               t.predicate ==
-                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+                  const IriTerm(
+                      'http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
         );
         expect(firstItemTriple.object, equals(LiteralTerm.string('item1')));
 
@@ -2070,7 +2145,8 @@ void main() {
           (t) =>
               t.subject == listHead &&
               t.predicate ==
-                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+                  const IriTerm(
+                      'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
         );
         expect(firstRestTriple.object, isA<BlankNodeTerm>());
 
@@ -2080,7 +2156,8 @@ void main() {
           (t) =>
               t.subject == secondNode &&
               t.predicate ==
-                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+                  const IriTerm(
+                      'http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
         );
         expect(secondItemTriple.object, equals(LiteralTerm.string('item2')));
 
@@ -2089,7 +2166,8 @@ void main() {
           (t) =>
               t.subject == secondNode &&
               t.predicate ==
-                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+                  const IriTerm(
+                      'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
         );
         expect(secondRestTriple.object, isA<BlankNodeTerm>());
 
@@ -2099,7 +2177,8 @@ void main() {
           (t) =>
               t.subject == thirdNode &&
               t.predicate ==
-                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+                  const IriTerm(
+                      'http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
         );
         expect(thirdItemTriple.object, equals(LiteralTerm.string('item3')));
 
@@ -2108,11 +2187,13 @@ void main() {
           (t) =>
               t.subject == thirdNode &&
               t.predicate ==
-                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+                  const IriTerm(
+                      'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
         );
         expect(
           thirdRestTriple.object,
-          equals(IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil')),
+          equals(
+              const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil')),
         );
       });
 
@@ -2138,7 +2219,7 @@ void main() {
             .where(
               (t) =>
                   t.predicate ==
-                  IriTerm(
+                  const IriTerm(
                     'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',
                   ),
             )
@@ -2153,7 +2234,7 @@ void main() {
         );
         expect(
           firstTriples[2].object,
-          equals(IriTerm('http://example.org/resource')),
+          equals(const IriTerm('http://example.org/resource')),
         );
         expect(
           firstTriples[3].object,
@@ -2184,7 +2265,7 @@ void main() {
 
         // Find the main triple
         final mainTriple = triples.firstWhere(
-          (t) => t.subject == IriTerm('http://example.org/subject'),
+          (t) => t.subject == const IriTerm('http://example.org/subject'),
         );
         final outerListHead = mainTriple.object as BlankNodeTerm;
 
@@ -2193,7 +2274,8 @@ void main() {
           (t) =>
               t.subject == outerListHead &&
               t.predicate ==
-                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+                  const IriTerm(
+                      'http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
         );
         expect(firstOuterTriple.object, equals(LiteralTerm.string('outer1')));
 
@@ -2202,7 +2284,8 @@ void main() {
           (t) =>
               t.subject == outerListHead &&
               t.predicate ==
-                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+                  const IriTerm(
+                      'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
         );
         final secondOuterNode = firstRestTriple.object as BlankNodeTerm;
 
@@ -2211,7 +2294,8 @@ void main() {
           (t) =>
               t.subject == secondOuterNode &&
               t.predicate ==
-                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+                  const IriTerm(
+                      'http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
         );
 
         // The second item should be a blank node (head of inner list)
@@ -2223,7 +2307,8 @@ void main() {
           (t) =>
               t.subject == innerListHead &&
               t.predicate ==
-                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+                  const IriTerm(
+                      'http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
         );
         expect(firstInnerTriple.object, equals(LiteralTerm.string('inner1')));
 
@@ -2232,7 +2317,8 @@ void main() {
           (t) =>
               t.subject == innerListHead &&
               t.predicate ==
-                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+                  const IriTerm(
+                      'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
         );
         final secondInnerNode = innerRestTriple.object as BlankNodeTerm;
 
@@ -2240,7 +2326,8 @@ void main() {
           (t) =>
               t.subject == secondInnerNode &&
               t.predicate ==
-                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+                  const IriTerm(
+                      'http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
         );
         expect(secondInnerTriple.object, equals(LiteralTerm.string('inner2')));
 
@@ -2249,11 +2336,13 @@ void main() {
           (t) =>
               t.subject == secondInnerNode &&
               t.predicate ==
-                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+                  const IriTerm(
+                      'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
         );
         expect(
           innerEndTriple.object,
-          equals(IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil')),
+          equals(
+              const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil')),
         );
       });
 
@@ -2278,7 +2367,7 @@ void main() {
 
         // Find main triple
         final mainTriple = triples.firstWhere(
-          (t) => t.subject == IriTerm('http://example.org/subject'),
+          (t) => t.subject == const IriTerm('http://example.org/subject'),
         );
         final listHead = mainTriple.object as BlankNodeTerm;
 
@@ -2287,7 +2376,8 @@ void main() {
           (t) =>
               t.subject == listHead &&
               t.predicate ==
-                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+                  const IriTerm(
+                      'http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
         );
         final firstBlankNode = firstItemTriple.object as BlankNodeTerm;
 
@@ -2295,7 +2385,7 @@ void main() {
         final nameTriple = triples.firstWhere(
           (t) =>
               t.subject == firstBlankNode &&
-              t.predicate == IriTerm('http://example.org/name'),
+              t.predicate == const IriTerm('http://example.org/name'),
         );
         expect(nameTriple.object, equals(LiteralTerm.string('Named item')));
 
@@ -2304,7 +2394,8 @@ void main() {
           (t) =>
               t.subject == listHead &&
               t.predicate ==
-                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+                  const IriTerm(
+                      'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
         );
         final secondListNode = restTriple.object as BlankNodeTerm;
 
@@ -2312,7 +2403,8 @@ void main() {
           (t) =>
               t.subject == secondListNode &&
               t.predicate ==
-                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+                  const IriTerm(
+                      'http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
         );
         expect(secondItemTriple.object, isA<BlankNodeTerm>());
       });
@@ -2331,7 +2423,7 @@ void main() {
 
         // Find the blank node that holds the collection
         final mainTriple = triples.firstWhere(
-          (t) => t.subject == IriTerm('http://example.org/subject'),
+          (t) => t.subject == const IriTerm('http://example.org/subject'),
         );
         final containerNode = mainTriple.object as BlankNodeTerm;
 
@@ -2339,7 +2431,7 @@ void main() {
         final collectionTriple = triples.firstWhere(
           (t) =>
               t.subject == containerNode &&
-              t.predicate == IriTerm('http://example.org/items'),
+              t.predicate == const IriTerm('http://example.org/items'),
         );
 
         // Get the collection head
@@ -2350,7 +2442,8 @@ void main() {
           (t) =>
               t.subject == collectionHead &&
               t.predicate ==
-                  IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+                  const IriTerm(
+                      'http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
         );
         expect(firstItemTriple.object, equals(LiteralTerm.string('item1')));
 
@@ -2358,7 +2451,7 @@ void main() {
         final nameTriple = triples.firstWhere(
           (t) =>
               t.subject == containerNode &&
-              t.predicate == IriTerm('http://example.org/name'),
+              t.predicate == const IriTerm('http://example.org/name'),
         );
         expect(
           nameTriple.object,

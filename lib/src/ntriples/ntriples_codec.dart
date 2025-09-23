@@ -4,6 +4,7 @@
 /// format for serializing RDF graphs.
 library ntriples_format;
 
+import 'package:rdf_core/src/graph/rdf_term.dart';
 import 'package:rdf_core/src/ntriples/ntriples_decoder.dart';
 import 'package:rdf_core/src/ntriples/ntriples_encoder.dart';
 import 'package:rdf_core/src/plugin/rdf_codec.dart';
@@ -59,22 +60,27 @@ final class NTriplesCodec extends RdfGraphCodec {
   /// The decoder options used to configure the parsing behavior
   final NTriplesDecoderOptions _decoderOptions;
 
+  final IriTermFactory _iriTermFactory;
+
   /// Creates a new N-Triples format definition
   const NTriplesCodec({
     NTriplesEncoderOptions encoderOptions = const NTriplesEncoderOptions(),
     NTriplesDecoderOptions decoderOptions = const NTriplesDecoderOptions(),
+    IriTermFactory iriTermFactory = IriTerm.validated,
   })  : _encoderOptions = encoderOptions,
-        _decoderOptions = decoderOptions;
+        _decoderOptions = decoderOptions,
+        _iriTermFactory = iriTermFactory;
 
   @override
   NTriplesCodec withOptions({
     RdfGraphEncoderOptions? encoder,
     RdfGraphDecoderOptions? decoder,
+    IriTermFactory? iriTermFactory,
   }) {
     return NTriplesCodec(
-      encoderOptions: NTriplesEncoderOptions.from(encoder ?? _encoderOptions),
-      decoderOptions: NTriplesDecoderOptions.from(decoder ?? _decoderOptions),
-    );
+        encoderOptions: NTriplesEncoderOptions.from(encoder ?? _encoderOptions),
+        decoderOptions: NTriplesDecoderOptions.from(decoder ?? _decoderOptions),
+        iriTermFactory: iriTermFactory ?? _iriTermFactory);
   }
 
   /// Returns the primary MIME type for N-Triples: 'application/n-triples'
@@ -98,7 +104,8 @@ final class NTriplesCodec extends RdfGraphCodec {
   ///
   /// The decoder is used to parse N-Triples format into an RDF graph.
   @override
-  RdfGraphDecoder get decoder => NTriplesDecoder(options: _decoderOptions);
+  RdfGraphDecoder get decoder => NTriplesDecoder(
+      options: _decoderOptions, iriTermFactory: _iriTermFactory);
 
   /// Returns an encoder configured with the current encoder options
   ///

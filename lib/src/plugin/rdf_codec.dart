@@ -477,7 +477,7 @@ final class AutoDetectingGraphDecoder extends RdfGraphDecoder {
   final _logger = Logger('rdf.format_detecting_parser');
   final RdfCodecRegistry _registry;
   final RdfGraphDecoderOptions? _decoderOptions;
-
+  
   /// Creates a new auto-detecting decoder
   ///
   /// The [_registry] parameter is the codec registry to use for format detection.

@@ -27,8 +27,8 @@ void main() {
   print('Parsed ${graph.triples.length} triples');
 
   // Find all people that Alice knows
-  final aliceNode = IriTerm('http://example.org/alice');
-  final knowsPredicate = IriTerm('http://xmlns.com/foaf/0.1/knows');
+  final aliceNode = const IriTerm('http://example.org/alice');
+  final knowsPredicate = const IriTerm('http://xmlns.com/foaf/0.1/knows');
 
   final friendTriples =
       graph.findTriples(subject: aliceNode, predicate: knowsPredicate);
@@ -40,7 +40,7 @@ void main() {
     // Find the name of each friend
     final nameTriples = graph.findTriples(
         subject: friendIri,
-        predicate: IriTerm('http://xmlns.com/foaf/0.1/name'));
+        predicate: const IriTerm('http://xmlns.com/foaf/0.1/name'));
 
     if (nameTriples.isNotEmpty) {
       final name = (nameTriples.first.object as LiteralTerm).value;

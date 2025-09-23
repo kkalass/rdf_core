@@ -22,7 +22,7 @@ void main() {
       expect(
         () => LiteralTerm(
           'Hello',
-          datatype: IriTerm("http://example.com/foo"),
+          datatype: const IriTerm("http://example.com/foo"),
           language: 'en',
         ),
         throwsA(
@@ -40,7 +40,7 @@ void main() {
       var type = "langString";
       final langTerm = LiteralTerm(
         'Hello',
-        datatype: IriTerm("$baseIri$type"),
+        datatype: IriTerm.validated("$baseIri$type"),
         language: 'en',
       );
       expect(encodeLiteral(langTerm), equals('"Hello"@en'));
@@ -56,8 +56,8 @@ void main() {
 
       test('should create graph with initial triples', () {
         final triple = Triple(
-          IriTerm('http://example.com/foo'),
-          IriTerm('http://example.com/bar'),
+          const IriTerm('http://example.com/foo'),
+          const IriTerm('http://example.com/bar'),
           LiteralTerm.string('baz'),
         );
 
@@ -69,14 +69,14 @@ void main() {
 
       test('should add triples immutably with withTriple', () {
         final triple1 = Triple(
-          IriTerm('http://example.com/foo'),
-          IriTerm('http://example.com/bar'),
+          const IriTerm('http://example.com/foo'),
+          const IriTerm('http://example.com/bar'),
           LiteralTerm.string('baz'),
         );
 
         final triple2 = Triple(
-          IriTerm('http://example.com/foo'),
-          IriTerm('http://example.com/qux'),
+          const IriTerm('http://example.com/foo'),
+          const IriTerm('http://example.com/qux'),
           LiteralTerm.string('quux'),
         );
 
@@ -100,14 +100,14 @@ void main() {
 
       test('should add multiple triples immutably with withTriples', () {
         final triple1 = Triple(
-          IriTerm('http://example.com/foo'),
-          IriTerm('http://example.com/bar'),
+          const IriTerm('http://example.com/foo'),
+          const IriTerm('http://example.com/bar'),
           LiteralTerm.string('baz'),
         );
 
         final triple2 = Triple(
-          IriTerm('http://example.com/foo'),
-          IriTerm('http://example.com/qux'),
+          const IriTerm('http://example.com/foo'),
+          const IriTerm('http://example.com/qux'),
           LiteralTerm.string('quux'),
         );
 
@@ -125,20 +125,20 @@ void main() {
 
       test('should find triples by pattern', () {
         final triple1 = Triple(
-          IriTerm('http://example.com/foo'),
-          IriTerm('http://example.com/bar'),
+          const IriTerm('http://example.com/foo'),
+          const IriTerm('http://example.com/bar'),
           LiteralTerm.string('baz'),
         );
 
         final triple2 = Triple(
-          IriTerm('http://example.com/foo'),
-          IriTerm('http://example.com/qux'),
+          const IriTerm('http://example.com/foo'),
+          const IriTerm('http://example.com/qux'),
           LiteralTerm.string('quux'),
         );
 
         final triple3 = Triple(
-          IriTerm('http://example.com/bar'),
-          IriTerm('http://example.com/bar'),
+          const IriTerm('http://example.com/bar'),
+          const IriTerm('http://example.com/bar'),
           LiteralTerm.string('baz'),
         );
 
@@ -149,7 +149,7 @@ void main() {
 
         // Find by subject
         var triples = graph.findTriples(
-          subject: IriTerm('http://example.com/foo'),
+          subject: const IriTerm('http://example.com/foo'),
         );
         expect(triples.length, equals(2));
         expect(triples, contains(triple1));
@@ -157,7 +157,7 @@ void main() {
 
         // Find by predicate
         triples = graph.findTriples(
-          predicate: IriTerm('http://example.com/bar'),
+          predicate: const IriTerm('http://example.com/bar'),
         );
         expect(triples.length, equals(2));
         expect(triples, contains(triple1));
@@ -171,16 +171,16 @@ void main() {
 
         // Find by subject and predicate
         triples = graph.findTriples(
-          subject: IriTerm('http://example.com/foo'),
-          predicate: IriTerm('http://example.com/bar'),
+          subject: const IriTerm('http://example.com/foo'),
+          predicate: const IriTerm('http://example.com/bar'),
         );
         expect(triples.length, equals(1));
         expect(triples[0], equals(triple1));
       });
 
       test('should get objects for subject and predicate', () {
-        final subject = IriTerm('http://example.com/foo');
-        final predicate = IriTerm('http://example.com/bar');
+        final subject = const IriTerm('http://example.com/foo');
+        final predicate = const IriTerm('http://example.com/bar');
         final object1 = LiteralTerm.string('baz');
         final object2 = LiteralTerm.string('qux');
 
@@ -195,9 +195,9 @@ void main() {
       });
 
       test('should get subjects for predicate and object', () {
-        final subject1 = IriTerm('http://example.com/foo');
-        final subject2 = IriTerm('http://example.com/bar');
-        final predicate = IriTerm('http://example.com/baz');
+        final subject1 = const IriTerm('http://example.com/foo');
+        final subject2 = const IriTerm('http://example.com/bar');
+        final predicate = const IriTerm('http://example.com/baz');
         final object = LiteralTerm.string('qux');
 
         final graph = RdfGraph()
@@ -212,20 +212,20 @@ void main() {
 
       test('should filter triples with withoutMatching', () {
         final triple1 = Triple(
-          IriTerm('http://example.com/foo'),
-          IriTerm('http://example.com/bar'),
+          const IriTerm('http://example.com/foo'),
+          const IriTerm('http://example.com/bar'),
           LiteralTerm.string('baz'),
         );
 
         final triple2 = Triple(
-          IriTerm('http://example.com/foo'),
-          IriTerm('http://example.com/qux'),
+          const IriTerm('http://example.com/foo'),
+          const IriTerm('http://example.com/qux'),
           LiteralTerm.string('quux'),
         );
 
         final triple3 = Triple(
-          IriTerm('http://example.com/bar'),
-          IriTerm('http://example.com/bar'),
+          const IriTerm('http://example.com/bar'),
+          const IriTerm('http://example.com/bar'),
           LiteralTerm.string('baz'),
         );
 
@@ -236,14 +236,14 @@ void main() {
 
         // Filter by subject
         final filteredBySubject = graph.withoutMatching(
-          subject: IriTerm('http://example.com/foo'),
+          subject: const IriTerm('http://example.com/foo'),
         );
         expect(filteredBySubject.size, equals(1));
         expect(filteredBySubject.triples, contains(triple3));
 
         // Filter by predicate
         final filteredByPredicate = graph.withoutMatching(
-          predicate: IriTerm('http://example.com/bar'),
+          predicate: const IriTerm('http://example.com/bar'),
         );
         expect(filteredByPredicate.size, equals(1));
         expect(filteredByPredicate.triples, contains(triple2));
@@ -260,14 +260,14 @@ void main() {
         'withoutMatching should return a copy of the graph when no parameters provided',
         () {
           final triple1 = Triple(
-            IriTerm('http://example.com/foo'),
-            IriTerm('http://example.com/bar'),
+            const IriTerm('http://example.com/foo'),
+            const IriTerm('http://example.com/bar'),
             LiteralTerm.string('baz'),
           );
 
           final triple2 = Triple(
-            IriTerm('http://example.com/bar'),
-            IriTerm('http://example.com/qux'),
+            const IriTerm('http://example.com/bar'),
+            const IriTerm('http://example.com/qux'),
             LiteralTerm.string('quux'),
           );
 
@@ -292,14 +292,14 @@ void main() {
 
       test('should merge graphs immutably', () {
         final triple1 = Triple(
-          IriTerm('http://example.com/foo'),
-          IriTerm('http://example.com/bar'),
+          const IriTerm('http://example.com/foo'),
+          const IriTerm('http://example.com/bar'),
           LiteralTerm.string('baz'),
         );
 
         final triple2 = Triple(
-          IriTerm('http://example.com/foo'),
-          IriTerm('http://example.com/qux'),
+          const IriTerm('http://example.com/foo'),
+          const IriTerm('http://example.com/qux'),
           LiteralTerm.string('quux'),
         );
 
@@ -325,14 +325,14 @@ void main() {
 
       test('should implement equality correctly', () {
         final triple1 = Triple(
-          IriTerm('http://example.com/foo'),
-          IriTerm('http://example.com/bar'),
+          const IriTerm('http://example.com/foo'),
+          const IriTerm('http://example.com/bar'),
           LiteralTerm.string('baz'),
         );
 
         final triple2 = Triple(
-          IriTerm('http://example.com/foo'),
-          IriTerm('http://example.com/qux'),
+          const IriTerm('http://example.com/foo'),
+          const IriTerm('http://example.com/qux'),
           LiteralTerm.string('quux'),
         );
 
@@ -365,19 +365,19 @@ void main() {
     group('Legacy Compatibility', () {
       test('should handle a complete profile', () {
         final profileTriple = Triple(
-          IriTerm('https://example.com/profile#me'),
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
-          IriTerm('http://www.w3.org/ns/solid/terms#Profile'),
+          const IriTerm('https://example.com/profile#me'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+          const IriTerm('http://www.w3.org/ns/solid/terms#Profile'),
         );
         final storageTriple1 = Triple(
-          IriTerm('https://example.com/profile#me'),
-          IriTerm('http://www.w3.org/ns/solid/terms#storage'),
-          IriTerm('https://example.com/storage/'),
+          const IriTerm('https://example.com/profile#me'),
+          const IriTerm('http://www.w3.org/ns/solid/terms#storage'),
+          const IriTerm('https://example.com/storage/'),
         );
         final storageTriple2 = Triple(
-          IriTerm('https://example.com/profile#me'),
-          IriTerm('http://www.w3.org/ns/pim/space#storage'),
-          IriTerm('https://example.com/storage/'),
+          const IriTerm('https://example.com/profile#me'),
+          const IriTerm('http://www.w3.org/ns/pim/space#storage'),
+          const IriTerm('https://example.com/storage/'),
         );
 
         final graph = RdfGraph()
@@ -387,19 +387,21 @@ void main() {
 
         // Find all storage URLs
         final storageTriples = graph
-            .findTriples(subject: IriTerm('https://example.com/profile#me'))
+            .findTriples(
+                subject: const IriTerm('https://example.com/profile#me'))
             .where(
               (triple) =>
                   triple.predicate ==
-                      IriTerm('http://www.w3.org/ns/solid/terms#storage') ||
+                      const IriTerm(
+                          'http://www.w3.org/ns/solid/terms#storage') ||
                   triple.predicate ==
-                      IriTerm('http://www.w3.org/ns/pim/space#storage'),
+                      const IriTerm('http://www.w3.org/ns/pim/space#storage'),
             );
 
         expect(storageTriples.length, equals(2));
         expect(
           storageTriples.map((t) => t.object),
-          everyElement(equals(IriTerm('https://example.com/storage/'))),
+          everyElement(equals(const IriTerm('https://example.com/storage/'))),
         );
       });
     });

@@ -10,8 +10,8 @@ void main() {
     late Triple triple;
 
     setUp(() {
-      subject = IriTerm('http://example.org/subject');
-      predicate = IriTerm('http://example.org/predicate');
+      subject = const IriTerm('http://example.org/subject');
+      predicate = const IriTerm('http://example.org/predicate');
       object = LiteralTerm.string('object');
       triple = Triple(subject, predicate, object);
     });
@@ -29,7 +29,7 @@ void main() {
     });
 
     test('constructs with IRI object', () {
-      final iriObject = IriTerm('http://example.org/object');
+      final iriObject = const IriTerm('http://example.org/object');
       final t = Triple(subject, predicate, iriObject);
       expect(t.object, equals(iriObject));
     });

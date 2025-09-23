@@ -50,7 +50,7 @@ void main() {
   }
 
   // Demonstrate querying the graph
-  final aliceIri = IriTerm('http://example.org/alice');
+  final aliceIri = const IriTerm('http://example.org/alice');
 
   print('\n=== Query Results ===');
   final aliceTriples = graph.findTriples(subject: aliceIri);

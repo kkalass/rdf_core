@@ -85,19 +85,24 @@ class JsonLdDecoder extends RdfGraphDecoder {
   //
   // ignore: unused_field
   final JsonLdDecoderOptions _options;
-
+  final IriTermFactory _iriTermFactory;
   const JsonLdDecoder({
     JsonLdDecoderOptions options = const JsonLdDecoderOptions(),
-  }) : _options = options;
+    IriTermFactory iriTermFactory = IriTerm.validated,
+  })  : _options = options,
+        _iriTermFactory = iriTermFactory;
 
   @override
   RdfGraphDecoder withOptions(RdfGraphDecoderOptions options) {
-    return JsonLdDecoder(options: JsonLdDecoderOptions.from(options));
+    return JsonLdDecoder(
+        options: JsonLdDecoderOptions.from(options),
+        iriTermFactory: _iriTermFactory);
   }
 
   @override
   RdfGraph convert(String input, {String? documentUrl}) {
-    final parser = JsonLdParser(input, baseUri: documentUrl);
+    final parser = JsonLdParser(input,
+        baseUri: documentUrl, iriTermFactory: _iriTermFactory);
     return RdfGraph.fromTriples(parser.parse());
   }
 }
@@ -156,7 +161,7 @@ class JsonLdDecoder extends RdfGraphDecoder {
 class JsonLdParser {
   final String _input;
   final String? _baseUri;
-
+  final IriTermFactory _iriTermFactory;
   // Map to store consistent blank node instances across the parsing process
   final Map<String, BlankNodeTerm> _blankNodeCache = {};
 
@@ -180,9 +185,11 @@ class JsonLdParser {
   /// [input] is the JSON-LD document to parse.
   /// [baseUri] is the base URI against which relative IRIs should be resolved.
   /// If not provided, relative IRIs will be kept as-is.
-  JsonLdParser(String input, {String? baseUri})
+  JsonLdParser(String input,
+      {String? baseUri, IriTermFactory iriTermFactory = IriTerm.validated})
       : _input = input,
-        _baseUri = baseUri;
+        _baseUri = baseUri,
+        _iriTermFactory = iriTermFactory;
 
   /// Parses the JSON-LD input and returns a list of triples.
   ///
@@ -389,7 +396,7 @@ class JsonLdParser {
         continue;
       } // Expand predicate using context
       final predicateStr = _expandPredicate(key, context);
-      final predicate = IriTerm(predicateStr);
+      final predicate = _iriTermFactory(predicateStr);
       _log.info('Processing property: $key -> $predicate');
 
       if (value is List) {
@@ -412,7 +419,7 @@ class JsonLdParser {
       // Use the blank node cache to maintain consistent identity
       return _getOrCreateBlankNode(subject);
     } else {
-      return IriTerm(subject);
+      return _iriTermFactory(subject);
     }
   }
 
@@ -483,7 +490,7 @@ class JsonLdParser {
     List<Triple> triples,
     Map<String, String> context,
   ) {
-    final typePredicate = IriTerm(
+    final typePredicate = _iriTermFactory(
       'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
     );
 
@@ -491,7 +498,8 @@ class JsonLdParser {
       for (final type in typeValue) {
         if (type is String) {
           final expandedType = _expandPredicate(type, context);
-          triples.add(Triple(subject, typePredicate, IriTerm(expandedType)));
+          triples.add(
+              Triple(subject, typePredicate, _iriTermFactory(expandedType)));
           _log.info(
             'Added type triple: $subject -> $typePredicate -> $expandedType',
           );
@@ -499,7 +507,8 @@ class JsonLdParser {
       }
     } else if (typeValue is String) {
       final expandedType = _expandPredicate(typeValue, context);
-      triples.add(Triple(subject, typePredicate, IriTerm(expandedType)));
+      triples
+          .add(Triple(subject, typePredicate, _iriTermFactory(expandedType)));
       _log.info(
         'Added type triple: $subject -> $typePredicate -> $expandedType',
       );
@@ -509,7 +518,8 @@ class JsonLdParser {
         final typeId = typeValue['@id'];
         if (typeId is String) {
           final expandedType = _expandPredicate(typeId, context);
-          triples.add(Triple(subject, typePredicate, IriTerm(expandedType)));
+          triples.add(
+              Triple(subject, typePredicate, _iriTermFactory(expandedType)));
           _log.info(
             'Added type triple from object: $subject -> $typePredicate -> $expandedType',
           );
@@ -555,14 +565,14 @@ class JsonLdParser {
       // Simple literal or IRI value
       if (value.startsWith('http://') || value.startsWith('https://')) {
         // Treat as IRI
-        triples.add(Triple(subject, predicate, IriTerm(value)));
+        triples.add(Triple(subject, predicate, _iriTermFactory(value)));
         _log.info('Added IRI triple: $subject -> $predicate -> $value');
       } else if (value.contains(':')) {
         // Check if it's a prefixed IRI like "schema:name"
         final expanded = _expandPrefixedIri(value, context);
         if (expanded != value) {
           // Was expanded, so treat as IRI
-          triples.add(Triple(subject, predicate, IriTerm(expanded)));
+          triples.add(Triple(subject, predicate, _iriTermFactory(expanded)));
           _log.info(
             'Added expanded IRI triple: $subject -> $predicate -> $expanded (from $value)',
           );
@@ -612,7 +622,7 @@ class JsonLdParser {
             : resolveIri(expandedIri, _baseUri);
         final RdfObject objectTerm = resolvedIri.startsWith('_:')
             ? _getOrCreateBlankNode(resolvedIri)
-            : IriTerm(resolvedIri);
+            : _iriTermFactory(resolvedIri);
 
         triples.add(Triple(subject, predicate, objectTerm));
         _log.info(
@@ -631,7 +641,8 @@ class JsonLdParser {
         if (value.containsKey('@type')) {
           // Typed literal with datatype IRI
           final typeIri = value['@type'] as String;
-          objectTerm = LiteralTerm(literalValue, datatype: IriTerm(typeIri));
+          objectTerm =
+              LiteralTerm(literalValue, datatype: _iriTermFactory(typeIri));
         } else if (value.containsKey('@language')) {
           // Language-tagged literal
           final language = value['@language'] as String;

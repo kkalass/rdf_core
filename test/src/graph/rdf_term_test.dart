@@ -7,27 +7,28 @@ import 'package:test/test.dart';
 void main() {
   group('IriTerm', () {
     test('constructs with valid IRI', () {
-      final iri = const IriTerm('http://example.org/resource');
+      final iri = IriTerm.validated('http://example.org/resource');
       expect(iri.value, equals('http://example.org/resource'));
     });
 
     test('Iris with whitespaces should throw exception', () {
       expect(
-        () => const IriTerm('http://example.org/my test Resource'),
+        () => IriTerm.validated('http://example.org/my test Resource'),
         throwsA(isA<RdfConstraintViolationException>()),
       );
     });
 
     test('Escape Iris with whitespaces', () {
-      var expected = const IriTerm('http://example.org/my%20test%20Resource');
+      var expected =
+          IriTerm.validated('http://example.org/my%20test%20Resource');
       var result = IriTerm.encodeFull('http://example.org/my test Resource');
       expect(result, equals(expected));
     });
     test('equals operator compares case-sensitively', () {
-      final iri1 = const IriTerm('http://example.org/resource');
-      final iri2 = const IriTerm('http://EXAMPLE.org/resource');
-      final iri3 = const IriTerm('http://example.org/different');
-      final iri4 = const IriTerm('http://example.org/resource');
+      final iri1 = IriTerm.validated('http://example.org/resource');
+      final iri2 = IriTerm.validated('http://EXAMPLE.org/resource');
+      final iri3 = IriTerm.validated('http://example.org/different');
+      final iri4 = IriTerm.validated('http://example.org/resource');
 
       expect(iri1, isNot(equals(iri2)));
       expect(iri1, isNot(equals(iri3)));
@@ -37,8 +38,8 @@ void main() {
     test('hash codes are equal for case-variant IRIs', () {
       // Note: This test may theoretically fail in edge cases due to hash collisions
       // but should be stable for typical usage patterns
-      final iri1 = const IriTerm('http://example.org/resource');
-      final iri2 = const IriTerm('http://example.org/RESOURCE');
+      final iri1 = IriTerm.validated('http://example.org/resource');
+      final iri2 = IriTerm.validated('http://example.org/RESOURCE');
 
       expect(
         iri1.hashCode,
@@ -48,12 +49,12 @@ void main() {
     });
 
     test('toString returns a readable representation', () {
-      final iri = const IriTerm('http://example.org/resource');
+      final iri = IriTerm.validated('http://example.org/resource');
       expect(iri.toString(), equals('<http://example.org/resource>'));
     });
 
     test('is a subject, object and predicate', () {
-      final iri = const IriTerm('http://example.org/resource');
+      final iri = IriTerm.validated('http://example.org/resource');
       expect(iri, isA<RdfSubject>());
       expect(iri, isA<RdfPredicate>());
       expect(iri, isA<RdfTerm>());
@@ -62,37 +63,38 @@ void main() {
 
     test('accepts various valid IRI formats', () {
       // Test with different schemes
-      expect(() => const IriTerm('http://example.org'), returnsNormally);
-      expect(() => const IriTerm('https://example.org'), returnsNormally);
-      expect(() => const IriTerm('ftp://example.org'), returnsNormally);
+      expect(() => IriTerm.validated('http://example.org'), returnsNormally);
+      expect(() => IriTerm.validated('https://example.org'), returnsNormally);
+      expect(() => IriTerm.validated('ftp://example.org'), returnsNormally);
       expect(
-        () => const IriTerm('urn:uuid:6e8bc430-9c3a-11d9-9669-0800200c9a66'),
+        () =>
+            IriTerm.validated('urn:uuid:6e8bc430-9c3a-11d9-9669-0800200c9a66'),
         returnsNormally,
       );
-      expect(() => const IriTerm('isbn:0451450523'), returnsNormally);
+      expect(() => IriTerm.validated('isbn:0451450523'), returnsNormally);
 
       // Test with complex paths and query strings
       expect(
-        () => const IriTerm('http://example.org/path/to/resource'),
+        () => IriTerm.validated('http://example.org/path/to/resource'),
         returnsNormally,
       );
       expect(
-        () => const IriTerm('http://example.org/search?q=test&page=1'),
+        () => IriTerm.validated('http://example.org/search?q=test&page=1'),
         returnsNormally,
       );
 
       // Test with user info and fragment
+      expect(() => IriTerm.validated('http://user:pass@example.org'),
+          returnsNormally);
       expect(
-          () => const IriTerm('http://user:pass@example.org'), returnsNormally);
-      expect(
-        () => const IriTerm('http://example.org/resource#fragment'),
+        () => IriTerm.validated('http://example.org/resource#fragment'),
         returnsNormally,
       );
     });
 
     test('rejects empty IRI string', () {
       expect(
-        () => const IriTerm(''),
+        () => IriTerm.validated(''),
         throwsA(
           predicate<RdfConstraintViolationException>(
             (e) =>
@@ -105,7 +107,7 @@ void main() {
 
     test('rejects relative IRIs without scheme', () {
       expect(
-        () => const IriTerm('/path/to/resource'),
+        () => IriTerm.validated('/path/to/resource'),
         throwsA(
           predicate<RdfConstraintViolationException>(
             (e) =>
@@ -116,7 +118,7 @@ void main() {
       );
 
       expect(
-        () => const IriTerm('example.org/resource'),
+        () => IriTerm.validated('example.org/resource'),
         throwsA(
           predicate<RdfConstraintViolationException>(
             (e) =>
@@ -130,7 +132,7 @@ void main() {
     test('rejects IRIs with invalid scheme format', () {
       // Scheme starting with digit
       expect(
-        () => const IriTerm('1http://example.org'),
+        () => IriTerm.validated('1http://example.org'),
         throwsA(
           predicate<RdfConstraintViolationException>(
             (e) =>
@@ -142,7 +144,7 @@ void main() {
 
       // Scheme with invalid characters
       expect(
-        () => const IriTerm('ht@tp://example.org'),
+        () => IriTerm.validated('ht@tp://example.org'),
         throwsA(
           predicate<RdfConstraintViolationException>(
             (e) =>
@@ -154,7 +156,7 @@ void main() {
 
       // Scheme with spaces
       expect(
-        () => const IriTerm('http space://example.org'),
+        () => IriTerm.validated('http space://example.org'),
         throwsA(
           predicate<RdfConstraintViolationException>(
             (e) =>

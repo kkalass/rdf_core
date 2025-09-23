@@ -38,7 +38,7 @@ class Rdf {
   /// ```turtle
   /// <http://example.org/book> <http://example.org/title> "The Title"@en .
   /// ```
-  static const langString = IriTerm.prevalidated('${Rdf.namespace}langString');
+  static const langString = IriTerm('${Rdf.namespace}langString');
 
   /// IRI for rdf:type predicate
   /// [Spec](https://www.w3.org/TR/rdf11-concepts/#section-triples)
@@ -50,7 +50,7 @@ class Rdf {
   /// ```turtle
   /// <http://example.org/john> rdf:type foaf:Person .
   /// ```
-  static const type = IriTerm.prevalidated('${Rdf.namespace}type');
+  static const type = IriTerm('${Rdf.namespace}type');
 
   /// IRI for rdf:first predicate
   /// [Spec](https://www.w3.org/TR/rdf11-mt/#collections)
@@ -61,7 +61,7 @@ class Rdf {
   /// ```turtle
   /// _:node rdf:first <http://example.org/item1> .
   /// ```
-  static const first = IriTerm.prevalidated('${Rdf.namespace}first');
+  static const first = IriTerm('${Rdf.namespace}first');
 
   /// IRI for rdf:rest predicate
   /// [Spec](https://www.w3.org/TR/rdf11-mt/#collections)
@@ -72,7 +72,7 @@ class Rdf {
   /// ```turtle
   /// _:node rdf:rest _:nextNode .
   /// ```
-  static const rest = IriTerm.prevalidated('${Rdf.namespace}rest');
+  static const rest = IriTerm('${Rdf.namespace}rest');
 
   /// IRI for rdf:nil resource
   /// [Spec](https://www.w3.org/TR/rdf11-mt/#collections)
@@ -83,5 +83,5 @@ class Rdf {
   /// ```turtle
   /// _:node rdf:rest rdf:nil .
   /// ```
-  static const nil = IriTerm.prevalidated('${Rdf.namespace}nil');
+  static const nil = IriTerm('${Rdf.namespace}nil');
 }

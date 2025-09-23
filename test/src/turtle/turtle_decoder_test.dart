@@ -565,15 +565,15 @@ void main() {
 
       expect(triples.length, equals(1));
       expect(
-        (triples[0].subject as IriTerm).iri,
+        (triples[0].subject as IriTerm).value,
         equals('http://example.org/subject'),
       );
       expect(
-        (triples[0].predicate as IriTerm).iri,
+        (triples[0].predicate as IriTerm).value,
         equals('http://example.org/predicate'),
       );
       expect(
-        (triples[0].object as IriTerm).iri,
+        (triples[0].object as IriTerm).value,
         equals('http://example.org/object'),
       );
     });
@@ -587,15 +587,15 @@ void main() {
 
       expect(triples.length, equals(1));
       expect(
-        (triples[0].subject as IriTerm).iri,
+        (triples[0].subject as IriTerm).value,
         equals('http://example.org/subject'),
       );
       expect(
-        (triples[0].predicate as IriTerm).iri,
+        (triples[0].predicate as IriTerm).value,
         equals('http://example.org/predicate'),
       );
       expect(
-        (triples[0].object as IriTerm).iri,
+        (triples[0].object as IriTerm).value,
         equals('http://example.org/object'),
       );
     });
@@ -609,15 +609,15 @@ void main() {
 
       expect(triples.length, equals(1));
       expect(
-        (triples[0].subject as IriTerm).iri,
+        (triples[0].subject as IriTerm).value,
         equals('http://example.org/subject'),
       );
       expect(
-        (triples[0].predicate as IriTerm).iri,
+        (triples[0].predicate as IriTerm).value,
         equals('http://example.org/predicate'),
       );
       expect(
-        (triples[0].object as IriTerm).iri,
+        (triples[0].object as IriTerm).value,
         equals('http://example.org/object'),
       );
     });
@@ -631,15 +631,15 @@ void main() {
 
       expect(triples.length, equals(1));
       expect(
-        (triples[0].subject as IriTerm).iri,
+        (triples[0].subject as IriTerm).value,
         equals('http://example.com/subject'),
       );
       expect(
-        (triples[0].predicate as IriTerm).iri,
+        (triples[0].predicate as IriTerm).value,
         equals('http://example.com/predicate'),
       );
       expect(
-        (triples[0].object as IriTerm).iri,
+        (triples[0].object as IriTerm).value,
         equals('http://example.com/object'),
       );
     });
@@ -656,28 +656,28 @@ void main() {
 
       expect(triples.length, equals(2));
       expect(
-        (triples[0].subject as IriTerm).iri,
+        (triples[0].subject as IriTerm).value,
         equals('http://example.org/subject1'),
       );
       expect(
-        (triples[0].predicate as IriTerm).iri,
+        (triples[0].predicate as IriTerm).value,
         equals('http://example.org/predicate1'),
       );
       expect(
-        (triples[0].object as IriTerm).iri,
+        (triples[0].object as IriTerm).value,
         equals('http://example.org/object1'),
       );
 
       expect(
-        (triples[1].subject as IriTerm).iri,
+        (triples[1].subject as IriTerm).value,
         equals('http://example.com/subject2'),
       );
       expect(
-        (triples[1].predicate as IriTerm).iri,
+        (triples[1].predicate as IriTerm).value,
         equals('http://example.com/predicate2'),
       );
       expect(
-        (triples[1].object as IriTerm).iri,
+        (triples[1].object as IriTerm).value,
         equals('http://example.com/object2'),
       );
     });
@@ -693,15 +693,15 @@ void main() {
 
       expect(triples.length, equals(1));
       expect(
-        (triples[0].subject as IriTerm).iri,
+        (triples[0].subject as IriTerm).value,
         equals('http://example.org/base/subject'),
       );
       expect(
-        (triples[0].predicate as IriTerm).iri,
+        (triples[0].predicate as IriTerm).value,
         equals('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
       );
       expect(
-        (triples[0].object as IriTerm).iri,
+        (triples[0].object as IriTerm).value,
         equals('http://example.org/base/relative/Type'),
       );
     });
@@ -715,15 +715,15 @@ void main() {
 
       expect(triples.length, equals(1));
       expect(
-        (triples[0].subject as IriTerm).iri,
+        (triples[0].subject as IriTerm).value,
         equals('http://example.org/absolute'),
       );
       expect(
-        (triples[0].predicate as IriTerm).iri,
+        (triples[0].predicate as IriTerm).value,
         equals('http://example.org/predicate'),
       );
       expect(
-        (triples[0].object as IriTerm).iri,
+        (triples[0].object as IriTerm).value,
         equals('http://example.org/object'),
       );
     });
@@ -755,7 +755,8 @@ void main() {
           .where(
             (t) =>
                 t.subject is IriTerm &&
-                (t.subject as IriTerm).iri == 'http://example.org/person/alice',
+                (t.subject as IriTerm).value ==
+                    'http://example.org/person/alice',
           )
           .toList();
 
@@ -766,10 +767,10 @@ void main() {
         aliceTriples.any(
           (t) =>
               t.predicate is IriTerm &&
-              (t.predicate as IriTerm).iri ==
+              (t.predicate as IriTerm).value ==
                   'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' &&
               t.object is IriTerm &&
-              (t.object as IriTerm).iri == 'http://xmlns.com/foaf/0.1/Person',
+              (t.object as IriTerm).value == 'http://xmlns.com/foaf/0.1/Person',
         ),
         isTrue,
       );
@@ -779,7 +780,7 @@ void main() {
         aliceTriples.any(
           (t) =>
               t.predicate is IriTerm &&
-              (t.predicate as IriTerm).iri ==
+              (t.predicate as IriTerm).value ==
                   'http://xmlns.com/foaf/0.1/name' &&
               t.object is LiteralTerm &&
               (t.object as LiteralTerm).value == 'Alice',
@@ -792,10 +793,10 @@ void main() {
         aliceTriples.any(
           (t) =>
               t.predicate is IriTerm &&
-              (t.predicate as IriTerm).iri ==
+              (t.predicate as IriTerm).value ==
                   'http://xmlns.com/foaf/0.1/knows' &&
               t.object is IriTerm &&
-              (t.object as IriTerm).iri == 'http://example.org/person/bob',
+              (t.object as IriTerm).value == 'http://example.org/person/bob',
         ),
         isTrue,
       );
@@ -805,10 +806,10 @@ void main() {
         aliceTriples.any(
           (t) =>
               t.predicate is IriTerm &&
-              (t.predicate as IriTerm).iri ==
+              (t.predicate as IriTerm).value ==
                   'http://xmlns.com/foaf/0.1/knows' &&
               t.object is IriTerm &&
-              (t.object as IriTerm).iri == 'http://example.org/local/charlie',
+              (t.object as IriTerm).value == 'http://example.org/local/charlie',
         ),
         isTrue,
       );
@@ -818,7 +819,7 @@ void main() {
           .where(
             (t) =>
                 t.subject is IriTerm &&
-                (t.subject as IriTerm).iri == 'http://example.org/person/bob',
+                (t.subject as IriTerm).value == 'http://example.org/person/bob',
           )
           .toList();
 
@@ -829,10 +830,10 @@ void main() {
         bobTriples.any(
           (t) =>
               t.predicate is IriTerm &&
-              (t.predicate as IriTerm).iri ==
+              (t.predicate as IriTerm).value ==
                   'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' &&
               t.object is IriTerm &&
-              (t.object as IriTerm).iri == 'http://xmlns.com/foaf/0.1/Person',
+              (t.object as IriTerm).value == 'http://xmlns.com/foaf/0.1/Person',
         ),
         isTrue,
       );
@@ -842,7 +843,7 @@ void main() {
         bobTriples.any(
           (t) =>
               t.predicate is IriTerm &&
-              (t.predicate as IriTerm).iri ==
+              (t.predicate as IriTerm).value ==
                   'http://xmlns.com/foaf/0.1/name' &&
               t.object is LiteralTerm &&
               (t.object as LiteralTerm).value == 'Bob',
@@ -855,7 +856,7 @@ void main() {
           .where(
             (t) =>
                 t.subject is IriTerm &&
-                (t.subject as IriTerm).iri ==
+                (t.subject as IriTerm).value ==
                     'http://example.org/local/charlie',
           )
           .toList();
@@ -867,10 +868,10 @@ void main() {
         charlieTriples.any(
           (t) =>
               t.predicate is IriTerm &&
-              (t.predicate as IriTerm).iri ==
+              (t.predicate as IriTerm).value ==
                   'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' &&
               t.object is IriTerm &&
-              (t.object as IriTerm).iri == 'http://xmlns.com/foaf/0.1/Person',
+              (t.object as IriTerm).value == 'http://xmlns.com/foaf/0.1/Person',
         ),
         isTrue,
       );
@@ -880,7 +881,7 @@ void main() {
         charlieTriples.any(
           (t) =>
               t.predicate is IriTerm &&
-              (t.predicate as IriTerm).iri ==
+              (t.predicate as IriTerm).value ==
                   'http://xmlns.com/foaf/0.1/name' &&
               t.object is LiteralTerm &&
               (t.object as LiteralTerm).value == 'Charlie',

@@ -125,7 +125,7 @@ final class NTriplesEncoder extends RdfGraphEncoder {
   void _writeTerm(StringBuffer buffer, RdfTerm term,
       Map<BlankNodeTerm, String> blankNodeLabels, _BlankNodeCounter counter) {
     if (term is IriTerm) {
-      buffer.write('<${_escapeIri(term.iri)}>');
+      buffer.write('<${_escapeIri(term.value)}>');
     } else if (term is BlankNodeTerm) {
       // Maintain a stable mapping of blank nodes to labels using sequential numbering
       final label = blankNodeLabels.putIfAbsent(term, () {
@@ -137,9 +137,9 @@ final class NTriplesEncoder extends RdfGraphEncoder {
 
       if (term.language != null && term.language!.isNotEmpty) {
         buffer.write('@${term.language}');
-      } else if (term.datatype.iri != Xsd.string.iri) {
+      } else if (term.datatype.value != Xsd.string.value) {
         // Only output datatype if it's not xsd:string (implied default in N-Triples)
-        buffer.write('^^<${_escapeIri(term.datatype.iri)}>');
+        buffer.write('^^<${_escapeIri(term.datatype.value)}>');
       }
     } else {
       throw UnsupportedError('Unsupported term type: ${term.runtimeType}');

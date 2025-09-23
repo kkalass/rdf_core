@@ -49,7 +49,7 @@ class Xsd {
   /// ```turtle
   /// <http://example.org/name> "John Smith"^^xsd:string .
   /// ```
-  static const string = IriTerm.prevalidated('${Xsd.namespace}string');
+  static const string = IriTerm('${Xsd.namespace}string');
 
   /// IRI for xsd:boolean datatype
   ///
@@ -59,7 +59,7 @@ class Xsd {
   /// ```turtle
   /// <http://example.org/isActive> "true"^^xsd:boolean .
   /// ```
-  static const boolean = IriTerm.prevalidated('${Xsd.namespace}boolean');
+  static const boolean = IriTerm('${Xsd.namespace}boolean');
 
   /// IRI for xsd:integer datatype
   ///
@@ -69,7 +69,7 @@ class Xsd {
   /// ```turtle
   /// <http://example.org/age> "42"^^xsd:integer .
   /// ```
-  static const integer = IriTerm.prevalidated('${Xsd.namespace}integer');
+  static const integer = IriTerm('${Xsd.namespace}integer');
 
   /// IRI for xsd:decimal datatype
   ///
@@ -79,7 +79,7 @@ class Xsd {
   /// ```turtle
   /// <http://example.org/price> "19.99"^^xsd:decimal .
   /// ```
-  static const decimal = IriTerm.prevalidated('${Xsd.namespace}decimal');
+  static const decimal = IriTerm('${Xsd.namespace}decimal');
 
   /// IRI for xsd:double datatype
   ///
@@ -89,7 +89,7 @@ class Xsd {
   /// ```turtle
   /// <http://example.org/coefficient> "3.14159265359"^^xsd:double .
   /// ```
-  static const double = IriTerm.prevalidated('${Xsd.namespace}double');
+  static const double = IriTerm('${Xsd.namespace}double');
 
   /// Creates an XSD datatype IRI from a local name
   ///

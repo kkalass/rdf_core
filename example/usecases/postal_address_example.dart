@@ -125,7 +125,7 @@ void printGraph(RdfGraph graph) {
 
 /// Extracts and prints the address information for an entity
 void printAddressInfo(RdfGraph graph, IriTerm entity) {
-  print('\nAddress Information for ${entity.iri}:');
+  print('\nAddress Information for ${entity.value}:');
 
   // Find address nodes linked to this entity
   final addressTriples = graph.triples.where(
@@ -154,7 +154,7 @@ void printAddressInfo(RdfGraph graph, IriTerm entity) {
           .toList();
 
       if (values.isNotEmpty) {
-        final propertyName = property.iri.split('/').last;
+        final propertyName = property.value.split('/').last;
         print('    $propertyName: ${values.first}');
       }
     }

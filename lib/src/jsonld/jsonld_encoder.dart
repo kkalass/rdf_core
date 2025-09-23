@@ -554,8 +554,8 @@ final class JsonLdEncoder extends RdfGraphEncoder {
         PrefixedIri prefixedIri => prefixedIri.colonSeparated,
         SpecialIri(iri: var specialIri) => () {
             _log.warning(
-                'Unexpected special IRI type: ${specialIri.iri} for $role');
-            return specialIri.iri;
+                'Unexpected special IRI type: ${specialIri.value} for $role');
+            return specialIri.value;
           }(),
       };
 
@@ -654,21 +654,22 @@ final class JsonLdEncoder extends RdfGraphEncoder {
 
     // Number literals
     if (datatype == _integerDatatype) {
-      return int.tryParse(value) ?? {'@value': value, '@type': datatype.iri};
+      return int.tryParse(value) ?? {'@value': value, '@type': datatype.value};
     }
 
     if (datatype == _doubleDatatype || datatype == _decimalDatatype) {
-      return double.tryParse(value) ?? {'@value': value, '@type': datatype.iri};
+      return double.tryParse(value) ??
+          {'@value': value, '@type': datatype.value};
     }
 
     // Boolean literals
     if (datatype == _booleanDatatype) {
       if (value == 'true') return true;
       if (value == 'false') return false;
-      return {'@value': value, '@type': datatype.iri};
+      return {'@value': value, '@type': datatype.value};
     }
 
     // Other typed literals
-    return {'@value': value, '@type': datatype.iri};
+    return {'@value': value, '@type': datatype.value};
   }
 }

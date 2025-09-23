@@ -226,6 +226,17 @@ void main() {
         // Should use dot notation or fall back to absolute IRI
         expect(result, equals('../../../../simple.txt'));
       });
+      test('should disable absolute-path when allowAbsolutePath is false 2', () {
+        final result = relativizeIri(
+          'http://my.host/other',
+          'http://my.host/path/',
+          options: IriRelativizationOptions.full().copyWith(
+            allowAbsolutePath: false,
+          ),
+        );
+        // Should use dot notation or fall back to absolute IRI
+        expect(result, equals('../other'));
+      });
     });
 
     group('configurable relativization options', () {

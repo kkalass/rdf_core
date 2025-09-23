@@ -165,7 +165,7 @@ final class IriCompactionResult {
           'No compact IRI found for $iri with role $role. Is this IRI used in the graph? Will treat as full IRI.',
         );
       }
-      return FullIri(iri.iri);
+      return FullIri(iri.value);
     }
     return r;
   }
@@ -279,10 +279,10 @@ class IriCompaction {
     final allowedTypes = _settings.allowedCompactionTypes[role] ??
         IriCompactionType.values.toSet();
 
-    final relativized =
-        relativizeIri(term.iri, baseUri, options: _settings.iriRelativization);
+    final relativized = relativizeIri(term.value, baseUri,
+        options: _settings.iriRelativization);
     final relativeUrl = (!allowedTypes.contains(IriCompactionType.relative) ||
-            relativized == term.iri)
+            relativized == term.value)
         ? null
         : relativized;
 
@@ -301,7 +301,7 @@ class IriCompaction {
       // for better matching prefixes, but use the relative URL directly
       return RelativeIri(relativeUrl);
     }
-    final iri = term.iri;
+    final iri = term.value;
     final prefixAllowed = allowedTypes.contains(IriCompactionType.prefixed);
     final fullAllowed = allowedTypes.contains(IriCompactionType.full);
     if (prefixAllowed && iriToPrefixMap.containsKey(iri)) {

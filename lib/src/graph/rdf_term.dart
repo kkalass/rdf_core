@@ -74,7 +74,17 @@ sealed class RdfPredicate extends RdfTerm {
 /// Example: `http://example.org/person/john` or `http://xmlns.com/foaf/0.1/name`
 class IriTerm extends RdfPredicate implements RdfSubject {
   /// The string representation of the IRI
-  final String iri;
+  final String value;
+
+  @Deprecated('Use value property instead')
+  String get iri => value;
+
+  /// Creates an IRI term from a prevalidated IRI string.
+  ///
+  /// Use this constructor only when you are sure the IRI is valid and absolute
+  /// and need to create a const instance.
+  /// This is useful for performance optimization.
+  const IriTerm(this.value);
 
   /// Creates an IRI term with the specified IRI string
   ///
@@ -83,8 +93,18 @@ class IriTerm extends RdfPredicate implements RdfSubject {
   ///
   /// Throws [RdfConstraintViolationException] if the IRI is not well-formed
   /// or not absolute.
-  IriTerm(this.iri) {
-    _validateAbsoluteIri(iri);
+  ///
+  /// If you need to create an IRI in a const context (e.g., for annotations),
+  /// use the [IriTerm] constructor instead, but ensure the IRI
+  /// is valid at compile time.
+  IriTerm.validated(this.value) {
+    _validateAbsoluteIri(value);
+  }
+
+  /// Ensures the IRI is valid and absolute - useful for late validation if 
+  /// you assume that the const constructor was used without validation.
+  void ensureValid() {
+    _validateAbsoluteIri(value);
   }
 
   factory IriTerm.encodeFull(String rawIri) {
@@ -96,7 +116,8 @@ class IriTerm extends RdfPredicate implements RdfSubject {
   /// Use this constructor only when you are sure the IRI is valid and absolute
   /// and need to create a const instance.
   /// This is useful for performance optimization.
-  const IriTerm.prevalidated(this.iri);
+  @Deprecated('Use IriTerm constructor instead')
+  const IriTerm.prevalidated(this.value);
 
   /// Validates that the given string is a valid absolute IRI
   ///
@@ -142,14 +163,14 @@ class IriTerm extends RdfPredicate implements RdfSubject {
 
   @override
   bool operator ==(Object other) {
-    return other is IriTerm && iri == other.iri;
+    return other is IriTerm && value == other.value;
   }
 
   @override
-  int get hashCode => iri.hashCode;
+  int get hashCode => value.hashCode;
 
   @override
-  String toString() => '<$iri>';
+  String toString() => '<$value>';
 }
 
 /// BlankNode (anonymous resource) in RDF

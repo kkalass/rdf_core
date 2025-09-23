@@ -8,7 +8,7 @@ void main() {
   group('IriTerm', () {
     test('constructs with valid IRI', () {
       final iri = IriTerm('http://example.org/resource');
-      expect(iri.iri, equals('http://example.org/resource'));
+      expect(iri.value, equals('http://example.org/resource'));
     });
 
     test('Iris with whitespaces should throw exception', () {

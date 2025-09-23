@@ -44,9 +44,9 @@ void main() {
 
     if (nameTriples.isNotEmpty) {
       final name = (nameTriples.first.object as LiteralTerm).value;
-      print('- $name (${friendIri.iri})');
+      print('- $name (${friendIri.value})');
     } else {
-      print('- ${friendIri.iri} (unnamed)');
+      print('- ${friendIri.value} (unnamed)');
     }
   }
 

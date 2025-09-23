@@ -22,7 +22,7 @@ void main() {
       expect(
         Rdf.langString,
         equals(
-          const IriTerm.prevalidated(
+          const IriTerm(
             'http://www.w3.org/1999/02/22-rdf-syntax-ns#langString',
           ),
         ),

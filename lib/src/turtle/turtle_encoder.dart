@@ -746,7 +746,7 @@ class TurtleEncoder extends RdfGraphEncoder {
       ..sort((a, b) {
         // Sort by IRI for consistent output
         if (a is IriTerm && b is IriTerm) {
-          return a.iri.compareTo(b.iri);
+          return a.value.compareTo(b.value);
         }
         if (a is IriTerm) {
           return -1; // IRIs should come before blank nodes
@@ -862,7 +862,7 @@ class TurtleEncoder extends RdfGraphEncoder {
         if (b == Rdf.type) return 1;
 
         // For all other predicates, sort alphabetically by IRI
-        return (a as IriTerm).iri.compareTo((b as IriTerm).iri);
+        return (a as IriTerm).value.compareTo((b as IriTerm).value);
       });
     // Write predicates and objects
     var predicateIndex = 0;

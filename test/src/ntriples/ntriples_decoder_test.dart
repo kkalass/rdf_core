@@ -30,15 +30,15 @@ void main() {
       expect(graph.triples.length, equals(1));
       final triple = graph.triples.first;
       expect(
-        (triple.subject as IriTerm).iri,
+        (triple.subject as IriTerm).value,
         equals('http://example.org/subject'),
       );
       expect(
-        (triple.predicate as IriTerm).iri,
+        (triple.predicate as IriTerm).value,
         equals('http://example.org/predicate'),
       );
       expect(
-        (triple.object as IriTerm).iri,
+        (triple.object as IriTerm).value,
         equals('http://example.org/object'),
       );
     });
@@ -168,14 +168,14 @@ _:node2 <http://example.org/predicate> _:node1 .
       expect(triple1.object, isA<LiteralTerm>());
       expect((triple1.object as LiteralTerm).value, equals('42'));
       expect(
-        (triple1.object as LiteralTerm).datatype.iri,
+        (triple1.object as LiteralTerm).datatype.value,
         equals('http://www.w3.org/2001/XMLSchema#integer'),
       );
 
       expect(triple2.object, isA<LiteralTerm>());
       expect((triple2.object as LiteralTerm).value, equals('true'));
       expect(
-        (triple2.object as LiteralTerm).datatype.iri,
+        (triple2.object as LiteralTerm).datatype.value,
         equals('http://www.w3.org/2001/XMLSchema#boolean'),
       );
     });
@@ -320,23 +320,23 @@ _:node2 <http://example.org/predicate> _:node1 .
 
       expect(triple1.subject, isA<IriTerm>());
       expect(
-        (triple1.subject as IriTerm).iri,
+        (triple1.subject as IriTerm).value,
         equals('http://example.org/symbol/©'),
       );
 
       expect(triple2.subject, isA<IriTerm>());
       expect(
-        (triple2.subject as IriTerm).iri,
+        (triple2.subject as IriTerm).value,
         equals('http://example.org/emoji/😀'),
       );
 
       expect(triple3.subject, isA<IriTerm>());
       expect(
-        (triple3.subject as IriTerm).iri,
+        (triple3.subject as IriTerm).value,
         equals('http://example.org/mixed/©😀'),
       );
       expect(
-        (triple3.predicate as IriTerm).iri,
+        (triple3.predicate as IriTerm).value,
         equals('http://example.org/predicate/with©'),
       );
     });
@@ -449,27 +449,27 @@ _:node2 <http://example.org/predicate> _:node1 .
 
       // Check that escapes in IRIs are properly processed
       expect(
-        (graph.triples.elementAt(0).subject as IriTerm).iri,
+        (graph.triples.elementAt(0).subject as IriTerm).value,
         equals('http://example.org/path/with\t/tab'),
       );
 
       expect(
-        (graph.triples.elementAt(1).subject as IriTerm).iri,
+        (graph.triples.elementAt(1).subject as IriTerm).value,
         equals('http://example.org/path/with\r\n/newlines'),
       );
 
       expect(
-        (graph.triples.elementAt(2).subject as IriTerm).iri,
+        (graph.triples.elementAt(2).subject as IriTerm).value,
         equals('http://example.org/path/with\\backslash'),
       );
 
       expect(
-        (graph.triples.elementAt(3).subject as IriTerm).iri,
+        (graph.triples.elementAt(3).subject as IriTerm).value,
         equals('http://example.org/resource#with\'quote'),
       );
 
       expect(
-        (graph.triples.elementAt(4).subject as IriTerm).iri,
+        (graph.triples.elementAt(4).subject as IriTerm).value,
         equals('http://example.org/path/withzUnknown'),
       );
     });

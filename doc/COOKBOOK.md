@@ -174,6 +174,30 @@ final mergedGraph = graph1.merge(graph2);
 print('Merged graph has ${mergedGraph.triples.length} triples');
 ```
 
+## Comparing Two Graphs
+
+```dart
+import 'package:rdf_core/src/graph/rdf_graph_isomorphism.dart';
+
+const turtle1 = '''
+@prefix ex: <http://example.org/> .
+_:a ex:name "Alice"@en .
+_:a ex:friend _:b .
+_:b ex:name "Bob"@en .
+''';
+final graph1 = createGraphFromTurtle(turtle1);
+
+const turtle2 = '''
+@prefix ex: <http://example.org/> .
+_:x ex:name "Alice"@en .
+_:x ex:friend _:y .
+_:y ex:name "Bob"@en .
+''';
+final graph2 = createGraphFromTurtle(turtle2);
+
+print('Expect these graphs to be isomorphic to one another: ${graph1.isIsomorphicTo(other: graph2)}');
+```
+
 ## Practical Use Cases
 
 ### Building a Knowledge Graph

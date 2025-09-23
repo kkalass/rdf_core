@@ -1,0 +1,134 @@
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix bibo: <http://purl.org/ontology/bibo/> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/> .
+
+# FOAF Person with rich social network
+ex:maria foaf:name "Maria González"@en .
+ex:maria foaf:name "María González"@es .
+ex:maria foaf:givenName "Maria"@en .
+ex:maria foaf:familyName "González"@es .
+ex:maria foaf:age "28"^^xsd:int .
+ex:maria foaf:gender "female"@en .
+ex:maria foaf:knows ex:pierre .
+ex:maria foaf:knows ex:hans .
+ex:maria foaf:interest ex:semanticWeb .
+ex:maria foaf:workplaceHomepage <http://university.example.org> .
+ex:maria vcard:hasAddress _:mariaAddr .
+_:mariaAddr vcard:street-address "Calle Mayor 123"@es .
+_:mariaAddr vcard:locality "Madrid"@es .
+_:mariaAddr vcard:country-name "Spain"@en .
+_:mariaAddr vcard:postal-code "28013"^^xsd:string .
+_:mariaAddr geo:lat "40.4168"^^xsd:decimal .
+_:mariaAddr geo:long "-3.7038"^^xsd:decimal .
+
+ex:pierre foaf:name "Pierre Dubois"@fr .
+ex:pierre foaf:name "Peter Dubois"@en .
+ex:pierre foaf:givenName "Pierre"@fr .
+ex:pierre foaf:familyName "Dubois"@fr .
+ex:pierre foaf:age "35"^^xsd:int .
+ex:pierre foaf:gender "male"@en .
+ex:pierre foaf:knows ex:maria .
+ex:pierre foaf:knows ex:hans .
+ex:pierre foaf:interest ex:linkedData .
+ex:pierre foaf:homepage <http://pierre.example.fr> .
+ex:pierre vcard:hasAddress _:pierreAddr .
+_:pierreAddr vcard:street-address "15 Rue de la Paix"@fr .
+_:pierreAddr vcard:locality "Paris"@fr .
+_:pierreAddr vcard:country-name "France"@en .
+_:pierreAddr vcard:postal-code "75001"^^xsd:string .
+_:pierreAddr geo:lat "48.8566"^^xsd:decimal .
+_:pierreAddr geo:long "2.3522"^^xsd:decimal .
+
+ex:hans foaf:name "Hans Müller"@de .
+ex:hans foaf:name "John Miller"@en .
+ex:hans foaf:givenName "Hans"@de .
+ex:hans foaf:familyName "Müller"@de .
+ex:hans foaf:age "42"^^xsd:int .
+ex:hans foaf:gender "male"@en .
+ex:hans foaf:knows ex:maria .
+ex:hans foaf:knows ex:pierre .
+ex:hans foaf:interest ex:ontologyEngineering .
+ex:hans foaf:workplaceHomepage <http://research.example.de> .
+
+# Bibliographic resources with Dublin Core metadata
+ex:rdfBook a bibo:Book .
+ex:rdfBook dc:title "RDF and Semantic Web Technologies"@en .
+ex:rdfBook dc:title "RDF et les Technologies du Web Sémantique"@fr .
+ex:rdfBook dc:creator ex:maria .
+ex:rdfBook dc:creator ex:pierre .
+ex:rdfBook dc:publisher "Academic Press"@en .
+ex:rdfBook dc:date "2023-05-15"^^xsd:date .
+ex:rdfBook dc:language "en" .
+ex:rdfBook dc:subject ex:semanticWeb .
+ex:rdfBook dc:subject ex:linkedData .
+ex:rdfBook bibo:pages "450"^^xsd:int .
+ex:rdfBook bibo:isbn "978-0123456789"^^xsd:string .
+
+ex:ontologyArticle a bibo:Article .
+ex:ontologyArticle dc:title "Ontology Engineering Best Practices"@en .
+ex:ontologyArticle dc:title "Bewährte Praktiken der Ontologie-Entwicklung"@de .
+ex:ontologyArticle dc:creator ex:hans .
+ex:ontologyArticle dcterms:isPartOf ex:semanticJournal .
+ex:ontologyArticle dc:date "2023-03-10"^^xsd:date .
+ex:ontologyArticle dc:language "en" .
+ex:ontologyArticle dc:subject ex:ontologyEngineering .
+
+ex:semanticJournal a bibo:Journal .
+ex:semanticJournal dc:title "Journal of Semantic Technologies"@en .
+ex:semanticJournal bibo:issn "1234-5678"^^xsd:string .
+
+# SKOS Concept Scheme and Concepts
+ex:webTechConcepts a skos:ConceptScheme .
+ex:webTechConcepts dc:title "Web Technologies Taxonomy"@en .
+ex:webTechConcepts dc:creator ex:maria .
+
+ex:semanticWeb a skos:Concept .
+ex:semanticWeb skos:inScheme ex:webTechConcepts .
+ex:semanticWeb skos:prefLabel "Semantic Web"@en .
+ex:semanticWeb skos:prefLabel "Web Semántico"@es .
+ex:semanticWeb skos:prefLabel "Web Sémantique"@fr .
+ex:semanticWeb skos:definition "An extension of the World Wide Web through standards by the World Wide Web Consortium"@en .
+ex:semanticWeb skos:broader ex:webTechnologies .
+ex:semanticWeb skos:narrower ex:linkedData .
+ex:semanticWeb skos:narrower ex:ontologyEngineering .
+
+ex:linkedData a skos:Concept .
+ex:linkedData skos:inScheme ex:webTechConcepts .
+ex:linkedData skos:prefLabel "Linked Data"@en .
+ex:linkedData skos:prefLabel "Données Liées"@fr .
+ex:linkedData skos:broader ex:semanticWeb .
+
+ex:ontologyEngineering a skos:Concept .
+ex:ontologyEngineering skos:inScheme ex:webTechConcepts .
+ex:ontologyEngineering skos:prefLabel "Ontology Engineering"@en .
+ex:ontologyEngineering skos:prefLabel "Ingeniería de Ontologías"@es .
+ex:ontologyEngineering skos:broader ex:semanticWeb .
+
+ex:webTechnologies a skos:Concept .
+ex:webTechnologies skos:inScheme ex:webTechConcepts .
+ex:webTechnologies skos:prefLabel "Web Technologies"@en .
+ex:webTechnologies skos:topConceptOf ex:webTechConcepts .
+
+# Time-based events and intervals
+ex:conference2023 a time:Interval .
+ex:conference2023 dc:title "Semantic Web Conference 2023"@en .
+ex:conference2023 time:hasBeginning _:confStart .
+ex:conference2023 time:hasEnd _:confEnd .
+_:confStart time:inXSDDateTime "2023-10-15T09:00:00Z"^^xsd:dateTime .
+_:confEnd time:inXSDDateTime "2023-10-17T18:00:00Z"^^xsd:dateTime .
+ex:conference2023 dc:location "Vienna, Austria"@en .
+
+ex:mariaPresentation a time:Instant .
+ex:mariaPresentation time:inXSDDateTime "2023-10-16T14:30:00Z"^^xsd:dateTime .
+ex:mariaPresentation dc:title "RDF Graph Isomorphism in Practice"@en .
+ex:mariaPresentation dc:creator ex:maria .
+ex:mariaPresentation time:intervalDuring ex:conference2023 .

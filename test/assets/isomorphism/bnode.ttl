@@ -1,0 +1,46 @@
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:person1 ex:name "John Doe"@en .
+ex:person1 ex:age "28"^^xsd:int .
+ex:person1 ex:address _:addr1 .
+_:addr1 ex:street "123 Oak Street"@en .
+_:addr1 ex:city "Boston"@en .
+_:addr1 ex:zip "02101"^^xsd:string .
+
+ex:person2 ex:name "Jane Smith"@en .
+ex:person2 ex:age "32"^^xsd:int .
+ex:person2 ex:address _:addr2 .
+_:addr2 ex:street "456 Pine Avenue"@en .
+_:addr2 ex:city "Seattle"@en .
+_:addr2 ex:zip "98101"^^xsd:string .
+
+ex:person1 ex:knows ex:person2 .
+ex:person2 ex:knows ex:person1 .
+
+ex:event1 ex:title "Conference 2023"@en .
+ex:event1 ex:organizer ex:person1 .
+ex:event1 ex:timeInterval _:time1 .
+_:time1 ex:start "2023-06-01T09:00:00"^^xsd:dateTime .
+_:time1 ex:end "2023-06-03T17:00:00"^^xsd:dateTime .
+_:time1 ex:duration "P3D"^^xsd:duration .
+
+ex:publication1 ex:title "Research Paper"@en .
+ex:publication1 ex:author ex:person2 .
+ex:publication1 ex:publishInfo _:pub1 .
+_:pub1 ex:publisher "Academic Press"@en .
+_:pub1 ex:year "2023"^^xsd:gYear .
+_:pub1 ex:isbn "978-0123456789"^^xsd:string .
+
+_:contact1 ex:email "john@example.org"^^xsd:string .
+_:contact1 ex:phone "+1-555-0123"^^xsd:string .
+_:contact1 ex:belongsTo ex:person1 .
+
+_:contact2 ex:email "jane@example.org"^^xsd:string .
+_:contact2 ex:phone "+1-555-0456"^^xsd:string .
+_:contact2 ex:belongsTo ex:person2 .
+
+_:ref1 ex:references _:ref2 .
+_:ref2 ex:references _:ref1 .
+_:ref1 ex:type "circular"@en .
+_:ref2 ex:type "circular"@en .

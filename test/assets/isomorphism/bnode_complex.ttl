@@ -1,0 +1,135 @@
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Complex nested organization structure
+ex:company1 ex:name "TechCorp Inc"@en .
+ex:company1 ex:headquarters _:hq1 .
+_:hq1 ex:address _:hqAddr .
+_:hqAddr ex:street "100 Innovation Drive"@en .
+_:hqAddr ex:city "San Francisco"@en .
+_:hqAddr ex:state "CA"@en .
+_:hqAddr ex:country "USA"@en .
+_:hqAddr ex:coordinates _:coords1 .
+_:coords1 ex:latitude "37.7749"^^xsd:decimal .
+_:coords1 ex:longitude "-122.4194"^^xsd:decimal .
+
+_:hq1 ex:facilities _:facility1 .
+_:facility1 ex:type "Office"@en .
+_:facility1 ex:floor "15"^^xsd:int .
+_:facility1 ex:capacity "200"^^xsd:int .
+_:facility1 ex:amenities _:amenity1 .
+_:amenity1 ex:cafeteria true .
+_:amenity1 ex:gym true .
+_:amenity1 ex:parking _:parking1 .
+_:parking1 ex:spaces "150"^^xsd:int .
+_:parking1 ex:type "Underground"@en .
+
+# Complex employee hierarchy with nested reporting
+ex:company1 ex:employee _:emp1 .
+_:emp1 ex:id "EMP001"^^xsd:string .
+_:emp1 foaf:name "Alice Johnson"@en .
+_:emp1 ex:position "CTO"@en .
+_:emp1 ex:department _:dept1 .
+_:dept1 ex:name "Engineering"@en .
+_:dept1 ex:budget "5000000"^^xsd:decimal .
+_:dept1 ex:head _:emp1 .
+
+_:emp1 ex:manages _:emp2 .
+_:emp2 ex:id "EMP002"^^xsd:string .
+_:emp2 foaf:name "Bob Wilson"@en .
+_:emp2 ex:position "Senior Developer"@en .
+_:emp2 ex:skills _:skills1 .
+_:skills1 ex:programming _:progSkills .
+_:progSkills ex:language "Python"@en .
+_:progSkills ex:level "Expert"@en .
+_:progSkills ex:yearsExperience "8"^^xsd:int .
+
+_:emp2 ex:workingOn _:project1 .
+_:project1 ex:name "AI Platform"@en .
+_:project1 ex:status "In Progress"@en .
+_:project1 ex:timeline _:timeline1 .
+_:timeline1 ex:start "2023-01-15"^^xsd:date .
+_:timeline1 ex:estimatedEnd "2023-12-31"^^xsd:date .
+_:timeline1 ex:milestones _:milestone1 .
+_:milestone1 ex:name "Phase 1 Complete"@en .
+_:milestone1 ex:date "2023-06-30"^^xsd:date .
+_:milestone1 ex:deliverables _:deliverable1 .
+_:deliverable1 ex:type "Documentation"@en .
+_:deliverable1 ex:status "Complete"@en .
+
+# Complex publication with multiple nested references
+_:publication1 ex:title "Advanced Blank Node Processing"@en .
+_:publication1 ex:authors _:authorList .
+_:authorList ex:primaryAuthor _:emp1 .
+_:authorList ex:coAuthor _:emp2 .
+_:authorList ex:contributor _:contrib1 .
+_:contrib1 foaf:name "Charlie Brown"@en .
+_:contrib1 ex:affiliation _:affil1 .
+_:affil1 ex:institution "Stanford University"@en .
+_:affil1 ex:department "Computer Science"@en .
+
+_:publication1 ex:publishedIn _:venue1 .
+_:venue1 ex:name "Journal of Semantic Web"@en .
+_:venue1 ex:volume "15"^^xsd:int .
+_:venue1 ex:issue "3"^^xsd:int .
+_:venue1 ex:pages _:pageRange .
+_:pageRange ex:start "45"^^xsd:int .
+_:pageRange ex:end "72"^^xsd:int .
+
+_:publication1 ex:references _:ref1 .
+_:ref1 ex:title "RDF Graph Isomorphism"@en .
+_:ref1 ex:author "David Smith"@en .
+_:ref1 ex:citedBy _:publication1 .
+
+# Complex event with nested scheduling and attendance
+_:event1 ex:name "Tech Conference 2023"@en .
+_:event1 ex:organizer ex:company1 .
+_:event1 ex:schedule _:schedule1 .
+_:schedule1 ex:day1 _:day1 .
+_:day1 ex:date "2023-09-15"^^xsd:date .
+_:day1 ex:sessions _:session1 .
+_:session1 ex:title "Keynote"@en .
+_:session1 ex:speaker _:emp1 .
+_:session1 ex:timeSlot _:slot1 .
+_:slot1 ex:start "09:00:00"^^xsd:time .
+_:slot1 ex:end "10:30:00"^^xsd:time .
+_:slot1 ex:room _:room1 .
+_:room1 ex:name "Main Auditorium"@en .
+_:room1 ex:capacity "500"^^xsd:int .
+
+_:event1 ex:attendees _:attendeeList .
+_:attendeeList ex:registered _:attendee1 .
+_:attendee1 foaf:name "Eve Davis"@en .
+_:attendee1 ex:company "StartupXYZ"@en .
+_:attendee1 ex:interests _:interests1 .
+_:interests1 ex:topic "Machine Learning"@en .
+_:interests1 ex:topic "Semantic Web"@en .
+
+# Circular and self-referencing blank node structures
+_:node1 ex:connects _:node2 .
+_:node2 ex:connects _:node3 .
+_:node3 ex:connects _:node1 .
+_:node1 ex:metadata _:meta1 .
+_:meta1 ex:describes _:node1 .
+_:meta1 ex:createdBy _:system1 .
+_:system1 ex:manages _:meta1 .
+
+# Complex nested data structure
+_:dataStructure ex:type "Tree"@en .
+_:dataStructure ex:root _:rootNode .
+_:rootNode ex:value "A"@en .
+_:rootNode ex:children _:childList .
+_:childList ex:left _:leftChild .
+_:childList ex:right _:rightChild .
+_:leftChild ex:value "B"@en .
+_:leftChild ex:parent _:rootNode .
+_:leftChild ex:children _:leftGrandchildren .
+_:leftGrandchildren ex:left _:llChild .
+_:leftGrandchildren ex:right _:lrChild .
+_:llChild ex:value "D"@en .
+_:llChild ex:parent _:leftChild .
+_:lrChild ex:value "E"@en .
+_:lrChild ex:parent _:leftChild .
+_:rightChild ex:value "C"@en .
+_:rightChild ex:parent _:rootNode .

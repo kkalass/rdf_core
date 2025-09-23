@@ -1,0 +1,157 @@
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Complex nested organization structure
+ex:company1 ex:name "TechCorp Inc"@en .
+ex:company1 ex:headquarters _:companyHQ .
+_:companyHQ ex:address _:hqAddress .
+_:hqAddress ex:street "100 Innovation Drive"@en .
+_:hqAddress ex:city "San Francisco"@en .
+_:hqAddress ex:state "CA"@en .
+_:hqAddress ex:country "USA"@en .
+_:hqAddress ex:coordinates _:hqCoordinates .
+_:hqCoordinates ex:latitude "37.7749"^^xsd:decimal .
+_:hqCoordinates ex:longitude "-122.4194"^^xsd:decimal .
+
+_:companyHQ ex:facilities _:mainFacility .
+_:mainFacility ex:type "Office"@en .
+_:mainFacility ex:floor "15"^^xsd:int .
+_:mainFacility ex:capacity "200"^^xsd:int .
+_:mainFacility ex:amenities _:facilityAmenities .
+_:facilityAmenities ex:cafeteria true .
+_:facilityAmenities ex:gym true .
+_:facilityAmenities ex:parking _:facilityParking .
+_:facilityParking ex:spaces "150"^^xsd:int .
+_:facilityParking ex:type "Underground"@en .
+# Additional facility information to break isomorphism
+_:mainFacility ex:securityLevel "High"@en .
+_:facilityAmenities ex:library true .
+
+# Complex employee hierarchy with nested reporting
+ex:company1 ex:employee _:ctoEmployee .
+_:ctoEmployee ex:id "EMP001"^^xsd:string .
+_:ctoEmployee foaf:name "Alice Johnson"@en .
+_:ctoEmployee ex:position "CTO"@en .
+_:ctoEmployee ex:department _:engineeringDept .
+_:engineeringDept ex:name "Engineering"@en .
+_:engineeringDept ex:budget "5000000"^^xsd:decimal .
+_:engineeringDept ex:head _:ctoEmployee .
+
+_:ctoEmployee ex:manages _:seniorDev .
+_:seniorDev ex:id "EMP002"^^xsd:string .
+_:seniorDev foaf:name "Bob Wilson"@en .
+_:seniorDev ex:position "Senior Developer"@en .
+_:seniorDev ex:skills _:devSkills .
+_:devSkills ex:programming _:programmingSkills .
+_:programmingSkills ex:language "Python"@en .
+_:programmingSkills ex:level "Expert"@en .
+_:programmingSkills ex:yearsExperience "8"^^xsd:int .
+# Additional skill information
+_:programmingSkills ex:certification "Python Professional"@en .
+
+_:seniorDev ex:workingOn _:aiProject .
+_:aiProject ex:name "AI Platform"@en .
+_:aiProject ex:status "In Progress"@en .
+_:aiProject ex:timeline _:projectTimeline .
+_:projectTimeline ex:start "2023-01-15"^^xsd:date .
+_:projectTimeline ex:estimatedEnd "2023-12-31"^^xsd:date .
+_:projectTimeline ex:milestones _:phase1Milestone .
+_:phase1Milestone ex:name "Phase 1 Complete"@en .
+_:phase1Milestone ex:date "2023-06-30"^^xsd:date .
+_:phase1Milestone ex:deliverables _:docDeliverable .
+_:docDeliverable ex:type "Documentation"@en .
+_:docDeliverable ex:status "Complete"@en .
+# Additional project milestone
+_:projectTimeline ex:milestones _:phase2Milestone .
+_:phase2Milestone ex:name "Phase 2 Planning"@en .
+_:phase2Milestone ex:date "2023-07-15"^^xsd:date .
+
+# Complex publication with multiple nested references
+_:blankNodePaper ex:title "Advanced Blank Node Processing"@en .
+_:blankNodePaper ex:authors _:paperAuthors .
+_:paperAuthors ex:primaryAuthor _:ctoEmployee .
+_:paperAuthors ex:coAuthor _:seniorDev .
+_:paperAuthors ex:contributor _:externalContributor .
+_:externalContributor foaf:name "Charlie Brown"@en .
+_:externalContributor ex:affiliation _:stanfordAffiliation .
+_:stanfordAffiliation ex:institution "Stanford University"@en .
+_:stanfordAffiliation ex:department "Computer Science"@en .
+
+_:blankNodePaper ex:publishedIn _:semanticWebJournal .
+_:semanticWebJournal ex:name "Journal of Semantic Web"@en .
+_:semanticWebJournal ex:volume "15"^^xsd:int .
+_:semanticWebJournal ex:issue "3"^^xsd:int .
+_:semanticWebJournal ex:pages _:paperPages .
+_:paperPages ex:start "45"^^xsd:int .
+_:paperPages ex:end "72"^^xsd:int .
+
+_:blankNodePaper ex:references _:rdfReference .
+_:rdfReference ex:title "RDF Graph Isomorphism"@en .
+_:rdfReference ex:author "David Smith"@en .
+_:rdfReference ex:citedBy _:blankNodePaper .
+# Additional reference to break isomorphism
+_:blankNodePaper ex:references _:secondReference .
+_:secondReference ex:title "Semantic Web Technologies"@en .
+_:secondReference ex:author "Jane Doe"@en .
+
+# Complex event with nested scheduling and attendance
+_:techConference ex:name "Tech Conference 2023"@en .
+_:techConference ex:organizer ex:company1 .
+_:techConference ex:schedule _:conferenceSchedule .
+_:conferenceSchedule ex:day1 _:firstDay .
+_:firstDay ex:date "2023-09-15"^^xsd:date .
+_:firstDay ex:sessions _:keynoteSession .
+_:keynoteSession ex:title "Keynote"@en .
+_:keynoteSession ex:speaker _:ctoEmployee .
+_:keynoteSession ex:timeSlot _:keynoteSlot .
+_:keynoteSlot ex:start "09:00:00"^^xsd:time .
+_:keynoteSlot ex:end "10:30:00"^^xsd:time .
+_:keynoteSlot ex:room _:mainAuditorium .
+_:mainAuditorium ex:name "Main Auditorium"@en .
+_:mainAuditorium ex:capacity "500"^^xsd:int .
+
+_:techConference ex:attendees _:conferenceAttendees .
+_:conferenceAttendees ex:registered _:startupAttendee .
+_:startupAttendee foaf:name "Eve Davis"@en .
+_:startupAttendee ex:company "StartupXYZ"@en .
+_:startupAttendee ex:interests _:attendeeInterests .
+_:attendeeInterests ex:topic "Machine Learning"@en .
+_:attendeeInterests ex:topic "Semantic Web"@en .
+# Additional attendee to break isomorphism
+_:conferenceAttendees ex:registered _:corporateAttendee .
+_:corporateAttendee foaf:name "Frank Miller"@en .
+_:corporateAttendee ex:company "BigCorp Ltd"@en .
+
+# Circular and self-referencing blank node structures
+_:networkNode1 ex:connects _:networkNode2 .
+_:networkNode2 ex:connects _:networkNode3 .
+_:networkNode3 ex:connects _:networkNode1 .
+_:networkNode1 ex:metadata _:nodeMetadata .
+_:nodeMetadata ex:describes _:networkNode1 .
+_:nodeMetadata ex:createdBy _:managementSystem .
+_:managementSystem ex:manages _:nodeMetadata .
+
+# Complex nested data structure - modified to break isomorphism
+_:treeStructure ex:type "Tree"@en .
+_:treeStructure ex:root _:treeRoot .
+_:treeRoot ex:value "A"@en .
+_:treeRoot ex:children _:rootChildren .
+_:rootChildren ex:left _:leftBranch .
+_:rootChildren ex:right _:rightBranch .
+_:leftBranch ex:value "B"@en .
+_:leftBranch ex:parent _:treeRoot .
+_:leftBranch ex:children _:leftBranchChildren .
+_:leftBranchChildren ex:left _:leftLeftLeaf .
+_:leftBranchChildren ex:right _:leftRightLeaf .
+_:leftLeftLeaf ex:value "D"@en .
+_:leftLeftLeaf ex:parent _:leftBranch .
+_:leftRightLeaf ex:value "E"@en .
+_:leftRightLeaf ex:parent _:leftBranch .
+_:rightBranch ex:value "C"@en .
+_:rightBranch ex:parent _:treeRoot .
+# Additional right branch children to break isomorphism
+_:rightBranch ex:children _:rightBranchChildren .
+_:rightBranchChildren ex:left _:rightLeftLeaf .
+_:rightLeftLeaf ex:value "F"@en .
+_:rightLeftLeaf ex:parent _:rightBranch .

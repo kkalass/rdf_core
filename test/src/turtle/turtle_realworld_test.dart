@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
 import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_core/src/graph/rdf_graph_isomorphism.dart';
 import 'package:rdf_core/src/turtle/turtle_decoder.dart';
 import 'package:rdf_core/src/vocab/xsd.dart';
 import 'package:test/test.dart';
@@ -74,6 +75,24 @@ void main() {
       );
       expect(result.success, isTrue);
       expect(result.flags, equals(specificFlags));
+
+      var graph = RdfGraph(triples: result.triples);
+
+      final isomorphicResult = await testFile(
+        'acl_iso.ttl',
+        'http://www.w3.org/ns/auth/acl#',
+        specificFlags,
+      );
+      var isoGraph = RdfGraph(triples: isomorphicResult.triples);
+      expect(graph.isIsomorphicTo(other: isoGraph), isTrue);
+
+      final nonIsomorphicResult = await testFile(
+        'acl_noniso.ttl',
+        'http://www.w3.org/ns/auth/acl#',
+        specificFlags,
+      );
+      var nonisoGraph = RdfGraph(triples: nonIsomorphicResult.triples);
+      expect(graph.isIsomorphicTo(other: nonisoGraph), isFalse);
     });
 
     test('should parse vcard.ttl', () async {
@@ -97,6 +116,22 @@ void main() {
         expect(literal.value, equals("true"));
       });
       expect(deprecated.length, equals(24));
+
+      final isomorphicResult = await testFile(
+        'vcard_iso.ttl',
+        'http://www.w3.org/2006/vcard/ns#',
+        specificFlags,
+      );
+      var isoGraph = RdfGraph(triples: isomorphicResult.triples);
+      expect(graph.isIsomorphicTo(other: isoGraph), isTrue);
+
+      final nonIsomorphicResult = await testFile(
+        'vcard_noniso.ttl',
+        'http://www.w3.org/2006/vcard/ns#',
+        specificFlags,
+      );
+      var nonisoGraph = RdfGraph(triples: nonIsomorphicResult.triples);
+      expect(graph.isIsomorphicTo(other: nonisoGraph), isFalse);
     });
 
     test('should parse solid.ttl', () async {
@@ -112,6 +147,23 @@ void main() {
       expect(result.success, isTrue);
       // Validate that we're using the minimum required flags
       expect(result.flags, equals(specificFlags));
+      var graph = RdfGraph(triples: result.triples);
+
+      final isomorphicResult = await testFile(
+        'solid_iso.ttl',
+        'http://www.w3.org/ns/solid/terms#',
+        specificFlags,
+      );
+      var isoGraph = RdfGraph(triples: isomorphicResult.triples);
+      expect(graph.isIsomorphicTo(other: isoGraph), isTrue);
+
+      final nonIsomorphicResult = await testFile(
+        'solid_noniso.ttl',
+        'http://www.w3.org/ns/solid/terms#',
+        specificFlags,
+      );
+      var nonisoGraph = RdfGraph(triples: nonIsomorphicResult.triples);
+      expect(graph.isIsomorphicTo(other: nonisoGraph), isFalse);
     });
 
     test('should parse schema.org.ttl', () async {
@@ -126,6 +178,24 @@ void main() {
       expect(result.success, isTrue);
       // Validate that we're using the minimum required flags
       expect(result.flags, equals(specificFlags));
+
+      var graph = RdfGraph(triples: result.triples);
+
+      final isomorphicResult = await testFile(
+        'schema_iso.org.ttl',
+        'https://schema.org/',
+        specificFlags,
+      );
+      var isoGraph = RdfGraph(triples: isomorphicResult.triples);
+      expect(graph.isIsomorphicTo(other: isoGraph), isTrue);
+
+      final nonIsomorphicResult = await testFile(
+        'schema_noniso.org.ttl',
+        'https://schema.org/',
+        specificFlags,
+      );
+      var nonisoGraph = RdfGraph(triples: nonIsomorphicResult.triples);
+      expect(graph.isIsomorphicTo(other: nonisoGraph), isFalse);
     });
   });
 }

@@ -1,0 +1,35 @@
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:person1 ex:name "Alice"@en .
+ex:person1 ex:age "25"^^xsd:int .
+ex:person1 ex:city "New York"@en .
+ex:person2 ex:name "Bob"@en .
+ex:person2 ex:age "30"^^xsd:int .
+ex:person2 ex:city "London"@en .
+ex:person1 ex:friend ex:person2 .
+ex:person2 ex:friend ex:person1 .
+ex:book1 ex:title "Book Title"@en .
+ex:book1 ex:author ex:person1 .
+ex:book1 ex:pages "200"^^xsd:int .
+ex:book2 ex:title "Another Book"@en .
+ex:book2 ex:author ex:person2 .
+ex:book2 ex:pages "150"^^xsd:int .
+ex:person1 ex:reads ex:book1 .
+ex:person2 ex:reads ex:book2 .
+ex:person3 ex:name "Charlie"@en .
+ex:person3 ex:age "35"^^xsd:int .
+ex:person3 ex:city "Paris"@fr .
+ex:person4 ex:name "Diana"@en .
+ex:person4 ex:age "28"^^xsd:int .
+ex:person4 ex:city "Berlin"@de .
+ex:person3 ex:friend ex:person4 .
+ex:person4 ex:friend ex:person3 .
+ex:book3 ex:title "Third Book"@en .
+ex:book3 ex:author ex:person3 .
+ex:book3 ex:pages "180"^^xsd:int .
+ex:book4 ex:title "Fourth Book"@en .
+ex:book4 ex:author ex:person4 .
+ex:book4 ex:pages "220"^^xsd:int .
+ex:person3 ex:reads ex:book3 .
+ex:person4 ex:reads ex:book4 .

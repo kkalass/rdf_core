@@ -1,0 +1,19 @@
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:alice ex:name "Alice" .
+ex:alice ex:age "25"^^xsd:int .
+ex:alice ex:city "New York" .
+ex:bob ex:name "Bob" .
+ex:bob ex:age "30"^^xsd:int .
+ex:bob ex:city "London" .
+ex:alice ex:friend ex:bob .
+ex:book1 ex:title "Book Title" .
+ex:book1 ex:author ex:alice .
+ex:book1 ex:pages "200"^^xsd:int .
+ex:book2 ex:title "Another Book" .
+ex:book2 ex:author ex:bob .
+ex:book2 ex:pages "150"^^xsd:int .
+ex:alice ex:reads ex:book1 .
+ex:bob ex:reads ex:book2 .
+ex:alice ex:likes ex:book2 .

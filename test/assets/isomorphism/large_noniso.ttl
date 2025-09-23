@@ -1,0 +1,36 @@
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:alice ex:name "Alice"@en .
+ex:alice ex:age "25"^^xsd:int .
+ex:alice ex:city "New York"@en .
+ex:bob ex:name "Bob"@en .
+ex:bob ex:age "30"^^xsd:int .
+ex:bob ex:city "London"@en .
+ex:alice ex:friend ex:bob .
+ex:bob ex:friend ex:alice .
+ex:bookA ex:title "Book Title"@en .
+ex:bookA ex:author ex:alice .
+ex:bookA ex:pages "200"^^xsd:int .
+ex:bookB ex:title "Another Book"@en .
+ex:bookB ex:author ex:bob .
+ex:bookB ex:pages "150"^^xsd:int .
+ex:alice ex:reads ex:bookA .
+ex:bob ex:reads ex:bookB .
+ex:charlie ex:name "Charlie"@en .
+ex:charlie ex:age "35"^^xsd:int .
+ex:charlie ex:city "Paris"@fr .
+ex:diana ex:name "Diana"@en .
+ex:diana ex:age "28"^^xsd:int .
+ex:diana ex:city "Berlin"@de .
+ex:charlie ex:friend ex:diana .
+ex:diana ex:friend ex:charlie .
+ex:bookC ex:title "Third Book"@en .
+ex:bookC ex:author ex:charlie .
+ex:bookC ex:pages "180"^^xsd:int .
+ex:bookD ex:title "Fourth Book"@en .
+ex:bookD ex:author ex:diana .
+ex:bookD ex:pages "220"^^xsd:int .
+ex:charlie ex:reads ex:bookC .
+ex:diana ex:reads ex:bookD .
+ex:alice ex:knows ex:charlie .

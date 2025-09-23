@@ -1,0 +1,38 @@
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:alice ex:name "Alice"@en .
+ex:alice ex:age "25"^^xsd:int .
+ex:alice ex:address _:addressA .
+_:addressA ex:street "Main Street"@en .
+_:addressA ex:city "New York"@en .
+_:addressA ex:zip "10001"^^xsd:string .
+ex:alice ex:friend ex:bob .
+ex:bob ex:name "Bob"@en .
+ex:bob ex:age "30"^^xsd:int .
+ex:bob ex:address _:addressB .
+_:addressB ex:street "Second Ave"@en .
+_:addressB ex:city "London"@en .
+_:addressB ex:zip "SW1A 1AA"^^xsd:string .
+ex:bob ex:friend ex:alice .
+ex:bookX ex:title "Book Title"@en .
+ex:bookX ex:author ex:alice .
+ex:bookX ex:pages "200"^^xsd:int .
+ex:bookX ex:published _:pubX .
+_:pubX ex:year "2020"^^xsd:gYear .
+_:pubX ex:publisher "Publisher Inc"@en .
+ex:bookY ex:title "Another Book"@en .
+ex:bookY ex:author ex:bob .
+ex:bookY ex:pages "150"^^xsd:int .
+ex:bookY ex:published _:pubY .
+_:pubY ex:year "2019"^^xsd:gYear .
+_:pubY ex:publisher "Another Publisher"@en .
+ex:alice ex:reads ex:bookX .
+ex:bob ex:reads ex:bookY .
+ex:alice ex:hobbies _:hobbyA .
+_:hobbyA ex:type "Reading"@en .
+_:hobbyA ex:level "Expert"^^xsd:string .
+ex:bob ex:hobbies _:hobbyB .
+_:hobbyB ex:type "Writing"@en .
+_:hobbyB ex:level "Intermediate"^^xsd:string .
+ex:alice ex:likes ex:bookY .

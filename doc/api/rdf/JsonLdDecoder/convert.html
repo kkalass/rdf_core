@@ -94,7 +94,8 @@ which will handle format-specific details like prefix resolution, blank node han
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 RdfGraph convert(String input, {String? documentUrl}) {
-  final parser = JsonLdParser(input, baseUri: documentUrl);
+  final parser = JsonLdParser(input,
+      baseUri: documentUrl, iriTermFactory: _iriTermFactory);
   return RdfGraph.fromTriples(parser.parse());
 }</code></pre>
 </section>
@@ -124,7 +125,7 @@ RdfGraph convert(String input, {String? documentUrl}) {
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.14
+      0.9.15
   </span>
   
 </footer>

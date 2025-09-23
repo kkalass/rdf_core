@@ -115,8 +115,8 @@ print(jsonLd);
 final graph = RdfGraph();
 
 // Create terms
-final subject = IriTerm('http://example.org/john');
-final predicate = IriTerm('http://xmlns.com/foaf/0.1/name');
+final subject = const IriTerm('http://example.org/john');
+final predicate = const IriTerm('http://xmlns.com/foaf/0.1/name');
 final object = LiteralTerm.string('John Smith');
 
 // Add a triple
@@ -662,6 +662,20 @@ with standard codecs pre-registered
 
   </dd>
 
+          
+  <dt id="IriTermFactory" class="callable">
+    <span class="name"><a href="../rdf/IriTermFactory.html">IriTermFactory</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="../rdf/IriTerm-class.html">IriTerm</a> Function<span class="signature">(<span class="parameter" id="param-iri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">iri</span></span>)</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    
+    
+
+  </dd>
+
       </dl>
     </section>
 
@@ -802,7 +816,7 @@ with standard codecs pre-registered
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.14
+      0.9.15
   </span>
   
 </footer>

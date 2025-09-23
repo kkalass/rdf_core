@@ -64,7 +64,7 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">factory IriTerm.encodeFull(String rawIri) {
-  return IriTerm(Uri.encodeFull(rawIri));
+  return IriTerm.validated(Uri.encodeFull(rawIri));
 }</code></pre>
 </section>
 
@@ -93,7 +93,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.14
+      0.9.15
   </span>
   
 </footer>

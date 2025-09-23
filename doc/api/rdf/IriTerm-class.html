@@ -97,10 +97,11 @@ global identifiers that can refer to documents, concepts, or physical entities.<
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="IriTerm.new" class="callable">
-          <span class="name"><a href="../rdf/IriTerm/IriTerm.html">IriTerm.new</a></span><span class="signature">(<span class="parameter" id="-param-iri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">iri</span></span>)</span>
+          <span class="name"><a href="../rdf/IriTerm/IriTerm.html">IriTerm.new</a></span><span class="signature">(<span class="parameter" id="-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">value</span></span>)</span>
         </dt>
         <dd>
-          Creates an IRI term with the specified IRI string
+          Creates an IRI term from a prevalidated IRI string.
+            <div class="constructor-modifier features">const</div>
         </dd>
         <dt id="IriTerm.encodeFull" class="callable">
           <span class="name"><a href="../rdf/IriTerm/IriTerm.encodeFull.html">IriTerm.encodeFull</a></span><span class="signature">(<span class="parameter" id="encodeFull-param-rawIri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">rawIri</span></span>)</span>
@@ -110,11 +111,17 @@ global identifiers that can refer to documents, concepts, or physical entities.<
             <div class="constructor-modifier features">factory</div>
         </dd>
         <dt id="IriTerm.prevalidated" class="callable">
-          <span class="name"><a href="../rdf/IriTerm/IriTerm.prevalidated.html">IriTerm.prevalidated</a></span><span class="signature">(<span class="parameter" id="prevalidated-param-iri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">iri</span></span>)</span>
+          <span class="name"><a class="deprecated" href="../rdf/IriTerm/IriTerm.prevalidated.html">IriTerm.prevalidated</a></span><span class="signature">(<span class="parameter" id="prevalidated-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">value</span></span>)</span>
         </dt>
         <dd>
           Creates an IRI term from a prevalidated IRI string.
             <div class="constructor-modifier features">const</div>
+        </dd>
+        <dt id="IriTerm.validated" class="callable">
+          <span class="name"><a href="../rdf/IriTerm/IriTerm.validated.html">IriTerm.validated</a></span><span class="signature">(<span class="parameter" id="validated-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">value</span></span>)</span>
+        </dt>
+        <dd>
+          Creates an IRI term with the specified IRI string
         </dd>
     </dl>
   </section>
@@ -137,14 +144,14 @@ global identifiers that can refer to documents, concepts, or physical entities.<
 </dd>
 
         <dt id="iri" class="property">
-  <span class="name"><a href="../rdf/IriTerm/iri.html">iri</a></span>
+  <span class="name"><a class="deprecated" href="../rdf/IriTerm/iri.html">iri</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
   
 
 </dt>
 <dd>
-  The string representation of the IRI
-  <div class="features"><span class="feature">final</span></div>
+  
+  <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
@@ -160,6 +167,18 @@ global identifiers that can refer to documents, concepts, or physical entities.<
 
 </dd>
 
+        <dt id="value" class="property">
+  <span class="name"><a href="../rdf/IriTerm/value.html">value</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  The string representation of the IRI
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
     </dl>
   </section>
 
@@ -169,6 +188,20 @@ global identifiers that can refer to documents, concepts, or physical entities.<
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
+        <dt id="ensureValid" class="callable">
+  <span class="name"><a href="../rdf/IriTerm/ensureValid.html">ensureValid</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Ensures the IRI is valid and absolute - useful for late validation if
+you assume that the const constructor was used without validation.
+  
+
+</dd>
+
         <dt id="noSuchMethod" class="callable inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
     <span class="returntype parameter">&#8594; dynamic</span>
@@ -245,7 +278,7 @@ global identifiers that can refer to documents, concepts, or physical entities.<
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.14
+      0.9.15
   </span>
   
 </footer>

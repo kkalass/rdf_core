@@ -73,8 +73,8 @@ can be created.</p>
 </ul>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">// Create a triple: &lt;http://example.org/john&gt; &lt;http://xmlns.com/foaf/0.1/name&gt; "John Smith"
-final john = IriTerm('http://example.org/john');
-final name = IriTerm('http://xmlns.com/foaf/0.1/name');
+final john = const IriTerm('http://example.org/john');
+final name = const IriTerm('http://xmlns.com/foaf/0.1/name');
 final johnSmith = LiteralTerm.string('John Smith');
 final triple = Triple(john, name, johnSmith);
 </code></pre>
@@ -112,7 +112,7 @@ final triple = Triple(john, name, johnSmith);
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.14
+      0.9.15
   </span>
   
 </footer>

@@ -55,6 +55,7 @@
     <section class="multi-line-signature">
       const
       <span class="name ">JsonLdDecoder</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-options"><span class="type-annotation"><a href="../../rdf/JsonLdDecoderOptions-class.html">JsonLdDecoderOptions</a></span> <span class="parameter-name">options</span> = <span class="default-value">const JsonLdDecoderOptions()</span>, </span></li>
+<li><span class="parameter" id="-param-iriTermFactory"><span class="type-annotation"><a href="../../rdf/IriTermFactory.html">IriTermFactory</a></span> <span class="parameter-name">iriTermFactory</span> = <span class="default-value">IriTerm.validated</span>, </span></li>
 </ol>})
     </section>
     
@@ -65,7 +66,9 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">const JsonLdDecoder({
   JsonLdDecoderOptions options = const JsonLdDecoderOptions(),
-}) : _options = options;</code></pre>
+  IriTermFactory iriTermFactory = IriTerm.validated,
+})  : _options = options,
+      _iriTermFactory = iriTermFactory;</code></pre>
 </section>
 
 
@@ -93,7 +96,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.14
+      0.9.15
   </span>
   
 </footer>

@@ -91,10 +91,10 @@
   final allowedTypes = _settings.allowedCompactionTypes[role] ??
       IriCompactionType.values.toSet();
 
-  final relativized =
-      relativizeIri(term.iri, baseUri, options: _settings.iriRelativization);
+  final relativized = relativizeIri(term.value, baseUri,
+      options: _settings.iriRelativization);
   final relativeUrl = (!allowedTypes.contains(IriCompactionType.relative) ||
-          relativized == term.iri)
+          relativized == term.value)
       ? null
       : relativized;
 
@@ -113,7 +113,7 @@
     &#47;&#47; for better matching prefixes, but use the relative URL directly
     return RelativeIri(relativeUrl);
   }
-  final iri = term.iri;
+  final iri = term.value;
   final prefixAllowed = allowedTypes.contains(IriCompactionType.prefixed);
   final fullAllowed = allowedTypes.contains(IriCompactionType.full);
   if (prefixAllowed &amp;&amp; iriToPrefixMap.containsKey(iri)) {
@@ -233,7 +233,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.14
+      0.9.15
   </span>
   
 </footer>

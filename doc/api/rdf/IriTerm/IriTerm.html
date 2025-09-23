@@ -27,7 +27,7 @@
     <li><a href="../../index.html">rdf_core</a></li>
     <li><a href="../../rdf/">rdf_core.dart</a></li>
     <li><a href="../../rdf/IriTerm-class.html">IriTerm</a></li>
-    <li class="self-crumb">IriTerm.new constructor</li>
+    <li class="self-crumb">IriTerm.new const constructor</li>
   </ol>
   <div class="self-name">IriTerm.new</div>
   <form class="search navbar-right" role="search">
@@ -53,26 +53,23 @@
 </h1></div>
 
     <section class="multi-line-signature">
-      
-      <span class="name ">IriTerm</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="-param-iri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">iri</span></span></li>
+      const
+      <span class="name ">IriTerm</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">value</span></span></li>
 </ol>)
     </section>
     
 <section class="desc markdown">
-  <p>Creates an IRI term with the specified IRI string</p>
-<p>The IRI should be a valid absolute IRI according to RFC 3987.
-This constructor validates that the IRI is well-formed and absolute.</p>
-<p>Throws <a href="../../rdf/RdfConstraintViolationException-class.html">RdfConstraintViolationException</a> if the IRI is not well-formed
-or not absolute.</p>
+  <p>Creates an IRI term from a prevalidated IRI string.</p>
+<p>Use this constructor only when you are sure the IRI is valid and absolute
+and need to create a const instance.
+This is useful for performance optimization.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">IriTerm(this.iri) {
-  _validateAbsoluteIri(iri);
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">const IriTerm(this.value);</code></pre>
 </section>
 
 
@@ -88,7 +85,7 @@ or not absolute.</p>
     <li><a href="../../index.html">rdf_core</a></li>
     <li><a href="../../rdf/">rdf</a></li>
     <li><a href="../../rdf/IriTerm-class.html">IriTerm</a></li>
-    <li class="self-crumb">IriTerm.new constructor</li>
+    <li class="self-crumb">IriTerm.new const constructor</li>
 </ol>
 
     <h5>IriTerm class</h5>
@@ -100,7 +97,7 @@ or not absolute.</p>
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.14
+      0.9.15
   </span>
   
 </footer>

@@ -75,8 +75,8 @@ it's not guaranteed to be valid Turtle syntax, as it relies on the
 string representations of the individual terms.</p>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">final triple = Triple(
-  IriTerm('http://example.org/john'),
-  IriTerm('http://xmlns.com/foaf/0.1/name'),
+  const IriTerm('http://example.org/john'),
+  const IriTerm('http://xmlns.com/foaf/0.1/name'),
   LiteralTerm.string('John Smith')
 );
 
@@ -117,7 +117,7 @@ String toString() =&gt; &#39;$subject $predicate $object .&#39;;</code></pre>
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.14
+      0.9.15
   </span>
   
 </footer>

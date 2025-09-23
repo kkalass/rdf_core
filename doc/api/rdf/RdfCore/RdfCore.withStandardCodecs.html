@@ -56,6 +56,7 @@
       
       <span class="name ">RdfCore.withStandardCodecs</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="withStandardCodecs-param-namespaceMappings"><span class="type-annotation"><a href="../../rdf/RdfNamespaceMappings-class.html">RdfNamespaceMappings</a>?</span> <span class="parameter-name">namespaceMappings</span>, </span></li>
 <li><span class="parameter" id="withStandardCodecs-param-additionalCodecs"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/RdfGraphCodec-class.html">RdfGraphCodec</a></span>&gt;</span></span> <span class="parameter-name">additionalCodecs</span> = <span class="default-value">const []</span>, </span></li>
+<li><span class="parameter" id="withStandardCodecs-param-iriTermFactory"><span class="type-annotation"><a href="../../rdf/IriTermFactory.html">IriTermFactory</a></span> <span class="parameter-name">iriTermFactory</span> = <span class="default-value">IriTerm.validated</span>, </span></li>
 </ol>})
     </section>
     
@@ -80,6 +81,7 @@ final graph = rdf.decode(turtleData, contentType: 'text/turtle');
   <pre class="language-dart"><code class="language-dart">factory RdfCore.withStandardCodecs({
   RdfNamespaceMappings? namespaceMappings,
   List&lt;RdfGraphCodec&gt; additionalCodecs = const [],
+  IriTermFactory iriTermFactory = IriTerm.validated,
 }) {
   final registry = RdfCodecRegistry();
   final _namespaceMappings =
@@ -87,12 +89,16 @@ final graph = rdf.decode(turtleData, contentType: 'text/turtle');
 
   &#47;&#47; Register standard formats
   registry.registerGraphCodec(
-    TurtleCodec(namespaceMappings: _namespaceMappings),
+    TurtleCodec(
+        namespaceMappings: _namespaceMappings,
+        iriTermFactory: iriTermFactory),
   );
   registry.registerGraphCodec(
-    JsonLdGraphCodec(namespaceMappings: _namespaceMappings),
+    JsonLdGraphCodec(
+        namespaceMappings: _namespaceMappings,
+        iriTermFactory: iriTermFactory),
   );
-  registry.registerGraphCodec(const NTriplesCodec());
+  registry.registerGraphCodec(NTriplesCodec(iriTermFactory: iriTermFactory));
 
   &#47;&#47; Register additional codecs
   for (final codec in additionalCodecs) {
@@ -128,7 +134,7 @@ final graph = rdf.decode(turtleData, contentType: 'text/turtle');
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.14
+      0.9.15
   </span>
   
 </footer>

@@ -27,7 +27,7 @@
     <li><a href="../../index.html">rdf_core</a></li>
     <li><a href="../../rdf/">rdf_core.dart</a></li>
     <li><a href="../../rdf/IriTerm-class.html">IriTerm</a></li>
-    <li class="self-crumb">IriTerm.prevalidated const constructor</li>
+    <li class="self-crumb"><span class="deprecated">IriTerm.prevalidated</span> const constructor</li>
   </ol>
   <div class="self-name">IriTerm.prevalidated</div>
   <form class="search navbar-right" role="search">
@@ -53,8 +53,13 @@
 </h1></div>
 
     <section class="multi-line-signature">
-      const
-      <span class="name ">IriTerm.prevalidated</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="prevalidated-param-iri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">iri</span></span></li>
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/Deprecated-class.html">Deprecated</a>(&#39;Use IriTerm constructor instead&#39;)</li>
+    </ol>
+  </div>const
+      <span class="name deprecated">IriTerm.prevalidated</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="prevalidated-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">value</span></span></li>
 </ol>)
     </section>
     
@@ -69,7 +74,8 @@ This is useful for performance optimization.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">const IriTerm.prevalidated(this.iri);</code></pre>
+  <pre class="language-dart"><code class="language-dart">@Deprecated(&#39;Use IriTerm constructor instead&#39;)
+const IriTerm.prevalidated(this.value);</code></pre>
 </section>
 
 
@@ -85,7 +91,7 @@ This is useful for performance optimization.</p>
     <li><a href="../../index.html">rdf_core</a></li>
     <li><a href="../../rdf/">rdf</a></li>
     <li><a href="../../rdf/IriTerm-class.html">IriTerm</a></li>
-    <li class="self-crumb">IriTerm.prevalidated const constructor</li>
+    <li class="self-crumb"><span class="deprecated">IriTerm.prevalidated</span> const constructor</li>
 </ol>
 
     <h5>IriTerm class</h5>
@@ -97,7 +103,7 @@ This is useful for performance optimization.</p>
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.14
+      0.9.15
   </span>
   
 </footer>

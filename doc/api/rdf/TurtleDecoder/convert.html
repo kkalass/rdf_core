@@ -102,6 +102,7 @@ RdfGraph convert(String input, {String? documentUrl}) {
     baseUri: documentUrl,
     parsingFlags: _options.parsingFlags,
     namespaceMappings: _namespaceMappings,
+    iriTermFactory: _iriTermFactory,
   );
   return RdfGraph.fromTriples(parser.parse());
 }</code></pre>
@@ -132,7 +133,7 @@ RdfGraph convert(String input, {String? documentUrl}) {
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.14
+      0.9.15
   </span>
   
 </footer>

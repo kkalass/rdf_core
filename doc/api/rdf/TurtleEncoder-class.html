@@ -71,8 +71,8 @@ the W3C Turtle recommendation, with additional optimizations for readability and
 
 final graph = RdfGraph();
 graph.add(Triple(
-  IriTerm('http://example.org/subject'),
-  IriTerm('http://example.org/predicate'),
+  const IriTerm('http://example.org/subject'),
+  const IriTerm('http://example.org/predicate'),
   LiteralTerm('object')
 ));
 
@@ -342,7 +342,7 @@ This encoder will warn if it detects use of https:// for a namespace that is can
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.14
+      0.9.15
   </span>
   
 </footer>

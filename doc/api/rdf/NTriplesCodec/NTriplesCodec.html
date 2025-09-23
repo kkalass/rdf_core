@@ -56,6 +56,7 @@
       const
       <span class="name ">NTriplesCodec</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-encoderOptions"><span class="type-annotation"><a href="../../rdf/NTriplesEncoderOptions-class.html">NTriplesEncoderOptions</a></span> <span class="parameter-name">encoderOptions</span> = <span class="default-value">const NTriplesEncoderOptions()</span>, </span></li>
 <li><span class="parameter" id="-param-decoderOptions"><span class="type-annotation"><a href="../../rdf/NTriplesDecoderOptions-class.html">NTriplesDecoderOptions</a></span> <span class="parameter-name">decoderOptions</span> = <span class="default-value">const NTriplesDecoderOptions()</span>, </span></li>
+<li><span class="parameter" id="-param-iriTermFactory"><span class="type-annotation"><a href="../../rdf/IriTermFactory.html">IriTermFactory</a></span> <span class="parameter-name">iriTermFactory</span> = <span class="default-value">IriTerm.validated</span>, </span></li>
 </ol>})
     </section>
     
@@ -70,8 +71,10 @@
   <pre class="language-dart"><code class="language-dart">const NTriplesCodec({
   NTriplesEncoderOptions encoderOptions = const NTriplesEncoderOptions(),
   NTriplesDecoderOptions decoderOptions = const NTriplesDecoderOptions(),
+  IriTermFactory iriTermFactory = IriTerm.validated,
 })  : _encoderOptions = encoderOptions,
-      _decoderOptions = decoderOptions;</code></pre>
+      _decoderOptions = decoderOptions,
+      _iriTermFactory = iriTermFactory;</code></pre>
 </section>
 
 
@@ -99,7 +102,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.14
+      0.9.15
   </span>
   
 </footer>

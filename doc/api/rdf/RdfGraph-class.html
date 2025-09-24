@@ -285,6 +285,19 @@ final updatedGraph = graph.withTriple(Triple(jane, name, janeSmith));
 
 </dd>
 
+        <dt id="matching" class="callable">
+  <span class="name"><a href="../rdf/RdfGraph/matching.html">matching</a></span><span class="signature">(<wbr>{<span class="parameter" id="matching-param-subject"><span class="type-annotation"><a href="../rdf/RdfSubject-class.html">RdfSubject</a>?</span> <span class="parameter-name">subject</span>, </span><span class="parameter" id="matching-param-predicate"><span class="type-annotation"><a href="../rdf/RdfPredicate-class.html">RdfPredicate</a>?</span> <span class="parameter-name">predicate</span>, </span><span class="parameter" id="matching-param-object"><span class="type-annotation"><a href="../rdf/RdfObject-class.html">RdfObject</a>?</span> <span class="parameter-name">object</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rdf/RdfGraph-class.html">RdfGraph</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a new graph containing only triples that match the given pattern
+  
+
+</dd>
+
         <dt id="merge" class="callable">
   <span class="name"><a href="../rdf/RdfGraph/merge.html">merge</a></span><span class="signature">(<wbr><span class="parameter" id="merge-param-other"><span class="type-annotation"><a href="../rdf/RdfGraph-class.html">RdfGraph</a></span> <span class="parameter-name">other</span></span>)
     <span class="returntype parameter">&#8594; <a href="../rdf/RdfGraph-class.html">RdfGraph</a></span>
@@ -308,19 +321,6 @@ final updatedGraph = graph.withTriple(Triple(jane, name, janeSmith));
 <dd class="inherited">
   Invoked when a nonexistent method or property is accessed.
   <div class="features"><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="subgraph" class="callable">
-  <span class="name"><a href="../rdf/RdfGraph/subgraph.html">subgraph</a></span><span class="signature">(<wbr>{<span class="parameter" id="subgraph-param-subject"><span class="type-annotation"><a href="../rdf/RdfSubject-class.html">RdfSubject</a>?</span> <span class="parameter-name">subject</span>, </span><span class="parameter" id="subgraph-param-predicate"><span class="type-annotation"><a href="../rdf/RdfPredicate-class.html">RdfPredicate</a>?</span> <span class="parameter-name">predicate</span>, </span><span class="parameter" id="subgraph-param-object"><span class="type-annotation"><a href="../rdf/RdfObject-class.html">RdfObject</a>?</span> <span class="parameter-name">object</span></span>})
-    <span class="returntype parameter">&#8594; <a href="../rdf/RdfGraph-class.html">RdfGraph</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-  Creates a new graph containing only triples that match the given pattern
-  
 
 </dd>
 
@@ -484,7 +484,7 @@ because we want to compare the sets of triples, not the order
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.16
+      0.9.17
   </span>
   
 </footer>

@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the hasTriples method from the RdfGraph class, for the Dart programming language.">
-  <title>hasTriples method - RdfGraph class - rdf library - Dart API</title>
+  <meta name="description" content="API docs for the matching method from the RdfGraph class, for the Dart programming language.">
+  <title>matching method - RdfGraph class - rdf library - Dart API</title>
 
 
   
@@ -27,9 +27,9 @@
     <li><a href="../../index.html">rdf_core</a></li>
     <li><a href="../../rdf/">rdf_core.dart</a></li>
     <li><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></li>
-    <li class="self-crumb">hasTriples method</li>
+    <li class="self-crumb">matching method</li>
   </ol>
-  <div class="self-name">hasTriples</div>
+  <div class="self-name">matching</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -49,15 +49,15 @@
     data-above-sidebar="rdf&#47;RdfGraph-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">hasTriples</span> method 
+<h1><span class="kind-method">matching</span> method 
 </h1></div>
 
     <section class="multi-line-signature">
       
-<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
-<span class="name ">hasTriples</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="hasTriples-param-subject"><span class="type-annotation"><a href="../../rdf/RdfSubject-class.html">RdfSubject</a>?</span> <span class="parameter-name">subject</span>, </span></li>
-<li><span class="parameter" id="hasTriples-param-predicate"><span class="type-annotation"><a href="../../rdf/RdfPredicate-class.html">RdfPredicate</a>?</span> <span class="parameter-name">predicate</span>, </span></li>
-<li><span class="parameter" id="hasTriples-param-object"><span class="type-annotation"><a href="../../rdf/RdfObject-class.html">RdfObject</a>?</span> <span class="parameter-name">object</span>, </span></li>
+<span class="returntype"><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></span>
+<span class="name ">matching</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="matching-param-subject"><span class="type-annotation"><a href="../../rdf/RdfSubject-class.html">RdfSubject</a>?</span> <span class="parameter-name">subject</span>, </span></li>
+<li><span class="parameter" id="matching-param-predicate"><span class="type-annotation"><a href="../../rdf/RdfPredicate-class.html">RdfPredicate</a>?</span> <span class="parameter-name">predicate</span>, </span></li>
+<li><span class="parameter" id="matching-param-object"><span class="type-annotation"><a href="../../rdf/RdfObject-class.html">RdfObject</a>?</span> <span class="parameter-name">object</span>, </span></li>
 </ol>})
 
       
@@ -65,14 +65,16 @@
     </section>
     
 <section class="desc markdown">
-  <p>Checks if the graph contains any triples matching the given pattern</p>
-<p>This method determines whether at least one triple in the graph matches
-all the specified pattern components. Unlike <a href="../../rdf/RdfGraph/findTriples.html">findTriples</a>, this method
-returns a boolean result and is more efficient when you only need to
-know if matching triples exist rather than retrieving them.</p>
+  <p>Creates a new graph containing only triples that match the given pattern</p>
+<p>This method returns a filtered graph containing all triples that match the specified
+pattern components. Unlike <a href="../../rdf/RdfGraph/findTriples.html">findTriples</a>, this method returns a new RdfGraph
+instance that can be used for further graph operations, chaining, and merging.</p>
+<p><strong>Performance Optimization:</strong> When filtering by subject (with or without predicate)
+and indexing is enabled, this method can reuse parts of the existing index for
+improved performance of subsequent operations on the filtered graph.</p>
 <p>Pattern matching uses AND logic - all non-null parameters must match
-for a triple to be considered a match. Null parameters act as wildcards
-and match any value in that position.</p>
+for a triple to be included. Null parameters act as wildcards and match
+any value in that position.</p>
 <p>Parameters:</p>
 <ul>
 <li><code>subject</code> Optional subject to match (null acts as wildcard)</li>
@@ -80,28 +82,20 @@ and match any value in that position.</p>
 <li><code>object</code> Optional object to match (null acts as wildcard)</li>
 </ul>
 <p>Returns:
-<code>true</code> if at least one triple matches the pattern, <code>false</code> otherwise.
-Returns <code>true</code> for empty pattern (all parameters null) if graph is not empty.</p>
+A new RdfGraph containing only the matching triples. The filtered graph may be
+empty if no triples match the pattern.</p>
 <p>Example:</p>
-<pre class="language-dart"><code class="language-dart">// Check if John has any statements about him
-if (graph.hasTriples(subject: john)) {
-  print('Found information about John');
-}
+<pre class="language-dart"><code class="language-dart">// Get all information about John as a separate graph
+final johnGraph = graph.matching(subject: john);
 
-// Check if anyone has a name property
-if (graph.hasTriples(predicate: foaf.name)) {
-  print('Graph contains name information');
-}
+// Get all type declarations
+final typeGraph = graph.matching(predicate: rdf.type);
 
-// Check if John specifically has a name
-if (graph.hasTriples(subject: john, predicate: foaf.name)) {
-  print('John has a name in the graph');
-}
-
-// Check if graph has any triples at all
-if (graph.hasTriples()) {
-  print('Graph is not empty');
-}
+// Chain operations efficiently
+final result = graph
+  .matching(subject: john)
+  .merge(otherGraph)
+  .matching(predicate: foaf.knows);
 </code></pre>
 </section>
 
@@ -109,42 +103,62 @@ if (graph.hasTriples()) {
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">bool hasTriples({
+  <pre class="language-dart"><code class="language-dart">RdfGraph matching({
   RdfSubject? subject,
   RdfPredicate? predicate,
   RdfObject? object,
 }) {
-  if (subject != null) {
+  &#47;&#47; Optimization: if filtering by subject and we have an index
+  if (subject != null &amp;&amp; object == null) {
     switch (_effectiveIndex) {
       case null:
         break;
       case final index:
         final subjectMap = index[subject];
         if (subjectMap == null) {
-          return false;
+          &#47;&#47; Subject not found - return empty graph
+          return RdfGraph(enableIndexing: indexingEnabled);
         }
-        if (predicate != null) {
-          final predicateList = subjectMap[predicate];
-          if (predicateList == null) {
-            return false;
-          }
-          if (object != null) {
-            return predicateList.any((triple) =&gt; triple.object == object);
-          } else {
-            return predicateList.isNotEmpty;
-          }
+
+        if (predicate == null) {
+          &#47;&#47; Subject only: use entire subject map
+          final subjectTriples = subjectMap.values.expand((list) =&gt; list);
+          final reducedIndex = {subject: subjectMap};
+
+          return RdfGraph._withIndex(
+            subjectTriples,
+            reducedIndex,
+            indexingEnabled,
+          );
         } else {
-          final allTriples = subjectMap.values.expand((list) =&gt; list);
-          if (object != null) {
-            return allTriples.any((triple) =&gt; triple.object == object);
-          } else {
-            return allTriples.isNotEmpty;
+          &#47;&#47; Subject + predicate: use specific predicate list
+          final predicateTriples = subjectMap[predicate];
+          if (predicateTriples == null) {
+            &#47;&#47; Subject+predicate not found - return empty graph
+            return RdfGraph(enableIndexing: indexingEnabled);
           }
+
+          final reducedIndex = {
+            subject: {predicate: predicateTriples}
+          };
+
+          return RdfGraph._withIndex(
+            predicateTriples,
+            reducedIndex,
+            indexingEnabled,
+          );
         }
     }
   }
-  return _triples
-      .any((triple) =&gt; _matches(triple, subject, predicate, object));
+
+  &#47;&#47; General case: delegate to findTriples and create new graph
+  final matchingTriples = findTriples(
+    subject: subject,
+    predicate: predicate,
+    object: object,
+  );
+
+  return RdfGraph(triples: matchingTriples, enableIndexing: indexingEnabled);
 }</code></pre>
 </section>
 
@@ -161,7 +175,7 @@ if (graph.hasTriples()) {
     <li><a href="../../index.html">rdf_core</a></li>
     <li><a href="../../rdf/">rdf</a></li>
     <li><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></li>
-    <li class="self-crumb">hasTriples method</li>
+    <li class="self-crumb">matching method</li>
 </ol>
 
     <h5>RdfGraph class</h5>

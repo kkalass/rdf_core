@@ -69,6 +69,8 @@ void main() {
 ## ✨ Features
 
 - **Type-safe RDF model:** IRIs, literals, triples, graphs, and more
+- **Automatic performance optimization:** Lazy indexing provides O(1) queries with zero memory cost until needed
+- **Graph composition workflows:** Create, filter, and chain subgraphs with fluent API
 - **Serialization-agnostic:** Clean separation of Turtle/JSON-LD/N-Triples
 - **Extensible & modular:** Create your own adapters, plugins, and integrations
 - **Specification compliant:** Follows [W3C RDF 1.1](https://www.w3.org/TR/rdf11-concepts/) and related standards
@@ -248,7 +250,23 @@ final merged = graph1.merge(graph2);
 ### Pattern Queries
 
 ```dart
+// Find triples matching a pattern
 final results = graph.findTriples(subject: subject);
+
+// Check if matching triples exist (more efficient than findTriples when you only need boolean result)
+if (graph.hasTriples(subject: john, predicate: foaf.name)) {
+  print('John has a name property');
+}
+
+// Create filtered subgraphs for composition and chaining
+final johnGraph = graph.subgraph(subject: john);
+final typeGraph = graph.subgraph(predicate: rdf.type);
+
+// Chain operations for powerful workflows
+final result = graph
+  .subgraph(subject: john)      // Get all John's information
+  .merge(otherGraph)           // Add additional data
+  .subgraph(predicate: foaf.knows); // Filter to relationships only
 ```
 
 ### Blank Node Handling
@@ -312,8 +330,9 @@ final graph4 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 ## 🚦 Performance
 
 - Triple, Term, and IRI equality/hashCode are O(1)
-- Graph queries (`findTriples`) are O(n) in the number of triples
-- Designed for large-scale, high-performance RDF workloads
+- **Automatic query optimization**: Lazy indexing provides O(1) subject-based queries with zero memory cost until first use
+- Graph queries (`findTriples`, `hasTriples`) benefit from transparent performance improvements
+- Designed for large-scale, high-performance RDF workloads with intelligent caching
 
 ---
 
@@ -325,7 +344,10 @@ final graph4 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 | `LiteralTerm`  | Represents an RDF literal value               |
 | `BlankNodeTerm`| Represents a blank node                       |
 | `Triple`       | Atomic RDF statement (subject, predicate, object) |
-| `RdfGraph`     | Collection of RDF triples                     |
+| `RdfGraph`     | Collection of RDF triples with automatic query optimization |
+| `RdfGraph.findTriples()` | Find triples matching a pattern (O(1) for subject-based queries) |
+| `RdfGraph.hasTriples()` | Check if matching triples exist (boolean result, optimized) |
+| `RdfGraph.subgraph()` | Create filtered subgraphs for composition and chaining |
 | `RdfGraphCodec`     | Base class for decoding/encoding RDF Graphs in various formats |
 | `RdfGraphDecoder`   | Base class for decoding RDF Graphs                   |
 | `RdfGraphEncoder`   | Base class for encoding RDF Graphs                   |

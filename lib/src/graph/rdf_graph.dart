@@ -32,7 +32,9 @@
 /// ```
 ///
 /// Performance considerations:
-/// - [RdfGraph.findTriples] is O(n) in the number of triples.
+/// - [RdfGraph.findTriples] is O(n) without indexing, O(1) for subject-based queries with indexing.
+/// - Indexing is lazy - creating a graph with indexing enabled has no immediate memory cost.
+///   The index is only built when first needed during a query operation.
 /// - [RdfGraph.merge] creates a new graph and is O(n + m) where n and m are
 ///   the number of triples in each graph.
 /// - All operations maintain immutability, creating new graph instances.
@@ -57,10 +59,16 @@ import 'package:rdf_core/src/graph/triple.dart';
 /// - Adding or removing triples (creating new graph instances)
 /// - Merging graphs
 /// - Querying triples based on patterns
+/// - Optional lazy indexing for improved query performance
 ///
 /// The class is designed to be immutable for thread safety and to prevent
 /// accidental modification. All operations that would modify the graph
 /// return a new instance.
+///
+/// **Indexing Behavior:** When indexing is enabled (default), an internal
+/// index is created lazily on the first query operation that can benefit from it.
+/// This means there is no immediate memory cost for enabling indexing - the
+/// memory is only used when and if queries are performed.
 ///
 /// Example:
 /// ```dart
@@ -76,6 +84,8 @@ import 'package:rdf_core/src/graph/triple.dart';
 final class RdfGraph {
   /// All triples in this graph
   final List<Triple> _triples;
+  final bool indexingEnabled;
+  Map<RdfSubject, Map<RdfPredicate, List<Triple>>>? _index;
 
   /// Creates an immutable RDF graph from a list of triples
   ///
@@ -83,27 +93,94 @@ final class RdfGraph {
   /// to ensure immutability. The graph can be initialized with an empty
   /// list to create an empty graph.
   ///
+  /// Parameters:
+  /// - [triples] The initial collection of triples to include in the graph.
+  ///   Defaults to an empty collection.
+  /// - [enableIndexing] Whether to enable lazy indexing for query optimization.
+  ///   When enabled, an internal index is created lazily on first query to improve
+  ///   performance for subsequent pattern matching operations. The index is only
+  ///   built when actually needed, so enabling this option has no immediate
+  ///   memory cost. Defaults to true.
+  ///
   /// Example:
   /// ```dart
-  /// // Empty graph
+  /// // Empty graph with indexing enabled (default)
   /// final emptyGraph = RdfGraph();
   ///
-  /// // Graph with initial triples
-  /// final graph = RdfGraph(triples: myTriples);
+  /// // Graph with initial triples and indexing disabled
+  /// final graph = RdfGraph(triples: myTriples, enableIndexing: false);
   /// ```
-  RdfGraph({Iterable<Triple> triples = const []})
-      : _triples = List.unmodifiable(List.from(triples));
+  RdfGraph({Iterable<Triple> triples = const [], bool enableIndexing = true})
+      : _triples = List.unmodifiable(List.from(triples)),
+        indexingEnabled = enableIndexing;
+
+  /// Private constructor for creating graphs with pre-built indexes
+  ///
+  /// This constructor allows for efficient creation of filtered subgraphs
+  /// by reusing parts of existing indexes when possible.
+  RdfGraph._withIndex(
+    Iterable<Triple> triples,
+    Map<RdfSubject, Map<RdfPredicate, List<Triple>>>? index,
+    bool enableIndexing,
+  )   : _triples = List.unmodifiable(List.from(triples)),
+        indexingEnabled = enableIndexing,
+        _index = index;
 
   /// Creates an RDF graph from a list of triples (factory constructor)
   ///
   /// This is a convenience factory method equivalent to the default constructor.
   ///
+  /// Parameters:
+  /// - [triples] The collection of triples to include in the graph.
+  /// - [enableIndexing] Whether to enable lazy indexing for query optimization.
+  ///   When enabled, an internal index is created lazily on first query to improve
+  ///   performance. The index is only built when needed, so enabling this option
+  ///   has no immediate memory cost. Defaults to true.
+  ///
   /// Example:
   /// ```dart
   /// final graph = RdfGraph.fromTriples(myTriples);
+  /// final unindexedGraph = RdfGraph.fromTriples(myTriples, enableIndexing: false);
   /// ```
-  static RdfGraph fromTriples(Iterable<Triple> triples) =>
-      RdfGraph(triples: triples);
+  static RdfGraph fromTriples(Iterable<Triple> triples,
+          {bool enableIndexing = true}) =>
+      RdfGraph(triples: triples, enableIndexing: enableIndexing);
+
+  /// Creates a new graph with modified configuration options
+  ///
+  /// This method allows you to create a copy of the graph with different
+  /// configuration settings while preserving all the triples. This provides
+  /// a way to adjust graph behavior without recreating the entire dataset.
+  ///
+  /// If the specified options are the same as the current graph's settings,
+  /// returns the same instance for efficiency.
+  ///
+  /// Parameters:
+  /// - [enableIndexing] Whether to enable lazy internal indexing for query optimization.
+  ///   When enabled, an internal index is created lazily on first query to improve
+  ///   performance for subsequent pattern matching operations. The index is only
+  ///   built when actually needed, so enabling this option has no immediate memory cost.
+  ///   If null, uses the current setting.
+  ///
+  /// Returns:
+  /// A graph instance with the specified configuration options. May return the same
+  /// instance if no changes are needed.
+  ///
+  /// Example:
+  /// ```dart
+  /// // Enable indexing for better query performance
+  /// final optimizedGraph = graph.withOptions(enableIndexing: true);
+  ///
+  /// // Disable indexing to reduce memory usage
+  /// final lightweightGraph = graph.withOptions(enableIndexing: false);
+  /// ```
+  RdfGraph withOptions({bool? enableIndexing}) {
+    final effectiveIndexing = enableIndexing ?? indexingEnabled;
+    if (effectiveIndexing == indexingEnabled) {
+      return this;
+    }
+    return RdfGraph(triples: _triples, enableIndexing: effectiveIndexing);
+  }
 
   /// Creates a new graph with the specified triple added
   ///
@@ -126,7 +203,7 @@ final class RdfGraph {
   /// ```
   RdfGraph withTriple(Triple triple) {
     final newTriples = List<Triple>.from(_triples)..add(triple);
-    return RdfGraph(triples: newTriples);
+    return RdfGraph(triples: newTriples, enableIndexing: indexingEnabled);
   }
 
   /// Creates a new graph with all the specified triples added
@@ -158,11 +235,13 @@ final class RdfGraph {
   /// final graphWithDuplicates = graph.withTriples([existingTriple, newTriple]);
   /// // Result contains each unique triple only once
   /// ```
-  RdfGraph withTriples(Iterable<Triple> triples) {
+  RdfGraph withTriples(
+    Iterable<Triple> triples,
+  ) {
     final newTriples =
         {..._triples, ...triples}.toList(); // Use a set to avoid duplicates
 
-    return RdfGraph(triples: newTriples);
+    return RdfGraph(triples: newTriples, enableIndexing: indexingEnabled);
   }
 
   /// Creates a new graph with the specified triples removed
@@ -197,7 +276,8 @@ final class RdfGraph {
   RdfGraph withoutTriples(Iterable<Triple> triples) {
     final newTriples = {..._triples}
       ..removeWhere((triple) => triples.contains(triple));
-    return RdfGraph(triples: newTriples.toList());
+    return RdfGraph(
+        triples: newTriples.toList(), enableIndexing: indexingEnabled);
   }
 
   /// Creates a new graph by filtering out triples that match a pattern
@@ -237,8 +317,116 @@ final class RdfGraph {
       return true;
     }).toList();
 
-    return RdfGraph(triples: filteredTriples);
+    return RdfGraph(triples: filteredTriples, enableIndexing: indexingEnabled);
   }
+
+  /// Gets the internal index structure for efficient querying
+  ///
+  /// This private method builds and caches an index that maps subjects to
+  /// predicates to lists of triples. The index is only built if indexing
+  /// is enabled for this graph instance.
+  ///
+  /// **Lazy Creation:** The index is created lazily - it is only built when
+  /// this method is first called during a query operation. Simply creating
+  /// an RdfGraph with indexing enabled has no memory cost until the first
+  /// query that uses the index.
+  ///
+  /// The index structure is: `Map<Subject, Map<Predicate, List<Triple>>>`
+  /// This allows O(1) lookup of triples by subject and predicate combination.
+  ///
+  /// Returns:
+  /// The index map if indexing is enabled, null otherwise. The index is
+  /// lazily computed and cached on first access.
+  Map<RdfSubject, Map<RdfPredicate, List<Triple>>>? get _effectiveIndex {
+    if (!indexingEnabled) {
+      return null;
+    }
+    if (_index != null) {
+      return _index;
+    }
+    final index = _triples.fold(<RdfSubject, Map<RdfPredicate, List<Triple>>>{},
+        (r, triple) {
+      r[triple.subject] ??= <RdfPredicate, List<Triple>>{};
+      r[triple.subject]![triple.predicate] ??= <Triple>[];
+      r[triple.subject]![triple.predicate]!.add(triple);
+      return r;
+    });
+    _index = index;
+    return index;
+  }
+
+  /// Get all unique subjects in this graph
+  ///
+  /// Returns a set containing all subject resources that appear as the subject
+  /// component of any triple in this graph. The result is computed efficiently
+  /// using the internal index if available and indexing is enabled.
+  ///
+  /// **Performance:** If indexing is enabled, the first call to this method
+  /// may trigger lazy creation of the internal index. Subsequent calls will
+  /// use the cached index for O(1) performance.
+  ///
+  /// Returns:
+  /// An unmodifiable set of all subjects in the graph. The set may be empty
+  /// if the graph contains no triples.
+  ///
+  /// Example:
+  /// ```dart
+  /// // Find all resources that are subjects of statements
+  /// final allSubjects = graph.subjects;
+  /// print('Graph contains information about ${allSubjects.length} resources');
+  /// ```
+  Set<RdfSubject> get subjects => switch (_effectiveIndex) {
+        null => _triples.map((triple) => triple.subject).toSet(),
+        final index => index.keys.toSet(),
+      };
+
+  /// Get all unique predicates (properties) in this graph
+  ///
+  /// Returns a set containing all predicate resources that appear as the predicate
+  /// component of any triple in this graph. The result is computed efficiently
+  /// using the internal index if available and indexing is enabled.
+  ///
+  /// **Performance:** If indexing is enabled, the first call to this method
+  /// may trigger lazy creation of the internal index. Subsequent calls will
+  /// use the cached index for improved performance.
+  ///
+  /// Returns:
+  /// An unmodifiable set of all predicates in the graph. The set may be empty
+  /// if the graph contains no triples.
+  ///
+  /// Example:
+  /// ```dart
+  /// // Find all properties used in the graph
+  /// final allProperties = graph.predicates;
+  /// print('Graph uses ${allProperties.length} different properties');
+  /// ```
+  Set<RdfPredicate> get predicates => switch (_effectiveIndex) {
+        null => _triples.map((triple) => triple.predicate).toSet(),
+        final index =>
+          index.values.expand((predicateMap) => predicateMap.keys).toSet(),
+      };
+
+  /// Get all unique objects (values) in this graph
+  ///
+  /// Returns a set containing all object resources and literals that appear as the
+  /// object component of any triple in this graph. This includes both IRI resources
+  /// and literal values.
+  ///
+  /// Returns:
+  /// An unmodifiable set of all objects in the graph. The set may be empty
+  /// if the graph contains no triples.
+  ///
+  /// Example:
+  /// ```dart
+  /// // Find all values used in the graph
+  /// final allValues = graph.objects;
+  /// print('Graph contains ${allValues.length} different values');
+  ///
+  /// // Filter for literal values only
+  /// final literals = allValues.whereType<LiteralTerm>();
+  /// print('Found ${literals.length} literal values');
+  /// ```
+  Set<RdfObject> get objects => _triples.map((triple) => triple.object).toSet();
 
   /// Find all triples matching the given pattern
   ///
@@ -271,6 +459,37 @@ final class RdfGraph {
     RdfPredicate? predicate,
     RdfObject? object,
   }) {
+    if (subject != null) {
+      switch (_effectiveIndex) {
+        case null:
+          break;
+        case final index:
+          final subjectMap = index[subject];
+          if (subjectMap == null) {
+            return const [];
+          }
+          if (predicate != null) {
+            final predicateList = subjectMap[predicate];
+            if (predicateList == null) {
+              return const [];
+            }
+            if (object != null) {
+              return List.unmodifiable(
+                  predicateList.where((triple) => triple.object == object));
+            } else {
+              return List.unmodifiable(predicateList);
+            }
+          } else {
+            final allTriples = subjectMap.values.expand((list) => list);
+            if (object != null) {
+              return List.unmodifiable(
+                  allTriples.where((triple) => triple.object == object));
+            } else {
+              return List.unmodifiable(allTriples);
+            }
+          }
+      }
+    }
     return List.unmodifiable(
       _triples.where((triple) => _matches(triple, subject, predicate, object)),
     );
@@ -331,8 +550,132 @@ final class RdfGraph {
     RdfPredicate? predicate,
     RdfObject? object,
   }) {
+    if (subject != null) {
+      switch (_effectiveIndex) {
+        case null:
+          break;
+        case final index:
+          final subjectMap = index[subject];
+          if (subjectMap == null) {
+            return false;
+          }
+          if (predicate != null) {
+            final predicateList = subjectMap[predicate];
+            if (predicateList == null) {
+              return false;
+            }
+            if (object != null) {
+              return predicateList.any((triple) => triple.object == object);
+            } else {
+              return predicateList.isNotEmpty;
+            }
+          } else {
+            final allTriples = subjectMap.values.expand((list) => list);
+            if (object != null) {
+              return allTriples.any((triple) => triple.object == object);
+            } else {
+              return allTriples.isNotEmpty;
+            }
+          }
+      }
+    }
     return _triples
         .any((triple) => _matches(triple, subject, predicate, object));
+  }
+
+  /// Creates a new graph containing only triples that match the given pattern
+  ///
+  /// This method returns a subgraph containing all triples that match the specified
+  /// pattern components. Unlike [findTriples], this method returns a new RdfGraph
+  /// instance that can be used for further graph operations, chaining, and merging.
+  ///
+  /// **Performance Optimization:** When filtering by subject (with or without predicate)
+  /// and indexing is enabled, this method can reuse parts of the existing index for
+  /// improved performance of subsequent operations on the subgraph.
+  ///
+  /// Pattern matching uses AND logic - all non-null parameters must match
+  /// for a triple to be included. Null parameters act as wildcards and match
+  /// any value in that position.
+  ///
+  /// Parameters:
+  /// - [subject] Optional subject to match (null acts as wildcard)
+  /// - [predicate] Optional predicate to match (null acts as wildcard)
+  /// - [object] Optional object to match (null acts as wildcard)
+  ///
+  /// Returns:
+  /// A new RdfGraph containing only the matching triples. The subgraph may be
+  /// empty if no triples match the pattern.
+  ///
+  /// Example:
+  /// ```dart
+  /// // Get all information about John as a separate graph
+  /// final johnGraph = graph.subgraph(subject: john);
+  ///
+  /// // Get all type declarations
+  /// final typeGraph = graph.subgraph(predicate: rdf.type);
+  ///
+  /// // Chain operations efficiently
+  /// final result = graph
+  ///   .subgraph(subject: john)
+  ///   .merge(otherGraph)
+  ///   .subgraph(predicate: foaf.knows);
+  /// ```
+  RdfGraph subgraph({
+    RdfSubject? subject,
+    RdfPredicate? predicate,
+    RdfObject? object,
+  }) {
+    // Optimization: if filtering by subject and we have an index
+    if (subject != null && object == null) {
+      switch (_effectiveIndex) {
+        case null:
+          break;
+        case final index:
+          final subjectMap = index[subject];
+          if (subjectMap == null) {
+            // Subject not found - return empty graph
+            return RdfGraph(enableIndexing: indexingEnabled);
+          }
+
+          if (predicate == null) {
+            // Subject only: use entire subject map
+            final subjectTriples = subjectMap.values.expand((list) => list);
+            final reducedIndex = {subject: subjectMap};
+
+            return RdfGraph._withIndex(
+              subjectTriples,
+              reducedIndex,
+              indexingEnabled,
+            );
+          } else {
+            // Subject + predicate: use specific predicate list
+            final predicateTriples = subjectMap[predicate];
+            if (predicateTriples == null) {
+              // Subject+predicate not found - return empty graph
+              return RdfGraph(enableIndexing: indexingEnabled);
+            }
+
+            final reducedIndex = {
+              subject: {predicate: predicateTriples}
+            };
+
+            return RdfGraph._withIndex(
+              predicateTriples,
+              reducedIndex,
+              indexingEnabled,
+            );
+          }
+      }
+    }
+
+    // General case: delegate to findTriples and create new graph
+    final matchingTriples = findTriples(
+      subject: subject,
+      predicate: predicate,
+      object: object,
+    );
+
+    return RdfGraph(triples: matchingTriples, enableIndexing: indexingEnabled);
   }
 
   /// Get all objects for a given subject and predicate
@@ -364,12 +707,15 @@ final class RdfGraph {
   /// final types = graph.getObjects(john, rdf.type);
   /// ```
   List<RdfObject> getObjects(RdfSubject subject, RdfPredicate predicate) {
-    return List.unmodifiable(
-      findTriples(
-        subject: subject,
-        predicate: predicate,
-      ).map((triple) => triple.object),
-    );
+    var objects = findTriples(
+      subject: subject,
+      predicate: predicate,
+    ).map((triple) => triple.object);
+    return objects.isEmpty
+        ? const []
+        : List.unmodifiable(
+            objects,
+          );
   }
 
   /// Get all subjects with a given predicate and object
@@ -401,12 +747,15 @@ final class RdfGraph {
   /// final resourcesWithEmail = graph.getSubjects(email, LiteralTerm.string('john@example.com'));
   /// ```
   List<RdfSubject> getSubjects(RdfPredicate predicate, RdfObject object) {
-    return List.unmodifiable(
-      findTriples(
-        predicate: predicate,
-        object: object,
-      ).map((triple) => triple.subject),
-    );
+    var subjects = findTriples(
+      predicate: predicate,
+      object: object,
+    ).map((triple) => triple.subject);
+    return subjects.isEmpty
+        ? const []
+        : List.unmodifiable(
+            subjects,
+          );
   }
 
   /// Merges this graph with another, producing a new graph

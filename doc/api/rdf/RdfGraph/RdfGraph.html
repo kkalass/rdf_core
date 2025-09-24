@@ -55,6 +55,7 @@
     <section class="multi-line-signature">
       
       <span class="name ">RdfGraph</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-triples"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/Triple-class.html">Triple</a></span>&gt;</span></span> <span class="parameter-name">triples</span> = <span class="default-value">const []</span>, </span></li>
+<li><span class="parameter" id="-param-enableIndexing"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">enableIndexing</span> = <span class="default-value">true</span>, </span></li>
 </ol>})
     </section>
     
@@ -63,12 +64,22 @@
 <p>The constructor makes a defensive copy of the provided triples list
 to ensure immutability. The graph can be initialized with an empty
 list to create an empty graph.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>triples</code> The initial collection of triples to include in the graph.
+Defaults to an empty collection.</li>
+<li><code>enableIndexing</code> Whether to enable lazy indexing for query optimization.
+When enabled, an internal index is created lazily on first query to improve
+performance for subsequent pattern matching operations. The index is only
+built when actually needed, so enabling this option has no immediate
+memory cost. Defaults to true.</li>
+</ul>
 <p>Example:</p>
-<pre class="language-dart"><code class="language-dart">// Empty graph
+<pre class="language-dart"><code class="language-dart">// Empty graph with indexing enabled (default)
 final emptyGraph = RdfGraph();
 
-// Graph with initial triples
-final graph = RdfGraph(triples: myTriples);
+// Graph with initial triples and indexing disabled
+final graph = RdfGraph(triples: myTriples, enableIndexing: false);
 </code></pre>
 </section>
 
@@ -76,8 +87,9 @@ final graph = RdfGraph(triples: myTriples);
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">RdfGraph({Iterable&lt;Triple&gt; triples = const []})
-    : _triples = List.unmodifiable(List.from(triples));</code></pre>
+  <pre class="language-dart"><code class="language-dart">RdfGraph({Iterable&lt;Triple&gt; triples = const [], bool enableIndexing = true})
+    : _triples = List.unmodifiable(List.from(triples)),
+      indexingEnabled = enableIndexing;</code></pre>
 </section>
 
 
@@ -105,7 +117,7 @@ final graph = RdfGraph(triples: myTriples);
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.15
+      0.9.16
   </span>
   
 </footer>

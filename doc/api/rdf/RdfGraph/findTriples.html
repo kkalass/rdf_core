@@ -99,13 +99,39 @@ final johnsName = graph.findTriples(subject: john, predicate: name);
   RdfPredicate? predicate,
   RdfObject? object,
 }) {
+  if (subject != null) {
+    switch (_effectiveIndex) {
+      case null:
+        break;
+      case final index:
+        final subjectMap = index[subject];
+        if (subjectMap == null) {
+          return const [];
+        }
+        if (predicate != null) {
+          final predicateList = subjectMap[predicate];
+          if (predicateList == null) {
+            return const [];
+          }
+          if (object != null) {
+            return List.unmodifiable(
+                predicateList.where((triple) =&gt; triple.object == object));
+          } else {
+            return List.unmodifiable(predicateList);
+          }
+        } else {
+          final allTriples = subjectMap.values.expand((list) =&gt; list);
+          if (object != null) {
+            return List.unmodifiable(
+                allTriples.where((triple) =&gt; triple.object == object));
+          } else {
+            return List.unmodifiable(allTriples);
+          }
+        }
+    }
+  }
   return List.unmodifiable(
-    _triples.where((triple) {
-      if (subject != null &amp;&amp; triple.subject != subject) return false;
-      if (predicate != null &amp;&amp; triple.predicate != predicate) return false;
-      if (object != null &amp;&amp; triple.object != object) return false;
-      return true;
-    }),
+    _triples.where((triple) =&gt; _matches(triple, subject, predicate, object)),
   );
 }</code></pre>
 </section>
@@ -135,7 +161,7 @@ final johnsName = graph.findTriples(subject: john, predicate: name);
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.15
+      0.9.16
   </span>
   
 </footer>

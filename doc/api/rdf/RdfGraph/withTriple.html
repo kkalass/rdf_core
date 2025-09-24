@@ -87,7 +87,7 @@ final newGraph = graph.withTriple(
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">RdfGraph withTriple(Triple triple) {
   final newTriples = List&lt;Triple&gt;.from(_triples)..add(triple);
-  return RdfGraph(triples: newTriples);
+  return RdfGraph(triples: newTriples, enableIndexing: indexingEnabled);
 }</code></pre>
 </section>
 
@@ -116,7 +116,7 @@ final newGraph = graph.withTriple(
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.15
+      0.9.16
   </span>
   
 </footer>

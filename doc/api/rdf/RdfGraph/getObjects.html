@@ -95,12 +95,15 @@ final types = graph.getObjects(john, rdf.type);
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">List&lt;RdfObject&gt; getObjects(RdfSubject subject, RdfPredicate predicate) {
-  return List.unmodifiable(
-    findTriples(
-      subject: subject,
-      predicate: predicate,
-    ).map((triple) =&gt; triple.object),
-  );
+  var objects = findTriples(
+    subject: subject,
+    predicate: predicate,
+  ).map((triple) =&gt; triple.object);
+  return objects.isEmpty
+      ? const []
+      : List.unmodifiable(
+          objects,
+        );
 }</code></pre>
 </section>
 
@@ -129,7 +132,7 @@ final types = graph.getObjects(john, rdf.type);
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.15
+      0.9.16
   </span>
   
 </footer>

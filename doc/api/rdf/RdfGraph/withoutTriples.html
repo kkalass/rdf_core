@@ -97,7 +97,8 @@ final cleanGraph = graph.withoutTriples(temporaryTriples);
   <pre class="language-dart"><code class="language-dart">RdfGraph withoutTriples(Iterable&lt;Triple&gt; triples) {
   final newTriples = {..._triples}
     ..removeWhere((triple) =&gt; triples.contains(triple));
-  return RdfGraph(triples: newTriples.toList());
+  return RdfGraph(
+      triples: newTriples.toList(), enableIndexing: indexingEnabled);
 }</code></pre>
 </section>
 
@@ -126,7 +127,7 @@ final cleanGraph = graph.withoutTriples(temporaryTriples);
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.15
+      0.9.16
   </span>
   
 </footer>

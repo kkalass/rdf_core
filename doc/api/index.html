@@ -102,6 +102,8 @@ void main() {
 <h2 id="-features">✨ Features</h2>
 <ul>
 <li><strong>Type-safe RDF model:</strong> IRIs, literals, triples, graphs, and more</li>
+<li><strong>Automatic performance optimization:</strong> Lazy indexing provides O(1) queries with zero memory cost until needed</li>
+<li><strong>Graph composition workflows:</strong> Create, filter, and chain subgraphs with fluent API</li>
 <li><strong>Serialization-agnostic:</strong> Clean separation of Turtle/JSON-LD/N-Triples</li>
 <li><strong>Extensible &amp; modular:</strong> Create your own adapters, plugins, and integrations</li>
 <li><strong>Specification compliant:</strong> Follows <a href="https://www.w3.org/TR/rdf11-concepts/">W3C RDF 1.1</a> and related standards</li>
@@ -253,7 +255,23 @@ void main() {
 <pre class="language-dart"><code class="language-dart">final merged = graph1.merge(graph2);
 </code></pre>
 <h3 id="pattern-queries">Pattern Queries</h3>
-<pre class="language-dart"><code class="language-dart">final results = graph.findTriples(subject: subject);
+<pre class="language-dart"><code class="language-dart">// Find triples matching a pattern
+final results = graph.findTriples(subject: subject);
+
+// Check if matching triples exist (more efficient than findTriples when you only need boolean result)
+if (graph.hasTriples(subject: john, predicate: foaf.name)) {
+  print('John has a name property');
+}
+
+// Create filtered subgraphs for composition and chaining
+final johnGraph = graph.subgraph(subject: john);
+final typeGraph = graph.subgraph(predicate: rdf.type);
+
+// Chain operations for powerful workflows
+final result = graph
+  .subgraph(subject: john)      // Get all John's information
+  .merge(otherGraph)           // Add additional data
+  .subgraph(predicate: foaf.knows); // Filter to relationships only
 </code></pre>
 <h3 id="blank-node-handling">Blank Node Handling</h3>
 <pre class="language-dart"><code class="language-dart">// Note: BlankNodeTerm is based on identity - if you call BlankNodeTerm() 
@@ -308,8 +326,9 @@ final graph4 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 <h2 id="-performance">🚦 Performance</h2>
 <ul>
 <li>Triple, Term, and IRI equality/hashCode are O(1)</li>
-<li>Graph queries (<code>findTriples</code>) are O(n) in the number of triples</li>
-<li>Designed for large-scale, high-performance RDF workloads</li>
+<li><strong>Automatic query optimization</strong>: Lazy indexing provides O(1) subject-based queries with zero memory cost until first use</li>
+<li>Graph queries (<code>findTriples</code>, <code>hasTriples</code>) benefit from transparent performance improvements</li>
+<li>Designed for large-scale, high-performance RDF workloads with intelligent caching</li>
 </ul>
 <hr>
 <h2 id="-api-overview">🗺️ API Overview</h2>
@@ -339,7 +358,19 @@ final graph4 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 </tr>
 <tr>
 <td><code>RdfGraph</code></td>
-<td>Collection of RDF triples</td>
+<td>Collection of RDF triples with automatic query optimization</td>
+</tr>
+<tr>
+<td><code>RdfGraph.findTriples()</code></td>
+<td>Find triples matching a pattern (O(1) for subject-based queries)</td>
+</tr>
+<tr>
+<td><code>RdfGraph.hasTriples()</code></td>
+<td>Check if matching triples exist (boolean result, optimized)</td>
+</tr>
+<tr>
+<td><code>RdfGraph.subgraph()</code></td>
+<td>Create filtered subgraphs for composition and chaining</td>
 </tr>
 <tr>
 <td><code>RdfGraphCodec</code></td>
@@ -500,7 +531,7 @@ final graph = rdfMapper.graph.encode(person);
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.15
+      0.9.16
   </span>
   
 </footer>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the subgraph method from the RdfGraph class, for the Dart programming language.">
+  <title>subgraph method - RdfGraph class - rdf library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rdf_core</a></li>
+    <li><a href="../../rdf/">rdf_core.dart</a></li>
+    <li><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></li>
+    <li class="self-crumb">subgraph method</li>
+  </ol>
+  <div class="self-name">subgraph</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rdf&#47;RdfGraph-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">subgraph</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></span>
+<span class="name ">subgraph</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="subgraph-param-subject"><span class="type-annotation"><a href="../../rdf/RdfSubject-class.html">RdfSubject</a>?</span> <span class="parameter-name">subject</span>, </span></li>
+<li><span class="parameter" id="subgraph-param-predicate"><span class="type-annotation"><a href="../../rdf/RdfPredicate-class.html">RdfPredicate</a>?</span> <span class="parameter-name">predicate</span>, </span></li>
+<li><span class="parameter" id="subgraph-param-object"><span class="type-annotation"><a href="../../rdf/RdfObject-class.html">RdfObject</a>?</span> <span class="parameter-name">object</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a new graph containing only triples that match the given pattern</p>
+<p>This method returns a subgraph containing all triples that match the specified
+pattern components. Unlike <a href="../../rdf/RdfGraph/findTriples.html">findTriples</a>, this method returns a new RdfGraph
+instance that can be used for further graph operations, chaining, and merging.</p>
+<p><strong>Performance Optimization:</strong> When filtering by subject (with or without predicate)
+and indexing is enabled, this method can reuse parts of the existing index for
+improved performance of subsequent operations on the subgraph.</p>
+<p>Pattern matching uses AND logic - all non-null parameters must match
+for a triple to be included. Null parameters act as wildcards and match
+any value in that position.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>subject</code> Optional subject to match (null acts as wildcard)</li>
+<li><code>predicate</code> Optional predicate to match (null acts as wildcard)</li>
+<li><code>object</code> Optional object to match (null acts as wildcard)</li>
+</ul>
+<p>Returns:
+A new RdfGraph containing only the matching triples. The subgraph may be
+empty if no triples match the pattern.</p>
+<p>Example:</p>
+<pre class="language-dart"><code class="language-dart">// Get all information about John as a separate graph
+final johnGraph = graph.subgraph(subject: john);
+
+// Get all type declarations
+final typeGraph = graph.subgraph(predicate: rdf.type);
+
+// Chain operations efficiently
+final result = graph
+  .subgraph(subject: john)
+  .merge(otherGraph)
+  .subgraph(predicate: foaf.knows);
+</code></pre>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">RdfGraph subgraph({
+  RdfSubject? subject,
+  RdfPredicate? predicate,
+  RdfObject? object,
+}) {
+  &#47;&#47; Optimization: if filtering by subject and we have an index
+  if (subject != null &amp;&amp; object == null) {
+    switch (_effectiveIndex) {
+      case null:
+        break;
+      case final index:
+        final subjectMap = index[subject];
+        if (subjectMap == null) {
+          &#47;&#47; Subject not found - return empty graph
+          return RdfGraph(enableIndexing: indexingEnabled);
+        }
+
+        if (predicate == null) {
+          &#47;&#47; Subject only: use entire subject map
+          final subjectTriples = subjectMap.values.expand((list) =&gt; list);
+          final reducedIndex = {subject: subjectMap};
+
+          return RdfGraph._withIndex(
+            subjectTriples,
+            reducedIndex,
+            indexingEnabled,
+          );
+        } else {
+          &#47;&#47; Subject + predicate: use specific predicate list
+          final predicateTriples = subjectMap[predicate];
+          if (predicateTriples == null) {
+            &#47;&#47; Subject+predicate not found - return empty graph
+            return RdfGraph(enableIndexing: indexingEnabled);
+          }
+
+          final reducedIndex = {
+            subject: {predicate: predicateTriples}
+          };
+
+          return RdfGraph._withIndex(
+            predicateTriples,
+            reducedIndex,
+            indexingEnabled,
+          );
+        }
+    }
+  }
+
+  &#47;&#47; General case: delegate to findTriples and create new graph
+  final matchingTriples = findTriples(
+    subject: subject,
+    predicate: predicate,
+    object: object,
+  );
+
+  return RdfGraph(triples: matchingTriples, enableIndexing: indexingEnabled);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rdf_core</a></li>
+    <li><a href="../../rdf/">rdf</a></li>
+    <li><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></li>
+    <li class="self-crumb">subgraph method</li>
+</ol>
+
+    <h5>RdfGraph class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rdf_core
+      0.9.16
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

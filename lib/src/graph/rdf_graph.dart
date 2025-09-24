@@ -116,7 +116,7 @@ final class RdfGraph {
 
   /// Private constructor for creating graphs with pre-built indexes
   ///
-  /// This constructor allows for efficient creation of filtered subgraphs
+  /// This constructor allows for efficient creation of filtered graphs
   /// by reusing parts of existing indexes when possible.
   RdfGraph._withIndex(
     Iterable<Triple> triples,
@@ -585,13 +585,13 @@ final class RdfGraph {
 
   /// Creates a new graph containing only triples that match the given pattern
   ///
-  /// This method returns a subgraph containing all triples that match the specified
+  /// This method returns a filtered graph containing all triples that match the specified
   /// pattern components. Unlike [findTriples], this method returns a new RdfGraph
   /// instance that can be used for further graph operations, chaining, and merging.
   ///
   /// **Performance Optimization:** When filtering by subject (with or without predicate)
   /// and indexing is enabled, this method can reuse parts of the existing index for
-  /// improved performance of subsequent operations on the subgraph.
+  /// improved performance of subsequent operations on the filtered graph.
   ///
   /// Pattern matching uses AND logic - all non-null parameters must match
   /// for a triple to be included. Null parameters act as wildcards and match
@@ -603,24 +603,24 @@ final class RdfGraph {
   /// - [object] Optional object to match (null acts as wildcard)
   ///
   /// Returns:
-  /// A new RdfGraph containing only the matching triples. The subgraph may be
+  /// A new RdfGraph containing only the matching triples. The filtered graph may be
   /// empty if no triples match the pattern.
   ///
   /// Example:
   /// ```dart
   /// // Get all information about John as a separate graph
-  /// final johnGraph = graph.subgraph(subject: john);
+  /// final johnGraph = graph.matching(subject: john);
   ///
   /// // Get all type declarations
-  /// final typeGraph = graph.subgraph(predicate: rdf.type);
+  /// final typeGraph = graph.matching(predicate: rdf.type);
   ///
   /// // Chain operations efficiently
   /// final result = graph
-  ///   .subgraph(subject: john)
+  ///   .matching(subject: john)
   ///   .merge(otherGraph)
-  ///   .subgraph(predicate: foaf.knows);
+  ///   .matching(predicate: foaf.knows);
   /// ```
-  RdfGraph subgraph({
+  RdfGraph matching({
     RdfSubject? subject,
     RdfPredicate? predicate,
     RdfObject? object,

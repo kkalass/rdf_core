@@ -70,7 +70,7 @@ void main() {
 
 - **Type-safe RDF model:** IRIs, literals, triples, graphs, and more
 - **Automatic performance optimization:** Lazy indexing provides O(1) queries with zero memory cost until needed
-- **Graph composition workflows:** Create, filter, and chain subgraphs with fluent API
+- **Graph composition workflows:** Create, filter, and chain graphs with fluent API
 - **Serialization-agnostic:** Clean separation of Turtle/JSON-LD/N-Triples
 - **Extensible & modular:** Create your own adapters, plugins, and integrations
 - **Specification compliant:** Follows [W3C RDF 1.1](https://www.w3.org/TR/rdf11-concepts/) and related standards
@@ -258,15 +258,15 @@ if (graph.hasTriples(subject: john, predicate: foaf.name)) {
   print('John has a name property');
 }
 
-// Create filtered subgraphs for composition and chaining
-final johnGraph = graph.subgraph(subject: john);
-final typeGraph = graph.subgraph(predicate: rdf.type);
+// Create filtered graphs for composition and chaining
+final johnGraph = graph.matching(subject: john);
+final typeGraph = graph.matching(predicate: rdf.type);
 
 // Chain operations for powerful workflows
 final result = graph
-  .subgraph(subject: john)      // Get all John's information
+  .matching(subject: john)      // Get all John's information
   .merge(otherGraph)           // Add additional data
-  .subgraph(predicate: foaf.knows); // Filter to relationships only
+  .matching(predicate: foaf.knows); // Filter to relationships only
 ```
 
 ### Blank Node Handling
@@ -347,7 +347,7 @@ final graph4 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 | `RdfGraph`     | Collection of RDF triples with automatic query optimization |
 | `RdfGraph.findTriples()` | Find triples matching a pattern (O(1) for subject-based queries) |
 | `RdfGraph.hasTriples()` | Check if matching triples exist (boolean result, optimized) |
-| `RdfGraph.subgraph()` | Create filtered subgraphs for composition and chaining |
+| `RdfGraph.matching()` | Create filtered graphs for composition and chaining |
 | `RdfGraphCodec`     | Base class for decoding/encoding RDF Graphs in various formats |
 | `RdfGraphDecoder`   | Base class for decoding RDF Graphs                   |
 | `RdfGraphEncoder`   | Base class for encoding RDF Graphs                   |

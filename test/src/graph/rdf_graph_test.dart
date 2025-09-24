@@ -370,13 +370,15 @@ void main() {
         final originalGraph = RdfGraph(triples: [triple], enableIndexing: true);
 
         // Change indexing setting
-        final disabledIndexGraph = originalGraph.withOptions(enableIndexing: false);
+        final disabledIndexGraph =
+            originalGraph.withOptions(enableIndexing: false);
         expect(disabledIndexGraph.indexingEnabled, isFalse);
         expect(disabledIndexGraph.size, equals(1));
         expect(disabledIndexGraph.triples, contains(triple));
 
         // Change back to enabled
-        final enabledIndexGraph = disabledIndexGraph.withOptions(enableIndexing: true);
+        final enabledIndexGraph =
+            disabledIndexGraph.withOptions(enableIndexing: true);
         expect(enabledIndexGraph.indexingEnabled, isTrue);
         expect(enabledIndexGraph.size, equals(1));
         expect(enabledIndexGraph.triples, contains(triple));
@@ -387,7 +389,8 @@ void main() {
 
         // Null parameter should preserve current setting
         final preservedGraph = originalGraph.withOptions();
-        expect(preservedGraph.indexingEnabled, equals(originalGraph.indexingEnabled));
+        expect(preservedGraph.indexingEnabled,
+            equals(originalGraph.indexingEnabled));
       });
 
       test('should check triple existence with hasTriples', () {
@@ -417,43 +420,71 @@ void main() {
 
         // Empty graph checks
         expect(emptyGraph.hasTriples(), isFalse);
-        expect(emptyGraph.hasTriples(subject: const IriTerm('http://example.com/john')), isFalse);
+        expect(
+            emptyGraph.hasTriples(
+                subject: const IriTerm('http://example.com/john')),
+            isFalse);
 
         // Non-empty graph checks
         expect(graph.hasTriples(), isTrue);
 
         // Check by subject
-        expect(graph.hasTriples(subject: const IriTerm('http://example.com/john')), isTrue);
-        expect(graph.hasTriples(subject: const IriTerm('http://example.com/jane')), isTrue);
-        expect(graph.hasTriples(subject: const IriTerm('http://example.com/bob')), isFalse);
+        expect(
+            graph.hasTriples(subject: const IriTerm('http://example.com/john')),
+            isTrue);
+        expect(
+            graph.hasTriples(subject: const IriTerm('http://example.com/jane')),
+            isTrue);
+        expect(
+            graph.hasTriples(subject: const IriTerm('http://example.com/bob')),
+            isFalse);
 
         // Check by predicate
-        expect(graph.hasTriples(predicate: const IriTerm('http://xmlns.com/foaf/0.1/name')), isTrue);
-        expect(graph.hasTriples(predicate: const IriTerm('http://xmlns.com/foaf/0.1/knows')), isTrue);
-        expect(graph.hasTriples(predicate: const IriTerm('http://xmlns.com/foaf/0.1/age')), isFalse);
+        expect(
+            graph.hasTriples(
+                predicate: const IriTerm('http://xmlns.com/foaf/0.1/name')),
+            isTrue);
+        expect(
+            graph.hasTriples(
+                predicate: const IriTerm('http://xmlns.com/foaf/0.1/knows')),
+            isTrue);
+        expect(
+            graph.hasTriples(
+                predicate: const IriTerm('http://xmlns.com/foaf/0.1/age')),
+            isFalse);
 
         // Check by object
-        expect(graph.hasTriples(object: LiteralTerm.string('John Smith')), isTrue);
-        expect(graph.hasTriples(object: const IriTerm('http://example.com/jane')), isTrue);
-        expect(graph.hasTriples(object: LiteralTerm.string('Bob Johnson')), isFalse);
+        expect(
+            graph.hasTriples(object: LiteralTerm.string('John Smith')), isTrue);
+        expect(
+            graph.hasTriples(object: const IriTerm('http://example.com/jane')),
+            isTrue);
+        expect(graph.hasTriples(object: LiteralTerm.string('Bob Johnson')),
+            isFalse);
 
         // Check by combination
-        expect(graph.hasTriples(
-          subject: const IriTerm('http://example.com/john'),
-          predicate: const IriTerm('http://xmlns.com/foaf/0.1/name'),
-        ), isTrue);
+        expect(
+            graph.hasTriples(
+              subject: const IriTerm('http://example.com/john'),
+              predicate: const IriTerm('http://xmlns.com/foaf/0.1/name'),
+            ),
+            isTrue);
 
-        expect(graph.hasTriples(
-          subject: const IriTerm('http://example.com/john'),
-          predicate: const IriTerm('http://xmlns.com/foaf/0.1/name'),
-          object: LiteralTerm.string('John Smith'),
-        ), isTrue);
+        expect(
+            graph.hasTriples(
+              subject: const IriTerm('http://example.com/john'),
+              predicate: const IriTerm('http://xmlns.com/foaf/0.1/name'),
+              object: LiteralTerm.string('John Smith'),
+            ),
+            isTrue);
 
-        expect(graph.hasTriples(
-          subject: const IriTerm('http://example.com/john'),
-          predicate: const IriTerm('http://xmlns.com/foaf/0.1/name'),
-          object: LiteralTerm.string('Jane Doe'),
-        ), isFalse);
+        expect(
+            graph.hasTriples(
+              subject: const IriTerm('http://example.com/john'),
+              predicate: const IriTerm('http://xmlns.com/foaf/0.1/name'),
+              object: LiteralTerm.string('Jane Doe'),
+            ),
+            isFalse);
       });
 
       test('should get unique subjects, predicates, and objects', () {
@@ -484,13 +515,17 @@ void main() {
 
         // Test objects
         final objects = graph.objects;
-        expect(objects.length, equals(3)); // object1, object2, subject2 (used as object)
+        expect(objects.length,
+            equals(3)); // object1, object2, subject2 (used as object)
         expect(objects, contains(object1));
         expect(objects, contains(object2));
-        expect(objects, contains(subject2)); // subject2 is also used as an object
+        expect(
+            objects, contains(subject2)); // subject2 is also used as an object
       });
 
-      test('should handle empty graph for subjects, predicates, objects getters', () {
+      test(
+          'should handle empty graph for subjects, predicates, objects getters',
+          () {
         final emptyGraph = RdfGraph();
 
         expect(emptyGraph.subjects, isEmpty);
@@ -498,12 +533,16 @@ void main() {
         expect(emptyGraph.objects, isEmpty);
       });
 
-      test('should work with indexing disabled for subjects, predicates, objects getters', () {
+      test(
+          'should work with indexing disabled for subjects, predicates, objects getters',
+          () {
         final subject = const IriTerm('http://example.com/john');
         final predicate = const IriTerm('http://xmlns.com/foaf/0.1/name');
         final object = LiteralTerm.string('John Smith');
 
-        final indexedGraph = RdfGraph(triples: [Triple(subject, predicate, object)], enableIndexing: true);
+        final indexedGraph = RdfGraph(
+            triples: [Triple(subject, predicate, object)],
+            enableIndexing: true);
         final unindexedGraph = indexedGraph.withOptions(enableIndexing: false);
 
         // Results should be the same regardless of indexing
@@ -534,7 +573,7 @@ void main() {
             .withTriple(Triple(john, email, johnEmail));
 
         // Test subject-only filtering
-        final johnGraph = graph.subgraph(subject: john);
+        final johnGraph = graph.matching(subject: john);
         expect(johnGraph.size, equals(3));
         expect(johnGraph.hasTriples(subject: john, predicate: name), isTrue);
         expect(johnGraph.hasTriples(subject: john, predicate: knows), isTrue);
@@ -542,22 +581,25 @@ void main() {
         expect(johnGraph.hasTriples(subject: jane), isFalse);
 
         // Test predicate-only filtering
-        final nameGraph = graph.subgraph(predicate: name);
+        final nameGraph = graph.matching(predicate: name);
         expect(nameGraph.size, equals(2));
         expect(nameGraph.hasTriples(subject: john, predicate: name), isTrue);
         expect(nameGraph.hasTriples(subject: jane, predicate: name), isTrue);
         expect(nameGraph.hasTriples(predicate: knows), isFalse);
 
         // Test subject + predicate filtering
-        final johnNameGraph = graph.subgraph(subject: john, predicate: name);
+        final johnNameGraph = graph.matching(subject: john, predicate: name);
         expect(johnNameGraph.size, equals(1));
-        expect(johnNameGraph.hasTriples(subject: john, predicate: name), isTrue);
-        expect(johnNameGraph.hasTriples(subject: john, predicate: knows), isFalse);
+        expect(
+            johnNameGraph.hasTriples(subject: john, predicate: name), isTrue);
+        expect(
+            johnNameGraph.hasTriples(subject: john, predicate: knows), isFalse);
 
         // Test object filtering
-        final janeObjectGraph = graph.subgraph(object: jane);
+        final janeObjectGraph = graph.matching(object: jane);
         expect(janeObjectGraph.size, equals(1));
-        expect(janeObjectGraph.hasTriples(subject: john, predicate: knows), isTrue);
+        expect(janeObjectGraph.hasTriples(subject: john, predicate: knows),
+            isTrue);
       });
 
       test('should return empty subgraph for non-matching patterns', () {
@@ -569,19 +611,22 @@ void main() {
             .withTriple(Triple(john, name, LiteralTerm.string('John Smith')));
 
         // Non-existent subject
-        final emptyGraph1 = graph.subgraph(subject: nonExistent);
+        final emptyGraph1 = graph.matching(subject: nonExistent);
         expect(emptyGraph1.isEmpty, isTrue);
 
         // Non-existent predicate
-        final emptyGraph2 = graph.subgraph(predicate: nonExistent);
+        final emptyGraph2 = graph.matching(predicate: nonExistent);
         expect(emptyGraph2.isEmpty, isTrue);
 
         // Non-existent subject + predicate combination
-        final emptyGraph3 = graph.subgraph(subject: john, predicate: nonExistent);
+        final emptyGraph3 =
+            graph.matching(subject: john, predicate: nonExistent);
         expect(emptyGraph3.isEmpty, isTrue);
       });
 
-      test('should optimize subgraph with index reuse for subject-based filtering', () {
+      test(
+          'should optimize subgraph with index reuse for subject-based filtering',
+          () {
         final john = const IriTerm('http://example.com/john');
         final jane = const IriTerm('http://example.com/jane');
         final name = const IriTerm('http://xmlns.com/foaf/0.1/name');
@@ -596,7 +641,7 @@ void main() {
         graph.findTriples(subject: john);
 
         // Create subgraph - should reuse index
-        final johnGraph = graph.subgraph(subject: john);
+        final johnGraph = graph.matching(subject: john);
 
         // Verify the subgraph has the correct triples
         expect(johnGraph.size, equals(2));
@@ -623,9 +668,9 @@ void main() {
 
         // Chain operations: get John's info, merge with graph2, then filter by predicate
         final result = graph1
-            .subgraph(subject: john)
+            .matching(subject: john)
             .merge(graph2)
-            .subgraph(predicate: name);
+            .matching(predicate: name);
 
         expect(result.size, equals(2));
         expect(result.hasTriples(subject: john, predicate: name), isTrue);
@@ -646,11 +691,12 @@ void main() {
         final unindexedGraph = indexedGraph.withOptions(enableIndexing: false);
 
         // Results should be the same regardless of indexing
-        final indexedSubgraph = indexedGraph.subgraph(subject: john);
-        final unindexedSubgraph = unindexedGraph.subgraph(subject: john);
+        final indexedSubgraph = indexedGraph.matching(subject: john);
+        final unindexedSubgraph = unindexedGraph.matching(subject: john);
 
         expect(indexedSubgraph.size, equals(unindexedSubgraph.size));
-        expect(indexedSubgraph.triples.toSet(), equals(unindexedSubgraph.triples.toSet()));
+        expect(indexedSubgraph.triples.toSet(),
+            equals(unindexedSubgraph.triples.toSet()));
       });
     });
 

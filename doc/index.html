@@ -137,9 +137,9 @@ if (graph.hasTriples(subject: const IriTerm('https://example.org/subject'))) {
   print('Found subject in graph!');
 }
 
-// New: Create filtered subgraphs for composition workflows
-final subGraph = graph.subgraph(predicate: const IriTerm('https://example.org/predicate'));
-final combined = subGraph.merge(otherGraph);
+// New: Create filtered graphs for composition workflows
+final filtered = graph.matching(predicate: const IriTerm('https://example.org/predicate'));
+final combined = filtered.merge(otherGraph);
 </code></pre>
     <div class="links">
       <a href="api/">Full API Docs</a>
@@ -273,15 +273,15 @@ if (graph.hasTriples(subject: john, predicate: foafName)) {
   print('John has a name'); // ✅ Fast lookup
 }
 
-// Create filtered subgraphs for composition
-final johnGraph = graph.subgraph(subject: john);          // John's info
-final relationships = graph.subgraph(predicate: foafKnows); // All relationships
+// Create filtered graphs for composition
+final johnGraph = graph.matching(subject: john);          // John's info
+final relationships = graph.matching(predicate: foafKnows); // All relationships
 
 // Chain operations for powerful workflows
 final result = graph
-  .subgraph(subject: john)      // Start with John's data
+  .matching(subject: john)      // Start with John's data
   .merge(additionalData)        // Add more information
-  .subgraph(predicate: foafKnows); // Filter to relationships only
+  .matching(predicate: foafKnows); // Filter to relationships only
 
 // Performance: First query builds index, subsequent queries are O(1)
 final nameTriples = graph.findTriples(subject: john); // Index created here
@@ -374,8 +374,8 @@ print(encodedTurtle);
         <td style="padding:8px; border-bottom:1px solid #eee;">Check if matching triples exist (boolean result, O(1) optimized)</td>
       </tr>
       <tr>
-        <td style="padding:8px; border-bottom:1px solid #eee;"><code>subgraph()</code></td>
-        <td style="padding:8px; border-bottom:1px solid #eee;">Create filtered subgraphs for composition and chaining workflows</td>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><code>matching()</code></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">Create filtered graphs for composition and chaining workflows</td>
       </tr>
       <tr>
         <td style="padding:8px; border-bottom:1px solid #eee;"><code>RdfGraphCodec</code></td>

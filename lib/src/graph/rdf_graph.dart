@@ -272,13 +272,67 @@ final class RdfGraph {
     RdfObject? object,
   }) {
     return List.unmodifiable(
-      _triples.where((triple) {
-        if (subject != null && triple.subject != subject) return false;
-        if (predicate != null && triple.predicate != predicate) return false;
-        if (object != null && triple.object != object) return false;
-        return true;
-      }),
+      _triples.where((triple) => _matches(triple, subject, predicate, object)),
     );
+  }
+
+  bool _matches(Triple triple, RdfSubject? subject, RdfPredicate? predicate,
+      RdfObject? object) {
+    if (subject != null && triple.subject != subject) return false;
+    if (predicate != null && triple.predicate != predicate) return false;
+    if (object != null && triple.object != object) return false;
+    return true;
+  }
+
+  /// Checks if the graph contains any triples matching the given pattern
+  ///
+  /// This method determines whether at least one triple in the graph matches
+  /// all the specified pattern components. Unlike [findTriples], this method
+  /// returns a boolean result and is more efficient when you only need to
+  /// know if matching triples exist rather than retrieving them.
+  ///
+  /// Pattern matching uses AND logic - all non-null parameters must match
+  /// for a triple to be considered a match. Null parameters act as wildcards
+  /// and match any value in that position.
+  ///
+  /// Parameters:
+  /// - [subject] Optional subject to match (null acts as wildcard)
+  /// - [predicate] Optional predicate to match (null acts as wildcard)
+  /// - [object] Optional object to match (null acts as wildcard)
+  ///
+  /// Returns:
+  /// `true` if at least one triple matches the pattern, `false` otherwise.
+  /// Returns `true` for empty pattern (all parameters null) if graph is not empty.
+  ///
+  /// Example:
+  /// ```dart
+  /// // Check if John has any statements about him
+  /// if (graph.hasTriples(subject: john)) {
+  ///   print('Found information about John');
+  /// }
+  ///
+  /// // Check if anyone has a name property
+  /// if (graph.hasTriples(predicate: foaf.name)) {
+  ///   print('Graph contains name information');
+  /// }
+  ///
+  /// // Check if John specifically has a name
+  /// if (graph.hasTriples(subject: john, predicate: foaf.name)) {
+  ///   print('John has a name in the graph');
+  /// }
+  ///
+  /// // Check if graph has any triples at all
+  /// if (graph.hasTriples()) {
+  ///   print('Graph is not empty');
+  /// }
+  /// ```
+  bool hasTriples({
+    RdfSubject? subject,
+    RdfPredicate? predicate,
+    RdfObject? object,
+  }) {
+    return _triples
+        .any((triple) => _matches(triple, subject, predicate, object));
   }
 
   /// Get all objects for a given subject and predicate

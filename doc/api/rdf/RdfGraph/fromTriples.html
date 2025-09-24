@@ -55,8 +55,9 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></span>
-<span class="name ">fromTriples</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="fromTriples-param-triples"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/Triple-class.html">Triple</a></span>&gt;</span></span> <span class="parameter-name">triples</span></span></li>
-</ol>)
+<span class="name ">fromTriples</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="fromTriples-param-triples"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/Triple-class.html">Triple</a></span>&gt;</span></span> <span class="parameter-name">triples</span>, {</span></li>
+<li><span class="parameter" id="fromTriples-param-enableIndexing"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">enableIndexing</span> = <span class="default-value">true</span>, </span></li>
+</ol>})
 
       
 
@@ -65,8 +66,17 @@
 <section class="desc markdown">
   <p>Creates an RDF graph from a list of triples (factory constructor)</p>
 <p>This is a convenience factory method equivalent to the default constructor.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>triples</code> The collection of triples to include in the graph.</li>
+<li><code>enableIndexing</code> Whether to enable lazy indexing for query optimization.
+When enabled, an internal index is created lazily on first query to improve
+performance. The index is only built when needed, so enabling this option
+has no immediate memory cost. Defaults to true.</li>
+</ul>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">final graph = RdfGraph.fromTriples(myTriples);
+final unindexedGraph = RdfGraph.fromTriples(myTriples, enableIndexing: false);
 </code></pre>
 </section>
 
@@ -74,8 +84,9 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static RdfGraph fromTriples(Iterable&lt;Triple&gt; triples) =&gt;
-    RdfGraph(triples: triples);</code></pre>
+  <pre class="language-dart"><code class="language-dart">static RdfGraph fromTriples(Iterable&lt;Triple&gt; triples,
+        {bool enableIndexing = true}) =&gt;
+    RdfGraph(triples: triples, enableIndexing: enableIndexing);</code></pre>
 </section>
 
 
@@ -103,7 +114,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.15
+      0.9.17
   </span>
   
 </footer>

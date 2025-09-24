@@ -94,11 +94,13 @@ final graphWithDuplicates = graph.withTriples([existingTriple, newTriple]);
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">RdfGraph withTriples(Iterable&lt;Triple&gt; triples) {
+  <pre class="language-dart"><code class="language-dart">RdfGraph withTriples(
+  Iterable&lt;Triple&gt; triples,
+) {
   final newTriples =
       {..._triples, ...triples}.toList(); &#47;&#47; Use a set to avoid duplicates
 
-  return RdfGraph(triples: newTriples);
+  return RdfGraph(triples: newTriples, enableIndexing: indexingEnabled);
 }</code></pre>
 </section>
 
@@ -127,7 +129,7 @@ final graphWithDuplicates = graph.withTriples([existingTriple, newTriple]);
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.15
+      0.9.17
   </span>
   
 </footer>

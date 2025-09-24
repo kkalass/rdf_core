@@ -105,7 +105,7 @@ final withoutContactInfo = graph.withoutMatching(
     return true;
   }).toList();
 
-  return RdfGraph(triples: filteredTriples);
+  return RdfGraph(triples: filteredTriples, enableIndexing: indexingEnabled);
 }</code></pre>
 </section>
 
@@ -134,7 +134,7 @@ final withoutContactInfo = graph.withoutMatching(
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.15
+      0.9.17
   </span>
   
 </footer>

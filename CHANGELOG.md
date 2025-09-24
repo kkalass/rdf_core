@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.17] - 2025-09-24
+
+### Changed
+
+- **RdfGraph**: Renamed `subgraph()` method to `matching()` for clarity
+  - Method name now clearly indicates pattern-matching behavior
+  - Avoids confusion with graph-theory "subgraph" concept (which would include reachable nodes)
+  - No functional changes - same parameters, return type, and performance characteristics
+
+## [0.9.16] - 2025-09-24
+
+### Added
+
+- **RdfGraph**: New `hasTriples()` method for efficient boolean pattern matching
+  - Returns true/false for triple existence without retrieval overhead
+  - Supports wildcard pattern matching with null parameters
+  - Uses lazy indexing for O(1) performance on subject-based queries
+
+- **RdfGraph**: New `subgraph()` method for creating filtered graph instances
+  - Returns new RdfGraph containing only triples matching the specified pattern
+  - Enables graph chaining and composition workflows
+  - Index optimization for subject-based filtering with automatic index reuse
+  - Delegates to `findTriples()` for non-optimized cases to leverage existing optimizations
+
+### Enhanced
+
+- **Performance**: Transparent lazy indexing provides automatic query optimization
+  - Indexing is enabled by default with zero memory cost until first query
+  - Subject-based queries automatically benefit from O(1) performance after index creation
+  - No API changes required - existing code gets performance boost automatically
+
+- **Documentation**: Comprehensive RdfGraph API documentation improvements
+  - Added missing parameter documentation for all public methods
+  - Clarified lazy indexing behavior and performance characteristics
+  - Enhanced documentation for `withOptions()`, `subjects`, `predicates`, `objects` getters
+
+- **Test Coverage**: Added comprehensive tests for previously untested methods
+  - Full test coverage for `hasTriples()`, `withOptions()`, and getter methods
+  - Edge case testing for indexed vs non-indexed graph behavior
+
 ## [0.9.15] - 2025-09-23
 
 ### Changed

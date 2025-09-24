@@ -99,7 +99,7 @@ nav a:hover, nav a:focus {
     </div>
     <div class="feature">
       <h3><i class="fa-solid fa-bolt"></i> Blazing Fast</h3>
-      <p>Optimized for performance with zero dependencies besides logging and efficient graph operations.</p>
+      <p>Automatic query optimization with lazy indexing provides O(1) subject-based queries. Zero memory cost until first use, transparent performance improvements for existing code.</p>
     </div>
     <div class="feature">
       <h3><i class="fa-solid fa-certificate"></i> Standards-Compliant</h3>
@@ -131,6 +131,15 @@ final graphFromJsonLd = jsonldGraph.decode(jsonLdData);
 
 // Or use the pre-configured RdfCore instance
 final rdfGraph = rdf.decode(turtleData, contentType: 'text/turtle');
+
+// New: Query and filter with automatic performance optimization
+if (graph.hasTriples(subject: const IriTerm('https://example.org/subject'))) {
+  print('Found subject in graph!');
+}
+
+// New: Create filtered graphs for composition workflows
+final filtered = graph.matching(predicate: const IriTerm('https://example.org/predicate'));
+final combined = filtered.merge(otherGraph);
 </code></pre>
     <div class="links">
       <a href="api/">Full API Docs</a>
@@ -242,7 +251,48 @@ print(encodedTurtle);
       <a href="https://www.w3.org/TR/n-triples/">N-Triples Specification</a>
     </div>
   </section>
-  
+
+  <section class="advanced" id="graph-composition">
+    <h2>🔗 Graph Composition & Performance</h2>
+    <pre><code class="language-dart">// Automatic query optimization with lazy indexing
+import 'package:rdf_core/rdf_core.dart';
+
+final john = const IriTerm('http://example.org/john');
+final jane = const IriTerm('http://example.org/jane');
+final foafName = const IriTerm('http://xmlns.com/foaf/0.1/name');
+final foafKnows = const IriTerm('http://xmlns.com/foaf/0.1/knows');
+
+final graph = RdfGraph(triples: [
+  Triple(john, foafName, LiteralTerm.string('John Smith')),
+  Triple(john, foafKnows, jane),
+  Triple(jane, foafName, LiteralTerm.string('Jane Doe')),
+]);
+
+// Efficient boolean queries - O(1) with automatic indexing
+if (graph.hasTriples(subject: john, predicate: foafName)) {
+  print('John has a name'); // ✅ Fast lookup
+}
+
+// Create filtered graphs for composition
+final johnGraph = graph.matching(subject: john);          // John's info
+final relationships = graph.matching(predicate: foafKnows); // All relationships
+
+// Chain operations for powerful workflows
+final result = graph
+  .matching(subject: john)      // Start with John's data
+  .merge(additionalData)        // Add more information
+  .matching(predicate: foafKnows); // Filter to relationships only
+
+// Performance: First query builds index, subsequent queries are O(1)
+final nameTriples = graph.findTriples(subject: john); // Index created here
+final hasName = graph.hasTriples(subject: john);      // Uses existing index - very fast!
+</code></pre>
+    <div class="links">
+      <a href="api/rdf/RdfGraph-class.html">RdfGraph API</a>
+      <a href="https://github.com/kkalass/rdf_core/tree/main/example">More Examples</a>
+    </div>
+  </section>
+
   <section class="advanced" id="json-ld">
     <h2>📊 JSON-LD Format</h2>
     <pre><code class="language-dart">// Decode and encode JSON-LD using the global convenience variable
@@ -317,7 +367,15 @@ print(encodedTurtle);
       </tr>
       <tr>
         <td style="padding:8px; border-bottom:1px solid #eee;"><code>RdfGraph</code></td>
-        <td style="padding:8px; border-bottom:1px solid #eee;">Collection of RDF triples</td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">Collection of RDF triples with automatic query optimization</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><code>hasTriples()</code></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">Check if matching triples exist (boolean result, O(1) optimized)</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><code>matching()</code></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">Create filtered graphs for composition and chaining workflows</td>
       </tr>
       <tr>
         <td style="padding:8px; border-bottom:1px solid #eee;"><code>RdfGraphCodec</code></td>

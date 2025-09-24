@@ -95,12 +95,15 @@ final resourcesWithEmail = graph.getSubjects(email, LiteralTerm.string('john@exa
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">List&lt;RdfSubject&gt; getSubjects(RdfPredicate predicate, RdfObject object) {
-  return List.unmodifiable(
-    findTriples(
-      predicate: predicate,
-      object: object,
-    ).map((triple) =&gt; triple.subject),
-  );
+  var subjects = findTriples(
+    predicate: predicate,
+    object: object,
+  ).map((triple) =&gt; triple.subject);
+  return subjects.isEmpty
+      ? const []
+      : List.unmodifiable(
+          subjects,
+        );
 }</code></pre>
 </section>
 
@@ -129,7 +132,7 @@ final resourcesWithEmail = graph.getSubjects(email, LiteralTerm.string('john@exa
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.15
+      0.9.17
   </span>
   
 </footer>

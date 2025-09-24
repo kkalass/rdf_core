@@ -63,10 +63,15 @@ functionality for working with such graphs, including:</p>
 <li>Adding or removing triples (creating new graph instances)</li>
 <li>Merging graphs</li>
 <li>Querying triples based on patterns</li>
+<li>Optional lazy indexing for improved query performance</li>
 </ul>
 <p>The class is designed to be immutable for thread safety and to prevent
 accidental modification. All operations that would modify the graph
 return a new instance.</p>
+<p><strong>Indexing Behavior:</strong> When indexing is enabled (default), an internal
+index is created lazily on the first query operation that can benefit from it.
+This means there is no immediate memory cost for enabling indexing - the
+memory is only used when and if queries are performed.</p>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">// Create a graph with some initial triples
 final graph = RdfGraph(triples: [
@@ -86,7 +91,7 @@ final updatedGraph = graph.withTriple(Triple(jane, name, janeSmith));
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="RdfGraph.new" class="callable">
-          <span class="name"><a href="../rdf/RdfGraph/RdfGraph.html">RdfGraph.new</a></span><span class="signature">({<span class="parameter" id="-param-triples"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/Triple-class.html">Triple</a></span>&gt;</span></span> <span class="parameter-name">triples</span> = <span class="default-value">const []</span></span>})</span>
+          <span class="name"><a href="../rdf/RdfGraph/RdfGraph.html">RdfGraph.new</a></span><span class="signature">({<span class="parameter" id="-param-triples"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/Triple-class.html">Triple</a></span>&gt;</span></span> <span class="parameter-name">triples</span> = <span class="default-value">const []</span>, </span><span class="parameter" id="-param-enableIndexing"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">enableIndexing</span> = <span class="default-value">true</span></span>})</span>
         </dt>
         <dd>
           Creates an immutable RDF graph from a list of triples
@@ -108,6 +113,18 @@ final updatedGraph = graph.withTriple(Triple(jane, name, janeSmith));
 <dd>
   Provides a consistent hash code for this graph based on its triples.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="indexingEnabled" class="property">
+  <span class="name"><a href="../rdf/RdfGraph/indexingEnabled.html">indexingEnabled</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">final</span></div>
 
 </dd>
 
@@ -135,6 +152,30 @@ final updatedGraph = graph.withTriple(Triple(jane, name, janeSmith));
 
 </dd>
 
+        <dt id="objects" class="property">
+  <span class="name"><a href="../rdf/RdfGraph/objects.html">objects</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/RdfObject-class.html">RdfObject</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Get all unique objects (values) in this graph
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="predicates" class="property">
+  <span class="name"><a href="../rdf/RdfGraph/predicates.html">predicates</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/RdfPredicate-class.html">RdfPredicate</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Get all unique predicates (properties) in this graph
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
         <dt id="runtimeType" class="property inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
@@ -155,6 +196,18 @@ final updatedGraph = graph.withTriple(Triple(jane, name, janeSmith));
 </dt>
 <dd>
   Number of triples in this graph
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="subjects" class="property">
+  <span class="name"><a href="../rdf/RdfGraph/subjects.html">subjects</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/RdfSubject-class.html">RdfSubject</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Get all unique subjects in this graph
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -219,6 +272,32 @@ final updatedGraph = graph.withTriple(Triple(jane, name, janeSmith));
 
 </dd>
 
+        <dt id="hasTriples" class="callable">
+  <span class="name"><a href="../rdf/RdfGraph/hasTriples.html">hasTriples</a></span><span class="signature">(<wbr>{<span class="parameter" id="hasTriples-param-subject"><span class="type-annotation"><a href="../rdf/RdfSubject-class.html">RdfSubject</a>?</span> <span class="parameter-name">subject</span>, </span><span class="parameter" id="hasTriples-param-predicate"><span class="type-annotation"><a href="../rdf/RdfPredicate-class.html">RdfPredicate</a>?</span> <span class="parameter-name">predicate</span>, </span><span class="parameter" id="hasTriples-param-object"><span class="type-annotation"><a href="../rdf/RdfObject-class.html">RdfObject</a>?</span> <span class="parameter-name">object</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Checks if the graph contains any triples matching the given pattern
+  
+
+</dd>
+
+        <dt id="matching" class="callable">
+  <span class="name"><a href="../rdf/RdfGraph/matching.html">matching</a></span><span class="signature">(<wbr>{<span class="parameter" id="matching-param-subject"><span class="type-annotation"><a href="../rdf/RdfSubject-class.html">RdfSubject</a>?</span> <span class="parameter-name">subject</span>, </span><span class="parameter" id="matching-param-predicate"><span class="type-annotation"><a href="../rdf/RdfPredicate-class.html">RdfPredicate</a>?</span> <span class="parameter-name">predicate</span>, </span><span class="parameter" id="matching-param-object"><span class="type-annotation"><a href="../rdf/RdfObject-class.html">RdfObject</a>?</span> <span class="parameter-name">object</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rdf/RdfGraph-class.html">RdfGraph</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a new graph containing only triples that match the given pattern
+  
+
+</dd>
+
         <dt id="merge" class="callable">
   <span class="name"><a href="../rdf/RdfGraph/merge.html">merge</a></span><span class="signature">(<wbr><span class="parameter" id="merge-param-other"><span class="type-annotation"><a href="../rdf/RdfGraph-class.html">RdfGraph</a></span> <span class="parameter-name">other</span></span>)
     <span class="returntype parameter">&#8594; <a href="../rdf/RdfGraph-class.html">RdfGraph</a></span>
@@ -255,6 +334,19 @@ final updatedGraph = graph.withTriple(Triple(jane, name, janeSmith));
 <dd class="inherited">
   A string representation of this object.
   <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="withOptions" class="callable">
+  <span class="name"><a href="../rdf/RdfGraph/withOptions.html">withOptions</a></span><span class="signature">(<wbr>{<span class="parameter" id="withOptions-param-enableIndexing"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">enableIndexing</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rdf/RdfGraph-class.html">RdfGraph</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a new graph with modified configuration options
+  
 
 </dd>
 
@@ -353,7 +445,7 @@ because we want to compare the sets of triples, not the order
     <h2>Static Methods</h2>
     <dl class="callables">
         <dt id="fromTriples" class="callable">
-  <span class="name"><a href="../rdf/RdfGraph/fromTriples.html">fromTriples</a></span><span class="signature">(<wbr><span class="parameter" id="fromTriples-param-triples"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/Triple-class.html">Triple</a></span>&gt;</span></span> <span class="parameter-name">triples</span></span>)
+  <span class="name"><a href="../rdf/RdfGraph/fromTriples.html">fromTriples</a></span><span class="signature">(<wbr><span class="parameter" id="fromTriples-param-triples"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/Triple-class.html">Triple</a></span>&gt;</span></span> <span class="parameter-name">triples</span>, {</span><span class="parameter" id="fromTriples-param-enableIndexing"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">enableIndexing</span> = <span class="default-value">true</span></span>})
     <span class="returntype parameter">&#8594; <a href="../rdf/RdfGraph-class.html">RdfGraph</a></span>
   </span>
   
@@ -392,7 +484,7 @@ because we want to compare the sets of triples, not the order
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.15
+      0.9.17
   </span>
   
 </footer>

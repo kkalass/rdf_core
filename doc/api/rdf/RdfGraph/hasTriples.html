@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the hasTriples method from the RdfGraph class, for the Dart programming language.">
+  <title>hasTriples method - RdfGraph class - rdf library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rdf_core</a></li>
+    <li><a href="../../rdf/">rdf_core.dart</a></li>
+    <li><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></li>
+    <li class="self-crumb">hasTriples method</li>
+  </ol>
+  <div class="self-name">hasTriples</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rdf&#47;RdfGraph-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">hasTriples</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+<span class="name ">hasTriples</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="hasTriples-param-subject"><span class="type-annotation"><a href="../../rdf/RdfSubject-class.html">RdfSubject</a>?</span> <span class="parameter-name">subject</span>, </span></li>
+<li><span class="parameter" id="hasTriples-param-predicate"><span class="type-annotation"><a href="../../rdf/RdfPredicate-class.html">RdfPredicate</a>?</span> <span class="parameter-name">predicate</span>, </span></li>
+<li><span class="parameter" id="hasTriples-param-object"><span class="type-annotation"><a href="../../rdf/RdfObject-class.html">RdfObject</a>?</span> <span class="parameter-name">object</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Checks if the graph contains any triples matching the given pattern</p>
+<p>This method determines whether at least one triple in the graph matches
+all the specified pattern components. Unlike <a href="../../rdf/RdfGraph/findTriples.html">findTriples</a>, this method
+returns a boolean result and is more efficient when you only need to
+know if matching triples exist rather than retrieving them.</p>
+<p>Pattern matching uses AND logic - all non-null parameters must match
+for a triple to be considered a match. Null parameters act as wildcards
+and match any value in that position.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>subject</code> Optional subject to match (null acts as wildcard)</li>
+<li><code>predicate</code> Optional predicate to match (null acts as wildcard)</li>
+<li><code>object</code> Optional object to match (null acts as wildcard)</li>
+</ul>
+<p>Returns:
+<code>true</code> if at least one triple matches the pattern, <code>false</code> otherwise.
+Returns <code>true</code> for empty pattern (all parameters null) if graph is not empty.</p>
+<p>Example:</p>
+<pre class="language-dart"><code class="language-dart">// Check if John has any statements about him
+if (graph.hasTriples(subject: john)) {
+  print('Found information about John');
+}
+
+// Check if anyone has a name property
+if (graph.hasTriples(predicate: foaf.name)) {
+  print('Graph contains name information');
+}
+
+// Check if John specifically has a name
+if (graph.hasTriples(subject: john, predicate: foaf.name)) {
+  print('John has a name in the graph');
+}
+
+// Check if graph has any triples at all
+if (graph.hasTriples()) {
+  print('Graph is not empty');
+}
+</code></pre>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">bool hasTriples({
+  RdfSubject? subject,
+  RdfPredicate? predicate,
+  RdfObject? object,
+}) {
+  if (subject != null) {
+    switch (_effectiveIndex) {
+      case null:
+        break;
+      case final index:
+        final subjectMap = index[subject];
+        if (subjectMap == null) {
+          return false;
+        }
+        if (predicate != null) {
+          final predicateList = subjectMap[predicate];
+          if (predicateList == null) {
+            return false;
+          }
+          if (object != null) {
+            return predicateList.any((triple) =&gt; triple.object == object);
+          } else {
+            return predicateList.isNotEmpty;
+          }
+        } else {
+          final allTriples = subjectMap.values.expand((list) =&gt; list);
+          if (object != null) {
+            return allTriples.any((triple) =&gt; triple.object == object);
+          } else {
+            return allTriples.isNotEmpty;
+          }
+        }
+    }
+  }
+  return _triples
+      .any((triple) =&gt; _matches(triple, subject, predicate, object));
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rdf_core</a></li>
+    <li><a href="../../rdf/">rdf</a></li>
+    <li><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></li>
+    <li class="self-crumb">hasTriples method</li>
+</ol>
+
+    <h5>RdfGraph class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rdf_core
+      0.9.17
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

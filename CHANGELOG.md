@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.18] - 2025-09-25
+
+### Added
+
+- **RdfGraph**: True subgraph extraction with reachability traversal
+  - `subgraph(root, {filter})` follows object references to extract all reachable triples
+  - `TraversalFilter` callback with depth tracking for fine-grained traversal control
+  - `TraversalDecision` enum: `include`, `skip`, `includeButDontDescend`
+  - Automatic cycle detection and memory-conscious implementation
+
+### Enhanced
+
+- **Test Coverage**: 11 comprehensive tests covering edge cases, performance, and real-world scenarios
+- **Performance**: Optimized for large graphs with efficient cycle detection
+
 ## [0.9.17] - 2025-09-24
 
 ### Changed

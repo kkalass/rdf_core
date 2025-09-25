@@ -51,6 +51,32 @@ library rdf_graph;
 import 'package:rdf_core/src/graph/rdf_term.dart';
 import 'package:rdf_core/src/graph/triple.dart';
 
+/// Decision for traversal control during subgraph extraction
+enum TraversalDecision {
+  /// Include this triple and continue traversing from its object
+  include,
+
+  /// Skip this triple entirely and do not descend from its object
+  skip,
+
+  /// Include this triple but do not descend from its object
+  includeButDontDescend,
+}
+
+/// Function type for controlling subgraph traversal
+///
+/// This function is called for each triple encountered during subgraph traversal
+/// to determine whether the triple should be included and whether traversal
+/// should continue from its object.
+///
+/// Parameters:
+/// - [triple] The current triple being evaluated
+/// - [depth] The current traversal depth (root subject is at depth 0)
+///
+/// Returns:
+/// A [TraversalDecision] indicating how to handle this triple
+typedef TraversalFilter = TraversalDecision Function(Triple triple, int depth);
+
 /// Represents an immutable RDF graph with triple pattern matching capabilities
 ///
 /// An RDF graph is formally defined as a set of RDF triples. This class provides
@@ -111,7 +137,7 @@ final class RdfGraph {
   /// final graph = RdfGraph(triples: myTriples, enableIndexing: false);
   /// ```
   RdfGraph({Iterable<Triple> triples = const [], bool enableIndexing = true})
-      : _triples = List.unmodifiable(List.from(triples)),
+      : _triples = List.unmodifiable(triples),
         indexingEnabled = enableIndexing;
 
   /// Private constructor for creating graphs with pre-built indexes
@@ -122,7 +148,7 @@ final class RdfGraph {
     Iterable<Triple> triples,
     Map<RdfSubject, Map<RdfPredicate, List<Triple>>>? index,
     bool enableIndexing,
-  )   : _triples = List.unmodifiable(List.from(triples)),
+  )   : _triples = List.unmodifiable(triples),
         indexingEnabled = enableIndexing,
         _index = index;
 
@@ -814,6 +840,111 @@ final class RdfGraph {
   /// ```
   RdfGraph without(RdfGraph other) {
     return withoutTriples(other._triples);
+  }
+
+  Iterable<Triple> _getSubgraphTriples(
+    RdfGraph subgraph,
+    RdfSubject subject, {
+    Set<RdfSubject>? visited,
+    TraversalFilter? filter,
+    int depth = 0,
+  }) sync* {
+    visited ??= <RdfSubject>{};
+    if (visited.contains(subject)) {
+      return;
+    }
+    visited.add(subject);
+
+    for (final triple in subgraph.findTriples(subject: subject)) {
+      final decision = filter?.call(triple, depth) ?? TraversalDecision.include;
+      // Debug: Uncomment for debugging
+      // print('Triple at depth $depth: $triple -> $decision');
+
+      switch (decision) {
+        case TraversalDecision.include:
+          yield triple;
+          final obj = triple.object;
+          if (obj is RdfSubject) {
+            yield* _getSubgraphTriples(
+              subgraph,
+              obj,
+              visited: visited,
+              filter: filter,
+              depth: depth + 1,
+            );
+          }
+          break;
+
+        case TraversalDecision.includeButDontDescend:
+          yield triple;
+          break;
+
+        case TraversalDecision.skip:
+          // Don't yield the triple and don't descend
+          break;
+      }
+    }
+  }
+
+  /// Extracts a subgraph starting from a root subject with optional traversal control
+  ///
+  /// This method creates a true graph-theory subgraph by following reachable nodes
+  /// from the specified root subject. Unlike [matching], which performs pattern-based
+  /// filtering, this method traverses the graph structure by following object references
+  /// that are IRIs or blank nodes.
+  ///
+  /// **Traversal Behavior:**
+  /// - Starts from the root subject
+  /// - For each triple where the root is the subject, includes the triple
+  /// - If the object is an IRI or blank node, recursively traverses from that object
+  /// - Includes cycle detection to prevent infinite loops
+  /// - Optional filter callback allows fine-grained control over traversal
+  ///
+  /// **Traversal Control:**
+  /// The optional [filter] callback is invoked for each triple encountered during
+  /// traversal, allowing you to control which triples are included and whether
+  /// traversal should continue from their objects.
+  ///
+  /// Parameters:
+  /// - [root] The subject to start traversal from
+  /// - [filter] Optional callback to control traversal behavior for each triple
+  ///
+  /// Returns:
+  /// A new RdfGraph containing all reachable triples from the root subject,
+  /// filtered according to the traversal decisions.
+  ///
+  /// Example:
+  /// ```dart
+  /// // Simple subgraph extraction
+  /// final aliceSubgraph = graph.subgraph(alice);
+  ///
+  /// // Controlled traversal - exclude email and don't descend from addresses
+  /// final filtered = graph.subgraph(alice, filter: (triple, depth) {
+  ///   // Don't include email triples at all
+  ///   if (triple.predicate.iri.endsWith('email')) {
+  ///     return TraversalDecision.skip;
+  ///   }
+  ///
+  ///   // Include address info but don't traverse into address details
+  ///   if (triple.predicate.iri.endsWith('hasAddress')) {
+  ///     return TraversalDecision.includeButDontDescend;
+  ///   }
+  ///
+  ///   // Limit traversal depth
+  ///   if (depth > 2) {
+  ///     return TraversalDecision.includeButDontDescend;
+  ///   }
+  ///
+  ///   return TraversalDecision.include;
+  /// });
+  /// ```
+  RdfGraph subgraph(RdfSubject root, {TraversalFilter? filter}) {
+    final subgraphTriples = _getSubgraphTriples(
+      this,
+      root,
+      filter: filter,
+    ).toList();
+    return RdfGraph(triples: subgraphTriples, enableIndexing: indexingEnabled);
   }
 
   /// Get all triples in the graph

@@ -1,18 +1,18 @@
 import 'package:rdf_core/rdf_core.dart';
 import 'package:test/test.dart';
 
-// Tests for the AutoDetectingGraphCodec and AutoDetectingGraphDecoder classes
+// Tests for the AutoDetectingRdfCodec and AutoDetectingRdfDecoder classes
 void main() {
-  group('AutoDetectingGraphCodec Tests', () {
-    late RdfCodecRegistry registry;
+  group('AutoDetectingRdfCodec Tests', () {
+    late BaseRdfCodecRegistry registry;
     late RdfGraphCodec defaultCodec;
-    late AutoDetectingGraphCodec codec;
+    late AutoDetectingRdfCodec codec;
 
     setUp(() {
-      registry = RdfCodecRegistry();
+      registry = BaseRdfCodecRegistry<RdfGraph>();
       defaultCodec = const TurtleCodec();
-      registry.registerGraphCodec(defaultCodec);
-      codec = AutoDetectingGraphCodec(
+      registry.registerCodec(defaultCodec);
+      codec = AutoDetectingRdfCodec(
         registry: registry,
         defaultCodec: defaultCodec,
       );
@@ -38,9 +38,9 @@ void main() {
       },
     );
 
-    test('decoder returns an AutoDetectingGraphDecoder', () {
+    test('decoder returns an AutoDetectingRdfDecoder', () {
       // Act & Assert
-      expect(codec.decoder, isA<AutoDetectingGraphDecoder>());
+      expect(codec.decoder, isA<AutoDetectingRdfDecoder>());
     });
 
     test('encoder returns the default codec\'s encoder', () {
@@ -54,7 +54,7 @@ void main() {
     test('canParse delegates to registry.detectGraphCodec', () {
       // Arrange - add a codec that can parse the content
       final mockCodec = _MockCodec(canParse: true);
-      registry.registerGraphCodec(mockCodec);
+      registry.registerCodec(mockCodec);
 
       // Act & Assert - should return true when a codec can parse
       expect(codec.canParse('test content'), isTrue);
@@ -71,8 +71,8 @@ void main() {
       final jsonLdContent =
           '{"@id": "http://example.org/subject", "http://example.org/predicate": "object"}';
 
-      registry.registerGraphCodec(const TurtleCodec());
-      registry.registerGraphCodec(const JsonLdGraphCodec());
+      registry.registerCodec(const TurtleCodec());
+      registry.registerCodec(const JsonLdGraphCodec());
 
       // Act & Assert - Turtle content should be parsed by the Turtle codec
       final graphFromTurtle = codec.decode(turtleContent);
@@ -139,13 +139,12 @@ void main() {
       );
 
       // Assert
-      expect(newCodec, isA<AutoDetectingGraphCodec>());
+      expect(newCodec, isA<AutoDetectingRdfCodec>());
       expect(identical(newCodec, codec), isFalse); // Should be a new instance
 
       // Test that the options are properly applied
-      final autoDetectingDecoder =
-          newCodec.decoder as AutoDetectingGraphDecoder;
-      expect(autoDetectingDecoder, isA<AutoDetectingGraphDecoder>());
+      final autoDetectingDecoder = newCodec.decoder as AutoDetectingRdfDecoder;
+      expect(autoDetectingDecoder, isA<AutoDetectingRdfDecoder>());
     });
 
     test('encoder respects encoder options when provided', () {
@@ -166,15 +165,15 @@ void main() {
     });
   });
 
-  group('AutoDetectingGraphDecoder Tests', () {
-    late RdfCodecRegistry registry;
-    late AutoDetectingGraphDecoder decoder;
+  group('AutoDetectingRdfDecoder Tests', () {
+    late BaseRdfCodecRegistry registry;
+    late AutoDetectingRdfDecoder decoder;
 
     setUp(() {
-      registry = RdfCodecRegistry();
-      registry.registerGraphCodec(const TurtleCodec());
-      registry.registerGraphCodec(const NTriplesCodec());
-      decoder = AutoDetectingGraphDecoder(registry);
+      registry = BaseRdfCodecRegistry<RdfGraph>();
+      registry.registerCodec(const TurtleCodec());
+      registry.registerCodec(const NTriplesCodec());
+      decoder = AutoDetectingRdfDecoder(registry);
     });
 
     tearDown(() {
@@ -189,7 +188,7 @@ void main() {
       final newDecoder = decoder.withOptions(options);
 
       // Assert
-      expect(newDecoder, isA<AutoDetectingGraphDecoder>());
+      expect(newDecoder, isA<AutoDetectingRdfDecoder>());
       expect(
         identical(newDecoder, decoder),
         isFalse,

@@ -68,13 +68,14 @@ void main() {
 
 ## ✨ Features
 
-- **Type-safe RDF model:** IRIs, literals, triples, graphs, and more
+- **Type-safe RDF model:** IRIs, literals, triples, graphs, quads, datasets, and more
+- **RDF 1.1 Dataset support:** Full support for named graphs with `RdfDataset`, `Quad`, and `RdfNamedGraph`
+- **Multiple serialization formats:** Turtle, JSON-LD, N-Triples, and N-Quads
 - **Automatic performance optimization:** Lazy indexing provides O(1) queries with zero memory cost until needed
 - **Graph composition workflows:** Create, filter, and chain graphs with fluent API
-- **Serialization-agnostic:** Clean separation of Turtle/JSON-LD/N-Triples
 - **Extensible & modular:** Create your own adapters, plugins, and integrations
 - **Specification compliant:** Follows [W3C RDF 1.1](https://www.w3.org/TR/rdf11-concepts/) and related standards
-- **Convenient global variables:** Easy to use with `turtle`, `jsonld` and `ntriples` for quick encoding/decoding
+- **Convenient global variables:** Easy to use with `turtle`, `jsonld`, `ntriples`, and `nquads` for quick encoding/decoding
 
 ## Core API Usage
 
@@ -87,10 +88,13 @@ import 'package:rdf_core/rdf_core.dart';
 final graphFromTurtle = turtle.decode(turtleString);
 final graphFromJsonLd = jsonldGraph.decode(jsonLdString);
 final graphFromNTriples = ntriples.decode(ntriplesString);
+final datasetFromNQuads = nquads.decode(nquadsString);
 
 // Or use the preconfigured RdfCore instance
 final graph = rdf.decode(data, contentType: 'text/turtle');
 final encoded = rdf.encode(graph, contentType: 'application/ld+json');
+final dataset = rdf.decodeDataset(data, contentType: 'application/n-quads');
+final encodedDataset = rdf.encodeDataset(dataset, contentType: 'application/n-quads');
 ```
 
 ### Manually Creating a Graph
@@ -210,6 +214,49 @@ void main() {
   // Encode the graph back to JSON-LD
   final serialized = jsonldGraph.encode(graph);
   print('\nEncoded JSON-LD:\n$serialized');
+}
+```
+
+### Working with RDF Datasets and N-Quads
+
+```dart
+import 'package:rdf_core/rdf_core.dart';
+
+void main() {
+  // Create quads with graph context
+  final alice = const IriTerm('http://example.org/alice');
+  final bob = const IriTerm('http://example.org/bob');
+  final foafName = const IriTerm('http://xmlns.com/foaf/0.1/name');
+  final foafKnows = const IriTerm('http://xmlns.com/foaf/0.1/knows');
+  final peopleGraph = const IriTerm('http://example.org/graphs/people');
+
+  final quads = [
+    Quad(alice, foafName, LiteralTerm.string('Alice')), // default graph
+    Quad(alice, foafKnows, bob, peopleGraph), // named graph
+    Quad(bob, foafName, LiteralTerm.string('Bob'), peopleGraph), // named graph
+  ];
+
+  // Create dataset from quads
+  final dataset = RdfDataset.fromQuads(quads);
+
+  // Option 1: Using the convenience global variable
+  final nquadsData = nquads.encode(dataset);
+
+  // Option 2: Using RdfCore instance
+  // final nquadsData = rdf.encodeDataset(dataset, contentType: 'application/n-quads');
+
+  print('N-Quads output:\n$nquadsData');
+
+  // Decode N-Quads data back to dataset
+  final decodedDataset = nquads.decode(nquadsData);
+
+  // Access default and named graphs
+  print('Default graph has ${decodedDataset.defaultGraph.triples.length} triples');
+  print('Dataset has ${decodedDataset.namedGraphs.length} named graphs');
+
+  for (final namedGraph in decodedDataset.namedGraphs) {
+    print('Named graph ${namedGraph.name} has ${namedGraph.graph.triples.length} triples');
+  }
 }
 ```
 
@@ -344,16 +391,23 @@ final graph4 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 | `LiteralTerm`  | Represents an RDF literal value               |
 | `BlankNodeTerm`| Represents a blank node                       |
 | `Triple`       | Atomic RDF statement (subject, predicate, object) |
+| `Quad`         | RDF statement with optional graph context (subject, predicate, object, graph) |
 | `RdfGraph`     | Collection of RDF triples with automatic query optimization |
+| `RdfDataset`   | Collection of named graphs plus a default graph |
+| `RdfNamedGraph`| A named graph pair (name + graph)            |
 | `RdfGraph.findTriples()` | Find triples matching a pattern (O(1) for subject-based queries) |
 | `RdfGraph.hasTriples()` | Check if matching triples exist (boolean result, optimized) |
 | `RdfGraph.matching()` | Create filtered graphs for composition and chaining |
 | `RdfGraphCodec`     | Base class for decoding/encoding RDF Graphs in various formats |
+| `RdfDatasetCodec`   | Base class for decoding/encoding RDF Datasets in various formats |
 | `RdfGraphDecoder`   | Base class for decoding RDF Graphs                   |
 | `RdfGraphEncoder`   | Base class for encoding RDF Graphs                   |
+| `RdfDatasetDecoder` | Base class for decoding RDF Datasets                 |
+| `RdfDatasetEncoder` | Base class for encoding RDF Datasets                 |
 | `turtle`       | Global convenience variable for Turtle codec |
-| `jsonldGraph`       | Global convenience variable for JSON-LD codec |
+| `jsonldGraph`  | Global convenience variable for JSON-LD codec |
 | `ntriples`     | Global convenience variable for N-Triples codec |
+| `nquads`       | Global convenience variable for N-Quads codec |
 | `rdf`          | Global RdfCore instance with standard codecs  |
 
 ---
@@ -361,7 +415,10 @@ final graph4 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 ## 📚 Standards & References
 
 - [RDF 1.1 Concepts](https://www.w3.org/TR/rdf11-concepts/)
+- [RDF 1.1 Datasets](https://www.w3.org/TR/rdf11-datasets/)
 - [Turtle: Terse RDF Triple Language](https://www.w3.org/TR/turtle/)
+- [N-Triples](https://www.w3.org/TR/n-triples/)
+- [N-Quads](https://www.w3.org/TR/n-quads/)
 - [JSON-LD 1.1](https://www.w3.org/TR/json-ld11/)
 - [SHACL: Shapes Constraint Language](https://www.w3.org/TR/shacl/)
 
@@ -423,7 +480,6 @@ final graph = rdfMapper.graph.encode(person);
 
 ## 🛣️ Roadmap / Next Steps
 
-- RDF 1.1: Datasets with Named Graphs 
 - Improve jsonld decoder/encoder (full RdfDataset support, better support for base uri, include realworld tests for e.g. foaf.jsonld, support @vocab)
 - RDF 1.2: Rdf-Star
 - SHACL and schema validation

@@ -5,20 +5,9 @@
 /// See: [RDF 1.1 Concepts - Syntax](https://www.w3.org/TR/rdf11-concepts/#section-syntax)
 library;
 
-import 'dart:convert';
+import 'package:rdf_core/src/rdf_decoder.dart';
 
-/// Configuration options for RDF graph decoders
-///
-/// This class provides configuration options that can be passed to RDF decoders
-/// to modify their parsing behavior. Concrete implementations may extend this
-/// class to provide format-specific options.
-///
-/// The base implementation provides no options, but serves as an extension point
-/// for format-specific configuration.
-class RdfGraphDecoderOptions {
-  /// Creates default decoder options with no special configurations
-  const RdfGraphDecoderOptions();
-}
+import 'graph/rdf_graph.dart';
 
 /// Base class for decoding RDF documents in various serialization formats
 ///
@@ -36,14 +25,14 @@ class RdfGraphDecoderOptions {
 /// final turtleDecoder = TurtleDecoder();
 /// final graph = turtleDecoder.convert('@prefix ex: <http://example.org/> . ex:subject ex:predicate "object" .');
 /// ```
-abstract class RdfDecoder<G> extends Converter<String, G> {
-  const RdfDecoder();
+abstract class RdfGraphDecoder extends RdfDecoder<RdfGraph> {
+  const RdfGraphDecoder();
 
-  /// Decodes an RDF document and returns the appropriate RDF data structure
+  /// Decodes an RDF document and returns an RDF graph
   ///
-  /// This method transforms a textual RDF document into a structured RDF data object
-  /// (graph, dataset, etc.) containing the parsed data from the input. It implements
-  /// the `convert` method from the `Converter` interface.
+  /// This method transforms a textual RDF document into a structured `RdfGraph` object
+  /// containing triples parsed from the input. It implements the `convert` method
+  /// from the `Converter` interface.
   ///
   /// Parameters:
   /// - [input] The RDF document to decode, as a string.
@@ -51,14 +40,14 @@ abstract class RdfDecoder<G> extends Converter<String, G> {
   ///   If not provided, relative IRIs will be kept as-is or handled according to format-specific rules.
   ///
   /// Returns:
-  /// - A data structure of type [G] containing the parsed data from the input.
+  /// - An [RdfGraph] containing the triples parsed from the input.
   ///
   /// The specific decoding behavior depends on the implementation of this interface,
   /// which will handle format-specific details like prefix resolution, blank node handling, etc.
   ///
   /// May throw format-specific parsing exceptions if the input is malformed.
   @override
-  G convert(String input, {String? documentUrl});
+  RdfGraph convert(String input, {String? documentUrl});
 
   /// Creates a new decoder with the specified options
   ///
@@ -73,5 +62,5 @@ abstract class RdfDecoder<G> extends Converter<String, G> {
   ///
   /// This pattern allows for immutable configuration of decoders and enables
   /// method chaining for readable configuration code.
-  RdfDecoder<G> withOptions(RdfGraphDecoderOptions options);
+  RdfGraphDecoder withOptions(RdfGraphDecoderOptions options);
 }

@@ -4,13 +4,12 @@
 /// which is a line-based serialization of RDF.
 library ntriples_serializer;
 
-import 'package:logging/logging.dart';
+import 'package:rdf_core/src/dataset/rdf_dataset.dart';
+import 'package:rdf_core/src/nquads/nquads_codec.dart';
+import 'package:rdf_core/src/rdf_encoder.dart';
 
 import '../graph/rdf_graph.dart';
-import '../graph/rdf_term.dart';
-import '../graph/triple.dart';
-import '../rdf_encoder.dart';
-import '../vocab/xsd.dart';
+import '../rdf_graph_encoder.dart';
 
 /// Options for configuring the N-Triples encoder behavior.
 ///
@@ -71,109 +70,38 @@ class NTriplesEncoderOptions extends RdfGraphEncoderOptions {
 /// N-Triples is fully compatible with the RDF 1.1 N-Triples specification
 /// (https://www.w3.org/TR/n-triples/).
 final class NTriplesEncoder extends RdfGraphEncoder {
-  final _logger = Logger('rdf.ntriples.serializer');
-
   // Encoders are always expected to have options, even if they are not used at
   // the moment. But maybe the NTriplesEncoder will have options in the future.
   //
   // ignore: unused_field
-  final NTriplesEncoderOptions _options;
+  final RdfEncoder<RdfDataset> _encoder;
 
   /// Creates a new N-Triples serializer
   NTriplesEncoder({
     NTriplesEncoderOptions options = const NTriplesEncoderOptions(),
-  }) : _options = options;
+  }) : _encoder = NQuadsEncoder(
+          options: _toNQuadsOptions(options),
+        );
+
+  NTriplesEncoder._(RdfEncoder<RdfDataset> encoder) : _encoder = encoder;
+
+  static NQuadsEncoderOptions _toNQuadsOptions(
+          NTriplesEncoderOptions options) =>
+      NQuadsEncoderOptions();
 
   @override
   RdfGraphEncoder withOptions(RdfGraphEncoderOptions options) =>
       switch (options) {
         NTriplesEncoderOptions _ => this,
-        _ => NTriplesEncoder(options: NTriplesEncoderOptions.from(options)),
+        _ => NTriplesEncoder._(NQuadsEncoder(
+            options: options is NTriplesEncoderOptions
+                ? _toNQuadsOptions(options)
+                : NQuadsEncoderOptions.from(options))),
       };
 
   @override
   String convert(RdfGraph graph, {String? baseUri}) {
-    _logger.fine('Serializing graph to N-Triples');
-
-    // N-Triples ignores baseUri and customPrefixes as it doesn't support
-    // relative IRIs or prefixed names
-
-    final buffer = StringBuffer();
-    final Map<BlankNodeTerm, String> blankNodeLabels = {};
-    final _BlankNodeCounter counter = _BlankNodeCounter();
-
-    for (final triple in graph.triples) {
-      _writeTriple(buffer, triple, blankNodeLabels, counter);
-      buffer.writeln();
-    }
-
-    return buffer.toString();
+    return _encoder.convert(RdfDataset.fromDefaultGraph(graph),
+        baseUri: baseUri);
   }
-
-  /// Writes a single triple in N-Triples format to the buffer
-  void _writeTriple(StringBuffer buffer, Triple triple,
-      Map<BlankNodeTerm, String> blankNodeLabels, _BlankNodeCounter counter) {
-    _writeTerm(buffer, triple.subject, blankNodeLabels, counter);
-    buffer.write(' ');
-    _writeTerm(buffer, triple.predicate, blankNodeLabels, counter);
-    buffer.write(' ');
-    _writeTerm(buffer, triple.object, blankNodeLabels, counter);
-    buffer.write(' .');
-  }
-
-  /// Writes a term in N-Triples format to the buffer
-  void _writeTerm(StringBuffer buffer, RdfTerm term,
-      Map<BlankNodeTerm, String> blankNodeLabels, _BlankNodeCounter counter) {
-    if (term is IriTerm) {
-      buffer.write('<${_escapeIri(term.value)}>');
-    } else if (term is BlankNodeTerm) {
-      // Maintain a stable mapping of blank nodes to labels using sequential numbering
-      final label = blankNodeLabels.putIfAbsent(term, () {
-        return 'b${counter.next()}';
-      });
-      buffer.write('_:$label');
-    } else if (term is LiteralTerm) {
-      buffer.write('"${_escapeLiteral(term.value)}"');
-
-      if (term.language != null && term.language!.isNotEmpty) {
-        buffer.write('@${term.language}');
-      } else if (term.datatype.value != Xsd.string.value) {
-        // Only output datatype if it's not xsd:string (implied default in N-Triples)
-        buffer.write('^^<${_escapeIri(term.datatype.value)}>');
-      }
-    } else {
-      throw UnsupportedError('Unsupported term type: ${term.runtimeType}');
-    }
-  }
-
-  /// Escapes special characters in IRIs according to N-Triples rules
-  String _escapeIri(String iri) {
-    return iri
-        .replaceAll('\\', '\\\\')
-        .replaceAll('>', '\\>')
-        .replaceAll('<', '\\<');
-  }
-
-  /// Escapes special characters in literals according to N-Triples rules
-  String _escapeLiteral(String literal) {
-    return literal
-        .replaceAll('\\', '\\\\')
-        .replaceAll('"', '\\"')
-        .replaceAll('\n', '\\n')
-        .replaceAll('\r', '\\r')
-        .replaceAll('\t', '\\t')
-        .replaceAll('\b', '\\b')
-        .replaceAll('\f', '\\f');
-  }
-}
-
-/// Counter for generating sequential blank node labels
-///
-/// Generates labels in the format b0, b1, b2, etc. following best practices
-/// for blank node labeling in N-Triples serialization.
-class _BlankNodeCounter {
-  int _counter = 0;
-
-  /// Gets the next blank node label number
-  int next() => _counter++;
 }

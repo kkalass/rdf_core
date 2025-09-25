@@ -3,18 +3,18 @@ import 'package:test/test.dart';
 
 void main() {
   group('FormatDetectingDecoder', () {
-    late RdfCodecRegistry registry;
+    late BaseRdfCodecRegistry<RdfGraph> registry;
 
-    late RdfGraphDecoder rdfDecoder;
+    late RdfDecoder<RdfGraph> rdfDecoder;
 
     setUp(() {
       // Setup registry with codecs
-      registry = RdfCodecRegistry();
-      registry.registerGraphCodec(const TurtleCodec());
-      registry.registerGraphCodec(const JsonLdGraphCodec());
+      registry = BaseRdfCodecRegistry<RdfGraph>();
+      registry.registerCodec(const TurtleCodec());
+      registry.registerCodec(const JsonLdGraphCodec());
 
       // Create format detecting decoder
-      rdfDecoder = AutoDetectingGraphDecoder(registry);
+      rdfDecoder = AutoDetectingRdfDecoder<RdfGraph>(registry);
     });
 
     test('should decode a simple profile', () {
@@ -280,20 +280,6 @@ pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
       final jsonLdGraph = rdfDecoder.convert(jsonLdInput);
       expect(jsonLdGraph.triples.length, equals(1));
       expect(jsonLdGraph.triples, equals(turtleGraph.triples));
-    });
-
-    test('should respect explicit content type', () {
-      final input = '''
-        @prefix ex: <http://example.org/> .
-        ex:subject ex:predicate "object" .
-      ''';
-
-      // decode with explicit content type
-      final graph = RdfCore(
-        registry: registry,
-      ).codec(contentType: 'text/turtle').decode(input);
-
-      expect(graph.triples.length, equals(1));
     });
   });
 }

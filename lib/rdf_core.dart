@@ -25,14 +25,20 @@
 /// - **Literals**: Values like strings, numbers, or dates (optionally with language tags or datatypes)
 /// - **Triples**: Individual statements in the form subject-predicate-object
 /// - **Graphs**: Collections of triples representing related statements
+/// - **Quads**: Triples with an additional graph context component
+/// - **Datasets**: Collections containing a default graph and zero or more named graphs
 ///
 /// ### Serialization Codecs
 ///
 /// This library supports these RDF serialization codecs:
 ///
+/// **For RDF Graphs:**
 /// - **Turtle**: A compact, human-friendly text format (MIME type: text/turtle)
 /// - **JSON-LD**: JSON-based serialization of Linked Data (MIME type: application/ld+json)
 /// - **N-Triples**: A line-based, plain text format for encoding RDF graphs (MIME type: application/n-triples)
+///
+/// **For RDF Datasets:**
+/// - **N-Quads**: A line-based format for RDF datasets with named graph support (MIME type: application/n-quads)
 ///
 /// The library uses a plugin system to allow registration of additional codecs.
 ///
@@ -85,6 +91,31 @@
 /// }
 /// ```
 ///
+/// ### Working with RDF Datasets
+///
+/// ```dart
+/// // Create quads with graph context
+/// final alice = IriTerm('http://example.org/alice');
+/// final bob = IriTerm('http://example.org/bob');
+/// final foafName = IriTerm('http://xmlns.com/foaf/0.1/name');
+/// final foafKnows = IriTerm('http://xmlns.com/foaf/0.1/knows');
+/// final peopleGraph = IriTerm('http://example.org/graphs/people');
+///
+/// final quads = [
+///   Quad(alice, foafName, LiteralTerm.string('Alice')), // default graph
+///   Quad(alice, foafKnows, bob, peopleGraph), // named graph
+/// ];
+///
+/// // Create dataset from quads
+/// final dataset = RdfDataset.fromQuads(quads);
+///
+/// // Encode dataset to N-Quads format
+/// final nquadsData = rdf.encodeDataset(dataset, contentType: 'application/n-quads');
+///
+/// // Decode N-Quads data
+/// final decodedDataset = rdf.decodeDataset(nquadsData, contentType: 'application/n-quads');
+/// ```
+///
 /// ### Auto-detection of codecs
 ///
 /// ```dart
@@ -128,7 +159,12 @@
 /// library highly testable and extensible.
 library rdf;
 
+import 'package:rdf_core/src/dataset/rdf_dataset.dart';
 import 'package:rdf_core/src/graph/rdf_term.dart';
+import 'package:rdf_core/src/nquads/nquads_codec.dart';
+import 'package:rdf_core/src/plugin/exceptions.dart';
+import 'package:rdf_core/src/plugin/rdf_base_codec.dart';
+import 'package:rdf_core/src/plugin/rdf_dataset_codec.dart';
 import 'package:rdf_core/src/rdf_decoder.dart';
 import 'package:rdf_core/src/rdf_encoder.dart';
 import 'package:rdf_core/src/vocab/namespaces.dart';
@@ -136,23 +172,33 @@ import 'package:rdf_core/src/vocab/namespaces.dart';
 import 'src/graph/rdf_graph.dart';
 import 'src/jsonld/jsonld_codec.dart';
 import 'src/ntriples/ntriples_codec.dart';
-import 'src/plugin/rdf_codec.dart';
+import 'src/plugin/rdf_graph_codec.dart';
 import 'src/turtle/turtle_codec.dart';
 
+export 'src/dataset/quad.dart';
+export 'src/dataset/rdf_dataset.dart';
+export 'src/dataset/rdf_named_graph.dart';
 export 'src/exceptions/exceptions.dart';
 // Re-export core components for easy access
 export 'src/graph/rdf_graph.dart';
 export 'src/graph/rdf_term.dart';
 export 'src/graph/triple.dart';
+export 'src/iri_compaction.dart';
 export 'src/jsonld/jsonld_codec.dart';
 export 'src/ntriples/ntriples_codec.dart';
-export 'src/plugin/rdf_codec.dart';
+export 'src/nquads/nquads_codec.dart';
+export 'src/plugin/exceptions.dart';
+export 'src/plugin/rdf_graph_codec.dart';
+export 'src/plugin/rdf_base_codec.dart';
+export 'src/plugin/rdf_dataset_codec.dart';
+export 'src/plugin/rdf_codec_registry.dart';
 export 'src/rdf_decoder.dart';
 export 'src/rdf_encoder.dart';
+export 'src/rdf_graph_decoder.dart';
+export 'src/rdf_graph_encoder.dart';
 export 'src/turtle/turtle_codec.dart';
 export 'src/turtle/turtle_tokenizer.dart' show TurtleParsingFlag;
 export 'src/vocab/namespaces.dart';
-export 'src/iri_compaction.dart';
 
 /// RDF Core Library
 ///
@@ -177,6 +223,7 @@ export 'src/iri_compaction.dart';
 /// See: [RDF 1.1 Concepts and Abstract Syntax](https://www.w3.org/TR/rdf11-concepts/)
 final class RdfCore {
   final RdfCodecRegistry _registry;
+  final RdfDatasetCodecRegistry _datasetRegistry;
 
   /// Creates a new RDF library instance with the given components
   ///
@@ -186,19 +233,30 @@ final class RdfCore {
   ///
   /// For standard usage, see [RdfCore.withStandardCodecs].
   ///
-  /// The [registry] parameter is the codec registry that manages available RDF codecs.
-  RdfCore({required RdfCodecRegistry registry}) : _registry = registry;
+  /// The [registry] parameter is the codec registry that manages available RDF graph codecs.
+  ///
+  /// The [datasetRegistry] parameter is the codec registry that manages available RDF dataset codecs.
+  /// If not provided, an empty registry is created.
+  RdfCore(
+      {required RdfCodecRegistry registry,
+      RdfDatasetCodecRegistry? datasetRegistry})
+      : _registry = registry,
+        _datasetRegistry = datasetRegistry ?? RdfDatasetCodecRegistry();
 
   /// Creates a new RDF library instance with standard codecs registered
   ///
-  /// This convenience constructor sets up an RDF library with Turtle, JSON-LD and
-  /// N-Triples codecs ready to use. It's the recommended way to create an instance
+  /// This convenience constructor sets up an RDF library with Turtle, JSON-LD,
+  /// N-Triples, and N-Quads codecs ready to use. It's the recommended way to create an instance
   /// for most applications.
   ///
   /// The [namespaceMappings] parameter provides optional custom namespace mappings for all codecs.
   ///
-  /// The [additionalCodecs] parameter is an optional list of additional codecs to register beyond
+  /// The [additionalCodecs] parameter is an optional list of additional graph codecs to register beyond
   /// the standard ones.
+  ///
+  /// The [iriTermFactory] parameter specifies the factory function for creating IRI terms.
+  /// Defaults to [IriTerm.validated] which performs validation. If you need to minimize
+  /// memory footprint, you can pass a flyweight here that caches IRI instances.
   ///
   /// Example:
   /// ```dart
@@ -210,29 +268,28 @@ final class RdfCore {
     List<RdfGraphCodec> additionalCodecs = const [],
     IriTermFactory iriTermFactory = IriTerm.validated,
   }) {
-    final registry = RdfCodecRegistry();
     final _namespaceMappings =
         namespaceMappings ?? const RdfNamespaceMappings();
 
-    // Register standard formats
-    registry.registerGraphCodec(
+    final registry = RdfCodecRegistry([
+      // Register standard formats
       TurtleCodec(
           namespaceMappings: _namespaceMappings,
           iriTermFactory: iriTermFactory),
-    );
-    registry.registerGraphCodec(
       JsonLdGraphCodec(
           namespaceMappings: _namespaceMappings,
           iriTermFactory: iriTermFactory),
-    );
-    registry.registerGraphCodec(NTriplesCodec(iriTermFactory: iriTermFactory));
+      NTriplesCodec(iriTermFactory: iriTermFactory),
 
-    // Register additional codecs
-    for (final codec in additionalCodecs) {
-      registry.registerGraphCodec(codec);
-    }
+      // Register additional codecs
+      ...additionalCodecs
+    ]);
 
-    return RdfCore(registry: registry);
+    final datasetRegistry = RdfDatasetCodecRegistry([
+      // Register standard dataset formats
+      NQuadsCodec(iriTermFactory: iriTermFactory)
+    ]);
+    return RdfCore(registry: registry, datasetRegistry: datasetRegistry);
   }
 
   /// Creates a new RDF library instance with only the provided codecs registered
@@ -242,7 +299,9 @@ final class RdfCore {
   /// For example, if you need to support Turtle with certain parsing flags because
   /// your turtle documents are not fully compliant with the standard.
   ///
-  /// The [codecs] parameter is a list of codecs to register in the RDF library.
+  /// The [codecs] parameter is a list of graph codecs to register in the RDF library.
+  ///
+  /// The [datasetCodecs] parameter is a list of dataset codecs to register in the RDF library.
   ///
   /// Example:
   /// ```dart
@@ -253,13 +312,13 @@ final class RdfCore {
   /// final rdf = RdfCore.withCodecs(codecs: [turtle]);
   /// final graph = rdf.decode(turtleData, contentType: 'text/turtle');
   /// ```
-  factory RdfCore.withCodecs({List<RdfGraphCodec> codecs = const []}) {
-    final registry = RdfCodecRegistry();
-    for (final codec in codecs) {
-      registry.registerGraphCodec(codec);
-    }
+  factory RdfCore.withCodecs(
+      {List<RdfGraphCodec> codecs = const [],
+      List<RdfDatasetCodec> datasetCodecs = const []}) {
+    final registry = RdfCodecRegistry(codecs);
+    final datasetRegistry = RdfDatasetCodecRegistry(datasetCodecs);
 
-    return RdfCore(registry: registry);
+    return RdfCore(registry: registry, datasetRegistry: datasetRegistry);
   }
 
   /// Decode RDF content to create a graph
@@ -287,6 +346,35 @@ final class RdfCore {
     RdfGraphDecoderOptions? options,
   }) =>
       codec(
+        contentType: contentType,
+        decoderOptions: options,
+      ).decode(content, documentUrl: documentUrl);
+
+  /// Decode RDF dataset content to create a dataset
+  ///
+  /// Converts a string containing serialized RDF dataset data into an in-memory RDF dataset.
+  /// The format can be explicitly specified using the contentType parameter,
+  /// or automatically detected from the content if not specified.
+  ///
+  /// The [content] parameter is the RDF dataset content to parse as a string.
+  ///
+  /// The [contentType] parameter is an optional MIME type to specify the format (e.g., "application/n-quads").
+  ///
+  /// The [documentUrl] parameter is an optional base URI for resolving relative references in the document.
+  ///
+  /// The [options] parameter contains optional format-specific decoder options.
+  ///
+  /// Returns an [RdfDataset] containing the parsed quads organized into default and named graphs.
+  ///
+  /// Throws codec-specific exceptions for parsing errors.
+  /// Throws [CodecNotSupportedException] if the codec is not supported and cannot be detected.
+  RdfDataset decodeDataset(
+    String content, {
+    String? contentType,
+    String? documentUrl,
+    RdfGraphDecoderOptions? options,
+  }) =>
+      datasetCodec(
         contentType: contentType,
         decoderOptions: options,
       ).decode(content, documentUrl: documentUrl);
@@ -321,6 +409,36 @@ final class RdfCore {
         encoderOptions: options,
       ).encode(graph, baseUri: baseUri);
 
+  /// Encode an RDF dataset to a string representation
+  ///
+  /// Converts an in-memory RDF dataset into a serialized string representation
+  /// in the specified format. If no format is specified, the default dataset codec
+  /// is used.
+  ///
+  /// The [dataset] parameter is the RDF dataset to encode.
+  ///
+  /// The [contentType] parameter is an optional MIME type to specify the output format.
+  ///
+  /// The [baseUri] parameter is an optional base URI for the serialized output, which may enable
+  /// more compact representations with relative URIs.
+  ///
+  /// The [options] parameter contains optional format-specific encoder options.
+  ///
+  /// Returns a string containing the serialized RDF dataset data.
+  ///
+  /// Throws [CodecNotSupportedException] if the requested codec is not supported.
+  /// Throws codec-specific exceptions for serialization errors.
+  String encodeDataset(
+    RdfDataset dataset, {
+    String? contentType,
+    String? baseUri,
+    RdfGraphEncoderOptions? options,
+  }) =>
+      datasetCodec(
+        contentType: contentType,
+        encoderOptions: options,
+      ).encode(dataset, baseUri: baseUri);
+
   /// Get a codec for a specific content type
   ///
   /// Returns a codec that can handle the specified content type.
@@ -345,6 +463,37 @@ final class RdfCore {
     RdfGraphDecoderOptions? decoderOptions,
   }) {
     final codec = _registry.getGraphCodec(contentType);
+    if (encoderOptions != null || decoderOptions != null) {
+      return codec.withOptions(
+        encoder: encoderOptions,
+        decoder: decoderOptions,
+      );
+    }
+    return codec;
+  }
+
+  /// Get a dataset codec for a specific content type
+  ///
+  /// Returns a dataset codec that can handle the specified content type.
+  /// If no content type is specified, returns the default dataset codec.
+  ///
+  /// The [contentType] parameter is an optional MIME type to specify the format.
+  /// If not specified, then the encoding will be with the default dataset codec and
+  /// the decoding codec will be automatically detected.
+  ///
+  /// The [encoderOptions] parameter allows for format-specific encoder options.
+  ///
+  /// The [decoderOptions] parameter allows for format-specific decoder options.
+  ///
+  /// Returns an [RdfCodec] that can handle the specified dataset content type.
+  ///
+  /// Throws [CodecNotSupportedException] if the requested format is not supported.
+  RdfCodec<RdfDataset> datasetCodec({
+    String? contentType,
+    RdfGraphEncoderOptions? encoderOptions,
+    RdfGraphDecoderOptions? decoderOptions,
+  }) {
+    final codec = _datasetRegistry.getCodec(contentType);
     if (encoderOptions != null || decoderOptions != null) {
       return codec.withOptions(
         encoder: encoderOptions,

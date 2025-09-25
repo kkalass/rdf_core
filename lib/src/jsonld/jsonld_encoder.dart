@@ -47,6 +47,7 @@ import 'package:rdf_core/src/graph/rdf_graph.dart';
 import 'package:rdf_core/src/graph/rdf_term.dart';
 import 'package:rdf_core/src/graph/triple.dart';
 import 'package:rdf_core/src/rdf_encoder.dart';
+import 'package:rdf_core/src/rdf_graph_encoder.dart';
 import 'package:rdf_core/src/iri_compaction.dart';
 import 'package:rdf_core/src/vocab/namespaces.dart';
 import 'package:rdf_core/src/vocab/rdf.dart';

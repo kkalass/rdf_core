@@ -80,6 +80,7 @@ nav a:hover, nav a:focus {
     <nav>
       <a href="#features">Features</a>
       <a href="#quickstart">Quick Start</a>
+      <a href="#n-quads">N-Quads</a>
       <a href="#advanced">Advanced</a>
       <a href="#api-overview">API Overview</a>
       <a href="api/">API Docs</a>
@@ -103,7 +104,11 @@ nav a:hover, nav a:focus {
     </div>
     <div class="feature">
       <h3><i class="fa-solid fa-certificate"></i> Standards-Compliant</h3>
-      <p>Implements <a href="https://www.w3.org/TR/rdf11-concepts/">W3C RDF 1.1</a> and related specs for maximum interoperability.</p>
+      <p>Implements <a href="https://www.w3.org/TR/rdf11-concepts/">W3C RDF 1.1</a> including datasets with named graphs and related specs for maximum interoperability.</p>
+    </div>
+    <div class="feature">
+      <h3><i class="fa-solid fa-layer-group"></i> Dataset Support</h3>
+      <p>Full RDF 1.1 dataset support with named graphs, N-Quads format, and seamless quad/triple conversion.</p>
     </div>
   </section>
 
@@ -252,6 +257,49 @@ print(encodedTurtle);
     </div>
   </section>
 
+  <section class="advanced" id="n-quads">
+    <h2>🗂️ N-Quads & RDF Datasets</h2>
+    <pre><code class="language-dart">// Create and work with RDF datasets containing named graphs
+import 'package:rdf_core/rdf_core.dart';
+
+// Create quads with graph context
+final alice = const IriTerm('http://example.org/alice');
+final bob = const IriTerm('http://example.org/bob');
+final foafName = const IriTerm('http://xmlns.com/foaf/0.1/name');
+final foafKnows = const IriTerm('http://xmlns.com/foaf/0.1/knows');
+final peopleGraph = const IriTerm('http://example.org/graphs/people');
+
+final quads = [
+  Quad(alice, foafName, LiteralTerm.string('Alice')), // default graph
+  Quad(alice, foafKnows, bob, peopleGraph), // named graph
+  Quad(bob, foafName, LiteralTerm.string('Bob'), peopleGraph), // named graph
+];
+
+// Create dataset from quads
+final dataset = RdfDataset.fromQuads(quads);
+
+// Option 1: Use the global convenience variable
+final nquadsData = nquads.encode(dataset);
+
+// Option 2: Use the pre-configured RdfCore instance
+final rdf = RdfCore.withStandardCodecs();
+final nquadsData2 = rdf.encodeDataset(dataset, contentType: 'application/n-quads');
+
+print('N-Quads output:\n$nquadsData');
+
+// Decode N-Quads data back to dataset
+final decodedDataset = nquads.decode(nquadsData);
+
+// Access default and named graphs
+print('Default graph has ${decodedDataset.defaultGraph.triples.length} triples');
+print('Dataset has ${decodedDataset.namedGraphs.length} named graphs');
+</code></pre>
+    <div class="links">
+      <a href="api/rdf/NQuadsCodec-class.html">NQuadsCodec API</a>
+      <a href="https://www.w3.org/TR/n-quads/">N-Quads Specification</a>
+    </div>
+  </section>
+
   <section class="advanced" id="graph-composition">
     <h2>🔗 Graph Composition & Performance</h2>
     <pre><code class="language-dart">// Automatic query optimization with lazy indexing
@@ -366,8 +414,20 @@ print(encodedTurtle);
         <td style="padding:8px; border-bottom:1px solid #eee;">Atomic RDF statement (subject, predicate, object)</td>
       </tr>
       <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><code>Quad</code></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">RDF statement with optional graph context (subject, predicate, object, graph)</td>
+      </tr>
+      <tr>
         <td style="padding:8px; border-bottom:1px solid #eee;"><code>RdfGraph</code></td>
         <td style="padding:8px; border-bottom:1px solid #eee;">Collection of RDF triples with automatic query optimization</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><code>RdfDataset</code></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">Collection of named graphs plus a default graph</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><code>RdfNamedGraph</code></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">A named graph pair (name + graph)</td>
       </tr>
       <tr>
         <td style="padding:8px; border-bottom:1px solid #eee;"><code>hasTriples()</code></td>
@@ -382,12 +442,24 @@ print(encodedTurtle);
         <td style="padding:8px; border-bottom:1px solid #eee;">Base class for decoding/encoding RdfGraph in various formats</td>
       </tr>
       <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><code>RdfDatasetCodec</code></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">Base class for decoding/encoding RdfDataset in various formats</td>
+      </tr>
+      <tr>
         <td style="padding:8px; border-bottom:1px solid #eee;"><code>RdfGraphDecoder</code></td>
         <td style="padding:8px; border-bottom:1px solid #eee;">Base class for decoding RdfGraph</td>
       </tr>
       <tr>
         <td style="padding:8px; border-bottom:1px solid #eee;"><code>RdfGraphEncoder</code></td>
         <td style="padding:8px; border-bottom:1px solid #eee;">Base class for encoding RdfGraph</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><code>RdfDatasetDecoder</code></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">Base class for decoding RdfDataset</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><code>RdfDatasetEncoder</code></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">Base class for encoding RdfDataset</td>
       </tr>
       <tr>
         <td style="padding:8px; border-bottom:1px solid #eee;"><code>turtle</code></td>
@@ -400,6 +472,10 @@ print(encodedTurtle);
       <tr>
         <td style="padding:8px; border-bottom:1px solid #eee;"><code>ntriples</code></td>
         <td style="padding:8px; border-bottom:1px solid #eee;">Global convenience variable for N-Triples format</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><code>nquads</code></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">Global convenience variable for N-Quads format</td>
       </tr>
       <tr>
         <td style="padding:8px; border-bottom:1px solid #eee;"><code>rdf</code></td>

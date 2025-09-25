@@ -6,11 +6,13 @@
 library turtle_format;
 
 import 'package:rdf_core/src/graph/rdf_term.dart';
+import 'package:rdf_core/src/rdf_decoder.dart';
+import 'package:rdf_core/src/rdf_encoder.dart';
 import 'package:rdf_core/src/vocab/namespaces.dart';
 
-import '../plugin/rdf_codec.dart';
-import '../rdf_decoder.dart';
-import '../rdf_encoder.dart';
+import '../plugin/rdf_graph_codec.dart';
+import '../rdf_graph_decoder.dart';
+import '../rdf_graph_encoder.dart';
 import 'turtle_decoder.dart';
 import 'turtle_encoder.dart';
 

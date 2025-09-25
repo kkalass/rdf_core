@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.19] - TBD
+
+### Added
+
+- **RDF 1.1 Dataset Support**: New `RdfDataset`, `Quad`, and `RdfNamedGraph` classes for managing collections of named graphs
+- **N-Quads Format Support**: Complete implementation with `NQuadsCodec` for serializing/parsing RDF datasets (application/n-quads)
+- **Enhanced Plugin Architecture**: New `RdfDatasetCodec` base class and `RdfDatasetCodecRegistry` for dataset format plugins
+- **Unified Decoder/Encoder API**: New base classes `RdfGraphDecoder`, `RdfGraphEncoder`, `RdfDatasetDecoder`, `RdfDatasetEncoder`
+
+### Enhanced
+
+- **RdfCore API**: Added `decodeDataset()`, `encodeDataset()`, and `datasetCodec()` methods for dataset operations
+- **N-Triples Implementation**: Refactored to delegate to N-Quads decoder for better code reuse
+
+### Changed
+
+- **Plugin Architecture**: Reorganized codec files and added new `RdfDatasetCodec` hierarchy alongside existing `RdfGraphCodec`
+- **Library Exports**: Added exports for dataset classes and reorganized public API
+
 ## [0.9.18] - 2025-09-25
 
 ### Added

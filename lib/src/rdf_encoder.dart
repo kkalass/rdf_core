@@ -7,8 +7,6 @@ library;
 
 import 'dart:convert';
 
-import 'graph/rdf_graph.dart';
-
 /// Configuration options for IRI relativization behavior.
 ///
 /// Controls how IRIs are relativized when a base IRI is provided during encoding.
@@ -209,36 +207,35 @@ class RdfGraphEncoderOptions {
       );
 }
 
-/// Interface for encoding RDF graphs to different serialization formats.
+/// Interface for encoding RDF data structures to different serialization formats.
 ///
-/// This base class defines the contract for encoding RDF graphs into textual
-/// representations using various formats like Turtle, JSON-LD, etc. It's part of
-/// the Strategy pattern implementation that allows the library to support multiple
-/// encoding formats.
+/// This base class defines the contract for encoding RDF data structures (graphs, datasets, etc.)
+/// into textual representations using various formats. It's part of the Strategy pattern
+/// implementation that allows the library to support multiple encoding formats.
 ///
 /// Format-specific encoders should extend this base class to be registered
 /// with the RDF library's codec framework.
 ///
 /// Encoders are responsible for:
-/// - Determining how to represent triples in their specific format
+/// - Determining how to represent RDF data in their specific format
 /// - Handling namespace prefixes and base URIs
 /// - Applying format-specific optimizations for readability or size
-abstract class RdfGraphEncoder extends Converter<RdfGraph, String> {
-  const RdfGraphEncoder();
+abstract class RdfEncoder<G> extends Converter<G, String> {
+  const RdfEncoder();
 
-  /// Encodes an RDF graph to a string representation in a specific format.
+  /// Encodes an RDF data structure to a string representation in a specific format.
   ///
-  /// Transforms an in-memory RDF graph into an encoded text format that can be
+  /// Transforms an in-memory RDF data structure into an encoded text format that can be
   /// stored or transmitted. The exact output format depends on the implementing class.
   ///
   /// Parameters:
-  /// - [graph] The RDF graph to encode.
+  /// - [data] The RDF data structure to encode.
   /// - [baseUri] Optional base URI for resolving/shortening IRIs in the output.
   ///   When provided, the encoder may use this to produce more compact output.
   ///
   /// Returns:
-  /// - The serialized representation of the graph as a string.
-  String convert(RdfGraph graph, {String? baseUri});
+  /// - The serialized representation of the data as a string.
+  String convert(G data, {String? baseUri});
 
   /// Creates a new encoder instance with the specified options.
   ///
@@ -252,5 +249,5 @@ abstract class RdfGraphEncoder extends Converter<RdfGraph, String> {
   ///
   /// Returns:
   /// - A new encoder instance with the specified options applied.
-  RdfGraphEncoder withOptions(RdfGraphEncoderOptions options);
+  RdfEncoder<G> withOptions(RdfGraphEncoderOptions options);
 }

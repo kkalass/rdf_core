@@ -13,6 +13,7 @@
 library iri_util;
 
 import 'dart:math' as math;
+
 import 'package:rdf_core/rdf_core.dart';
 
 /// Converts an absolute IRI to a relative form when possible.

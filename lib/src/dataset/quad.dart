@@ -149,7 +149,7 @@ final class Quad {
   /// The IRI name of the graph containing this quad. If null, this quad belongs
   /// to the default graph. This follows RDF 1.1 Dataset semantics where graph
   /// names are IRIs and the default graph has no name.
-  final IriTerm? graphName;
+  final RdfGraphName? graphName;
 
   /// Creates a new RDF quad with the specified components
   ///
@@ -192,7 +192,7 @@ final class Quad {
   /// final namedQuad = Quad.fromTriple(triple, socialGraphName);
   /// final defaultQuad = Quad.fromTriple(triple); // default graph
   /// ```
-  Quad.fromTriple(Triple triple, [IriTerm? graphName])
+  Quad.fromTriple(Triple triple, [RdfGraphName? graphName])
       : subject = triple.subject,
         predicate = triple.predicate,
         object = triple.object,

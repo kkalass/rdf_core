@@ -57,6 +57,10 @@ sealed class RdfSubject extends RdfObject {
   const RdfSubject();
 }
 
+sealed class RdfGraphName extends RdfSubject {
+  const RdfGraphName();
+}
+
 /// Base type for values that can appear in the predicate position of a triple
 ///
 /// In RDF, predicates can only be IRIs.
@@ -74,7 +78,7 @@ typedef IriTermFactory = IriTerm Function(String iri);
 /// IRIs can be used in any position in a triple: subject, predicate, or object.
 ///
 /// Example: `http://example.org/person/john` or `http://xmlns.com/foaf/0.1/name`
-class IriTerm extends RdfPredicate implements RdfSubject {
+class IriTerm extends RdfPredicate implements RdfGraphName {
   /// The string representation of the IRI
   final String value;
 
@@ -184,7 +188,7 @@ class IriTerm extends RdfPredicate implements RdfSubject {
 /// Blank nodes can appear in subject or object positions, but not as predicates.
 ///
 /// In Turtle syntax, blank nodes are written as `_:label` or as `[]`.
-class BlankNodeTerm extends RdfSubject {
+class BlankNodeTerm extends RdfGraphName {
   @override
   bool operator ==(Object other) {
     // Yes, this is the default implementation, but because it is so crucial

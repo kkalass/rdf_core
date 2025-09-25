@@ -127,11 +127,11 @@ class RdfNamedGraph {
   /// The IRI name that uniquely identifies this graph within a dataset
   ///
   /// This IRI serves as the unique identifier for the graph within an RDF dataset.
-  /// According to RDF 1.1 specification, graph names must be IRIs, ensuring
+  /// According to RDF 1.1 specification, graph names must be IRIs or Blank Nodes, ensuring
   /// global uniqueness and enabling distributed RDF data management.
   ///
   /// The name is immutable once set during construction.
-  final IriTerm name;
+  final RdfGraphName name;
 
   /// The RDF graph containing the actual triple data
   ///

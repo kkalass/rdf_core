@@ -127,7 +127,7 @@ class RdfDataset {
   ///
   /// This map provides O(1) lookup time for named graphs. The keys are
   /// IRI terms that uniquely identify each named graph in the dataset.
-  final Map<IriTerm, RdfGraph> _namedGraphs;
+  final Map<RdfGraphName, RdfGraph> _namedGraphs;
 
   /// Creates an RDF dataset with the specified default graph and named graphs
   ///
@@ -149,7 +149,8 @@ class RdfDataset {
   /// );
   /// ```
   RdfDataset(
-      {required this.defaultGraph, required Map<IriTerm, RdfGraph> namedGraphs})
+      {required this.defaultGraph,
+      required Map<RdfGraphName, RdfGraph> namedGraphs})
       : _namedGraphs = namedGraphs;
 
   /// Get all graph names (IRIs) in this dataset
@@ -169,7 +170,7 @@ class RdfDataset {
   ///   print('Graph: ${name.iri}');
   /// }
   /// ```
-  Iterable<IriTerm> get graphNames => _namedGraphs.keys;
+  Iterable<RdfGraphName> get graphNames => _namedGraphs.keys;
 
   /// Retrieve a named graph by its IRI identifier
   ///
@@ -192,7 +193,7 @@ class RdfDataset {
   ///   print('Graph not found');
   /// }
   /// ```
-  RdfGraph? graph(IriTerm name) => _namedGraphs[name];
+  RdfGraph? graph(RdfGraphName name) => _namedGraphs[name];
 
   /// Check if a named graph exists in this dataset
   ///
@@ -213,7 +214,7 @@ class RdfDataset {
   ///   final graph = dataset.graph(graphName)!;
   /// }
   /// ```
-  bool containsGraph(IriTerm name) => _namedGraphs.containsKey(name);
+  bool containsGraph(RdfGraphName name) => _namedGraphs.containsKey(name);
 
   /// Get all named graphs as RdfNamedGraph instances
   ///
@@ -395,9 +396,9 @@ class RdfDataset {
   }
 
   /// Builds named graphs map from quads with non-null graph names
-  static Map<IriTerm, RdfGraph> _buildNamedGraphs(Iterable<Quad> quads) {
+  static Map<RdfGraphName, RdfGraph> _buildNamedGraphs(Iterable<Quad> quads) {
     final namedQuads = quads.where((quad) => !quad.isDefaultGraph);
-    final graphTriples = <IriTerm, List<Triple>>{};
+    final graphTriples = <RdfGraphName, List<Triple>>{};
 
     // Group triples by graph name
     for (final quad in namedQuads) {
@@ -406,7 +407,7 @@ class RdfDataset {
     }
 
     // Convert to graphs
-    return graphTriples.map((name, triples) =>
-        MapEntry(name, RdfGraph(triples: triples)));
+    return graphTriples
+        .map((name, triples) => MapEntry(name, RdfGraph(triples: triples)));
   }
 }

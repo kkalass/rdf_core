@@ -9,11 +9,10 @@ import 'package:rdf_core/src/dataset/rdf_dataset.dart';
 import 'package:rdf_core/src/rdf_dataset_decoder.dart';
 import 'package:rdf_core/src/rdf_decoder.dart';
 
+import '../dataset/quad.dart';
 import '../exceptions/rdf_decoder_exception.dart';
 import '../exceptions/rdf_exception.dart';
-import '../graph/rdf_graph.dart';
 import '../graph/rdf_term.dart';
-import '../graph/triple.dart';
 
 /// Options for configuring the N-Quads decoder behavior.
 ///
@@ -83,7 +82,7 @@ final class NQuadsDecoder extends RdfDatasetDecoder {
       'Parsing N-Quads document${documentUrl != null ? " with base URL: $documentUrl" : ""}',
     );
 
-    final List<Triple> triples = [];
+    final List<Quad> quads = [];
     final List<String> lines = input.split('\n');
     final Map<String, BlankNodeTerm> blankNodeMap = {};
     int lineNumber = 0;
@@ -98,8 +97,8 @@ final class NQuadsDecoder extends RdfDatasetDecoder {
       }
 
       try {
-        final triple = _parseLine(trimmed, lineNumber, blankNodeMap);
-        triples.add(triple);
+        final quad = _parseLine(trimmed, lineNumber, blankNodeMap);
+        quads.add(quad);
       } catch (e) {
         throw RdfDecoderException(
           'Error parsing N-Quads at line $lineNumber: ${e.toString()}',
@@ -112,14 +111,13 @@ final class NQuadsDecoder extends RdfDatasetDecoder {
         );
       }
     }
-    final defaultGraph = RdfGraph.fromTriples(triples);
-    // FIXME: parse named graphs as well
-    final namedGraphs = <IriTerm, RdfGraph>{};
-    return RdfDataset(defaultGraph: defaultGraph, namedGraphs: namedGraphs);
+
+    // Organize quads into default and named graphs
+    return RdfDataset.fromQuads(quads);
   }
 
-  /// Parses a single line of N-Quads format into a Triple
-  Triple _parseLine(
+  /// Parses a single line of N-Quads format into a Quad
+  Quad _parseLine(
       String line, int lineNumber, Map<String, BlankNodeTerm> blankNodeMap) {
     // Check that the line ends with a period
     if (!line.trim().endsWith('.')) {
@@ -137,11 +135,11 @@ final class NQuadsDecoder extends RdfDatasetDecoder {
     // Remove the trailing period and trim
     final content = line.trim().substring(0, line.trim().length - 1).trim();
 
-    // Split into subject, predicate, object
+    // Split into subject, predicate, object, [graph]
     final parts = _splitTripleParts(content, lineNumber);
-    if (parts.length != 3) {
+    if (parts.length != 3 && parts.length != 4) {
       throw RdfDecoderException(
-        'Invalid triple format: expected 3 parts, found ${parts.length}',
+        'Invalid quad format: expected 3 or 4 parts, found ${parts.length}',
         format: _formatName,
         source: SourceLocation(
           line: lineNumber - 1, // Convert to 0-based line number
@@ -155,7 +153,28 @@ final class NQuadsDecoder extends RdfDatasetDecoder {
     final predicate = _parsePredicate(parts[1].trim(), lineNumber);
     final object = _parseObject(parts[2].trim(), lineNumber, blankNodeMap);
 
-    return Triple(subject, predicate, object);
+    // Parse graph if present (N-Quads format)
+    IriTerm? graph;
+    if (parts.length == 4) {
+      final graphTerm = _parseGraph(parts[3].trim(), lineNumber, blankNodeMap);
+      // For now, only support IRI graph names as per current Quad implementation
+      // Blank node graph names will need to be handled differently
+      if (graphTerm is IriTerm) {
+        graph = graphTerm;
+      } else {
+        throw RdfDecoderException(
+          'Blank node graph names are not yet supported in Quad implementation',
+          format: _formatName,
+          source: SourceLocation(
+            line: lineNumber - 1,
+            column: 0,
+            context: parts[3],
+          ),
+        );
+      }
+    }
+
+    return Quad(subject, predicate, object, graph);
   }
 
   /// Splits a triple line into its component parts (subject, predicate, object)
@@ -282,6 +301,30 @@ final class NQuadsDecoder extends RdfDatasetDecoder {
           line: lineNumber - 1, // Convert to 0-based line number
           column: 0,
           context: object,
+        ),
+      );
+    }
+  }
+
+  /// Parses the graph part of a quad (IRI or blank node)
+  RdfTerm _parseGraph(
+      String graph, int lineNumber, Map<String, BlankNodeTerm> blankNodeMap) {
+    if (graph.startsWith('<') && graph.endsWith('>')) {
+      // IRI
+      final iri = _parseIri(graph, lineNumber);
+      return _iriTermFactory(iri);
+    } else if (graph.startsWith('_:')) {
+      // Blank node
+      final label = graph.substring(2); // Remove '_:' prefix
+      return blankNodeMap.putIfAbsent(label, () => BlankNodeTerm());
+    } else {
+      throw RdfDecoderException(
+        'Invalid graph: $graph. Must be an IRI or blank node',
+        format: _formatName,
+        source: SourceLocation(
+          line: lineNumber - 1, // Convert to 0-based line number
+          column: 0,
+          context: graph,
         ),
       );
     }

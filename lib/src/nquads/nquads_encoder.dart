@@ -102,21 +102,25 @@ final class NQuadsEncoder extends RdfDatasetEncoder {
     final buffer = StringBuffer();
     final Map<BlankNodeTerm, String> blankNodeLabels = {};
     final _BlankNodeCounter counter = _BlankNodeCounter();
-    final graph = dataset.defaultGraph;
-    if (dataset.namedGraphs.isNotEmpty) {
-      // FIXME: Add support for named graphs in N-Quads serialization
-      _logger.warning(
-          'N-Quads format does not support named graphs yet. Only the default graph will be serialized.');
-    }
-    for (final triple in graph.triples) {
+
+    // Write default graph triples (as triples without graph context)
+    for (final triple in dataset.defaultGraph.triples) {
       _writeTriple(buffer, triple, blankNodeLabels, counter);
       buffer.writeln();
+    }
+
+    // Write named graph quads (as quads with graph context)
+    for (final namedGraph in dataset.namedGraphs) {
+      for (final triple in namedGraph.graph.triples) {
+        _writeQuad(buffer, triple, namedGraph.name, blankNodeLabels, counter);
+        buffer.writeln();
+      }
     }
 
     return buffer.toString();
   }
 
-  /// Writes a single triple in N-Quads format to the buffer
+  /// Writes a single triple in N-Triples format to the buffer
   void _writeTriple(StringBuffer buffer, Triple triple,
       Map<BlankNodeTerm, String> blankNodeLabels, _BlankNodeCounter counter) {
     _writeTerm(buffer, triple.subject, blankNodeLabels, counter);
@@ -124,6 +128,19 @@ final class NQuadsEncoder extends RdfDatasetEncoder {
     _writeTerm(buffer, triple.predicate, blankNodeLabels, counter);
     buffer.write(' ');
     _writeTerm(buffer, triple.object, blankNodeLabels, counter);
+    buffer.write(' .');
+  }
+
+  /// Writes a single quad in N-Quads format to the buffer
+  void _writeQuad(StringBuffer buffer, Triple triple, RdfTerm graph,
+      Map<BlankNodeTerm, String> blankNodeLabels, _BlankNodeCounter counter) {
+    _writeTerm(buffer, triple.subject, blankNodeLabels, counter);
+    buffer.write(' ');
+    _writeTerm(buffer, triple.predicate, blankNodeLabels, counter);
+    buffer.write(' ');
+    _writeTerm(buffer, triple.object, blankNodeLabels, counter);
+    buffer.write(' ');
+    _writeTerm(buffer, graph, blankNodeLabels, counter);
     buffer.write(' .');
   }
 

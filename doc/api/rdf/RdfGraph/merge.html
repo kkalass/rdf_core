@@ -55,8 +55,9 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></span>
-<span class="name ">merge</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="merge-param-other"><span class="type-annotation"><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></span> <span class="parameter-name">other</span></span></li>
-</ol>)
+<span class="name ">merge</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="merge-param-other"><span class="type-annotation"><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></span> <span class="parameter-name">other</span>, {</span></li>
+<li><span class="parameter" id="merge-param-removeDuplicates"><span class="type-annotation">dynamic</span> <span class="parameter-name">removeDuplicates</span> = <span class="default-value">true</span>, </span></li>
+</ol>})
 
       
 
@@ -88,8 +89,8 @@ final merged = graph1.merge(graph2); // Each unique triple appears only once
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">RdfGraph merge(RdfGraph other) {
-  return withTriples(other._triples);
+  <pre class="language-dart"><code class="language-dart">RdfGraph merge(RdfGraph other, {removeDuplicates = true}) {
+  return withTriples(other._triples, removeDuplicates: removeDuplicates);
 }</code></pre>
 </section>
 
@@ -118,7 +119,7 @@ final merged = graph1.merge(graph2); // Each unique triple appears only once
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.17
+      0.9.18
   </span>
   
 </footer>

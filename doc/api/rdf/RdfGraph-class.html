@@ -299,7 +299,7 @@ final updatedGraph = graph.withTriple(Triple(jane, name, janeSmith));
 </dd>
 
         <dt id="merge" class="callable">
-  <span class="name"><a href="../rdf/RdfGraph/merge.html">merge</a></span><span class="signature">(<wbr><span class="parameter" id="merge-param-other"><span class="type-annotation"><a href="../rdf/RdfGraph-class.html">RdfGraph</a></span> <span class="parameter-name">other</span></span>)
+  <span class="name"><a href="../rdf/RdfGraph/merge.html">merge</a></span><span class="signature">(<wbr><span class="parameter" id="merge-param-other"><span class="type-annotation"><a href="../rdf/RdfGraph-class.html">RdfGraph</a></span> <span class="parameter-name">other</span>, {</span><span class="parameter" id="merge-param-removeDuplicates"><span class="type-annotation">dynamic</span> <span class="parameter-name">removeDuplicates</span> = <span class="default-value">true</span></span>})
     <span class="returntype parameter">&#8594; <a href="../rdf/RdfGraph-class.html">RdfGraph</a></span>
   </span>
   
@@ -321,6 +321,19 @@ final updatedGraph = graph.withTriple(Triple(jane, name, janeSmith));
 <dd class="inherited">
   Invoked when a nonexistent method or property is accessed.
   <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="subgraph" class="callable">
+  <span class="name"><a href="../rdf/RdfGraph/subgraph.html">subgraph</a></span><span class="signature">(<wbr><span class="parameter" id="subgraph-param-root"><span class="type-annotation"><a href="../rdf/RdfSubject-class.html">RdfSubject</a></span> <span class="parameter-name">root</span>, {</span><span class="parameter" id="subgraph-param-filter"><span class="type-annotation"><a href="../rdf/TraversalFilter.html">TraversalFilter</a>?</span> <span class="parameter-name">filter</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rdf/RdfGraph-class.html">RdfGraph</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Extracts a subgraph starting from a root subject with optional traversal control
+  
 
 </dd>
 
@@ -403,7 +416,7 @@ final updatedGraph = graph.withTriple(Triple(jane, name, janeSmith));
 </dd>
 
         <dt id="withTriples" class="callable">
-  <span class="name"><a href="../rdf/RdfGraph/withTriples.html">withTriples</a></span><span class="signature">(<wbr><span class="parameter" id="withTriples-param-triples"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/Triple-class.html">Triple</a></span>&gt;</span></span> <span class="parameter-name">triples</span></span>)
+  <span class="name"><a href="../rdf/RdfGraph/withTriples.html">withTriples</a></span><span class="signature">(<wbr><span class="parameter" id="withTriples-param-triples"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rdf/Triple-class.html">Triple</a></span>&gt;</span></span> <span class="parameter-name">triples</span>, {</span><span class="parameter" id="withTriples-param-removeDuplicates"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">removeDuplicates</span> = <span class="default-value">true</span></span>})
     <span class="returntype parameter">&#8594; <a href="../rdf/RdfGraph-class.html">RdfGraph</a></span>
   </span>
   
@@ -484,7 +497,7 @@ because we want to compare the sets of triples, not the order
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.17
+      0.9.18
   </span>
   
 </footer>

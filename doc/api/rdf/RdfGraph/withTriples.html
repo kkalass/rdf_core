@@ -55,8 +55,9 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></span>
-<span class="name ">withTriples</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="withTriples-param-triples"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/Triple-class.html">Triple</a></span>&gt;</span></span> <span class="parameter-name">triples</span></span></li>
-</ol>)
+<span class="name ">withTriples</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="withTriples-param-triples"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/Triple-class.html">Triple</a></span>&gt;</span></span> <span class="parameter-name">triples</span>, {</span></li>
+<li><span class="parameter" id="withTriples-param-removeDuplicates"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">removeDuplicates</span> = <span class="default-value">true</span>, </span></li>
+</ol>})
 
       
 
@@ -94,11 +95,11 @@ final graphWithDuplicates = graph.withTriples([existingTriple, newTriple]);
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">RdfGraph withTriples(
-  Iterable&lt;Triple&gt; triples,
-) {
-  final newTriples =
-      {..._triples, ...triples}.toList(); &#47;&#47; Use a set to avoid duplicates
+  <pre class="language-dart"><code class="language-dart">RdfGraph withTriples(Iterable&lt;Triple&gt; triples,
+    {bool removeDuplicates = true}) {
+  final newTriples = removeDuplicates
+      ? {..._triples, ...triples}.toList()
+      : (List&lt;Triple&gt;.from(_triples)..addAll(triples));
 
   return RdfGraph(triples: newTriples, enableIndexing: indexingEnabled);
 }</code></pre>
@@ -129,7 +130,7 @@ final graphWithDuplicates = graph.withTriples([existingTriple, newTriple]);
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.17
+      0.9.18
   </span>
   
 </footer>

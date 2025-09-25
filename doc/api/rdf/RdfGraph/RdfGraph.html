@@ -88,7 +88,7 @@ final graph = RdfGraph(triples: myTriples, enableIndexing: false);
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">RdfGraph({Iterable&lt;Triple&gt; triples = const [], bool enableIndexing = true})
-    : _triples = List.unmodifiable(List.from(triples)),
+    : _triples = List.unmodifiable(triples),
       indexingEnabled = enableIndexing;</code></pre>
 </section>
 
@@ -117,7 +117,7 @@ final graph = RdfGraph(triples: myTriples, enableIndexing: false);
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.17
+      0.9.18
   </span>
   
 </footer>

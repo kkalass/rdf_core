@@ -55,9 +55,8 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="../../rdf/RdfGraph-class.html">RdfGraph</a></span>
-<span class="name ">subgraph</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="subgraph-param-subject"><span class="type-annotation"><a href="../../rdf/RdfSubject-class.html">RdfSubject</a>?</span> <span class="parameter-name">subject</span>, </span></li>
-<li><span class="parameter" id="subgraph-param-predicate"><span class="type-annotation"><a href="../../rdf/RdfPredicate-class.html">RdfPredicate</a>?</span> <span class="parameter-name">predicate</span>, </span></li>
-<li><span class="parameter" id="subgraph-param-object"><span class="type-annotation"><a href="../../rdf/RdfObject-class.html">RdfObject</a>?</span> <span class="parameter-name">object</span>, </span></li>
+<span class="name ">subgraph</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="subgraph-param-root"><span class="type-annotation"><a href="../../rdf/RdfSubject-class.html">RdfSubject</a></span> <span class="parameter-name">root</span>, {</span></li>
+<li><span class="parameter" id="subgraph-param-filter"><span class="type-annotation"><a href="../../rdf/TraversalFilter.html">TraversalFilter</a>?</span> <span class="parameter-name">filter</span>, </span></li>
 </ol>})
 
       
@@ -65,37 +64,65 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates a new graph containing only triples that match the given pattern</p>
-<p>This method returns a subgraph containing all triples that match the specified
-pattern components. Unlike <a href="../../rdf/RdfGraph/findTriples.html">findTriples</a>, this method returns a new RdfGraph
-instance that can be used for further graph operations, chaining, and merging.</p>
-<p><strong>Performance Optimization:</strong> When filtering by subject (with or without predicate)
-and indexing is enabled, this method can reuse parts of the existing index for
-improved performance of subsequent operations on the subgraph.</p>
-<p>Pattern matching uses AND logic - all non-null parameters must match
-for a triple to be included. Null parameters act as wildcards and match
-any value in that position.</p>
+  <p>Extracts a subgraph starting from a root subject with optional traversal control</p>
+<p>This method creates a true graph-theory subgraph by following reachable nodes
+from the specified root subject. Unlike <a href="../../rdf/RdfGraph/matching.html">matching</a>, which performs pattern-based
+filtering, this method traverses the graph structure by following object references
+that are IRIs or blank nodes.</p>
+<p><strong>Traversal Behavior:</strong></p>
+<ul>
+<li>Starts from the root subject</li>
+<li>For each triple where the root is the subject, includes the triple</li>
+<li>If the object is an IRI or blank node, recursively traverses from that object</li>
+<li>Includes cycle detection to prevent infinite loops</li>
+<li>Optional filter callback allows fine-grained control over traversal</li>
+</ul>
+<p><strong>Traversal Control:</strong>
+The optional <code>filter</code> callback is invoked for each triple encountered during
+traversal, allowing you to control which triples are included and whether
+traversal should continue from their objects.</p>
 <p>Parameters:</p>
 <ul>
-<li><code>subject</code> Optional subject to match (null acts as wildcard)</li>
-<li><code>predicate</code> Optional predicate to match (null acts as wildcard)</li>
-<li><code>object</code> Optional object to match (null acts as wildcard)</li>
+<li><code>root</code> The subject to start traversal from</li>
+<li><code>filter</code> Optional callback to control traversal behavior for each triple</li>
 </ul>
 <p>Returns:
-A new RdfGraph containing only the matching triples. The subgraph may be
-empty if no triples match the pattern.</p>
+A new RdfGraph containing all reachable triples from the root subject,
+filtered according to the traversal decisions.</p>
 <p>Example:</p>
-<pre class="language-dart"><code class="language-dart">// Get all information about John as a separate graph
-final johnGraph = graph.subgraph(subject: john);
+<pre class="language-dart"><code class="language-dart">// Simple subgraph extraction
+final aliceSubgraph = graph.subgraph(alice);
 
-// Get all type declarations
-final typeGraph = graph.subgraph(predicate: rdf.type);
+// Controlled traversal - exclude email and don't descend from addresses
+final filtered = graph.subgraph(alice, filter: (triple, depth) {
+  // Don't include email triples at all
+  if (triple.predicate.iri.endsWith('email')) {
+    return TraversalDecision.skip;
+  }
 
-// Chain operations efficiently
-final result = graph
-  .subgraph(subject: john)
-  .merge(otherGraph)
-  .subgraph(predicate: foaf.knows);
+  // Include address info but don't traverse into address details
+  if (triple.predicate.iri.endsWith('hasAddress')) {
+    return TraversalDecision.includeButDontDescend;
+  }
+
+  // Limit traversal depth
+  if (depth &gt; 2) {
+    return TraversalDecision.includeButDontDescend;
+  }
+
+  return TraversalDecision.include;
+});
+
+// List filtering example using skipButDescend
+// Extract only list values from RDF lists, skipping structural elements
+final listValues = graph.subgraph(listRoot, filter: (triple, depth) {
+  // Skip rdf:rest (list structure) but continue following the list
+  if (triple.predicate.iri == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest') {
+    return TraversalDecision.skipButDescend;
+  }
+  // Include rdf:first (actual values) and other content
+  return TraversalDecision.include;
+});
 </code></pre>
 </section>
 
@@ -103,62 +130,13 @@ final result = graph
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">RdfGraph subgraph({
-  RdfSubject? subject,
-  RdfPredicate? predicate,
-  RdfObject? object,
-}) {
-  &#47;&#47; Optimization: if filtering by subject and we have an index
-  if (subject != null &amp;&amp; object == null) {
-    switch (_effectiveIndex) {
-      case null:
-        break;
-      case final index:
-        final subjectMap = index[subject];
-        if (subjectMap == null) {
-          &#47;&#47; Subject not found - return empty graph
-          return RdfGraph(enableIndexing: indexingEnabled);
-        }
-
-        if (predicate == null) {
-          &#47;&#47; Subject only: use entire subject map
-          final subjectTriples = subjectMap.values.expand((list) =&gt; list);
-          final reducedIndex = {subject: subjectMap};
-
-          return RdfGraph._withIndex(
-            subjectTriples,
-            reducedIndex,
-            indexingEnabled,
-          );
-        } else {
-          &#47;&#47; Subject + predicate: use specific predicate list
-          final predicateTriples = subjectMap[predicate];
-          if (predicateTriples == null) {
-            &#47;&#47; Subject+predicate not found - return empty graph
-            return RdfGraph(enableIndexing: indexingEnabled);
-          }
-
-          final reducedIndex = {
-            subject: {predicate: predicateTriples}
-          };
-
-          return RdfGraph._withIndex(
-            predicateTriples,
-            reducedIndex,
-            indexingEnabled,
-          );
-        }
-    }
-  }
-
-  &#47;&#47; General case: delegate to findTriples and create new graph
-  final matchingTriples = findTriples(
-    subject: subject,
-    predicate: predicate,
-    object: object,
-  );
-
-  return RdfGraph(triples: matchingTriples, enableIndexing: indexingEnabled);
+  <pre class="language-dart"><code class="language-dart">RdfGraph subgraph(RdfSubject root, {TraversalFilter? filter}) {
+  final subgraphTriples = _getSubgraphTriples(
+    this,
+    root,
+    filter: filter,
+  ).toList();
+  return RdfGraph(triples: subgraphTriples, enableIndexing: indexingEnabled);
 }</code></pre>
 </section>
 
@@ -187,7 +165,7 @@ final result = graph
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.16
+      0.9.18
   </span>
   
 </footer>

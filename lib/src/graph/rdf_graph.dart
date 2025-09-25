@@ -59,6 +59,11 @@ enum TraversalDecision {
   /// Skip this triple entirely and do not descend from its object
   skip,
 
+  /// Skip this triple but do descend from its object. This breaks
+  /// graph connectivity but can be useful to select specific triples, e.g.
+  /// for finding specific list elements
+  skipButDescend,
+
   /// Include this triple but do not descend from its object
   includeButDontDescend,
 }
@@ -265,8 +270,7 @@ final class RdfGraph {
       {bool removeDuplicates = true}) {
     final newTriples = removeDuplicates
         ? {..._triples, ...triples}.toList()
-        : List<Triple>.from(_triples)
-      ..addAll(triples);
+        : (List<Triple>.from(_triples)..addAll(triples));
 
     return RdfGraph(triples: newTriples, enableIndexing: indexingEnabled);
   }
@@ -883,6 +887,18 @@ final class RdfGraph {
         case TraversalDecision.skip:
           // Don't yield the triple and don't descend
           break;
+        case TraversalDecision.skipButDescend:
+          final obj = triple.object;
+          if (obj is RdfSubject) {
+            yield* _getSubgraphTriples(
+              subgraph,
+              obj,
+              visited: visited,
+              filter: filter,
+              depth: depth + 1,
+            );
+          }
+          break;
       }
     }
   }
@@ -936,6 +952,17 @@ final class RdfGraph {
   ///     return TraversalDecision.includeButDontDescend;
   ///   }
   ///
+  ///   return TraversalDecision.include;
+  /// });
+  ///
+  /// // List filtering example using skipButDescend
+  /// // Extract only list values from RDF lists, skipping structural elements
+  /// final listValues = graph.subgraph(listRoot, filter: (triple, depth) {
+  ///   // Skip rdf:rest (list structure) but continue following the list
+  ///   if (triple.predicate.iri == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest') {
+  ///     return TraversalDecision.skipButDescend;
+  ///   }
+  ///   // Include rdf:first (actual values) and other content
   ///   return TraversalDecision.include;
   /// });
   /// ```

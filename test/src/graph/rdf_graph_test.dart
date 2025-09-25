@@ -1110,9 +1110,11 @@ void main() {
           final includeNode = const IriTerm('http://example.com/include');
           final skipNode = const IriTerm('http://example.com/skip');
           final dontDescendNode = const IriTerm('http://example.com/dontDescend');
+          final skipButDescendNode = const IriTerm('http://example.com/skipButDescend');
           final childOfInclude = const IriTerm('http://example.com/childOfInclude');
           final childOfSkip = const IriTerm('http://example.com/childOfSkip');
           final childOfDontDescend = const IriTerm('http://example.com/childOfDontDescend');
+          final childOfSkipButDescend = const IriTerm('http://example.com/childOfSkipButDescend');
 
           final connects = const IriTerm('http://example.com/connects');
           final name = const IriTerm('http://xmlns.com/foaf/0.1/name');
@@ -1121,6 +1123,7 @@ void main() {
             Triple(root, connects, includeNode),
             Triple(root, connects, skipNode),
             Triple(root, connects, dontDescendNode),
+            Triple(root, connects, skipButDescendNode),
 
             Triple(includeNode, name, LiteralTerm.string('Include')),
             Triple(includeNode, connects, childOfInclude),
@@ -1131,9 +1134,13 @@ void main() {
             Triple(dontDescendNode, name, LiteralTerm.string('DontDescend')),
             Triple(dontDescendNode, connects, childOfDontDescend),
 
+            Triple(skipButDescendNode, name, LiteralTerm.string('SkipButDescend')),
+            Triple(skipButDescendNode, connects, childOfSkipButDescend),
+
             Triple(childOfInclude, name, LiteralTerm.string('ChildOfInclude')),
             Triple(childOfSkip, name, LiteralTerm.string('ChildOfSkip')),
             Triple(childOfDontDescend, name, LiteralTerm.string('ChildOfDontDescend')),
+            Triple(childOfSkipButDescend, name, LiteralTerm.string('ChildOfSkipButDescend')),
           ]);
 
           final systematicSubgraph = graph.subgraph(root, filter: (triple, depth) {
@@ -1143,6 +1150,8 @@ void main() {
               return TraversalDecision.skip; // Skip completely
             } else if (triple.object == dontDescendNode) {
               return TraversalDecision.includeButDontDescend; // Include but don't descend
+            } else if (triple.object == skipButDescendNode) {
+              return TraversalDecision.skipButDescend; // Skip triple but descend into object
             }
             return TraversalDecision.include; // Default behavior
           });
@@ -1151,6 +1160,7 @@ void main() {
           expect(systematicSubgraph.hasTriples(subject: root, predicate: connects, object: includeNode), isTrue);
           expect(systematicSubgraph.hasTriples(subject: root, predicate: connects, object: skipNode), isFalse); // Skipped
           expect(systematicSubgraph.hasTriples(subject: root, predicate: connects, object: dontDescendNode), isTrue);
+          expect(systematicSubgraph.hasTriples(subject: root, predicate: connects, object: skipButDescendNode), isFalse); // Skipped triple
 
           // Include node - should be fully traversed
           expect(systematicSubgraph.hasTriples(subject: includeNode, predicate: name), isTrue);
@@ -1165,6 +1175,267 @@ void main() {
           expect(systematicSubgraph.hasTriples(subject: dontDescendNode, predicate: name), isFalse); // Not descended into
           expect(systematicSubgraph.hasTriples(subject: dontDescendNode, predicate: connects), isFalse); // Not descended into
           expect(systematicSubgraph.hasTriples(subject: childOfDontDescend), isFalse); // Not reached
+
+          // SkipButDescend node - triple is skipped but we still descend to children
+          expect(systematicSubgraph.hasTriples(subject: skipButDescendNode, predicate: name), isTrue); // Descended into
+          expect(systematicSubgraph.hasTriples(subject: skipButDescendNode, predicate: connects), isTrue); // Descended into
+          expect(systematicSubgraph.hasTriples(subject: childOfSkipButDescend, predicate: name), isTrue); // Child reached
+        });
+      });
+
+      group('skipButDescend Functionality', () {
+        test('should demonstrate list filtering using skipButDescend', () {
+          // RDF List structure: root -> _:list1 -> _:list2 -> _:list3 -> rdf:nil
+          // Each list node has rdf:first (value) and rdf:rest (next) properties
+          final root = const IriTerm('http://example.com/root');
+          final list1 = BlankNodeTerm();
+          final list2 = BlankNodeTerm();
+          final list3 = BlankNodeTerm();
+
+          final hasItems = const IriTerm('http://example.com/hasItems');
+          final first = const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first');
+          final rest = const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest');
+          final rdfNil = const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil');
+
+          final graph = RdfGraph(triples: [
+            // Root connects to the list
+            Triple(root, hasItems, list1),
+
+            // List structure with values "apple", "banana", "cherry"
+            Triple(list1, first, LiteralTerm.string('apple')),
+            Triple(list1, rest, list2),
+
+            Triple(list2, first, LiteralTerm.string('banana')),
+            Triple(list2, rest, list3),
+
+            Triple(list3, first, LiteralTerm.string('cherry')),
+            Triple(list3, rest, rdfNil),
+          ]);
+
+          // Filter to get only list values (rdf:first), skip list structure (rdf:rest)
+          final filteredSubgraph = graph.subgraph(root, filter: (triple, depth) {
+            if (triple.predicate == rest) {
+              // Skip the rdf:rest triple but descend to continue following the list
+              return TraversalDecision.skipButDescend;
+            }
+            if (triple.predicate == hasItems) {
+              // Skip the initial connection but descend to the list
+              return TraversalDecision.skipButDescend;
+            }
+            // Include all other triples (like rdf:first values)
+            return TraversalDecision.include;
+          });
+
+          // Should include only the rdf:first triples (the actual values)
+          expect(filteredSubgraph.size, equals(3));
+          expect(filteredSubgraph.hasTriples(predicate: first), isTrue);
+          expect(filteredSubgraph.hasTriples(predicate: rest), isFalse); // rdf:rest triples skipped
+          expect(filteredSubgraph.hasTriples(predicate: hasItems), isFalse); // hasItems triple skipped
+
+          // Check we have all the list values
+          expect(filteredSubgraph.hasTriples(predicate: first, object: LiteralTerm.string('apple')), isTrue);
+          expect(filteredSubgraph.hasTriples(predicate: first, object: LiteralTerm.string('banana')), isTrue);
+          expect(filteredSubgraph.hasTriples(predicate: first, object: LiteralTerm.string('cherry')), isTrue);
+        });
+
+        test('should handle skipButDescend with multiple branching paths', () {
+          final root = const IriTerm('http://example.com/root');
+          final branch1 = const IriTerm('http://example.com/branch1');
+          final branch2 = const IriTerm('http://example.com/branch2');
+          final leaf1a = const IriTerm('http://example.com/leaf1a');
+          final leaf1b = const IriTerm('http://example.com/leaf1b');
+          final leaf2a = const IriTerm('http://example.com/leaf2a');
+
+          final hasBranch = const IriTerm('http://example.com/hasBranch');
+          final hasLeaf = const IriTerm('http://example.com/hasLeaf');
+          final value = const IriTerm('http://example.com/value');
+
+          final graph = RdfGraph(triples: [
+            // Root structure
+            Triple(root, hasBranch, branch1),
+            Triple(root, hasBranch, branch2),
+
+            // Branch 1
+            Triple(branch1, hasLeaf, leaf1a),
+            Triple(branch1, hasLeaf, leaf1b),
+            Triple(branch1, value, LiteralTerm.string('Branch 1 Value')),
+
+            // Branch 2
+            Triple(branch2, hasLeaf, leaf2a),
+            Triple(branch2, value, LiteralTerm.string('Branch 2 Value')),
+
+            // Leaf values
+            Triple(leaf1a, value, LiteralTerm.string('Leaf 1A Value')),
+            Triple(leaf1b, value, LiteralTerm.string('Leaf 1B Value')),
+            Triple(leaf2a, value, LiteralTerm.string('Leaf 2A Value')),
+          ]);
+
+          // Skip branch connections but descend to get values
+          final valueOnlySubgraph = graph.subgraph(root, filter: (triple, depth) {
+            if (triple.predicate == hasBranch || triple.predicate == hasLeaf) {
+              return TraversalDecision.skipButDescend;
+            }
+            return TraversalDecision.include;
+          });
+
+          // Should only include value triples, not structural connections
+          expect(valueOnlySubgraph.size, equals(5)); // 5 value triples
+          expect(valueOnlySubgraph.hasTriples(predicate: hasBranch), isFalse);
+          expect(valueOnlySubgraph.hasTriples(predicate: hasLeaf), isFalse);
+          expect(valueOnlySubgraph.hasTriples(predicate: value), isTrue);
+
+          // Check all values are present
+          expect(valueOnlySubgraph.hasTriples(object: LiteralTerm.string('Branch 1 Value')), isTrue);
+          expect(valueOnlySubgraph.hasTriples(object: LiteralTerm.string('Branch 2 Value')), isTrue);
+          expect(valueOnlySubgraph.hasTriples(object: LiteralTerm.string('Leaf 1A Value')), isTrue);
+          expect(valueOnlySubgraph.hasTriples(object: LiteralTerm.string('Leaf 1B Value')), isTrue);
+          expect(valueOnlySubgraph.hasTriples(object: LiteralTerm.string('Leaf 2A Value')), isTrue);
+        });
+
+        test('should handle skipButDescend with depth-based filtering', () {
+          // Create a nested structure where we want to skip intermediate levels
+          final root = const IriTerm('http://example.com/root');
+          final level1 = const IriTerm('http://example.com/level1');
+          final level2 = const IriTerm('http://example.com/level2');
+          final level3 = const IriTerm('http://example.com/level3');
+          final level4 = const IriTerm('http://example.com/level4');
+
+          final connects = const IriTerm('http://example.com/connects');
+          final data = const IriTerm('http://example.com/data');
+
+          final graph = RdfGraph(triples: [
+            // Connection chain
+            Triple(root, connects, level1),
+            Triple(level1, connects, level2),
+            Triple(level2, connects, level3),
+            Triple(level3, connects, level4),
+
+            // Data at each level
+            Triple(root, data, LiteralTerm.string('Root Data')),
+            Triple(level1, data, LiteralTerm.string('Level 1 Data')),
+            Triple(level2, data, LiteralTerm.string('Level 2 Data')),
+            Triple(level3, data, LiteralTerm.string('Level 3 Data')),
+            Triple(level4, data, LiteralTerm.string('Level 4 Data')),
+          ]);
+
+          // Skip connections at depth 1 and 2, but descend to get deeper data
+          final depthFilteredSubgraph = graph.subgraph(root, filter: (triple, depth) {
+            if (triple.predicate == connects && (depth == 1 || depth == 2)) {
+              return TraversalDecision.skipButDescend;
+            }
+            return TraversalDecision.include;
+          });
+
+          // Should include: root->level1, root data, level1 data, level2 data, level3->level4, level3 data, level4 data
+          expect(depthFilteredSubgraph.size, equals(7));
+          expect(depthFilteredSubgraph.hasTriples(subject: root, predicate: data), isTrue);
+          expect(depthFilteredSubgraph.hasTriples(subject: root, predicate: connects), isTrue); // Included at depth 0
+          expect(depthFilteredSubgraph.hasTriples(subject: level1, predicate: connects), isFalse); // Skipped at depth 1
+          expect(depthFilteredSubgraph.hasTriples(subject: level1, predicate: data), isTrue); // Included at depth 1
+          expect(depthFilteredSubgraph.hasTriples(subject: level2, predicate: connects), isFalse); // Skipped at depth 2
+          expect(depthFilteredSubgraph.hasTriples(subject: level2, predicate: data), isTrue); // Included at depth 2
+          expect(depthFilteredSubgraph.hasTriples(subject: level3, predicate: connects), isTrue); // Included at depth 3
+          expect(depthFilteredSubgraph.hasTriples(subject: level3, predicate: data), isTrue);
+          expect(depthFilteredSubgraph.hasTriples(subject: level4, predicate: data), isTrue);
+        });
+
+        test('should handle skipButDescend in combination with other decisions', () {
+          final root = const IriTerm('http://example.com/root');
+          final skipNode = const IriTerm('http://example.com/skip');
+          final skipButDescendNode = const IriTerm('http://example.com/skipButDescend');
+          final includeNode = const IriTerm('http://example.com/include');
+          final childOfSkip = const IriTerm('http://example.com/childOfSkip');
+          final childOfSkipButDescend = const IriTerm('http://example.com/childOfSkipButDescend');
+          final childOfInclude = const IriTerm('http://example.com/childOfInclude');
+
+          final connects = const IriTerm('http://example.com/connects');
+          final name = const IriTerm('http://xmlns.com/foaf/0.1/name');
+
+          final graph = RdfGraph(triples: [
+            Triple(root, connects, skipNode),
+            Triple(root, connects, skipButDescendNode),
+            Triple(root, connects, includeNode),
+
+            Triple(skipNode, name, LiteralTerm.string('Skip Node')),
+            Triple(skipNode, connects, childOfSkip),
+
+            Triple(skipButDescendNode, name, LiteralTerm.string('Skip But Descend Node')),
+            Triple(skipButDescendNode, connects, childOfSkipButDescend),
+
+            Triple(includeNode, name, LiteralTerm.string('Include Node')),
+            Triple(includeNode, connects, childOfInclude),
+
+            Triple(childOfSkip, name, LiteralTerm.string('Child of Skip')),
+            Triple(childOfSkipButDescend, name, LiteralTerm.string('Child of Skip But Descend')),
+            Triple(childOfInclude, name, LiteralTerm.string('Child of Include')),
+          ]);
+
+          final combinedFilterSubgraph = graph.subgraph(root, filter: (triple, depth) {
+            if (triple.object == skipNode) {
+              return TraversalDecision.skip;
+            } else if (triple.object == skipButDescendNode) {
+              return TraversalDecision.skipButDescend;
+            } else if (triple.object == includeNode) {
+              return TraversalDecision.include;
+            }
+            return TraversalDecision.include;
+          });
+
+          // Root -> skip: nothing from this path
+          expect(combinedFilterSubgraph.hasTriples(subject: root, object: skipNode), isFalse);
+          expect(combinedFilterSubgraph.hasTriples(subject: skipNode), isFalse);
+          expect(combinedFilterSubgraph.hasTriples(subject: childOfSkip), isFalse);
+
+          // Root -> skipButDescend: connection skipped but children included
+          expect(combinedFilterSubgraph.hasTriples(subject: root, object: skipButDescendNode), isFalse);
+          expect(combinedFilterSubgraph.hasTriples(subject: skipButDescendNode, predicate: name), isTrue);
+          expect(combinedFilterSubgraph.hasTriples(subject: skipButDescendNode, predicate: connects), isTrue);
+          expect(combinedFilterSubgraph.hasTriples(subject: childOfSkipButDescend, predicate: name), isTrue);
+
+          // Root -> include: everything included
+          expect(combinedFilterSubgraph.hasTriples(subject: root, object: includeNode), isTrue);
+          expect(combinedFilterSubgraph.hasTriples(subject: includeNode, predicate: name), isTrue);
+          expect(combinedFilterSubgraph.hasTriples(subject: includeNode, predicate: connects), isTrue);
+          expect(combinedFilterSubgraph.hasTriples(subject: childOfInclude, predicate: name), isTrue);
+
+          expect(combinedFilterSubgraph.size, equals(7));
+        });
+
+        test('should handle skipButDescend with cycles and prevent infinite loops', () {
+          final nodeA = const IriTerm('http://example.com/nodeA');
+          final nodeB = const IriTerm('http://example.com/nodeB');
+          final nodeC = const IriTerm('http://example.com/nodeC');
+
+          final structural = const IriTerm('http://example.com/structural');
+          final data = const IriTerm('http://example.com/data');
+
+          // Create a cycle with structural and data relationships
+          final graph = RdfGraph(triples: [
+            // Structural cycle: A -> B -> C -> A
+            Triple(nodeA, structural, nodeB),
+            Triple(nodeB, structural, nodeC),
+            Triple(nodeC, structural, nodeA),
+
+            // Data at each node
+            Triple(nodeA, data, LiteralTerm.string('Data A')),
+            Triple(nodeB, data, LiteralTerm.string('Data B')),
+            Triple(nodeC, data, LiteralTerm.string('Data C')),
+          ]);
+
+          final cyclicSubgraph = graph.subgraph(nodeA, filter: (triple, depth) {
+            if (triple.predicate == structural) {
+              return TraversalDecision.skipButDescend;
+            }
+            return TraversalDecision.include;
+          });
+
+          // Should include all data triples but skip structural ones
+          expect(cyclicSubgraph.size, equals(3));
+          expect(cyclicSubgraph.hasTriples(predicate: structural), isFalse);
+          expect(cyclicSubgraph.hasTriples(predicate: data), isTrue);
+          expect(cyclicSubgraph.hasTriples(object: LiteralTerm.string('Data A')), isTrue);
+          expect(cyclicSubgraph.hasTriples(object: LiteralTerm.string('Data B')), isTrue);
+          expect(cyclicSubgraph.hasTriples(object: LiteralTerm.string('Data C')), isTrue);
         });
       });
 

@@ -12,13 +12,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **RdfGraph**: True subgraph extraction with reachability traversal
   - `subgraph(root, {filter})` follows object references to extract all reachable triples
   - `TraversalFilter` callback with depth tracking for fine-grained traversal control
-  - `TraversalDecision` enum: `include`, `skip`, `includeButDontDescend`
+  - `TraversalDecision` enum: `include`, `skip`, `includeButDontDescend`, `skipButDescend`
   - Automatic cycle detection and memory-conscious implementation
+  - **New `skipButDescend` traversal option**: Skip triple but continue traversal from its object
+    - Useful for list filtering (e.g., extract `rdf:first` values while skipping `rdf:rest` structure)
+    - Enables selective extraction while maintaining graph connectivity
+    - Documented with practical examples for RDF list processing
 
 ### Enhanced
 
-- **Test Coverage**: 11 comprehensive tests covering edge cases, performance, and real-world scenarios
+- **Test Coverage**: 17 comprehensive tests covering edge cases, performance, and real-world scenarios
+  - 6 new tests specifically for `skipButDescend` functionality
+  - List filtering examples and complex traversal scenarios
 - **Performance**: Optimized for large graphs with efficient cycle detection
+- **Documentation**: Enhanced `subgraph` method documentation with `skipButDescend` examples
 
 ## [0.9.17] - 2025-09-24
 

@@ -261,11 +261,12 @@ final class RdfGraph {
   /// final graphWithDuplicates = graph.withTriples([existingTriple, newTriple]);
   /// // Result contains each unique triple only once
   /// ```
-  RdfGraph withTriples(
-    Iterable<Triple> triples,
-  ) {
-    final newTriples =
-        {..._triples, ...triples}.toList(); // Use a set to avoid duplicates
+  RdfGraph withTriples(Iterable<Triple> triples,
+      {bool removeDuplicates = true}) {
+    final newTriples = removeDuplicates
+        ? {..._triples, ...triples}.toList()
+        : List<Triple>.from(_triples)
+      ..addAll(triples);
 
     return RdfGraph(triples: newTriples, enableIndexing: indexingEnabled);
   }
@@ -806,8 +807,8 @@ final class RdfGraph {
   /// // Duplicate triples between graphs are automatically removed
   /// final merged = graph1.merge(graph2); // Each unique triple appears only once
   /// ```
-  RdfGraph merge(RdfGraph other) {
-    return withTriples(other._triples);
+  RdfGraph merge(RdfGraph other, {removeDuplicates = true}) {
+    return withTriples(other._triples, removeDuplicates: removeDuplicates);
   }
 
   /// Creates a new graph by removing all triples from another graph

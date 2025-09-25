@@ -208,7 +208,6 @@ void main() {
       });
 
       test('encodes quad with IRI as graph name', () {
-        // Note: Currently only IRI graph names are supported in Quad implementation
         final dataset = RdfDataset.fromQuads([
           Quad(
             const IriTerm('http://example.org/subject'),
@@ -221,6 +220,51 @@ void main() {
         final nquads = encoder.convert(dataset);
 
         expect(nquads.trim(), equals('<http://example.org/subject> <http://example.org/predicate> "object" <http://example.org/graph1> .'));
+      });
+
+      test('encodes quad with blank node as graph name', () {
+        final blankGraphName = BlankNodeTerm();
+        final dataset = RdfDataset.fromQuads([
+          Quad(
+            const IriTerm('http://example.org/subject'),
+            const IriTerm('http://example.org/predicate'),
+            LiteralTerm.string('object'),
+            blankGraphName,
+          ),
+        ]);
+
+        final nquads = encoder.convert(dataset);
+
+        expect(nquads.trim(), matches(r'<http://example\.org/subject> <http://example\.org/predicate> "object" _:b\d+ \.'));
+      });
+
+      test('maintains consistent blank node graph labels across multiple quads', () {
+        final blankGraphName = BlankNodeTerm();
+        final dataset = RdfDataset.fromQuads([
+          Quad(
+            const IriTerm('http://example.org/s1'),
+            const IriTerm('http://example.org/p1'),
+            LiteralTerm.string('first'),
+            blankGraphName,
+          ),
+          Quad(
+            const IriTerm('http://example.org/s2'),
+            const IriTerm('http://example.org/p2'),
+            LiteralTerm.string('second'),
+            blankGraphName,
+          ),
+        ]);
+
+        final nquads = encoder.convert(dataset);
+        final lines = nquads.trim().split('\n');
+
+        expect(lines, hasLength(2));
+
+        // Extract blank node labels from both lines
+        final label1 = RegExp(r'(_:b\d+)').firstMatch(lines[0])!.group(1);
+        final label2 = RegExp(r'(_:b\d+)').firstMatch(lines[1])!.group(1);
+
+        expect(label1, equals(label2)); // Same blank node graph should have same label
       });
     });
 

@@ -165,19 +165,58 @@ void main() {
         expect(namedGraph.graph.triples, hasLength(2));
       });
 
-      test('rejects quad with blank node as graph name (current limitation)',
-          () {
+      test('parses quad with blank node as graph name', () {
         const nquads =
             '<http://example.org/subject> <http://example.org/predicate> "object" _:graph1 .';
 
-        expect(
-          () => decoder.convert(nquads),
-          throwsA(isA<RdfDecoderException>().having(
-            (e) => e.message,
-            'message',
-            contains('Blank node graph names are not yet supported'),
-          )),
-        );
+        final dataset = decoder.convert(nquads);
+
+        expect(dataset.defaultGraph.triples, isEmpty);
+        expect(dataset.namedGraphs, hasLength(1));
+
+        final namedGraph = dataset.namedGraphs.first;
+        expect(namedGraph.name, isA<BlankNodeTerm>());
+        expect(namedGraph.graph.triples, hasLength(1));
+
+        final triple = namedGraph.graph.triples.first;
+        expect((triple.subject as IriTerm).value,
+            equals('http://example.org/subject'));
+        expect((triple.predicate as IriTerm).value,
+            equals('http://example.org/predicate'));
+        expect((triple.object as LiteralTerm).value, equals('object'));
+      });
+
+      test('groups multiple quads with same blank node graph name', () {
+        const nquads = '''
+          <http://example.org/s1> <http://example.org/p1> "first" _:bGraph .
+          <http://example.org/s2> <http://example.org/p2> "second" _:bGraph .
+        ''';
+
+        final dataset = decoder.convert(nquads);
+
+        expect(dataset.namedGraphs, hasLength(1));
+        final namedGraph = dataset.namedGraphs.first;
+        expect(namedGraph.name, isA<BlankNodeTerm>());
+        expect(namedGraph.graph.triples, hasLength(2));
+      });
+
+      test('maintains blank node graph name identity across references', () {
+        const nquads = '''
+          <http://example.org/s1> <http://example.org/p1> "first" _:graph1 .
+          <http://example.org/s2> <http://example.org/p2> "second" _:graph1 .
+        ''';
+
+        final dataset = decoder.convert(nquads);
+
+        expect(dataset.namedGraphs, hasLength(1));
+        final namedGraph = dataset.namedGraphs.first;
+        expect(namedGraph.name, isA<BlankNodeTerm>());
+
+        // Verify both quads reference the same blank node instance
+        final quads = dataset.namedGraphs.expand((ng) =>
+            ng.graph.triples.map((t) => (triple: t, graph: ng.name))).toList();
+        expect(quads, hasLength(2));
+        expect(identical(quads[0].graph, quads[1].graph), isTrue);
       });
     });
 

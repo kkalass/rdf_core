@@ -154,24 +154,9 @@ final class NQuadsDecoder extends RdfDatasetDecoder {
     final object = _parseObject(parts[2].trim(), lineNumber, blankNodeMap);
 
     // Parse graph if present (N-Quads format)
-    IriTerm? graph;
+    RdfGraphName? graph;
     if (parts.length == 4) {
-      final graphTerm = _parseGraph(parts[3].trim(), lineNumber, blankNodeMap);
-      // For now, only support IRI graph names as per current Quad implementation
-      // Blank node graph names will need to be handled differently
-      if (graphTerm is IriTerm) {
-        graph = graphTerm;
-      } else {
-        throw RdfDecoderException(
-          'Blank node graph names are not yet supported in Quad implementation',
-          format: _formatName,
-          source: SourceLocation(
-            line: lineNumber - 1,
-            column: 0,
-            context: parts[3],
-          ),
-        );
-      }
+      graph = _parseGraphName(parts[3].trim(), lineNumber, blankNodeMap);
     }
 
     return Quad(subject, predicate, object, graph);
@@ -307,7 +292,7 @@ final class NQuadsDecoder extends RdfDatasetDecoder {
   }
 
   /// Parses the graph part of a quad (IRI or blank node)
-  RdfTerm _parseGraph(
+  RdfGraphName _parseGraphName(
       String graph, int lineNumber, Map<String, BlankNodeTerm> blankNodeMap) {
     if (graph.startsWith('<') && graph.endsWith('>')) {
       // IRI

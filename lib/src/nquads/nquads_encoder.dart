@@ -113,6 +113,7 @@ final class NQuadsEncoder extends RdfDatasetEncoder {
     // Make sure to have a copy so that changes do not affect the caller's map
     blankNodeLabels = {...(blankNodeLabels ??= {})};
     final _BlankNodeCounter counter = generateNewBlankNodeLabels
+        // FIXME: the BlankNodeCounter might need to be initialized if there are existing labels
         ? _BlankNodeCounter()
         : _NoOpBlankNodeCounter();
 

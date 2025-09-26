@@ -270,16 +270,6 @@ export 'src/turtle/turtle_codec.dart'
         TurtleEncoderOptions;
 export 'src/turtle/turtle_tokenizer.dart' show TurtleParsingFlag;
 export 'src/vocab/namespaces.dart' show RdfNamespaceMappings;
-export 'src/canonical/canonical_rdf_dataset.dart'
-    show CanonicalRdfDataset, CanonicalRdfGraph;
-export 'src/canonical/canonical_util.dart'
-    show
-        CanonicalizationOptions,
-        CanonicalHashAlgorithm,
-        canonicalize,
-        canonicalizeGraph,
-        isIsomorphic,
-        isIsomorphicGraphs;
 
 /// RDF Core Library
 ///

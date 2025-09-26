@@ -90,21 +90,8 @@ When provided, the encoder may use this to produce more compact output.</li>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 String convert(RdfGraph graph, {String? baseUri}) {
-  _logger.fine(&#39;Serializing graph to N-Triples&#39;);
-
-  &#47;&#47; N-Triples ignores baseUri and customPrefixes as it doesn&#39;t support
-  &#47;&#47; relative IRIs or prefixed names
-
-  final buffer = StringBuffer();
-  final Map&lt;BlankNodeTerm, String&gt; blankNodeLabels = {};
-  final _BlankNodeCounter counter = _BlankNodeCounter();
-
-  for (final triple in graph.triples) {
-    _writeTriple(buffer, triple, blankNodeLabels, counter);
-    buffer.writeln();
-  }
-
-  return buffer.toString();
+  return _encoder.convert(RdfDataset.fromDefaultGraph(graph),
+      baseUri: baseUri);
 }</code></pre>
 </section>
 
@@ -133,7 +120,7 @@ String convert(RdfGraph graph, {String? baseUri}) {
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.18
+      0.9.19
   </span>
   
 </footer>

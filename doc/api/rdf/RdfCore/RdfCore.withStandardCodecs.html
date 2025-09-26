@@ -62,12 +62,15 @@
     
 <section class="desc markdown">
   <p>Creates a new RDF library instance with standard codecs registered</p>
-<p>This convenience constructor sets up an RDF library with Turtle, JSON-LD and
-N-Triples codecs ready to use. It's the recommended way to create an instance
+<p>This convenience constructor sets up an RDF library with Turtle, JSON-LD,
+N-Triples, and N-Quads codecs ready to use. It's the recommended way to create an instance
 for most applications.</p>
 <p>The <code>namespaceMappings</code> parameter provides optional custom namespace mappings for all codecs.</p>
-<p>The <code>additionalCodecs</code> parameter is an optional list of additional codecs to register beyond
+<p>The <code>additionalCodecs</code> parameter is an optional list of additional graph codecs to register beyond
 the standard ones.</p>
+<p>The <code>iriTermFactory</code> parameter specifies the factory function for creating IRI terms.
+Defaults to <a href="../../rdf/IriTerm/IriTerm.validated.html">IriTerm.validated</a> which performs validation. If you need to minimize
+memory footprint, you can pass a flyweight here that caches IRI instances.</p>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">final rdf = RdfCore.withStandardCodecs();
 final graph = rdf.decode(turtleData, contentType: 'text/turtle');
@@ -83,29 +86,28 @@ final graph = rdf.decode(turtleData, contentType: 'text/turtle');
   List&lt;RdfGraphCodec&gt; additionalCodecs = const [],
   IriTermFactory iriTermFactory = IriTerm.validated,
 }) {
-  final registry = RdfCodecRegistry();
   final _namespaceMappings =
       namespaceMappings ?? const RdfNamespaceMappings();
 
-  &#47;&#47; Register standard formats
-  registry.registerGraphCodec(
+  final registry = RdfCodecRegistry([
+    &#47;&#47; Register standard formats
     TurtleCodec(
         namespaceMappings: _namespaceMappings,
         iriTermFactory: iriTermFactory),
-  );
-  registry.registerGraphCodec(
     JsonLdGraphCodec(
         namespaceMappings: _namespaceMappings,
         iriTermFactory: iriTermFactory),
-  );
-  registry.registerGraphCodec(NTriplesCodec(iriTermFactory: iriTermFactory));
+    NTriplesCodec(iriTermFactory: iriTermFactory),
 
-  &#47;&#47; Register additional codecs
-  for (final codec in additionalCodecs) {
-    registry.registerGraphCodec(codec);
-  }
+    &#47;&#47; Register additional codecs
+    ...additionalCodecs
+  ]);
 
-  return RdfCore(registry: registry);
+  final datasetRegistry = RdfDatasetCodecRegistry([
+    &#47;&#47; Register standard dataset formats
+    NQuadsCodec(iriTermFactory: iriTermFactory)
+  ]);
+  return RdfCore(registry: registry, datasetRegistry: datasetRegistry);
 }</code></pre>
 </section>
 
@@ -134,7 +136,7 @@ final graph = rdf.decode(turtleData, contentType: 'text/turtle');
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.18
+      0.9.19
   </span>
   
 </footer>

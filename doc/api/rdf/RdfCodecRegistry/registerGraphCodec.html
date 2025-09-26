@@ -75,13 +75,7 @@ be considered during auto-detection of unknown content.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">void registerGraphCodec(RdfGraphCodec codec) {
-  _logger.fine(&#39;Registering graph codec: ${codec.primaryMimeType}&#39;);
-  _graphCodecs.add(codec);
-
-  for (final mimeType in codec.supportedMimeTypes) {
-    final normalized = _normalizeMimeType(mimeType);
-    _graphCodecsByMimeType[normalized] = codec;
-  }
+  _registry.registerCodec(codec);
 }</code></pre>
 </section>
 
@@ -110,7 +104,7 @@ be considered during auto-detection of unknown content.</p>
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.18
+      0.9.19
   </span>
   
 </footer>

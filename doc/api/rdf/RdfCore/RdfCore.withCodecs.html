@@ -55,6 +55,7 @@
     <section class="multi-line-signature">
       
       <span class="name ">RdfCore.withCodecs</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="withCodecs-param-codecs"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/RdfGraphCodec-class.html">RdfGraphCodec</a></span>&gt;</span></span> <span class="parameter-name">codecs</span> = <span class="default-value">const []</span>, </span></li>
+<li><span class="parameter" id="withCodecs-param-datasetCodecs"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/RdfDatasetCodec-class.html">RdfDatasetCodec</a></span>&gt;</span></span> <span class="parameter-name">datasetCodecs</span> = <span class="default-value">const []</span>, </span></li>
 </ol>})
     </section>
     
@@ -64,7 +65,8 @@
 registered. It allows for easy customization of the library's capabilities.
 For example, if you need to support Turtle with certain parsing flags because
 your turtle documents are not fully compliant with the standard.</p>
-<p>The <code>codecs</code> parameter is a list of codecs to register in the RDF library.</p>
+<p>The <code>codecs</code> parameter is a list of graph codecs to register in the RDF library.</p>
+<p>The <code>datasetCodecs</code> parameter is a list of dataset codecs to register in the RDF library.</p>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">final namespaceMappings = RdfNamespaceMappings();
 final turtle = TurtleCodec(
@@ -79,13 +81,13 @@ final graph = rdf.decode(turtleData, contentType: 'text/turtle');
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory RdfCore.withCodecs({List&lt;RdfGraphCodec&gt; codecs = const []}) {
-  final registry = RdfCodecRegistry();
-  for (final codec in codecs) {
-    registry.registerGraphCodec(codec);
-  }
+  <pre class="language-dart"><code class="language-dart">factory RdfCore.withCodecs(
+    {List&lt;RdfGraphCodec&gt; codecs = const [],
+    List&lt;RdfDatasetCodec&gt; datasetCodecs = const []}) {
+  final registry = RdfCodecRegistry(codecs);
+  final datasetRegistry = RdfDatasetCodecRegistry(datasetCodecs);
 
-  return RdfCore(registry: registry);
+  return RdfCore(registry: registry, datasetRegistry: datasetRegistry);
 }</code></pre>
 </section>
 
@@ -114,7 +116,7 @@ final graph = rdf.decode(turtleData, contentType: 'text/turtle');
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.18
+      0.9.19
   </span>
   
 </footer>

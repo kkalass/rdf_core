@@ -54,19 +54,24 @@
 
     <section class="multi-line-signature">
       const
-      <span class="name ">NTriplesEncoderOptions</span>(<wbr>)
+      <span class="name ">NTriplesEncoderOptions</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-canonical"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">canonical</span> = <span class="default-value">false</span>, </span></li>
+</ol>})
     </section>
     
 <section class="desc markdown">
   <p>Creates a new instance of NTriplesEncoderOptions with default settings.</p>
-<p>Since N-Triples is a simple format, there are currently no configurable options.</p>
+<p>The <code>canonical</code> parameter controls whether to produce canonical N-Triples output.
+When false (default), standard N-Triples formatting is used. When true, the output
+follows RDF canonical N-Triples rules for deterministic serialization.</p>
+<p>Note: This does not implement full RDF Dataset Canonicalization (RDF-CANON).
+For that, use the <code>rdf_canonicalization</code> package.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">const NTriplesEncoderOptions();</code></pre>
+  <pre class="language-dart"><code class="language-dart">const NTriplesEncoderOptions({this.canonical = false});</code></pre>
 </section>
 
 
@@ -94,7 +99,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.18
+      0.9.19
   </span>
   
 </footer>

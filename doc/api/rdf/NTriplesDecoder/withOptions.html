@@ -89,7 +89,9 @@ method chaining for readable configuration code.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 RdfGraphDecoder withOptions(RdfGraphDecoderOptions options) =&gt;
-    NTriplesDecoder(options: NTriplesDecoderOptions.from(options));</code></pre>
+    NTriplesDecoder._(_decoder.withOptions(options is NTriplesDecoderOptions
+        ? _toNQuadsOptions(options)
+        : options));</code></pre>
 </section>
 
 
@@ -117,7 +119,7 @@ RdfGraphDecoder withOptions(RdfGraphDecoderOptions options) =&gt;
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.18
+      0.9.19
   </span>
   
 </footer>

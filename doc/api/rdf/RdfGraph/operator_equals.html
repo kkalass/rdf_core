@@ -73,8 +73,31 @@ because we want to compare the sets of triples, not the order</p>
 <p>Compares this graph to another object for equality.
 Two RDF graphs are equal if they contain the same set of triples,
 regardless of the order in which they were added.</p>
+<p><strong>Important:</strong> This implementation performs syntactic equality based on
+exact triple matching. Two graphs that are semantically equivalent but
+have different <a href="../../rdf/BlankNodeTerm-class.html">BlankNodeTerm</a> instances will NOT be considered equal,
+even if they represent the same RDF structure. <a href="../../rdf/BlankNodeTerm-class.html">BlankNodeTerm</a> instances
+are only equal if they are the identical object instance.</p>
+<p><strong>For semantic graph comparison:</strong> Use <code>isIsomorphicGraphs</code> from
+<code>lib/src/canonical/canonical_util.dart</code>, which implements RDF graph
+isomorphism based on the RDF Canonicalization specification. This
+provides true semantic equality but is more computationally expensive
+and not consistent with <a href="../../rdf/RdfGraph/hashCode.html">hashCode</a>.</p>
+<p><strong>Alternative:</strong> Consider using <code>CanonicalRdfGraph</code> which lazily computes
+a canonical serialized form and uses it for both comparison and hashing,
+providing consistent semantic equality with proper hash code behavior.</p>
 <p>This implementation treats RDF graphs as sets rather than lists,
-which aligns with the semantic definition of RDF graphs in the specification.</p>
+which aligns with the syntactic definition of RDF graphs in the specification.</p>
+<p>Example:</p>
+<pre class="language-dart"><code class="language-dart">// These graphs are syntactically different due to different blank nodes
+final graph1 = RdfGraph(triples: [Triple(BlankNodeTerm(), knows, alice)]);
+final graph2 = RdfGraph(triples: [Triple(BlankNodeTerm(), knows, alice)]);
+assert(graph1 != graph2); // Different BlankNodeTerm instances
+
+// For semantic comparison:
+import 'package:rdf_core/src/canonical/canonical_util.dart';
+assert(isIsomorphicGraphs(graph1, graph2)); // Semantically equivalent
+</code></pre>
 </section>
 
 
@@ -119,7 +142,7 @@ bool operator ==(Object other) {
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.18
+      0.9.19
   </span>
   
 </footer>

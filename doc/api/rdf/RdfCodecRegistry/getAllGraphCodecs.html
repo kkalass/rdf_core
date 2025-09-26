@@ -61,18 +61,13 @@
 
     </section>
     
-<section class="desc markdown">
-  <p>Retrieves all registered codecs</p>
-<p>Returns an unmodifiable list of all codec implementations currently registered.
-This can be useful for iterating through available codecs or for diagnostics.</p>
-<p>Returns an unmodifiable list of all registered codecs.</p>
-</section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">List&lt;RdfGraphCodec&gt; getAllGraphCodecs() =&gt; List.unmodifiable(_graphCodecs);</code></pre>
+  <pre class="language-dart"><code class="language-dart">List&lt;RdfGraphCodec&gt; getAllGraphCodecs() =&gt;
+    _registry.getAllCodecs().map(_asRdfGraphCodec).toList();</code></pre>
 </section>
 
 
@@ -100,7 +95,7 @@ This can be useful for iterating through available codecs or for diagnostics.</p
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.18
+      0.9.19
   </span>
   
 </footer>

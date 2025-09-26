@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the encode method from the NQuadsEncoder class, for the Dart programming language.">
+  <title>encode method - NQuadsEncoder class - rdf library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rdf_core</a></li>
+    <li><a href="../../rdf/">rdf_core.dart</a></li>
+    <li><a href="../../rdf/NQuadsEncoder-class.html">NQuadsEncoder</a></li>
+    <li class="self-crumb">encode method</li>
+  </ol>
+  <div class="self-name">encode</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rdf&#47;NQuadsEncoder-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">encode</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+<span class="name ">encode</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="encode-param-dataset"><span class="type-annotation"><a href="../../rdf/RdfDataset-class.html">RdfDataset</a></span> <span class="parameter-name">dataset</span>, {</span></li>
+<li><span class="parameter" id="encode-param-baseUri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">baseUri</span>, </span></li>
+<li><span class="parameter" id="encode-param-blankNodeLabels"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/BlankNodeTerm-class.html">BlankNodeTerm</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">blankNodeLabels</span>, </span></li>
+<li><span class="parameter" id="encode-param-generateNewBlankNodeLabels"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateNewBlankNodeLabels</span> = <span class="default-value">true</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>If the <code>generateNewBlankNodeLabels</code> flag is false and <code>blankNodeLabels</code> is not provided, or does not contain all blank nodes in the dataset,
+an exception is thrown to indicate inconsistent blank node labeling.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">String encode(RdfDataset dataset,
+    {String? baseUri,
+    Map&lt;BlankNodeTerm, String&gt;? blankNodeLabels,
+    bool generateNewBlankNodeLabels = true}) {
+  _logger.fine(&#39;Serializing dataset to N-Quads&#39;);
+
+  final canonical = _options.canonical;
+  &#47;&#47; N-Quads ignores baseUri and customPrefixes as it doesn&#39;t support
+  &#47;&#47; relative IRIs or prefixed names
+
+  &#47;&#47; Make sure to have a copy so that changes do not affect the caller&#39;s map
+  final blankNodeIdentifiers = {...(blankNodeLabels ??= {})};
+  final _BlankNodeLabelFactory counter = generateNewBlankNodeLabels
+      ? _BlankNodeLabelFactoryImpl(blankNodeIdentifiers.values)
+      : _NoOpBlankNodeCounter();
+
+  final lines = &lt;String&gt;[
+    ...dataset.defaultGraph.triples.map((triple) =&gt;
+        _writeTriple(triple, blankNodeIdentifiers, counter, canonical)),
+    ...dataset.namedGraphs.expand((namedGraph) =&gt; namedGraph.graph.triples
+        .map((triple) =&gt; _writeQuad(triple, namedGraph.name,
+            blankNodeIdentifiers, counter, canonical))),
+  ];
+  if (canonical) {
+    &#47;&#47; In canonical mode, we need to ensure that blank node labels are consistent
+    &#47;&#47; across different runs. This is achieved by sorting the lines after generation.
+    &#47;&#47; The sorting is done in code point order as per RDF 1.1 N-Quads specification.
+    lines.sort();
+  }
+
+  &#47;&#47; Join lines with LF and ensure final LF
+  return lines.join(&#39;\n&#39;) + (lines.isNotEmpty ? &#39;\n&#39; : &#39;&#39;);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rdf_core</a></li>
+    <li><a href="../../rdf/">rdf</a></li>
+    <li><a href="../../rdf/NQuadsEncoder-class.html">NQuadsEncoder</a></li>
+    <li class="self-crumb">encode method</li>
+</ol>
+
+    <h5>NQuadsEncoder class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rdf_core
+      0.9.19
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -82,13 +82,20 @@ called "triples". Each triple consists of three parts:</p>
 <li><strong>Literals</strong>: Values like strings, numbers, or dates (optionally with language tags or datatypes)</li>
 <li><strong>Triples</strong>: Individual statements in the form subject-predicate-object</li>
 <li><strong>Graphs</strong>: Collections of triples representing related statements</li>
+<li><strong>Quads</strong>: Triples with an additional graph context component</li>
+<li><strong>Datasets</strong>: Collections containing a default graph and zero or more named graphs</li>
 </ul>
 <h3 id="serialization-codecs">Serialization Codecs</h3>
 <p>This library supports these RDF serialization codecs:</p>
+<p><strong>For RDF Graphs:</strong></p>
 <ul>
 <li><strong>Turtle</strong>: A compact, human-friendly text format (MIME type: text/turtle)</li>
 <li><strong>JSON-LD</strong>: JSON-based serialization of Linked Data (MIME type: application/ld+json)</li>
 <li><strong>N-Triples</strong>: A line-based, plain text format for encoding RDF graphs (MIME type: application/n-triples)</li>
+</ul>
+<p><strong>For RDF Datasets:</strong></p>
+<ul>
+<li><strong>N-Quads</strong>: A line-based format for RDF datasets with named graph support (MIME type: application/n-quads)</li>
 </ul>
 <p>The library uses a plugin system to allow registration of additional codecs.</p>
 <h2 id="usage-examples">Usage Examples</h2>
@@ -133,6 +140,28 @@ for (final triple in nameTriples) {
   print('Name: ${triple.object}');
 }
 </code></pre>
+<h3 id="working-with-rdf-datasets">Working with RDF Datasets</h3>
+<pre class="language-dart"><code class="language-dart">// Create quads with graph context
+final alice = IriTerm('http://example.org/alice');
+final bob = IriTerm('http://example.org/bob');
+final foafName = IriTerm('http://xmlns.com/foaf/0.1/name');
+final foafKnows = IriTerm('http://xmlns.com/foaf/0.1/knows');
+final peopleGraph = IriTerm('http://example.org/graphs/people');
+
+final quads = [
+  Quad(alice, foafName, LiteralTerm.string('Alice')), // default graph
+  Quad(alice, foafKnows, bob, peopleGraph), // named graph
+];
+
+// Create dataset from quads
+final dataset = RdfDataset.fromQuads(quads);
+
+// Encode dataset to N-Quads format
+final nquadsData = rdf.encodeDataset(dataset, contentType: 'application/n-quads');
+
+// Decode N-Quads data
+final decodedDataset = rdf.decodeDataset(nquadsData, contentType: 'application/n-quads');
+</code></pre>
 <h3 id="auto-detection-of-codecs">Auto-detection of codecs</h3>
 <pre class="language-dart"><code class="language-dart">// The library can automatically detect the codec from content
 final unknownContent = getContentFromSomewhere();
@@ -173,20 +202,12 @@ library highly testable and extensible.</p>
     <section class="summary offset-anchor" id="classes">
       <h2>Classes</h2>
       <dl>
-          <dt id="AutoDetectingGraphCodec">
-  <span class="name "><a href="../rdf/AutoDetectingGraphCodec-class.html">AutoDetectingGraphCodec</a></span> 
+          <dt id="BaseRdfCodecRegistry">
+  <span class="name "><a href="../rdf/BaseRdfCodecRegistry-class.html">BaseRdfCodecRegistry</a><span class="signature">&lt;<wbr><span class="type-parameter">G</span>&gt;</span></span> 
 
 </dt>
 <dd>
-  A specialized codec that auto-detects the format during decoding
-</dd>
-
-          <dt id="AutoDetectingGraphDecoder">
-  <span class="name "><a href="../rdf/AutoDetectingGraphDecoder-class.html">AutoDetectingGraphDecoder</a></span> 
-
-</dt>
-<dd>
-  A decoder that detects the format from content and delegates to the appropriate actual decoder.
+  
 </dd>
 
           <dt id="BlankNodeTerm">
@@ -301,6 +322,46 @@ library highly testable and extensible.</p>
   Literal value in RDF
 </dd>
 
+          <dt id="NQuadsCodec">
+  <span class="name "><a href="../rdf/NQuadsCodec-class.html">NQuadsCodec</a></span> 
+
+</dt>
+<dd>
+  Format definition for the N-Quads RDF serialization format.
+</dd>
+
+          <dt id="NQuadsDecoder">
+  <span class="name "><a href="../rdf/NQuadsDecoder-class.html">NQuadsDecoder</a></span> 
+
+</dt>
+<dd>
+  Decoder for the N-Quads format.
+</dd>
+
+          <dt id="NQuadsDecoderOptions">
+  <span class="name "><a href="../rdf/NQuadsDecoderOptions-class.html">NQuadsDecoderOptions</a></span> 
+
+</dt>
+<dd>
+  Options for configuring the N-Quads decoder behavior.
+</dd>
+
+          <dt id="NQuadsEncoder">
+  <span class="name "><a href="../rdf/NQuadsEncoder-class.html">NQuadsEncoder</a></span> 
+
+</dt>
+<dd>
+  Encoder for the N-Quads format.
+</dd>
+
+          <dt id="NQuadsEncoderOptions">
+  <span class="name "><a href="../rdf/NQuadsEncoderOptions-class.html">NQuadsEncoderOptions</a></span> 
+
+</dt>
+<dd>
+  Options for configuring the N-Quads encoder behavior.
+</dd>
+
           <dt id="NTriplesCodec">
   <span class="name "><a href="../rdf/NTriplesCodec-class.html">NTriplesCodec</a></span> 
 
@@ -349,6 +410,22 @@ library highly testable and extensible.</p>
   
 </dd>
 
+          <dt id="Quad">
+  <span class="name "><a href="../rdf/Quad-class.html">Quad</a></span> 
+
+</dt>
+<dd>
+  Represents an immutable RDF quad with graph context
+</dd>
+
+          <dt id="RdfCodec">
+  <span class="name "><a href="../rdf/RdfCodec-class.html">RdfCodec</a><span class="signature">&lt;<wbr><span class="type-parameter">G</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
           <dt id="RdfCodecRegistry">
   <span class="name "><a href="../rdf/RdfCodecRegistry-class.html">RdfCodecRegistry</a></span> 
 
@@ -363,6 +440,46 @@ library highly testable and extensible.</p>
 </dt>
 <dd>
   RDF Core Library
+</dd>
+
+          <dt id="RdfDataset">
+  <span class="name "><a href="../rdf/RdfDataset-class.html">RdfDataset</a></span> 
+
+</dt>
+<dd>
+  Represents an immutable RDF dataset containing a default graph and named graphs
+</dd>
+
+          <dt id="RdfDatasetCodec">
+  <span class="name "><a href="../rdf/RdfDatasetCodec-class.html">RdfDatasetCodec</a></span> 
+
+</dt>
+<dd>
+  Represents a dataset codec that can be handled by the RDF framework.
+</dd>
+
+          <dt id="RdfDatasetCodecRegistry">
+  <span class="name "><a href="../rdf/RdfDatasetCodecRegistry-class.html">RdfDatasetCodecRegistry</a></span> 
+
+</dt>
+<dd>
+  Manages registration and discovery of RDF dataset codec plugins.
+</dd>
+
+          <dt id="RdfDecoder">
+  <span class="name "><a href="../rdf/RdfDecoder-class.html">RdfDecoder</a><span class="signature">&lt;<wbr><span class="type-parameter">G</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Base class for decoding RDF documents in various serialization formats
+</dd>
+
+          <dt id="RdfEncoder">
+  <span class="name "><a href="../rdf/RdfEncoder-class.html">RdfEncoder</a><span class="signature">&lt;<wbr><span class="type-parameter">G</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Interface for encoding RDF data structures to different serialization formats.
 </dd>
 
           <dt id="RdfGraph">
@@ -411,6 +528,22 @@ library highly testable and extensible.</p>
 </dt>
 <dd>
   Configuration options for RDF graph encoders.
+</dd>
+
+          <dt id="RdfGraphName">
+  <span class="name "><a href="../rdf/RdfGraphName-class.html">RdfGraphName</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="RdfNamedGraph">
+  <span class="name "><a href="../rdf/RdfNamedGraph-class.html">RdfNamedGraph</a></span> 
+
+</dt>
+<dd>
+  Represents an immutable named graph in an RDF dataset
 </dd>
 
           <dt id="RdfNamespaceMappings">
@@ -593,6 +726,18 @@ library highly testable and extensible.</p>
 </dt>
 <dd>
   Global convenience variable for working with JSON-LD format
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+          <dt id="nquads" class="property">
+  <span class="name"><a href="../rdf/nquads.html">nquads</a></span>
+  <span class="signature">&#8594; <a href="../rdf/NQuadsCodec-class.html">NQuadsCodec</a></span>
+  
+
+</dt>
+<dd>
+  Global convenience variable for working with N-Quads format
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -838,7 +983,7 @@ with standard codecs pre-registered
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.18
+      0.9.19
   </span>
   
 </footer>

@@ -77,17 +77,9 @@ first one that responds positively is returned.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">RdfGraphCodec? detectGraphCodec(String content) {
-  _logger.fine(&#39;Attempting to detect codec from content&#39;);
-
-  for (final codec in _graphCodecs) {
-    if (codec.canParse(content)) {
-      _logger.fine(&#39;Detected codec: ${codec.primaryMimeType}&#39;);
-      return codec;
-    }
-  }
-
-  _logger.fine(&#39;No codec detected&#39;);
-  return null;
+  final result = _registry.detectCodec(content);
+  if (result == null) return null;
+  return _asRdfGraphCodec(result);
 }</code></pre>
 </section>
 
@@ -116,7 +108,7 @@ first one that responds positively is returned.</p>
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.18
+      0.9.19
   </span>
   
 </footer>

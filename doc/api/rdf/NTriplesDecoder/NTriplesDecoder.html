@@ -70,8 +70,10 @@
   <pre class="language-dart"><code class="language-dart">NTriplesDecoder({
   NTriplesDecoderOptions options = const NTriplesDecoderOptions(),
   IriTermFactory iriTermFactory = IriTerm.validated,
-})  : _options = options,
-      _iriTermFactory = iriTermFactory;</code></pre>
+}) : _decoder = NQuadsDecoder(
+        options: NQuadsDecoderOptions.from(_toNQuadsOptions(options)),
+        iriTermFactory: iriTermFactory,
+      );</code></pre>
 </section>
 
 
@@ -99,7 +101,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.18
+      0.9.19
   </span>
   
 </footer>

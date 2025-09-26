@@ -55,6 +55,7 @@
     <section class="multi-line-signature">
       
       <span class="name ">RdfCore</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-registry"><span>required</span> <span class="type-annotation"><a href="../../rdf/RdfCodecRegistry-class.html">RdfCodecRegistry</a></span> <span class="parameter-name">registry</span>, </span></li>
+<li><span class="parameter" id="-param-datasetRegistry"><span class="type-annotation"><a href="../../rdf/RdfDatasetCodecRegistry-class.html">RdfDatasetCodecRegistry</a>?</span> <span class="parameter-name">datasetRegistry</span>, </span></li>
 </ol>})
     </section>
     
@@ -66,14 +67,20 @@
 <li>Mock implementations for testing</li>
 </ul>
 <p>For standard usage, see <a href="../../rdf/RdfCore/RdfCore.withStandardCodecs.html">RdfCore.withStandardCodecs</a>.</p>
-<p>The <code>registry</code> parameter is the codec registry that manages available RDF codecs.</p>
+<p>The <code>registry</code> parameter is the codec registry that manages available RDF graph codecs.</p>
+<p>The <code>datasetRegistry</code> parameter is the codec registry that manages available RDF dataset codecs.
+If not provided, an empty registry is created.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">RdfCore({required RdfCodecRegistry registry}) : _registry = registry;</code></pre>
+  <pre class="language-dart"><code class="language-dart">RdfCore(
+    {required RdfCodecRegistry registry,
+    RdfDatasetCodecRegistry? datasetRegistry})
+    : _registry = registry,
+      _datasetRegistry = datasetRegistry ?? RdfDatasetCodecRegistry();</code></pre>
 </section>
 
 
@@ -101,7 +108,7 @@
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.18
+      0.9.19
   </span>
   
 </footer>

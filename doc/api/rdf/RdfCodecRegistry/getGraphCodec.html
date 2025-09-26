@@ -79,27 +79,7 @@ or if no codecs are registered.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">RdfGraphCodec getGraphCodec(String? mimeType) {
-  RdfGraphCodec? result;
-  if (mimeType != null) {
-    result = _graphCodecsByMimeType[_normalizeMimeType(mimeType)];
-    if (result == null) {
-      throw CodecNotSupportedException(
-        &#39;No codec registered for MIME type: $mimeType&#39;,
-      );
-    }
-    return result;
-  }
-
-  &#47;&#47; Use the first registered codec as default encoder
-  if (_graphCodecs.isEmpty) {
-    throw CodecNotSupportedException(&#39;No codecs registered&#39;);
-  }
-
-  &#47;&#47; If no codec found, return a special detecting codec
-  return AutoDetectingGraphCodec(
-    defaultCodec: _graphCodecs.first,
-    registry: this,
-  );
+  return _asRdfGraphCodec(_registry.getCodec(mimeType));
 }</code></pre>
 </section>
 
@@ -128,7 +108,7 @@ or if no codecs are registered.</p>
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.18
+      0.9.19
   </span>
   
 </footer>

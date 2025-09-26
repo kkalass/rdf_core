@@ -94,41 +94,12 @@ which will handle format-specific details like prefix resolution, blank node han
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 RdfGraph convert(String input, {String? documentUrl}) {
-  _logger.fine(
-    &#39;Parsing N-Triples document${documentUrl != null ? &quot; with base URL: $documentUrl&quot; : &quot;&quot;}&#39;,
-  );
-
-  final List&lt;Triple&gt; triples = [];
-  final List&lt;String&gt; lines = input.split(&#39;\n&#39;);
-  final Map&lt;String, BlankNodeTerm&gt; blankNodeMap = {};
-  int lineNumber = 0;
-
-  for (final line in lines) {
-    lineNumber++;
-    final trimmed = line.trim();
-
-    &#47;&#47; Skip empty lines and comments
-    if (trimmed.isEmpty || trimmed.startsWith(&#39;#&#39;)) {
-      continue;
-    }
-
-    try {
-      final triple = _parseLine(trimmed, lineNumber, blankNodeMap);
-      triples.add(triple);
-    } catch (e) {
-      throw RdfDecoderException(
-        &#39;Error parsing N-Triples at line $lineNumber: ${e.toString()}&#39;,
-        format: _formatName,
-        source: SourceLocation(
-          line: lineNumber - 1, &#47;&#47; Convert to 0-based line number
-          column: 0,
-          context: trimmed,
-        ),
-      );
-    }
+  final dataset = _decoder.convert(input, documentUrl: documentUrl);
+  if (dataset.namedGraphs.isNotEmpty) {
+    _logger.warning(
+        &#39;N-Triples document contains named graphs, which will be ignored. Only the default graph will be returned.&#39;);
   }
-
-  return RdfGraph.fromTriples(triples);
+  return dataset.defaultGraph;
 }</code></pre>
 </section>
 
@@ -157,7 +128,7 @@ RdfGraph convert(String input, {String? documentUrl}) {
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.18
+      0.9.19
   </span>
   
 </footer>

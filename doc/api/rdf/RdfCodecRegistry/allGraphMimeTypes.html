@@ -66,23 +66,11 @@
 
     </section>
     
-<section class="desc markdown">
-  <p>Returns all MIME types supported by all registered codecs</p>
-<p>This getter provides a consolidated set of all MIME types that can be
-handled by any of the registered graph codecs. The set is unmodifiable.</p>
-<p>Returns an unmodifiable set of all MIME types supported by registered graph codecs.</p>
-</section>
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Set&lt;String&gt; get allGraphMimeTypes {
-  final mimeTypes = &lt;String&gt;{};
-  for (final codec in _graphCodecs) {
-    mimeTypes.addAll(codec.supportedMimeTypes);
-  }
-  return Set.unmodifiable(mimeTypes);
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">Set&lt;String&gt; get allGraphMimeTypes =&gt; _registry.allMimeTypes;</code></pre>
 </section>
 
   </section>
@@ -112,7 +100,7 @@ handled by any of the registered graph codecs. The set is unmodifiable.</p>
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.18
+      0.9.19
   </span>
   
 </footer>

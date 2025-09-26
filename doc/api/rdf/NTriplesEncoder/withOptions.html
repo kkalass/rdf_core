@@ -88,11 +88,12 @@ namespace handling.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-RdfGraphEncoder withOptions(RdfGraphEncoderOptions options) =&gt;
-    switch (options) {
-      NTriplesEncoderOptions _ =&gt; this,
-      _ =&gt; NTriplesEncoder(options: NTriplesEncoderOptions.from(options)),
-    };</code></pre>
+RdfGraphEncoder withOptions(RdfGraphEncoderOptions options) {
+  var opts = options is NTriplesEncoderOptions
+      ? options
+      : NTriplesEncoderOptions.from(options);
+  return opts == this._options ? this : NTriplesEncoder(options: opts);
+}</code></pre>
 </section>
 
 
@@ -120,7 +121,7 @@ RdfGraphEncoder withOptions(RdfGraphEncoderOptions options) =&gt;
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.18
+      0.9.19
   </span>
   
 </footer>

@@ -142,9 +142,8 @@ final class NQuadsEncoder extends RdfDatasetEncoder {
 
     // Make sure to have a copy so that changes do not affect the caller's map
     final blankNodeIdentifiers = {...(blankNodeLabels ??= {})};
-    final _BlankNodeCounter counter = generateNewBlankNodeLabels
-        // FIXME: the BlankNodeCounter might need to be initialized if there are existing labels
-        ? _BlankNodeCounter()
+    final _BlankNodeLabelFactory counter = generateNewBlankNodeLabels
+        ? _BlankNodeLabelFactoryImpl(blankNodeIdentifiers.values)
         : _NoOpBlankNodeCounter();
 
     final lines = <String>[
@@ -167,7 +166,7 @@ final class NQuadsEncoder extends RdfDatasetEncoder {
 
   /// Writes a single triple in N-Triples format to the buffer
   String _writeTriple(Triple triple, Map<BlankNodeTerm, String> blankNodeLabels,
-      _BlankNodeCounter counter, bool canonical) {
+      _BlankNodeLabelFactory counter, bool canonical) {
     StringBuffer buffer = StringBuffer();
     _writeTerm(buffer, triple.subject, blankNodeLabels, counter, canonical);
     buffer.write(' ');
@@ -183,7 +182,7 @@ final class NQuadsEncoder extends RdfDatasetEncoder {
       Triple triple,
       RdfTerm graph,
       Map<BlankNodeTerm, String> blankNodeLabels,
-      _BlankNodeCounter counter,
+      _BlankNodeLabelFactory counter,
       bool canonical) {
     StringBuffer buffer = StringBuffer();
     _writeTerm(buffer, triple.subject, blankNodeLabels, counter, canonical);
@@ -202,14 +201,14 @@ final class NQuadsEncoder extends RdfDatasetEncoder {
       StringBuffer buffer,
       RdfTerm term,
       Map<BlankNodeTerm, String> blankNodeLabels,
-      _BlankNodeCounter counter,
+      _BlankNodeLabelFactory counter,
       bool canonical) {
     if (term is IriTerm) {
       buffer.write('<${_escapeIri(term.value)}>');
     } else if (term is BlankNodeTerm) {
       // Maintain a stable mapping of blank nodes to labels using sequential numbering
       final label = blankNodeLabels.putIfAbsent(term, () {
-        return 'b${counter.next()}';
+        return counter.next();
       });
       buffer.write('_:$label');
     } else if (term is LiteralTerm) {
@@ -301,25 +300,38 @@ final class NQuadsEncoder extends RdfDatasetEncoder {
   }
 }
 
+abstract interface class _BlankNodeLabelFactory {
+  String next();
+}
+
 /// Counter for generating sequential blank node labels
 ///
 /// Generates labels in the format b0, b1, b2, etc. following best practices
 /// for blank node labeling in N-Quads serialization.
-class _BlankNodeCounter {
+class _BlankNodeLabelFactoryImpl implements _BlankNodeLabelFactory {
+  final String _prefix = 'b';
+
   int _counter = 0;
 
-  /// Gets the next blank node label number
-  int next() => _counter++;
-}
-
-class _NoOpBlankNodeCounter implements _BlankNodeCounter {
-  int get _counter => 0;
-  set _counter(int value) {
-    throw UnimplementedError(
-        'Blank node label generation is disabled. Provide blankNodeLabels map.');
+  _BlankNodeLabelFactoryImpl(Iterable<String> existingLabels) {
+    // Initialize counter to avoid collisions with existing labels
+    for (var label in existingLabels) {
+      if (label.startsWith(_prefix)) {
+        var numberPart = label.substring(_prefix.length);
+        var number = int.tryParse(numberPart);
+        if (number != null && number >= _counter) {
+          _counter = number + 1;
+        }
+      }
+    }
   }
 
+  /// Gets the next blank node label number
+  String next() => '$_prefix${_counter++}';
+}
+
+class _NoOpBlankNodeCounter implements _BlankNodeLabelFactory {
   @override
-  int next() => throw UnimplementedError(
+  String next() => throw UnimplementedError(
       'Blank node label generation is disabled. Provide blankNodeLabels map.');
 }

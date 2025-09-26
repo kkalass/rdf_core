@@ -410,4 +410,21 @@ final class RdfDataset {
     return graphTriples
         .map((name, triples) => MapEntry(name, RdfGraph(triples: triples)));
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! RdfDataset) return false;
+
+    return defaultGraph == other.defaultGraph &&
+        _namedGraphs.length == other._namedGraphs.length &&
+        _namedGraphs.entries.every((entry) =>
+            other._namedGraphs[entry.key] == entry.value);
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      defaultGraph.hashCode,
+      Object.hashAllUnordered(_namedGraphs.entries.map(
+          (entry) => Object.hash(entry.key.hashCode, entry.value.hashCode))));
 }

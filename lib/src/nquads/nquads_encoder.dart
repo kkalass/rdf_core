@@ -22,10 +22,31 @@ import '../vocab/xsd.dart';
 /// [customPrefixes] property is implemented to return an empty map to satisfy the
 /// interface requirement.
 class NQuadsEncoderOptions extends RdfDatasetEncoderOptions {
+  /// Whether to produce canonical N-Quads output.
+  ///
+  /// When [canonical] is true, the encoder will:
+  /// - Use specific character escaping rules as defined by RDF canonical N-Quads
+  /// - Sort output lines lexicographically to ensure deterministic output
+  /// - Apply consistent blank node labeling
+  ///
+  /// **Important**: This does NOT fulfill the complete RDF Dataset Canonicalization
+  /// specification (RDF-CANON) because blank nodes are not canonicalized according
+  /// to that spec, which requires much more complex algorithms. For full RDF
+  /// canonicalization compliance, use the `rdf_canonicalization` package instead.
+  ///
+  /// This is useful for creating reproducible output that can be compared
+  /// byte-for-byte across different runs with the same input.
+  final bool canonical;
+
   /// Creates a new instance of NQuadsEncoderOptions with default settings.
   ///
-  /// Since N-Quads is a simple format, there are currently no configurable options.
-  const NQuadsEncoderOptions();
+  /// The [canonical] parameter controls whether to produce canonical N-Quads output.
+  /// When false (default), standard N-Quads formatting is used. When true, the output
+  /// follows RDF canonical N-Quads rules for deterministic serialization.
+  ///
+  /// Note: This does not implement full RDF Dataset Canonicalization (RDF-CANON).
+  /// For that, use the `rdf_canonicalization` package.
+  const NQuadsEncoderOptions({this.canonical = false});
 
   /// Custom namespace prefixes to use during encoding.
   ///
@@ -49,15 +70,24 @@ class NQuadsEncoderOptions extends RdfDatasetEncoderOptions {
 
   /// Creates a copy of this NquadsEncoderOptions with the given fields replaced with new values.
   ///
-  /// Since N-Quads format doesn't support configurable options currently,
-  /// this method returns a new instance with the same configuration.
-  /// This method is provided for consistency with the copyWith pattern
-  /// and future extensibility.
+  /// Any parameter that is not provided (or is null) will use the value from the current instance.
+  /// The [canonical] parameter controls whether to produce canonical N-Quads output.
   @override
   NQuadsEncoderOptions copyWith(
           {Map<String, String>? customPrefixes,
-          IriRelativizationOptions? iriRelativization}) =>
-      const NQuadsEncoderOptions();
+          IriRelativizationOptions? iriRelativization,
+          bool? canonical}) =>
+      NQuadsEncoderOptions(canonical: canonical ?? this.canonical);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NQuadsEncoderOptions &&
+          runtimeType == other.runtimeType &&
+          canonical == other.canonical;
+
+  @override
+  int get hashCode => canonical.hashCode;
 }
 
 /// Encoder for the N-Quads format.
@@ -88,7 +118,8 @@ final class NQuadsEncoder extends RdfDatasetEncoder {
   @override
   RdfDatasetEncoder withOptions(RdfGraphEncoderOptions options) =>
       switch (options) {
-        NQuadsEncoderOptions _ => this,
+        NQuadsEncoderOptions _ =>
+          this._options == options ? this : NQuadsEncoder(options: options),
         _ => NQuadsEncoder(options: NQuadsEncoderOptions.from(options)),
       };
 
@@ -102,65 +133,77 @@ final class NQuadsEncoder extends RdfDatasetEncoder {
   String encode(RdfDataset dataset,
       {String? baseUri,
       Map<BlankNodeTerm, String>? blankNodeLabels,
-      bool generateNewBlankNodeLabels = true,
-      bool canonical = true}) {
+      bool generateNewBlankNodeLabels = true}) {
     _logger.fine('Serializing dataset to N-Quads');
 
+    final canonical = _options.canonical;
     // N-Quads ignores baseUri and customPrefixes as it doesn't support
     // relative IRIs or prefixed names
 
-    final buffer = StringBuffer();
     // Make sure to have a copy so that changes do not affect the caller's map
-    blankNodeLabels = {...(blankNodeLabels ??= {})};
+    final blankNodeIdentifiers = {...(blankNodeLabels ??= {})};
     final _BlankNodeCounter counter = generateNewBlankNodeLabels
         // FIXME: the BlankNodeCounter might need to be initialized if there are existing labels
         ? _BlankNodeCounter()
         : _NoOpBlankNodeCounter();
 
-    // Write default graph triples (as triples without graph context)
-    for (final triple in dataset.defaultGraph.triples) {
-      _writeTriple(buffer, triple, blankNodeLabels, counter);
-      buffer.writeln();
+    final lines = <String>[
+      ...dataset.defaultGraph.triples.map((triple) =>
+          _writeTriple(triple, blankNodeIdentifiers, counter, canonical)),
+      ...dataset.namedGraphs.expand((namedGraph) => namedGraph.graph.triples
+          .map((triple) => _writeQuad(triple, namedGraph.name,
+              blankNodeIdentifiers, counter, canonical))),
+    ];
+    if (canonical) {
+      // In canonical mode, we need to ensure that blank node labels are consistent
+      // across different runs. This is achieved by sorting the lines after generation.
+      // The sorting is done in code point order as per RDF 1.1 N-Quads specification.
+      lines.sort();
     }
 
-    // Write named graph quads (as quads with graph context)
-    for (final namedGraph in dataset.namedGraphs) {
-      for (final triple in namedGraph.graph.triples) {
-        _writeQuad(buffer, triple, namedGraph.name, blankNodeLabels, counter);
-        buffer.writeln();
-      }
-    }
-
-    return buffer.toString();
+    // Join lines with LF and ensure final LF
+    return lines.join('\n') + (lines.isNotEmpty ? '\n' : '');
   }
 
   /// Writes a single triple in N-Triples format to the buffer
-  void _writeTriple(StringBuffer buffer, Triple triple,
-      Map<BlankNodeTerm, String> blankNodeLabels, _BlankNodeCounter counter) {
-    _writeTerm(buffer, triple.subject, blankNodeLabels, counter);
+  String _writeTriple(Triple triple, Map<BlankNodeTerm, String> blankNodeLabels,
+      _BlankNodeCounter counter, bool canonical) {
+    StringBuffer buffer = StringBuffer();
+    _writeTerm(buffer, triple.subject, blankNodeLabels, counter, canonical);
     buffer.write(' ');
-    _writeTerm(buffer, triple.predicate, blankNodeLabels, counter);
+    _writeTerm(buffer, triple.predicate, blankNodeLabels, counter, canonical);
     buffer.write(' ');
-    _writeTerm(buffer, triple.object, blankNodeLabels, counter);
+    _writeTerm(buffer, triple.object, blankNodeLabels, counter, canonical);
     buffer.write(' .');
+    return buffer.toString();
   }
 
   /// Writes a single quad in N-Quads format to the buffer
-  void _writeQuad(StringBuffer buffer, Triple triple, RdfTerm graph,
-      Map<BlankNodeTerm, String> blankNodeLabels, _BlankNodeCounter counter) {
-    _writeTerm(buffer, triple.subject, blankNodeLabels, counter);
+  String _writeQuad(
+      Triple triple,
+      RdfTerm graph,
+      Map<BlankNodeTerm, String> blankNodeLabels,
+      _BlankNodeCounter counter,
+      bool canonical) {
+    StringBuffer buffer = StringBuffer();
+    _writeTerm(buffer, triple.subject, blankNodeLabels, counter, canonical);
     buffer.write(' ');
-    _writeTerm(buffer, triple.predicate, blankNodeLabels, counter);
+    _writeTerm(buffer, triple.predicate, blankNodeLabels, counter, canonical);
     buffer.write(' ');
-    _writeTerm(buffer, triple.object, blankNodeLabels, counter);
+    _writeTerm(buffer, triple.object, blankNodeLabels, counter, canonical);
     buffer.write(' ');
-    _writeTerm(buffer, graph, blankNodeLabels, counter);
+    _writeTerm(buffer, graph, blankNodeLabels, counter, canonical);
     buffer.write(' .');
+    return buffer.toString();
   }
 
   /// Writes a term in N-Quads format to the buffer
-  void _writeTerm(StringBuffer buffer, RdfTerm term,
-      Map<BlankNodeTerm, String> blankNodeLabels, _BlankNodeCounter counter) {
+  void _writeTerm(
+      StringBuffer buffer,
+      RdfTerm term,
+      Map<BlankNodeTerm, String> blankNodeLabels,
+      _BlankNodeCounter counter,
+      bool canonical) {
     if (term is IriTerm) {
       buffer.write('<${_escapeIri(term.value)}>');
     } else if (term is BlankNodeTerm) {
@@ -170,7 +213,7 @@ final class NQuadsEncoder extends RdfDatasetEncoder {
       });
       buffer.write('_:$label');
     } else if (term is LiteralTerm) {
-      buffer.write('"${_escapeLiteral(term.value)}"');
+      buffer.write('"${_escapeLiteral(term.value, canonical)}"');
 
       if (term.language != null && term.language!.isNotEmpty) {
         buffer.write('@${term.language}');
@@ -192,7 +235,11 @@ final class NQuadsEncoder extends RdfDatasetEncoder {
   }
 
   /// Escapes special characters in literals according to N-Quads rules
-  String _escapeLiteral(String literal) {
+  String _escapeLiteral(String literal, bool canonical) {
+    if (canonical) {
+      return _escapeCanonicalLiteral(literal);
+    }
+
     return literal
         .replaceAll('\\', '\\\\')
         .replaceAll('"', '\\"')
@@ -201,6 +248,56 @@ final class NQuadsEncoder extends RdfDatasetEncoder {
         .replaceAll('\t', '\\t')
         .replaceAll('\b', '\\b')
         .replaceAll('\f', '\\f');
+  }
+
+  /// Escapes special characters in literals according to RDF canonical N-Quads rules
+  String _escapeCanonicalLiteral(String literal) {
+    final buffer = StringBuffer();
+
+    for (int i = 0; i < literal.length; i++) {
+      final codeUnit = literal.codeUnitAt(i);
+      final char = literal[i];
+
+      // Characters that MUST be encoded using ECHAR
+      switch (codeUnit) {
+        case 0x08: // BS (backspace)
+          buffer.write('\\b');
+          break;
+        case 0x09: // HT (horizontal tab)
+          buffer.write('\\t');
+          break;
+        case 0x0A: // LF (line feed)
+          buffer.write('\\n');
+          break;
+        case 0x0C: // FF (form feed)
+          buffer.write('\\f');
+          break;
+        case 0x0D: // CR (carriage return)
+          buffer.write('\\r');
+          break;
+        case 0x22: // " (quotation mark)
+          buffer.write('\\"');
+          break;
+        case 0x5C: // \ (backslash)
+          buffer.write('\\\\');
+          break;
+        default:
+          // Characters in ranges that MUST be represented by UCHAR using lowercase \u with 4 HEXes
+          if ((codeUnit >= 0x00 && codeUnit <= 0x07) || // U+0000 to U+0007
+              codeUnit == 0x0B || // VT (vertical tab)
+              (codeUnit >= 0x0E && codeUnit <= 0x1F) || // U+000E to U+001F
+              codeUnit == 0x7F) {
+            // DEL
+            buffer.write(
+                '\\u${codeUnit.toRadixString(16).padLeft(4, '0').toUpperCase()}');
+          } else {
+            // All other characters represented by their native Unicode representation
+            buffer.write(char);
+          }
+      }
+    }
+
+    return buffer.toString();
   }
 }
 

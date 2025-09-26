@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **RdfCore API**: Added `decodeDataset()`, `encodeDataset()`, and `datasetCodec()` methods for dataset operations
 - **N-Triples Implementation**: Refactored to delegate to N-Quads decoder for better code reuse
+- **Encoder Options**: Added `canonical` parameter to `NQuadsEncoderOptions` and `NTriplesEncoderOptions` with proper equals/hashCode implementation
 
 ### Changed
 

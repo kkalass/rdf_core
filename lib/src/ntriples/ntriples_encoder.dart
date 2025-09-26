@@ -20,10 +20,31 @@ import '../rdf_graph_encoder.dart';
 /// [customPrefixes] property is implemented to return an empty map to satisfy the
 /// interface requirement.
 class NTriplesEncoderOptions extends RdfGraphEncoderOptions {
+  /// Whether to produce canonical N-Triples output.
+  ///
+  /// When [canonical] is true, the encoder will:
+  /// - Use specific character escaping rules as defined by RDF canonical N-Triples
+  /// - Sort output lines lexicographically to ensure deterministic output
+  /// - Apply consistent blank node labeling
+  ///
+  /// **Important**: This does NOT fulfill the complete RDF Dataset Canonicalization
+  /// specification (RDF-CANON) because blank nodes are not canonicalized according
+  /// to that spec, which requires much more complex algorithms. For full RDF
+  /// canonicalization compliance, use the `rdf_canonicalization` package instead.
+  ///
+  /// This is useful for creating reproducible output that can be compared
+  /// byte-for-byte across different runs with the same input.
+  final bool canonical;
+
   /// Creates a new instance of NTriplesEncoderOptions with default settings.
   ///
-  /// Since N-Triples is a simple format, there are currently no configurable options.
-  const NTriplesEncoderOptions();
+  /// The [canonical] parameter controls whether to produce canonical N-Triples output.
+  /// When false (default), standard N-Triples formatting is used. When true, the output
+  /// follows RDF canonical N-Triples rules for deterministic serialization.
+  ///
+  /// Note: This does not implement full RDF Dataset Canonicalization (RDF-CANON).
+  /// For that, use the `rdf_canonicalization` package.
+  const NTriplesEncoderOptions({this.canonical = false});
 
   /// Custom namespace prefixes to use during encoding.
   ///
@@ -47,15 +68,24 @@ class NTriplesEncoderOptions extends RdfGraphEncoderOptions {
 
   /// Creates a copy of this NTriplesEncoderOptions with the given fields replaced with new values.
   ///
-  /// Since N-Triples format doesn't support configurable options currently,
-  /// this method returns a new instance with the same configuration.
-  /// This method is provided for consistency with the copyWith pattern
-  /// and future extensibility.
+  /// Any parameter that is not provided (or is null) will use the value from the current instance.
+  /// The [canonical] parameter controls whether to produce canonical N-Triples output.
   @override
   NTriplesEncoderOptions copyWith(
           {Map<String, String>? customPrefixes,
-          IriRelativizationOptions? iriRelativization}) =>
-      const NTriplesEncoderOptions();
+          IriRelativizationOptions? iriRelativization,
+          bool? canonical}) =>
+      NTriplesEncoderOptions(canonical: canonical ?? this.canonical);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NTriplesEncoderOptions &&
+          runtimeType == other.runtimeType &&
+          canonical == other.canonical;
+
+  @override
+  int get hashCode => canonical.hashCode;
 }
 
 /// Encoder for the N-Triples format.
@@ -75,29 +105,27 @@ final class NTriplesEncoder extends RdfGraphEncoder {
   //
   // ignore: unused_field
   final RdfEncoder<RdfDataset> _encoder;
+  final NTriplesEncoderOptions _options;
 
   /// Creates a new N-Triples serializer
   NTriplesEncoder({
     NTriplesEncoderOptions options = const NTriplesEncoderOptions(),
-  }) : _encoder = NQuadsEncoder(
+  })  : _options = options,
+        _encoder = NQuadsEncoder(
           options: _toNQuadsOptions(options),
         );
 
-  NTriplesEncoder._(RdfEncoder<RdfDataset> encoder) : _encoder = encoder;
-
   static NQuadsEncoderOptions _toNQuadsOptions(
           NTriplesEncoderOptions options) =>
-      NQuadsEncoderOptions();
+      NQuadsEncoderOptions(canonical: options.canonical);
 
   @override
-  RdfGraphEncoder withOptions(RdfGraphEncoderOptions options) =>
-      switch (options) {
-        NTriplesEncoderOptions _ => this,
-        _ => NTriplesEncoder._(NQuadsEncoder(
-            options: options is NTriplesEncoderOptions
-                ? _toNQuadsOptions(options)
-                : NQuadsEncoderOptions.from(options))),
-      };
+  RdfGraphEncoder withOptions(RdfGraphEncoderOptions options) {
+    var opts = options is NTriplesEncoderOptions
+        ? options
+        : NTriplesEncoderOptions.from(options);
+    return opts == this._options ? this : NTriplesEncoder(options: opts);
+  }
 
   @override
   String convert(RdfGraph graph, {String? baseUri}) {

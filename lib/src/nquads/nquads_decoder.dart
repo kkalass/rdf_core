@@ -78,6 +78,15 @@ final class NQuadsDecoder extends RdfDatasetDecoder {
 
   @override
   RdfDataset convert(String input, {String? documentUrl}) {
+    final result = decode(input, documentUrl: documentUrl);
+
+    // Organize quads into default and named graphs
+    return result.dataset;
+  }
+
+  ({RdfDataset dataset, Map<BlankNodeTerm, String> blankNodeLabels}) decode(
+      String input,
+      {String? documentUrl}) {
     _logger.fine(
       'Parsing N-Quads document${documentUrl != null ? " with base URL: $documentUrl" : ""}',
     );
@@ -112,8 +121,20 @@ final class NQuadsDecoder extends RdfDatasetDecoder {
       }
     }
 
+    final blankNodeLabels = {
+      for (final entry in blankNodeMap.entries) entry.value: entry.key
+    };
+
+    if (blankNodeLabels.length != blankNodeMap.length) {
+      throw RdfException(
+          'Inconsistent blank node labeling: some blank nodes have duplicate labels.');
+    }
+
     // Organize quads into default and named graphs
-    return RdfDataset.fromQuads(quads);
+    return (
+      dataset: RdfDataset.fromQuads(quads),
+      blankNodeLabels: blankNodeLabels
+    );
   }
 
   /// Parses a single line of N-Quads format into a Quad

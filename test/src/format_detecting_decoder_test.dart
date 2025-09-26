@@ -1,4 +1,5 @@
 import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_core/src/plugin/rdf_codec_registry.dart';
 import 'package:test/test.dart';
 
 void main() {

@@ -94,14 +94,27 @@ final class NQuadsEncoder extends RdfDatasetEncoder {
 
   @override
   String convert(RdfDataset dataset, {String? baseUri}) {
+    return encode(dataset, baseUri: baseUri);
+  }
+
+  /// If the [generateNewBlankNodeLabels] flag is false and [blankNodeLabels] is not provided, or does not contain all blank nodes in the dataset,
+  /// an exception is thrown to indicate inconsistent blank node labeling.
+  String encode(RdfDataset dataset,
+      {String? baseUri,
+      Map<BlankNodeTerm, String>? blankNodeLabels,
+      bool generateNewBlankNodeLabels = true,
+      bool canonical = true}) {
     _logger.fine('Serializing dataset to N-Quads');
 
     // N-Quads ignores baseUri and customPrefixes as it doesn't support
     // relative IRIs or prefixed names
 
     final buffer = StringBuffer();
-    final Map<BlankNodeTerm, String> blankNodeLabels = {};
-    final _BlankNodeCounter counter = _BlankNodeCounter();
+    // Make sure to have a copy so that changes do not affect the caller's map
+    blankNodeLabels = {...(blankNodeLabels ??= {})};
+    final _BlankNodeCounter counter = generateNewBlankNodeLabels
+        ? _BlankNodeCounter()
+        : _NoOpBlankNodeCounter();
 
     // Write default graph triples (as triples without graph context)
     for (final triple in dataset.defaultGraph.triples) {
@@ -199,4 +212,16 @@ class _BlankNodeCounter {
 
   /// Gets the next blank node label number
   int next() => _counter++;
+}
+
+class _NoOpBlankNodeCounter implements _BlankNodeCounter {
+  int get _counter => 0;
+  set _counter(int value) {
+    throw UnimplementedError(
+        'Blank node label generation is disabled. Provide blankNodeLabels map.');
+  }
+
+  @override
+  int next() => throw UnimplementedError(
+      'Blank node label generation is disabled. Provide blankNodeLabels map.');
 }

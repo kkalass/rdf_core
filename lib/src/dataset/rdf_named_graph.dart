@@ -123,7 +123,7 @@ import 'package:rdf_core/rdf_core.dart';
 /// final retrievedGraph = dataset.graph(namedGraph.name);
 /// assert(retrievedGraph == namedGraph.graph);
 /// ```
-class RdfNamedGraph {
+final class RdfNamedGraph {
   /// The IRI name that uniquely identifies this graph within a dataset
   ///
   /// This IRI serves as the unique identifier for the graph within an RDF dataset.

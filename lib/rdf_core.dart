@@ -175,30 +175,111 @@ import 'src/ntriples/ntriples_codec.dart';
 import 'src/plugin/rdf_graph_codec.dart';
 import 'src/turtle/turtle_codec.dart';
 
-export 'src/dataset/quad.dart';
-export 'src/dataset/rdf_dataset.dart';
-export 'src/dataset/rdf_named_graph.dart';
-export 'src/exceptions/exceptions.dart';
-// Re-export core components for easy access
-export 'src/graph/rdf_graph.dart';
-export 'src/graph/rdf_term.dart';
-export 'src/graph/triple.dart';
-export 'src/iri_compaction.dart';
-export 'src/jsonld/jsonld_codec.dart';
-export 'src/ntriples/ntriples_codec.dart';
-export 'src/nquads/nquads_codec.dart';
-export 'src/plugin/exceptions.dart';
-export 'src/plugin/rdf_graph_codec.dart';
-export 'src/plugin/rdf_base_codec.dart';
-export 'src/plugin/rdf_dataset_codec.dart';
-export 'src/plugin/rdf_codec_registry.dart';
-export 'src/rdf_decoder.dart';
-export 'src/rdf_encoder.dart';
-export 'src/rdf_graph_decoder.dart';
-export 'src/rdf_graph_encoder.dart';
-export 'src/turtle/turtle_codec.dart';
+// Export specific classes as part of the public API
+
+export 'src/dataset/quad.dart' show Quad;
+export 'src/dataset/rdf_dataset.dart' show RdfDataset;
+export 'src/dataset/rdf_named_graph.dart' show RdfNamedGraph;
+export 'src/exceptions/exceptions.dart'
+    show
+        RdfException,
+        SourceLocation,
+        RdfDecoderException,
+        RdfUnsupportedFeatureException,
+        RdfSyntaxException,
+        RdfInvalidIriException,
+        RdfEncoderException,
+        RdfUnsupportedEncoderFeatureException,
+        RdfCyclicGraphException,
+        RdfConstraintViolationException,
+        RdfShapeValidationException,
+        RdfTypeException,
+        RdfValidationException;
+
+export 'src/graph/rdf_graph.dart'
+    show RdfGraph, TraversalDecision, TraversalFilter;
+export 'src/graph/rdf_term.dart'
+    show
+        BlankNodeTerm,
+        IriTerm,
+        LiteralTerm,
+        RdfGraphName,
+        RdfObject,
+        RdfPredicate,
+        RdfSubject,
+        RdfTerm,
+        IriTermFactory;
+export 'src/graph/triple.dart' show Triple;
+export 'src/iri_compaction.dart'
+    show
+        CompactIri,
+        FullIri,
+        IriCompactionResult,
+        IriCompaction,
+        IriCompactionSettings,
+        PrefixedIri,
+        RelativeIri,
+        SpecialIri,
+        allowedCompactionTypesAll,
+        IriCompactionType,
+        IriRole,
+        AllowedCompactionTypes,
+        IriFilter;
+export 'src/jsonld/jsonld_codec.dart'
+    show
+        jsonldGraph,
+        JsonLdGraphCodec,
+        JsonLdDecoder,
+        JsonLdDecoderOptions,
+        JsonLdEncoder,
+        JsonLdEncoderOptions;
+export 'src/ntriples/ntriples_codec.dart'
+    show
+        ntriples,
+        NTriplesCodec,
+        NTriplesDecoder,
+        NTriplesDecoderOptions,
+        NTriplesEncoder,
+        NTriplesEncoderOptions;
+export 'src/nquads/nquads_codec.dart'
+    show
+        nquads,
+        NQuadsCodec,
+        NQuadsDecoder,
+        NQuadsDecoderOptions,
+        NQuadsEncoder,
+        NQuadsEncoderOptions;
+export 'src/plugin/exceptions.dart' show CodecNotSupportedException;
+export 'src/plugin/rdf_graph_codec.dart' show RdfCodecRegistry, RdfGraphCodec;
+export 'src/plugin/rdf_base_codec.dart' show RdfCodec;
+export 'src/plugin/rdf_dataset_codec.dart'
+    show RdfDatasetCodec, RdfDatasetCodecRegistry;
+export 'src/plugin/rdf_codec_registry.dart' show BaseRdfCodecRegistry;
+export 'src/rdf_decoder.dart' show RdfDecoder, RdfGraphDecoderOptions;
+export 'src/rdf_encoder.dart'
+    show IriRelativizationOptions, RdfGraphEncoderOptions, RdfEncoder;
+export 'src/rdf_graph_decoder.dart' show RdfGraphDecoder;
+export 'src/rdf_graph_encoder.dart' show RdfGraphEncoder;
+export 'src/turtle/turtle_codec.dart'
+    show
+        turtle,
+        TurtleCodec,
+        TurtleDecoder,
+        TurtleDecoderOptions,
+        TurtleEncoder,
+        TurtleEncoderOptions;
 export 'src/turtle/turtle_tokenizer.dart' show TurtleParsingFlag;
-export 'src/vocab/namespaces.dart';
+export 'src/vocab/namespaces.dart' show RdfNamespaceMappings;
+export 'src/canonical/canonical_rdf_dataset.dart'
+    show CanonicalRdfDataset, CanonicalRdfGraph;
+export 'src/canonical/canonical_util.dart'
+    show
+        CanonicalizationOptions,
+        CanonicalHashAlgorithm,
+        canonicalize,
+        canonicalizeGraph,
+        isIsomorphic,
+        isIsomorphicGraphs;
 
 /// RDF Core Library
 ///

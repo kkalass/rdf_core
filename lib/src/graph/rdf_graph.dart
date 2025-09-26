@@ -1011,8 +1011,36 @@ final class RdfGraph {
   /// Two RDF graphs are equal if they contain the same set of triples,
   /// regardless of the order in which they were added.
   ///
+  /// **Important:** This implementation performs syntactic equality based on
+  /// exact triple matching. Two graphs that are semantically equivalent but
+  /// have different [BlankNodeTerm] instances will NOT be considered equal,
+  /// even if they represent the same RDF structure. [BlankNodeTerm] instances
+  /// are only equal if they are the identical object instance.
+  ///
+  /// **For semantic graph comparison:** Use [isIsomorphicGraphs] from
+  /// `lib/src/canonical/canonical_util.dart`, which implements RDF graph
+  /// isomorphism based on the RDF Canonicalization specification. This
+  /// provides true semantic equality but is more computationally expensive
+  /// and not consistent with [hashCode].
+  ///
+  /// **Alternative:** Consider using [CanonicalRdfGraph] which lazily computes
+  /// a canonical serialized form and uses it for both comparison and hashing,
+  /// providing consistent semantic equality with proper hash code behavior.
+  ///
   /// This implementation treats RDF graphs as sets rather than lists,
-  /// which aligns with the semantic definition of RDF graphs in the specification.
+  /// which aligns with the syntactic definition of RDF graphs in the specification.
+  ///
+  /// Example:
+  /// ```dart
+  /// // These graphs are syntactically different due to different blank nodes
+  /// final graph1 = RdfGraph(triples: [Triple(BlankNodeTerm(), knows, alice)]);
+  /// final graph2 = RdfGraph(triples: [Triple(BlankNodeTerm(), knows, alice)]);
+  /// assert(graph1 != graph2); // Different BlankNodeTerm instances
+  ///
+  /// // For semantic comparison:
+  /// import 'package:rdf_core/src/canonical/canonical_util.dart';
+  /// assert(isIsomorphicGraphs(graph1, graph2)); // Semantically equivalent
+  /// ```
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;

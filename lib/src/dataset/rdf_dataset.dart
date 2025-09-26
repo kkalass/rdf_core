@@ -115,7 +115,7 @@ import 'package:rdf_core/rdf_core.dart';
 /// final graph1 = dataset.graph(IriTerm('http://example.org/graph1'));
 /// final allGraphNames = dataset.graphNames;
 /// ```
-class RdfDataset {
+final class RdfDataset {
   /// The default graph of this dataset
   ///
   /// The default graph is the unnamed graph in the dataset and is always present.

@@ -22,7 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Plugin Architecture**: Reorganized codec files and added new `RdfDatasetCodec` hierarchy alongside existing `RdfGraphCodec`
-- **Library Exports**: Added exports for dataset classes and reorganized public API
+- **Library Exports**: Refined public API with explicit `show` clauses for controlled exports, added canonical RDF support
+- **Class Design**: Made `RdfDataset` and `RdfNamedGraph` final classes to prevent inheritance
+- **N-Quads Enhancement**: Added `decode()` and `encode()` methods with blank node label preservation support
+- **Documentation**: Enhanced `RdfGraph` equality documentation explaining syntactic vs semantic comparison
 
 ## [0.9.18] - 2025-09-25
 

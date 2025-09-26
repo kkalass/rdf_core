@@ -16,6 +16,7 @@ A type-safe and extensible Dart library for representing and manipulating RDF da
 If you are looking for more rdf-related functionality, have a look at our companion projects:
 
 - Encode and decode RDF/XML format: [rdf_xml](https://github.com/kkalass/rdf_xml)
+- RDF Dataset Canonicalization (RDF-CANON): [rdf_canonicalization](https://github.com/kkalass/rdf_canonicalization)
 - Easy-to-use constants for many well-known vocabularies: [rdf_vocabularies](https://github.com/kkalass/rdf_vocabularies)
 - Generate your own easy-to-use constants for other vocabularies with a build_runner: [rdf_vocabulary_to_dart](https://github.com/kkalass/rdf_vocabulary_to_dart)
 - Map Dart Objects ↔️ RDF: [rdf_mapper](https://github.com/kkalass/rdf_mapper)
@@ -275,18 +276,61 @@ import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_xml/rdf_xml.dart';
 
 void main() {
-  
+
   // Option 1: Use the codec directly
   final graph = rdfxml.decode(rdfXmlData);
   final serialized = rdfxml.encode(graph);
-  
+
   // Option 2: Register with RdfCore
   final rdf = RdfCore.withStandardCodecs(additionalCodecs: [RdfXmlCodec()])
-  
+
   // Now it can be used with the rdf instance in addition to turtle etc.
   final graphFromRdf = rdf.decode(rdfXmlData, contentType: 'application/rdf+xml');
 }
 ```
+
+### RDF Dataset Canonicalization
+
+For full RDF Dataset Canonicalization (RDF-CANON) compliance, use the separate [rdf_canonicalization](https://github.com/kkalass/rdf_canonicalization) package.
+
+```bash
+dart pub add rdf_canonicalization
+```
+
+```dart
+import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_canonicalization/rdf_canonicalization.dart';
+
+void main() {
+  // Create a dataset with blank nodes
+  final dataset = RdfDataset.fromQuads([
+    Quad(BlankNodeTerm(), const IriTerm('http://example.org/name'), LiteralTerm.string('Alice')),
+    Quad(BlankNodeTerm(), const IriTerm('http://example.org/name'), LiteralTerm.string('Bob')),
+  ]);
+
+  // Canonicalize the dataset according to RDF-CANON spec
+  final canonicalNQuads = canonicalize(dataset);
+  print('Canonical N-Quads:\n$canonicalNQuads');
+
+  // Or canonicalize a single graph
+  final graph = RdfGraph(triples: [
+    Triple(BlankNodeTerm(), const IriTerm('http://example.org/name'), LiteralTerm.string('Example')),
+  ]);
+
+  final canonicalGraph = canonicalizeGraph(graph);
+  print('Canonical graph:\n$canonicalGraph');
+
+  // Test if two datasets are semantically equivalent
+  final dataset2 = RdfDataset.fromQuads([
+    Quad(BlankNodeTerm(), const IriTerm('http://example.org/name'), LiteralTerm.string('Bob')),
+    Quad(BlankNodeTerm(), const IriTerm('http://example.org/name'), LiteralTerm.string('Alice')),
+  ]);
+  final isEquivalent = isIsomorphic(dataset, dataset2);
+  print('Are datasets equivalent? $isEquivalent');
+}
+```
+
+**Note:** The `canonical` option in this library's N-Quads and N-Triples encoders provides basic deterministic output but does **not** implement the full RDF Dataset Canonicalization specification. For complete RDF-CANON compliance (including proper blank node canonicalization), use the `rdf_canonicalization` package as shown above.
 
 ### Graph Merging
 
@@ -416,6 +460,7 @@ final graph4 = customRdf.decode(nonStandardTurtle, contentType: 'text/turtle');
 
 - [RDF 1.1 Concepts](https://www.w3.org/TR/rdf11-concepts/)
 - [RDF 1.1 Datasets](https://www.w3.org/TR/rdf11-datasets/)
+- [RDF Dataset Canonicalization](https://www.w3.org/TR/rdf-canon/) - See [rdf_canonicalization](https://kkalass.github.io/rdf_canonicalization/) package
 - [Turtle: Terse RDF Triple Language](https://www.w3.org/TR/turtle/)
 - [N-Triples](https://www.w3.org/TR/n-triples/)
 - [N-Quads](https://www.w3.org/TR/n-quads/)

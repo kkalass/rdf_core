@@ -81,6 +81,7 @@ nav a:hover, nav a:focus {
       <a href="#features">Features</a>
       <a href="#quickstart">Quick Start</a>
       <a href="#n-quads">N-Quads</a>
+      <a href="#rdf-canonicalization">RDF-CANON</a>
       <a href="#advanced">Advanced</a>
       <a href="#api-overview">API Overview</a>
       <a href="api/">API Docs</a>
@@ -389,7 +390,47 @@ print(encodedTurtle);
       <a href="https://www.w3.org/TR/json-ld11/">JSON-LD 1.1 Specification</a>
     </div>
   </section>
-  
+
+  <section class="advanced" id="rdf-canonicalization">
+    <h2>⚖️ RDF Dataset Canonicalization</h2>
+    <p>For full RDF Dataset Canonicalization (RDF-CANON) compliance, use the separate <a href="https://github.com/kkalass/rdf_canonicalization">rdf_canonicalization</a> package.</p>
+    <pre><code class="language-bash">dart pub add rdf_canonicalization</code></pre>
+    <pre><code class="language-dart">import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_canonicalization/rdf_canonicalization.dart';
+
+// Create a dataset with blank nodes
+final dataset = RdfDataset.fromQuads([
+  Quad(BlankNodeTerm(), const IriTerm('http://example.org/name'), LiteralTerm.string('Alice')),
+  Quad(BlankNodeTerm(), const IriTerm('http://example.org/name'), LiteralTerm.string('Bob')),
+]);
+
+// Canonicalize the dataset according to RDF-CANON spec
+final canonicalNQuads = canonicalize(dataset);
+print('Canonical N-Quads:\n$canonicalNQuads');
+
+// Or canonicalize a single graph
+final graph = RdfGraph(triples: [
+  Triple(BlankNodeTerm(), const IriTerm('http://example.org/name'), LiteralTerm.string('Example')),
+]);
+
+final canonicalGraph = canonicalizeGraph(graph);
+print('Canonical graph:\n$canonicalGraph');
+
+// Test if two datasets are semantically equivalent
+final dataset2 = RdfDataset.fromQuads([
+  Quad(BlankNodeTerm(), const IriTerm('http://example.org/name'), LiteralTerm.string('Bob')),
+  Quad(BlankNodeTerm(), const IriTerm('http://example.org/name'), LiteralTerm.string('Alice')),
+]);
+final isEquivalent = isIsomorphic(dataset, dataset2);
+print('Are datasets equivalent? $isEquivalent');
+</code></pre>
+    <p><strong>Note:</strong> The <code>canonical</code> option in this library's N-Quads and N-Triples encoders provides basic deterministic output but does <strong>not</strong> implement the full RDF Dataset Canonicalization specification. For complete RDF-CANON compliance (including proper blank node canonicalization), use the <code>rdf_canonicalization</code> package.</p>
+    <div class="links">
+      <a href="https://kkalass.github.io/rdf_canonicalization/">rdf_canonicalization Homepage</a>
+      <a href="https://www.w3.org/TR/rdf-canon/">RDF-CANON Specification</a>
+    </div>
+  </section>
+
   <section class="advanced" id="api-overview">
     <h2>🗺️ API Overview</h2>
     <table style="width:100%; border-collapse: collapse;">

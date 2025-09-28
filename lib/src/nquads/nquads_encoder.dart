@@ -149,8 +149,8 @@ final class NQuadsEncoder extends RdfDatasetEncoder {
       ...dataset.defaultGraph.triples.map((triple) =>
           _writeTriple(triple, blankNodeIdentifiers, counter, canonical)),
       ...dataset.namedGraphs.expand((namedGraph) => namedGraph.graph.triples
-          .map((quad) => _writeQuad(quad, namedGraph.name,
-              blankNodeIdentifiers, counter, canonical))),
+          .map((quad) => _writeQuad(quad, namedGraph.name, blankNodeIdentifiers,
+              counter, canonical))),
     ];
     if (canonical) {
       // In canonical mode, we need to ensure that blank node labels are consistent

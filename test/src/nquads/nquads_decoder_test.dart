@@ -213,8 +213,10 @@ void main() {
         expect(namedGraph.name, isA<BlankNodeTerm>());
 
         // Verify both quads reference the same blank node instance
-        final quads = dataset.namedGraphs.expand((ng) =>
-            ng.graph.triples.map((t) => (triple: t, graph: ng.name))).toList();
+        final quads = dataset.namedGraphs
+            .expand((ng) =>
+                ng.graph.triples.map((t) => (triple: t, graph: ng.name)))
+            .toList();
         expect(quads, hasLength(2));
         expect(identical(quads[0].graph, quads[1].graph), isTrue);
       });

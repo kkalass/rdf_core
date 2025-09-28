@@ -418,8 +418,8 @@ final class RdfDataset {
 
     return defaultGraph == other.defaultGraph &&
         _namedGraphs.length == other._namedGraphs.length &&
-        _namedGraphs.entries.every((entry) =>
-            other._namedGraphs[entry.key] == entry.value);
+        _namedGraphs.entries
+            .every((entry) => other._namedGraphs[entry.key] == entry.value);
   }
 
   @override

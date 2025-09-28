@@ -50,7 +50,8 @@ void main() {
     });
 
     group('canParse', () {
-      test('returns true for valid N-Quads content with default graph only', () {
+      test('returns true for valid N-Quads content with default graph only',
+          () {
         final content = '''
           <http://example.org/subject> <http://example.org/predicate> "object" .
           <http://example.org/s2> <http://example.org/p2> <http://example.org/o2> .

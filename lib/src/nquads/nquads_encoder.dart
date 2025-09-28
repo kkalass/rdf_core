@@ -125,14 +125,13 @@ final class NQuadsEncoder extends RdfDatasetEncoder {
 
   @override
   String convert(RdfDataset dataset, {String? baseUri}) {
-    return encode(dataset, baseUri: baseUri);
+    return encode(dataset);
   }
 
   /// If the [generateNewBlankNodeLabels] flag is false and [blankNodeLabels] is not provided, or does not contain all blank nodes in the dataset,
   /// an exception is thrown to indicate inconsistent blank node labeling.
   String encode(RdfDataset dataset,
-      {String? baseUri,
-      Map<BlankNodeTerm, String>? blankNodeLabels,
+      {Map<BlankNodeTerm, String>? blankNodeLabels,
       bool generateNewBlankNodeLabels = true}) {
     _logger.fine('Serializing dataset to N-Quads');
 
@@ -146,18 +145,19 @@ final class NQuadsEncoder extends RdfDatasetEncoder {
         ? _BlankNodeLabelFactoryImpl(blankNodeIdentifiers.values)
         : _NoOpBlankNodeCounter();
 
-    final lines = <String>[
+    var lines = <String>[
       ...dataset.defaultGraph.triples.map((triple) =>
           _writeTriple(triple, blankNodeIdentifiers, counter, canonical)),
       ...dataset.namedGraphs.expand((namedGraph) => namedGraph.graph.triples
-          .map((triple) => _writeQuad(triple, namedGraph.name,
+          .map((quad) => _writeQuad(quad, namedGraph.name,
               blankNodeIdentifiers, counter, canonical))),
     ];
     if (canonical) {
       // In canonical mode, we need to ensure that blank node labels are consistent
-      // across different runs. This is achieved by sorting the lines after generation.
+      // across different runs and that there are no duplicate quads.
+      // This is achieved by converting to set and back to a list, followed by sorting the lines after generation.
       // The sorting is done in code point order as per RDF 1.1 N-Quads specification.
-      lines.sort();
+      lines = lines.toSet().toList()..sort();
     }
 
     // Join lines with LF and ensure final LF

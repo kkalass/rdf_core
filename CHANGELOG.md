@@ -5,7 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.9.19] - TBD
+## [0.9.20] - 2025-09-28
+### Changed
+
+- **N-Quads Encoder API**: Removed unused `baseUri` parameter from `convert()` and `encode()` methods for cleaner API
+
+### Fixes
+- Formatting fixes (dart format)
+- **N-Quads Encoder**: When set to canonical, it will deduplicate the tuples before outputting the result
+
+## [0.9.19] - 2025-09-26
 
 ### Added
 

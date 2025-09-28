@@ -108,8 +108,8 @@ bool operator ==(Object other) {
 
   return defaultGraph == other.defaultGraph &amp;&amp;
       _namedGraphs.length == other._namedGraphs.length &amp;&amp;
-      _namedGraphs.entries.every((entry) =&gt;
-          other._namedGraphs[entry.key] == entry.value);
+      _namedGraphs.entries
+          .every((entry) =&gt; other._namedGraphs[entry.key] == entry.value);
 }</code></pre>
 </section>
 
@@ -138,7 +138,7 @@ bool operator ==(Object other) {
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.19
+      0.9.20
   </span>
   
 </footer>

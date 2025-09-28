@@ -56,7 +56,6 @@
       
 <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
 <span class="name ">encode</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="encode-param-dataset"><span class="type-annotation"><a href="../../rdf/RdfDataset-class.html">RdfDataset</a></span> <span class="parameter-name">dataset</span>, {</span></li>
-<li><span class="parameter" id="encode-param-baseUri"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">baseUri</span>, </span></li>
 <li><span class="parameter" id="encode-param-blankNodeLabels"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/BlankNodeTerm-class.html">BlankNodeTerm</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">blankNodeLabels</span>, </span></li>
 <li><span class="parameter" id="encode-param-generateNewBlankNodeLabels"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateNewBlankNodeLabels</span> = <span class="default-value">true</span>, </span></li>
 </ol>})
@@ -75,8 +74,7 @@ an exception is thrown to indicate inconsistent blank node labeling.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">String encode(RdfDataset dataset,
-    {String? baseUri,
-    Map&lt;BlankNodeTerm, String&gt;? blankNodeLabels,
+    {Map&lt;BlankNodeTerm, String&gt;? blankNodeLabels,
     bool generateNewBlankNodeLabels = true}) {
   _logger.fine(&#39;Serializing dataset to N-Quads&#39;);
 
@@ -90,18 +88,19 @@ an exception is thrown to indicate inconsistent blank node labeling.</p>
       ? _BlankNodeLabelFactoryImpl(blankNodeIdentifiers.values)
       : _NoOpBlankNodeCounter();
 
-  final lines = &lt;String&gt;[
+  var lines = &lt;String&gt;[
     ...dataset.defaultGraph.triples.map((triple) =&gt;
         _writeTriple(triple, blankNodeIdentifiers, counter, canonical)),
     ...dataset.namedGraphs.expand((namedGraph) =&gt; namedGraph.graph.triples
-        .map((triple) =&gt; _writeQuad(triple, namedGraph.name,
-            blankNodeIdentifiers, counter, canonical))),
+        .map((quad) =&gt; _writeQuad(quad, namedGraph.name, blankNodeIdentifiers,
+            counter, canonical))),
   ];
   if (canonical) {
     &#47;&#47; In canonical mode, we need to ensure that blank node labels are consistent
-    &#47;&#47; across different runs. This is achieved by sorting the lines after generation.
+    &#47;&#47; across different runs and that there are no duplicate quads.
+    &#47;&#47; This is achieved by converting to set and back to a list, followed by sorting the lines after generation.
     &#47;&#47; The sorting is done in code point order as per RDF 1.1 N-Quads specification.
-    lines.sort();
+    lines = lines.toSet().toList()..sort();
   }
 
   &#47;&#47; Join lines with LF and ensure final LF
@@ -134,7 +133,7 @@ an exception is thrown to indicate inconsistent blank node labeling.</p>
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.19
+      0.9.20
   </span>
   
 </footer>

@@ -11,9 +11,7 @@ class BaseRdfCodecRegistry<G> {
   final Map<String, RdfCodec<G>> _codecsByMimeType = {};
   final List<RdfCodec<G>> _codecs = [];
 
-  BaseRdfCodecRegistry() {
-    _logger.fine('Creating RDF Codec Registry');
-  }
+  BaseRdfCodecRegistry();
 
   /// Register a new codec with the registry
   ///

@@ -510,6 +510,10 @@ class TurtleEncoder extends RdfGraphEncoder {
   /// Returns a list of collection items if the node is a collection head,
   /// or null if it's not part of a collection.
   List<RdfObject>? _extractCollection(RdfGraph graph, BlankNodeTerm node) {
+    if (graph.findTriples(object: node).length != 1) {
+      // If the blank node is referenced more than once, it cannot be a collection head
+      return null;
+    }
     // Get all triples where this node is the subject
     final outgoingTriples =
         graph.triples.where((t) => t.subject == node).toList();
@@ -1050,30 +1054,40 @@ class TurtleEncoder extends RdfGraphEncoder {
             nodesToInline,
             triplesBySubject,
           );
-        } else if (object is BlankNodeTerm &&
-            _extractCollection(graph, object) != null) {
+        } else if (object is BlankNodeTerm) {
           // Object is a collection
-          final collectionItems = _extractCollection(graph, object)!;
+          final collectionItems = _extractCollection(graph, object);
+          if (collectionItems != null) {
+            // Mark all nodes in the collection as processed
+            _markCollectionNodesAsProcessed(
+              graph,
+              object,
+              processedCollectionNodes,
+            );
 
-          // Mark all nodes in the collection as processed
-          _markCollectionNodesAsProcessed(
-            graph,
-            object,
-            processedCollectionNodes,
-          );
-
-          // Write collection
-          _writeCollection(
-            buffer,
-            collectionItems,
-            graph,
-            processedCollectionNodes,
-            objectIriRole,
-            compactedIris,
-            blankNodeLabels,
-            nodesToInline,
-            triplesBySubject,
-          );
+            // Write collection
+            _writeCollection(
+              buffer,
+              collectionItems,
+              graph,
+              processedCollectionNodes,
+              objectIriRole,
+              compactedIris,
+              blankNodeLabels,
+              nodesToInline,
+              triplesBySubject,
+            );
+          } else {
+            // Regular term
+            buffer.write(
+              writeTerm(
+                object,
+                iriRole: objectIriRole,
+                compactedIris: compactedIris,
+                blankNodeLabels: blankNodeLabels,
+              ),
+            );
+          }
         } else {
           // Regular term
           buffer.write(

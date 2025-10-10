@@ -799,6 +799,83 @@ void main() {
       );
     });
 
+    test(
+        'should correctly serialize RDF collections which are referenced twice',
+        () {
+      // Create an RDF collection structure (a linked list using rdf:first, rdf:rest, rdf:nil)
+      final head = BlankNodeTerm();
+      final node1 = BlankNodeTerm();
+      final node2 = BlankNodeTerm();
+
+      final graph = RdfGraph.fromTriples([
+        // Use the collection as an object in two triples
+        Triple(
+          const IriTerm('http://example.org/subject'),
+          const IriTerm('http://example.org/predicate'),
+          head,
+        ),
+        Triple(
+          const IriTerm('http://example.org/subject'),
+          const IriTerm('http://example.org/predicate2'),
+          head,
+        ),
+
+        // Define the collection structure
+        Triple(
+          head,
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          LiteralTerm.string('item1'),
+        ),
+        Triple(
+          head,
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          node1,
+        ),
+
+        Triple(
+          node1,
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          LiteralTerm.string('item2'),
+        ),
+        Triple(
+          node1,
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          node2,
+        ),
+
+        Triple(
+          node2,
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),
+          LiteralTerm.string('item3'),
+        ),
+        Triple(
+          node2,
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+        ),
+      ]);
+
+      // Act
+      final result = encoder.convert(graph);
+      print(result);
+      // Assert
+      expect(
+        result.trim(),
+        equals('''
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+ex:subject ex:predicate _:b0;
+    ex:predicate2 _:b0 .
+
+_:b0 rdf:first "item1";
+    rdf:rest ("item2" "item3") .
+
+'''
+            .trim()),
+      );
+    });
+
     test('should correctly serialize nested RDF collections', () {
       // Create a nested RDF collection (a collection containing another collection)
       final outerHead = BlankNodeTerm();

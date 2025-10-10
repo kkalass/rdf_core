@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.21] - 2025-10-10
+
+### Fixed
+
+- **Turtle Encoder**: Fixed incorrect serialization of blank nodes referenced multiple times as RDF collections
+  - Blank nodes that appear as objects in multiple triples are now correctly serialized as regular blank nodes instead of collection syntax
+  - Added validation to ensure collection heads are only referenced once before applying collection syntax
+
 ## [0.9.20] - 2025-09-28
 ### Changed
 

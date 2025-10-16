@@ -373,7 +373,7 @@ class TurtleEncoder extends RdfGraphEncoder {
   /// final turtle = encoder.convert(graph, baseUri: 'http://example.org/');
   /// ```
   String convert(RdfGraph graph, {String? baseUri}) {
-    _log.info('Serializing graph to Turtle');
+    _log.fine('Serializing graph to Turtle');
 
     final buffer = StringBuffer();
 

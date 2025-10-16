@@ -295,7 +295,7 @@ final class JsonLdEncoder extends RdfGraphEncoder {
   /// Returns a formatted JSON-LD string with 2-space indentation.
   @override
   String convert(RdfGraph graph, {String? baseUri}) {
-    _log.info('Serializing graph to JSON-LD');
+    _log.fine('Serializing graph to JSON-LD');
 
     // Return empty JSON object for empty graph
     if (graph.isEmpty) {

@@ -292,7 +292,7 @@ class TurtleParser {
         }
       }
 
-      _log.info('Parse complete. Found ${triples.length} triples');
+      _log.fine('Parse complete. Found ${triples.length} triples');
       return [...triples, ..._triples];
     } catch (e, stack) {
       if (e is RdfException) {

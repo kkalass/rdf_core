@@ -208,7 +208,7 @@ class JsonLdParser {
   /// RDF Graph. Graph names are not preserved in the current implementation.
   List<Triple> parse() {
     try {
-      _log.info('Starting JSON-LD parsing');
+      _log.fine('Starting JSON-LD parsing');
       final dynamic jsonData;
 
       try {
@@ -224,7 +224,7 @@ class JsonLdParser {
       final triples = <Triple>[];
 
       if (jsonData is List) {
-        _log.info('Parsing JSON-LD array');
+        _log.fine('Parsing JSON-LD array');
         // Handle JSON-LD array
         for (final item in jsonData) {
           if (item is Map<String, dynamic>) {
@@ -238,7 +238,7 @@ class JsonLdParser {
           }
         }
       } else if (jsonData is Map<String, dynamic>) {
-        _log.info('Parsing JSON-LD object');
+        _log.fine('Parsing JSON-LD object');
         // Handle JSON-LD object
         triples.addAll(_processNode(jsonData));
       } else {
@@ -249,7 +249,7 @@ class JsonLdParser {
         );
       }
 
-      _log.info('JSON-LD parsing complete. Found ${triples.length} triples');
+      _log.fine('JSON-LD parsing complete. Found ${triples.length} triples');
       return triples;
     } catch (e, stack) {
       if (e is RdfException) {
@@ -285,7 +285,7 @@ class JsonLdParser {
 
     // Handle @graph property if present
     if (node.containsKey('@graph')) {
-      _log.info('Processing @graph structure');
+      _log.fine('Processing @graph structure');
       final graph = node['@graph'];
 
       if (graph is List) {
@@ -333,13 +333,13 @@ class JsonLdParser {
         for (final entry in nodeContext.entries) {
           if (entry.value is String) {
             context[entry.key] = entry.value as String;
-            _log.info('Found context mapping: ${entry.key} -> ${entry.value}');
+            _log.fine('Found context mapping: ${entry.key} -> ${entry.value}');
           } else if (entry.value is Map<String, dynamic>) {
             // Handle complex context definitions
             final valueMap = entry.value as Map<String, dynamic>;
             if (valueMap.containsKey('@id')) {
               context[entry.key] = valueMap['@id'] as String;
-              _log.info(
+              _log.fine(
                 'Found complex context mapping: ${entry.key} -> ${valueMap['@id']}',
               );
             }
@@ -380,7 +380,7 @@ class JsonLdParser {
     // Determine the subject
     final String subjectStr = _getSubjectId(node, context);
     final subject = _createSubjectTerm(subjectStr);
-    _log.info('Processing node with subject: $subject');
+    _log.fine('Processing node with subject: $subject');
 
     // Process all properties except @context and @id
     for (final entry in node.entries) {
@@ -397,7 +397,7 @@ class JsonLdParser {
       } // Expand predicate using context
       final predicateStr = _expandPredicate(key, context);
       final predicate = _iriTermFactory(predicateStr);
-      _log.info('Processing property: $key -> $predicate');
+      _log.fine('Processing property: $key -> $predicate');
 
       if (value is List) {
         // Handle array values
@@ -427,7 +427,7 @@ class JsonLdParser {
   BlankNodeTerm _getOrCreateBlankNode(String label) {
     return _blankNodeCache.putIfAbsent(label, () {
       final blankNode = BlankNodeTerm();
-      _log.info('Created blank node for label $label: $blankNode');
+      _log.fine('Created blank node for label $label: $blankNode');
       return blankNode;
     });
   }
@@ -500,7 +500,7 @@ class JsonLdParser {
           final expandedType = _expandPredicate(type, context);
           triples.add(
               Triple(subject, typePredicate, _iriTermFactory(expandedType)));
-          _log.info(
+          _log.fine(
             'Added type triple: $subject -> $typePredicate -> $expandedType',
           );
         }
@@ -509,7 +509,7 @@ class JsonLdParser {
       final expandedType = _expandPredicate(typeValue, context);
       triples
           .add(Triple(subject, typePredicate, _iriTermFactory(expandedType)));
-      _log.info(
+      _log.fine(
         'Added type triple: $subject -> $typePredicate -> $expandedType',
       );
     } else if (typeValue is Map<String, dynamic>) {
@@ -520,7 +520,7 @@ class JsonLdParser {
           final expandedType = _expandPredicate(typeId, context);
           triples.add(
               Triple(subject, typePredicate, _iriTermFactory(expandedType)));
-          _log.info(
+          _log.fine(
             'Added type triple from object: $subject -> $typePredicate -> $expandedType',
           );
         }
@@ -566,25 +566,25 @@ class JsonLdParser {
       if (value.startsWith('http://') || value.startsWith('https://')) {
         // Treat as IRI
         triples.add(Triple(subject, predicate, _iriTermFactory(value)));
-        _log.info('Added IRI triple: $subject -> $predicate -> $value');
+        _log.fine('Added IRI triple: $subject -> $predicate -> $value');
       } else if (value.contains(':')) {
         // Check if it's a prefixed IRI like "schema:name"
         final expanded = _expandPrefixedIri(value, context);
         if (expanded != value) {
           // Was expanded, so treat as IRI
           triples.add(Triple(subject, predicate, _iriTermFactory(expanded)));
-          _log.info(
+          _log.fine(
             'Added expanded IRI triple: $subject -> $predicate -> $expanded (from $value)',
           );
         } else {
           // Wasn't expanded, treat as literal
           triples.add(Triple(subject, predicate, LiteralTerm.string(value)));
-          _log.info('Added literal triple: $subject -> $predicate -> "$value"');
+          _log.fine('Added literal triple: $subject -> $predicate -> "$value"');
         }
       } else {
         // Treat as literal
         triples.add(Triple(subject, predicate, LiteralTerm.string(value)));
-        _log.info('Added literal triple: $subject -> $predicate -> "$value"');
+        _log.fine('Added literal triple: $subject -> $predicate -> "$value"');
       }
     } else if (value is num) {
       // Numeric literal
@@ -596,7 +596,7 @@ class JsonLdParser {
           LiteralTerm.typed(value.toString(), datatype),
         ),
       );
-      _log.info(
+      _log.fine(
         'Added numeric literal triple: $subject -> $predicate -> $value',
       );
     } else if (value is bool) {
@@ -608,7 +608,7 @@ class JsonLdParser {
           LiteralTerm.typed(value.toString(), 'boolean'),
         ),
       );
-      _log.info(
+      _log.fine(
         'Added boolean literal triple: $subject -> $predicate -> $value',
       );
     } else if (value is Map<String, dynamic>) {
@@ -625,7 +625,7 @@ class JsonLdParser {
             : _iriTermFactory(resolvedIri);
 
         triples.add(Triple(subject, predicate, objectTerm));
-        _log.info(
+        _log.fine(
           'Added object reference triple: $subject -> $predicate -> $resolvedIri',
         );
 
@@ -653,7 +653,7 @@ class JsonLdParser {
         }
 
         triples.add(Triple(subject, predicate, objectTerm));
-        _log.info(
+        _log.fine(
           'Added complex literal triple: $subject -> $predicate -> $objectTerm',
         );
       } else {
@@ -662,7 +662,7 @@ class JsonLdParser {
         final blankNode = _getOrCreateBlankNode(blankNodeId);
 
         triples.add(Triple(subject, predicate, blankNode));
-        _log.info(
+        _log.fine(
           'Added blank node triple: $subject -> $predicate -> $blankNodeId',
         );
 

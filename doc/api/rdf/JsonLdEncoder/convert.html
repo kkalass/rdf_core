@@ -98,7 +98,7 @@ includeBaseDeclaration is true, it will be included in the @context.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 String convert(RdfGraph graph, {String? baseUri}) {
-  _log.info(&#39;Serializing graph to JSON-LD&#39;);
+  _log.fine(&#39;Serializing graph to JSON-LD&#39;);
 
   &#47;&#47; Return empty JSON object for empty graph
   if (graph.isEmpty) {
@@ -175,7 +175,7 @@ String convert(RdfGraph graph, {String? baseUri}) {
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.21
+      0.9.22
   </span>
   
 </footer>

@@ -133,7 +133,7 @@ final turtle = encoder.convert(graph, baseUri: 'http://example.org/');
 &#47;&#47;&#47; final turtle = encoder.convert(graph, baseUri: &#39;http:&#47;&#47;example.org&#47;&#39;);
 &#47;&#47;&#47; ```
 String convert(RdfGraph graph, {String? baseUri}) {
-  _log.info(&#39;Serializing graph to Turtle&#39;);
+  _log.fine(&#39;Serializing graph to Turtle&#39;);
 
   final buffer = StringBuffer();
 
@@ -195,7 +195,7 @@ String convert(RdfGraph graph, {String? baseUri}) {
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.21
+      0.9.22
   </span>
   
 </footer>

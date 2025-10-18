@@ -56,8 +56,11 @@
       
 <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/Triple-class.html">Triple</a></span>&gt;</span></span>
 <span class="name ">findTriples</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="findTriples-param-subject"><span class="type-annotation"><a href="../../rdf/RdfSubject-class.html">RdfSubject</a>?</span> <span class="parameter-name">subject</span>, </span></li>
+<li><span class="parameter" id="findTriples-param-subjectIn"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/RdfSubject-class.html">RdfSubject</a></span>&gt;</span>?</span> <span class="parameter-name">subjectIn</span>, </span></li>
 <li><span class="parameter" id="findTriples-param-predicate"><span class="type-annotation"><a href="../../rdf/RdfPredicate-class.html">RdfPredicate</a>?</span> <span class="parameter-name">predicate</span>, </span></li>
+<li><span class="parameter" id="findTriples-param-predicateIn"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/RdfPredicate-class.html">RdfPredicate</a></span>&gt;</span>?</span> <span class="parameter-name">predicateIn</span>, </span></li>
 <li><span class="parameter" id="findTriples-param-object"><span class="type-annotation"><a href="../../rdf/RdfObject-class.html">RdfObject</a>?</span> <span class="parameter-name">object</span>, </span></li>
+<li><span class="parameter" id="findTriples-param-objectIn"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/RdfObject-class.html">RdfObject</a></span>&gt;</span>?</span> <span class="parameter-name">objectIn</span>, </span></li>
 </ol>})
 
       
@@ -69,12 +72,25 @@
 <p>This method returns triples that match all the specified pattern components.
 Unlike withoutMatching, this method uses AND logic - all specified components
 must match. If a pattern component is null, it acts as a wildcard.</p>
+<p><strong>Set-based Queries:</strong> The <code>*In</code> parameters allow efficient querying for
+triples that match any value in a set. When multiple values are provided
+via these parameters, the method returns triples matching ANY of those values
+(OR logic within the set), while different parameter types still use AND logic.</p>
+<p><strong>Performance:</strong> When <code>subjectIn</code> is used with indexing enabled, this method
+leverages the internal index structure for optimal performance, especially
+beneficial when querying for multiple subjects.</p>
 <p>Parameters:</p>
 <ul>
-<li><code>subject</code> Optional subject to match</li>
-<li><code>predicate</code> Optional predicate to match</li>
-<li><code>object</code> Optional object to match</li>
+<li><code>subject</code> Optional subject to match (exact match)</li>
+<li><code>subjectIn</code> Optional set of subjects - matches triples with ANY of these subjects</li>
+<li><code>predicate</code> Optional predicate to match (exact match)</li>
+<li><code>predicateIn</code> Optional set of predicates - matches triples with ANY of these predicates</li>
+<li><code>object</code> Optional object to match (exact match)</li>
+<li><code>objectIn</code> Optional set of objects - matches triples with ANY of these objects</li>
 </ul>
+<p>Note: If both <code>subject</code> and <code>subjectIn</code> are provided, they are combined.
+The same applies to predicate/predicateIn and object/objectIn pairs.
+Empty sets in <code>*In</code> parameters will match nothing.</p>
 <p>Returns:
 List of matching triples as an unmodifiable collection. The list may be
 empty if no matching triples exist.</p>
@@ -87,6 +103,25 @@ final nameTriples = graph.findTriples(predicate: name);
 
 // Find John's name specifically
 final johnsName = graph.findTriples(subject: john, predicate: name);
+
+// Find statements about John OR Jane (set-based query)
+final multipleSubjects = graph.findTriples(subjectIn: [john, jane]);
+
+// Find name OR email properties (set-based query)
+final contactInfo = graph.findTriples(predicateIn: [name, email]);
+
+// Combine set-based and exact match filters
+final johnOrJaneName = graph.findTriples(
+  subjectIn: [john, jane],
+  predicate: name,
+);
+
+// Complex query with multiple sets
+final results = graph.findTriples(
+  subjectIn: [john, jane, bob],
+  predicateIn: [name, email],
+  objectIn: [targetValue1, targetValue2],
+);
 </code></pre>
 </section>
 
@@ -96,42 +131,57 @@ final johnsName = graph.findTriples(subject: john, predicate: name);
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">List&lt;Triple&gt; findTriples({
   RdfSubject? subject,
+  Iterable&lt;RdfSubject&gt;? subjectIn,
   RdfPredicate? predicate,
+  Iterable&lt;RdfPredicate&gt;? predicateIn,
   RdfObject? object,
+  Iterable&lt;RdfObject&gt;? objectIn,
 }) {
-  if (subject != null) {
-    switch (_effectiveIndex) {
-      case null:
-        break;
-      case final index:
-        final subjectMap = index[subject];
-        if (subjectMap == null) {
-          return const [];
-        }
-        if (predicate != null) {
-          final predicateList = subjectMap[predicate];
-          if (predicateList == null) {
-            return const [];
-          }
-          if (object != null) {
-            return List.unmodifiable(
-                predicateList.where((triple) =&gt; triple.object == object));
-          } else {
-            return List.unmodifiable(predicateList);
-          }
-        } else {
-          final allTriples = subjectMap.values.expand((list) =&gt; list);
-          if (object != null) {
-            return List.unmodifiable(
-                allTriples.where((triple) =&gt; triple.object == object));
-          } else {
-            return List.unmodifiable(allTriples);
-          }
-        }
+  final subjectSet = (subject != null || subjectIn != null)
+      ? {if (subject != null) subject, ...?subjectIn}
+      : null;
+
+  final predicateSet = (predicate != null || predicateIn != null)
+      ? {if (predicate != null) predicate, ...?predicateIn}
+      : null;
+
+  final objectSet = (object != null || objectIn != null)
+      ? {if (object != null) object, ...?objectIn}
+      : null;
+
+  if (subjectSet != null &amp;&amp; _effectiveIndex != null) {
+    final index = _effectiveIndex!;
+    &#47;&#47; If subjectSet is empty, the for loop simply won&#39;t run, correctly returning [].
+    final List&lt;Triple&gt; results = [];
+    for (final s in subjectSet) {
+      final subjectMap = index[s];
+      if (subjectMap == null) continue;
+
+      final Iterable&lt;Triple&gt; candidates;
+      if (predicateSet != null) {
+        &#47;&#47; If predicateSet is empty, this correctly produces no candidates.
+        candidates = predicateSet
+            .map((p) =&gt; subjectMap[p])
+            .nonNulls
+            .expand((list) =&gt; list);
+      } else {
+        candidates = subjectMap.values.expand((list) =&gt; list);
+      }
+
+      if (objectSet != null) {
+        &#47;&#47; If objectSet is empty, .where() will correctly filter everything out.
+        results.addAll(
+            candidates.where((triple) =&gt; objectSet.contains(triple.object)));
+      } else {
+        results.addAll(candidates);
+      }
     }
+    return List.unmodifiable(results);
   }
+
   return List.unmodifiable(
-    _triples.where((triple) =&gt; _matches(triple, subject, predicate, object)),
+    _triples.where(
+        (triple) =&gt; _matches(triple, subjectSet, predicateSet, objectSet)),
   );
 }</code></pre>
 </section>
@@ -161,7 +211,7 @@ final johnsName = graph.findTriples(subject: john, predicate: name);
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.22
+      0.9.23
   </span>
   
 </footer>

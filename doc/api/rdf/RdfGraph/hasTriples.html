@@ -56,8 +56,11 @@
       
 <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
 <span class="name ">hasTriples</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="hasTriples-param-subject"><span class="type-annotation"><a href="../../rdf/RdfSubject-class.html">RdfSubject</a>?</span> <span class="parameter-name">subject</span>, </span></li>
+<li><span class="parameter" id="hasTriples-param-subjectIn"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/RdfSubject-class.html">RdfSubject</a></span>&gt;</span>?</span> <span class="parameter-name">subjectIn</span>, </span></li>
 <li><span class="parameter" id="hasTriples-param-predicate"><span class="type-annotation"><a href="../../rdf/RdfPredicate-class.html">RdfPredicate</a>?</span> <span class="parameter-name">predicate</span>, </span></li>
+<li><span class="parameter" id="hasTriples-param-predicateIn"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/RdfPredicate-class.html">RdfPredicate</a></span>&gt;</span>?</span> <span class="parameter-name">predicateIn</span>, </span></li>
 <li><span class="parameter" id="hasTriples-param-object"><span class="type-annotation"><a href="../../rdf/RdfObject-class.html">RdfObject</a>?</span> <span class="parameter-name">object</span>, </span></li>
+<li><span class="parameter" id="hasTriples-param-objectIn"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rdf/RdfObject-class.html">RdfObject</a></span>&gt;</span>?</span> <span class="parameter-name">objectIn</span>, </span></li>
 </ol>})
 
       
@@ -73,15 +76,30 @@ know if matching triples exist rather than retrieving them.</p>
 <p>Pattern matching uses AND logic - all non-null parameters must match
 for a triple to be considered a match. Null parameters act as wildcards
 and match any value in that position.</p>
+<p><strong>Set-based Queries:</strong> The <code>*In</code> parameters allow efficient checking for
+triples that match any value in a set. When multiple values are provided
+via these parameters, the method checks if ANY of those values match
+(OR logic within the set), while different parameter types still use AND logic.</p>
+<p><strong>Performance:</strong> When <code>subjectIn</code> is used with indexing enabled, this method
+leverages the internal index structure for optimal performance. The method
+short-circuits as soon as a match is found, making it very efficient for
+existence checks even with large sets.</p>
 <p>Parameters:</p>
 <ul>
 <li><code>subject</code> Optional subject to match (null acts as wildcard)</li>
+<li><code>subjectIn</code> Optional set of subjects - returns true if ANY of these subjects have matching triples</li>
 <li><code>predicate</code> Optional predicate to match (null acts as wildcard)</li>
+<li><code>predicateIn</code> Optional set of predicates - returns true if ANY of these predicates match</li>
 <li><code>object</code> Optional object to match (null acts as wildcard)</li>
+<li><code>objectIn</code> Optional set of objects - returns true if ANY of these objects match</li>
 </ul>
+<p>Note: If both <code>subject</code> and <code>subjectIn</code> are provided, they are combined.
+The same applies to predicate/predicateIn and object/objectIn pairs.
+Empty sets in <code>*In</code> parameters will always return false.</p>
 <p>Returns:
 <code>true</code> if at least one triple matches the pattern, <code>false</code> otherwise.
-Returns <code>true</code> for empty pattern (all parameters null) if graph is not empty.</p>
+Returns <code>true</code> for empty pattern (all parameters null) if graph is not empty.
+Returns <code>false</code> if any <code>*In</code> parameter is an empty set.</p>
 <p>Example:</p>
 <pre class="language-dart"><code class="language-dart">// Check if John has any statements about him
 if (graph.hasTriples(subject: john)) {
@@ -102,6 +120,27 @@ if (graph.hasTriples(subject: john, predicate: foaf.name)) {
 if (graph.hasTriples()) {
   print('Graph is not empty');
 }
+
+// Check if John OR Jane have any triples (set-based query)
+if (graph.hasTriples(subjectIn: [john, jane])) {
+  print('Found information about John or Jane');
+}
+
+// Check if any name OR email properties exist
+if (graph.hasTriples(predicateIn: [name, email])) {
+  print('Graph contains contact information');
+}
+
+// Complex existence check with multiple sets
+if (graph.hasTriples(
+  subjectIn: [john, jane, bob],
+  predicateIn: [name, email],
+)) {
+  print('At least one person has contact info');
+}
+
+// Empty set always returns false
+assert(graph.hasTriples(subjectIn: []) == false);
 </code></pre>
 </section>
 
@@ -111,40 +150,55 @@ if (graph.hasTriples()) {
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">bool hasTriples({
   RdfSubject? subject,
+  Iterable&lt;RdfSubject&gt;? subjectIn,
   RdfPredicate? predicate,
+  Iterable&lt;RdfPredicate&gt;? predicateIn,
   RdfObject? object,
+  Iterable&lt;RdfObject&gt;? objectIn,
 }) {
-  if (subject != null) {
-    switch (_effectiveIndex) {
-      case null:
-        break;
-      case final index:
-        final subjectMap = index[subject];
-        if (subjectMap == null) {
-          return false;
-        }
-        if (predicate != null) {
-          final predicateList = subjectMap[predicate];
-          if (predicateList == null) {
-            return false;
-          }
-          if (object != null) {
-            return predicateList.any((triple) =&gt; triple.object == object);
-          } else {
-            return predicateList.isNotEmpty;
-          }
-        } else {
-          final allTriples = subjectMap.values.expand((list) =&gt; list);
-          if (object != null) {
-            return allTriples.any((triple) =&gt; triple.object == object);
-          } else {
-            return allTriples.isNotEmpty;
-          }
-        }
-    }
+  final subjectSet = (subject != null || subjectIn != null)
+      ? {if (subject != null) subject, ...?subjectIn}
+      : null;
+
+  final predicateSet = (predicate != null || predicateIn != null)
+      ? {if (predicate != null) predicate, ...?predicateIn}
+      : null;
+
+  final objectSet = (object != null || objectIn != null)
+      ? {if (object != null) object, ...?objectIn}
+      : null;
+  &#47;&#47; 2. Optimized path using the index
+  if (subjectSet != null &amp;&amp; _effectiveIndex != null) {
+    final index = _effectiveIndex!;
+    &#47;&#47; If any subject in the set can be found with a matching triple, return true.
+    return subjectSet.any((s) {
+      final subjectMap = index[s];
+      if (subjectMap == null) return false; &#47;&#47; No triples for this subject
+
+      final Iterable&lt;Triple&gt; candidates;
+      if (predicateSet != null) {
+        &#47;&#47; If predicateSet is empty, this will result in an empty sequence,
+        &#47;&#47; correctly finding no candidates.
+        candidates = predicateSet
+            .map((p) =&gt; subjectMap[p])
+            .where((list) =&gt; list != null)
+            .expand((list) =&gt; list!);
+      } else {
+        candidates = subjectMap.values.expand((list) =&gt; list);
+      }
+
+      &#47;&#47; Check if any candidate matches the object filter.
+      if (objectSet != null) {
+        return candidates.any((triple) =&gt; objectSet.contains(triple.object));
+      } else {
+        &#47;&#47; If there&#39;s no object filter, having any candidates is a match.
+        return candidates.isNotEmpty;
+      }
+    });
   }
+
   return _triples
-      .any((triple) =&gt; _matches(triple, subject, predicate, object));
+      .any((triple) =&gt; _matches(triple, subjectSet, predicateSet, objectSet));
 }</code></pre>
 </section>
 
@@ -173,7 +227,7 @@ if (graph.hasTriples()) {
 <footer>
   <span class="no-break">
     rdf_core
-      0.9.22
+      0.9.23
   </span>
   
 </footer>

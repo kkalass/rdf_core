@@ -465,10 +465,26 @@ final class RdfGraph {
   /// Unlike withoutMatching, this method uses AND logic - all specified components
   /// must match. If a pattern component is null, it acts as a wildcard.
   ///
+  /// **Set-based Queries:** The `*In` parameters allow efficient querying for
+  /// triples that match any value in a set. When multiple values are provided
+  /// via these parameters, the method returns triples matching ANY of those values
+  /// (OR logic within the set), while different parameter types still use AND logic.
+  ///
+  /// **Performance:** When [subjectIn] is used with indexing enabled, this method
+  /// leverages the internal index structure for optimal performance, especially
+  /// beneficial when querying for multiple subjects.
+  ///
   /// Parameters:
-  /// - [subject] Optional subject to match
-  /// - [predicate] Optional predicate to match
-  /// - [object] Optional object to match
+  /// - [subject] Optional subject to match (exact match)
+  /// - [subjectIn] Optional set of subjects - matches triples with ANY of these subjects
+  /// - [predicate] Optional predicate to match (exact match)
+  /// - [predicateIn] Optional set of predicates - matches triples with ANY of these predicates
+  /// - [object] Optional object to match (exact match)
+  /// - [objectIn] Optional set of objects - matches triples with ANY of these objects
+  ///
+  /// Note: If both [subject] and [subjectIn] are provided, they are combined.
+  /// The same applies to predicate/predicateIn and object/objectIn pairs.
+  /// Empty sets in `*In` parameters will match nothing.
   ///
   /// Returns:
   /// List of matching triples as an unmodifiable collection. The list may be
@@ -484,6 +500,25 @@ final class RdfGraph {
   ///
   /// // Find John's name specifically
   /// final johnsName = graph.findTriples(subject: john, predicate: name);
+  ///
+  /// // Find statements about John OR Jane (set-based query)
+  /// final multipleSubjects = graph.findTriples(subjectIn: [john, jane]);
+  ///
+  /// // Find name OR email properties (set-based query)
+  /// final contactInfo = graph.findTriples(predicateIn: [name, email]);
+  ///
+  /// // Combine set-based and exact match filters
+  /// final johnOrJaneName = graph.findTriples(
+  ///   subjectIn: [john, jane],
+  ///   predicate: name,
+  /// );
+  ///
+  /// // Complex query with multiple sets
+  /// final results = graph.findTriples(
+  ///   subjectIn: [john, jane, bob],
+  ///   predicateIn: [name, email],
+  ///   objectIn: [targetValue1, targetValue2],
+  /// );
   /// ```
   List<Triple> findTriples({
     RdfSubject? subject,
@@ -566,14 +601,32 @@ final class RdfGraph {
   /// for a triple to be considered a match. Null parameters act as wildcards
   /// and match any value in that position.
   ///
+  /// **Set-based Queries:** The `*In` parameters allow efficient checking for
+  /// triples that match any value in a set. When multiple values are provided
+  /// via these parameters, the method checks if ANY of those values match
+  /// (OR logic within the set), while different parameter types still use AND logic.
+  ///
+  /// **Performance:** When [subjectIn] is used with indexing enabled, this method
+  /// leverages the internal index structure for optimal performance. The method
+  /// short-circuits as soon as a match is found, making it very efficient for
+  /// existence checks even with large sets.
+  ///
   /// Parameters:
   /// - [subject] Optional subject to match (null acts as wildcard)
+  /// - [subjectIn] Optional set of subjects - returns true if ANY of these subjects have matching triples
   /// - [predicate] Optional predicate to match (null acts as wildcard)
+  /// - [predicateIn] Optional set of predicates - returns true if ANY of these predicates match
   /// - [object] Optional object to match (null acts as wildcard)
+  /// - [objectIn] Optional set of objects - returns true if ANY of these objects match
+  ///
+  /// Note: If both [subject] and [subjectIn] are provided, they are combined.
+  /// The same applies to predicate/predicateIn and object/objectIn pairs.
+  /// Empty sets in `*In` parameters will always return false.
   ///
   /// Returns:
   /// `true` if at least one triple matches the pattern, `false` otherwise.
   /// Returns `true` for empty pattern (all parameters null) if graph is not empty.
+  /// Returns `false` if any `*In` parameter is an empty set.
   ///
   /// Example:
   /// ```dart
@@ -596,6 +649,27 @@ final class RdfGraph {
   /// if (graph.hasTriples()) {
   ///   print('Graph is not empty');
   /// }
+  ///
+  /// // Check if John OR Jane have any triples (set-based query)
+  /// if (graph.hasTriples(subjectIn: [john, jane])) {
+  ///   print('Found information about John or Jane');
+  /// }
+  ///
+  /// // Check if any name OR email properties exist
+  /// if (graph.hasTriples(predicateIn: [name, email])) {
+  ///   print('Graph contains contact information');
+  /// }
+  ///
+  /// // Complex existence check with multiple sets
+  /// if (graph.hasTriples(
+  ///   subjectIn: [john, jane, bob],
+  ///   predicateIn: [name, email],
+  /// )) {
+  ///   print('At least one person has contact info');
+  /// }
+  ///
+  /// // Empty set always returns false
+  /// assert(graph.hasTriples(subjectIn: []) == false);
   /// ```
   bool hasTriples({
     RdfSubject? subject,

@@ -487,6 +487,254 @@ void main() {
             isFalse);
       });
 
+      test('should find triples with subjectIn parameter', () {
+        final john = const IriTerm('http://example.com/john');
+        final jane = const IriTerm('http://example.com/jane');
+        final bob = const IriTerm('http://example.com/bob');
+        final name = const IriTerm('http://xmlns.com/foaf/0.1/name');
+        final knows = const IriTerm('http://xmlns.com/foaf/0.1/knows');
+
+        final triple1 = Triple(john, name, LiteralTerm.string('John Smith'));
+        final triple2 = Triple(jane, name, LiteralTerm.string('Jane Doe'));
+        final triple3 = Triple(bob, name, LiteralTerm.string('Bob Johnson'));
+        final triple4 = Triple(john, knows, jane);
+
+        final graph = RdfGraph()
+            .withTriple(triple1)
+            .withTriple(triple2)
+            .withTriple(triple3)
+            .withTriple(triple4);
+
+        // Find triples for John and Jane
+        var triples = graph.findTriples(subjectIn: [john, jane]);
+        expect(triples.length, equals(3));
+        expect(triples, contains(triple1));
+        expect(triples, contains(triple2));
+        expect(triples, contains(triple4));
+        expect(triples, isNot(contains(triple3)));
+
+        // Find triples for Bob only
+        triples = graph.findTriples(subjectIn: [bob]);
+        expect(triples.length, equals(1));
+        expect(triples, contains(triple3));
+
+        // Empty set should return no results
+        triples = graph.findTriples(subjectIn: []);
+        expect(triples, isEmpty);
+
+        // Combine with predicate filter
+        triples = graph.findTriples(subjectIn: [john, jane], predicate: name);
+        expect(triples.length, equals(2));
+        expect(triples, contains(triple1));
+        expect(triples, contains(triple2));
+      });
+
+      test('should find triples with predicateIn parameter', () {
+        final john = const IriTerm('http://example.com/john');
+        final name = const IriTerm('http://xmlns.com/foaf/0.1/name');
+        final email = const IriTerm('http://xmlns.com/foaf/0.1/email');
+        final knows = const IriTerm('http://xmlns.com/foaf/0.1/knows');
+        final age = const IriTerm('http://xmlns.com/foaf/0.1/age');
+
+        final triple1 = Triple(john, name, LiteralTerm.string('John Smith'));
+        final triple2 =
+            Triple(john, email, LiteralTerm.string('john@example.com'));
+        final triple3 =
+            Triple(john, knows, const IriTerm('http://example.com/jane'));
+        final triple4 = Triple(john, age, LiteralTerm.integer(30));
+
+        final graph = RdfGraph()
+            .withTriple(triple1)
+            .withTriple(triple2)
+            .withTriple(triple3)
+            .withTriple(triple4);
+
+        // Find triples with name or email predicates
+        var triples = graph.findTriples(predicateIn: [name, email]);
+        expect(triples.length, equals(2));
+        expect(triples, contains(triple1));
+        expect(triples, contains(triple2));
+        expect(triples, isNot(contains(triple3)));
+        expect(triples, isNot(contains(triple4)));
+
+        // Find triples with knows or age predicates
+        triples = graph.findTriples(predicateIn: [knows, age]);
+        expect(triples.length, equals(2));
+        expect(triples, contains(triple3));
+        expect(triples, contains(triple4));
+
+        // Empty set should return no results
+        triples = graph.findTriples(predicateIn: []);
+        expect(triples, isEmpty);
+
+        // Combine with subject filter
+        triples = graph.findTriples(subject: john, predicateIn: [name, email]);
+        expect(triples.length, equals(2));
+        expect(triples, contains(triple1));
+        expect(triples, contains(triple2));
+      });
+
+      test('should find triples with objectIn parameter', () {
+        final john = const IriTerm('http://example.com/john');
+        final jane = const IriTerm('http://example.com/jane');
+        final name = const IriTerm('http://xmlns.com/foaf/0.1/name');
+        final knows = const IriTerm('http://xmlns.com/foaf/0.1/knows');
+        final age = const IriTerm('http://xmlns.com/foaf/0.1/age');
+
+        final johnName = LiteralTerm.string('John Smith');
+        final janeName = LiteralTerm.string('Jane Doe');
+        final age30 = LiteralTerm.integer(30);
+        final age25 = LiteralTerm.integer(25);
+
+        final triple1 = Triple(john, name, johnName);
+        final triple2 = Triple(jane, name, janeName);
+        final triple3 = Triple(john, knows, jane);
+        final triple4 = Triple(john, age, age30);
+        final triple5 = Triple(jane, age, age25);
+
+        final graph = RdfGraph()
+            .withTriple(triple1)
+            .withTriple(triple2)
+            .withTriple(triple3)
+            .withTriple(triple4)
+            .withTriple(triple5);
+
+        // Find triples with specific literal values
+        var triples = graph.findTriples(objectIn: [johnName, janeName]);
+        expect(triples.length, equals(2));
+        expect(triples, contains(triple1));
+        expect(triples, contains(triple2));
+        expect(triples, isNot(contains(triple3)));
+
+        // Find triples with age values
+        triples = graph.findTriples(objectIn: [age30, age25]);
+        expect(triples.length, equals(2));
+        expect(triples, contains(triple4));
+        expect(triples, contains(triple5));
+
+        // Find triples with IRI object (jane as object)
+        triples = graph.findTriples(objectIn: [jane]);
+        expect(triples.length, equals(1));
+        expect(triples, contains(triple3));
+
+        // Empty set should return no results
+        triples = graph.findTriples(objectIn: []);
+        expect(triples, isEmpty);
+
+        // Combine with subject and predicate filters
+        triples = graph.findTriples(
+            subject: john, predicate: name, objectIn: [johnName, janeName]);
+        expect(triples.length, equals(1));
+        expect(triples, contains(triple1));
+      });
+
+      test('should combine multiple *In parameters', () {
+        final john = const IriTerm('http://example.com/john');
+        final jane = const IriTerm('http://example.com/jane');
+        final bob = const IriTerm('http://example.com/bob');
+        final name = const IriTerm('http://xmlns.com/foaf/0.1/name');
+        final email = const IriTerm('http://xmlns.com/foaf/0.1/email');
+        final age = const IriTerm('http://xmlns.com/foaf/0.1/age');
+
+        final johnName = LiteralTerm.string('John Smith');
+        final janeName = LiteralTerm.string('Jane Doe');
+        final bobName = LiteralTerm.string('Bob Johnson');
+
+        final triple1 = Triple(john, name, johnName);
+        final triple2 = Triple(jane, name, janeName);
+        final triple3 = Triple(bob, name, bobName);
+        final triple4 =
+            Triple(john, email, LiteralTerm.string('john@example.com'));
+        final triple5 = Triple(john, age, LiteralTerm.integer(30));
+
+        final graph = RdfGraph()
+            .withTriple(triple1)
+            .withTriple(triple2)
+            .withTriple(triple3)
+            .withTriple(triple4)
+            .withTriple(triple5);
+
+        // Combine subjectIn and predicateIn
+        var triples = graph
+            .findTriples(subjectIn: [john, jane], predicateIn: [name, email]);
+        expect(triples.length, equals(3));
+        expect(triples, contains(triple1));
+        expect(triples, contains(triple2));
+        expect(triples, contains(triple4));
+
+        // Combine all three *In parameters
+        triples = graph.findTriples(
+            subjectIn: [john, jane],
+            predicateIn: [name],
+            objectIn: [johnName, janeName]);
+        expect(triples.length, equals(2));
+        expect(triples, contains(triple1));
+        expect(triples, contains(triple2));
+
+        // Mix regular and *In parameters
+        triples = graph.findTriples(subject: john, predicateIn: [name, email]);
+        expect(triples.length, equals(2));
+        expect(triples, contains(triple1));
+        expect(triples, contains(triple4));
+      });
+
+      test('should check triple existence with *In parameters', () {
+        final john = const IriTerm('http://example.com/john');
+        final jane = const IriTerm('http://example.com/jane');
+        final bob = const IriTerm('http://example.com/bob');
+        final name = const IriTerm('http://xmlns.com/foaf/0.1/name');
+        final email = const IriTerm('http://xmlns.com/foaf/0.1/email');
+        final knows = const IriTerm('http://xmlns.com/foaf/0.1/knows');
+
+        final johnName = LiteralTerm.string('John Smith');
+        final janeName = LiteralTerm.string('Jane Doe');
+
+        final triple1 = Triple(john, name, johnName);
+        final triple2 = Triple(jane, name, janeName);
+        final triple3 = Triple(john, knows, jane);
+
+        final graph =
+            RdfGraph().withTriple(triple1).withTriple(triple2).withTriple(
+                  triple3,
+                );
+
+        // Check with subjectIn
+        expect(graph.hasTriples(subjectIn: [john, jane]), isTrue);
+        expect(graph.hasTriples(subjectIn: [bob]), isFalse);
+        expect(graph.hasTriples(subjectIn: []), isFalse);
+
+        // Check with predicateIn
+        expect(graph.hasTriples(predicateIn: [name, email]), isTrue);
+        expect(graph.hasTriples(predicateIn: [email]), isFalse);
+        expect(graph.hasTriples(predicateIn: []), isFalse);
+
+        // Check with objectIn
+        expect(graph.hasTriples(objectIn: [johnName, janeName]), isTrue);
+        expect(graph.hasTriples(objectIn: [jane]), isTrue);
+        expect(graph.hasTriples(objectIn: [LiteralTerm.string('Bob Johnson')]),
+            isFalse);
+        expect(graph.hasTriples(objectIn: []), isFalse);
+
+        // Combine multiple *In parameters
+        expect(graph.hasTriples(subjectIn: [john, jane], predicateIn: [name]),
+            isTrue);
+        expect(
+            graph.hasTriples(subjectIn: [john], predicateIn: [email]), isFalse);
+        expect(
+            graph.hasTriples(
+                subjectIn: [john], predicateIn: [name], objectIn: [johnName]),
+            isTrue);
+        expect(
+            graph.hasTriples(
+                subjectIn: [john], predicateIn: [name], objectIn: [janeName]),
+            isFalse);
+
+        // Mix regular and *In parameters
+        expect(graph.hasTriples(subject: john, predicateIn: [name, knows]),
+            isTrue);
+        expect(graph.hasTriples(subject: john, predicateIn: [email]), isFalse);
+      });
+
       test('should get unique subjects, predicates, and objects', () {
         final subject1 = const IriTerm('http://example.com/john');
         final subject2 = const IriTerm('http://example.com/jane');
@@ -1792,6 +2040,167 @@ void main() {
           storageTriples.map((t) => t.object),
           everyElement(equals(const IriTerm('https://example.com/storage/'))),
         );
+      });
+    });
+
+    group('Indexed queries with *In parameters', () {
+      test('should use index optimization for subjectIn queries', () {
+        final john = const IriTerm('http://example.com/john');
+        final jane = const IriTerm('http://example.com/jane');
+        final bob = const IriTerm('http://example.com/bob');
+        final alice = const IriTerm('http://example.com/alice');
+        final name = const IriTerm('http://xmlns.com/foaf/0.1/name');
+        final email = const IriTerm('http://xmlns.com/foaf/0.1/email');
+
+        // Create a graph with indexing enabled
+        final indexedGraph = RdfGraph(
+          triples: [
+            Triple(john, name, LiteralTerm.string('John Smith')),
+            Triple(john, email, LiteralTerm.string('john@example.com')),
+            Triple(jane, name, LiteralTerm.string('Jane Doe')),
+            Triple(jane, email, LiteralTerm.string('jane@example.com')),
+            Triple(bob, name, LiteralTerm.string('Bob Johnson')),
+            Triple(alice, name, LiteralTerm.string('Alice Wonder')),
+          ],
+          enableIndexing: true,
+        );
+
+        // Create a graph without indexing for comparison
+        final nonIndexedGraph = RdfGraph(
+          triples: indexedGraph.triples,
+          enableIndexing: false,
+        );
+
+        // Test that both produce the same results with subjectIn
+        final subjectsToFind = [john, jane];
+        final indexedResults =
+            indexedGraph.findTriples(subjectIn: subjectsToFind);
+        final nonIndexedResults =
+            nonIndexedGraph.findTriples(subjectIn: subjectsToFind);
+
+        expect(indexedResults.length, equals(nonIndexedResults.length));
+        expect(indexedResults.toSet(), equals(nonIndexedResults.toSet()));
+        expect(indexedResults.length,
+            equals(4)); // 2 triples each for John and Jane
+
+        // Test with subjectIn and predicateIn combination
+        final predicates = [name];
+        final combinedIndexed = indexedGraph.findTriples(
+            subjectIn: subjectsToFind, predicateIn: predicates);
+        final combinedNonIndexed = nonIndexedGraph.findTriples(
+            subjectIn: subjectsToFind, predicateIn: predicates);
+
+        expect(combinedIndexed.length, equals(combinedNonIndexed.length));
+        expect(combinedIndexed.toSet(), equals(combinedNonIndexed.toSet()));
+        expect(combinedIndexed.length,
+            equals(2)); // name triples for John and Jane
+      });
+
+      test('should use index optimization for hasTriples with subjectIn', () {
+        final john = const IriTerm('http://example.com/john');
+        final jane = const IriTerm('http://example.com/jane');
+        final bob = const IriTerm('http://example.com/bob');
+        final unknown = const IriTerm('http://example.com/unknown');
+        final name = const IriTerm('http://xmlns.com/foaf/0.1/name');
+
+        final indexedGraph = RdfGraph(
+          triples: [
+            Triple(john, name, LiteralTerm.string('John Smith')),
+            Triple(jane, name, LiteralTerm.string('Jane Doe')),
+            Triple(bob, name, LiteralTerm.string('Bob Johnson')),
+          ],
+          enableIndexing: true,
+        );
+
+        final nonIndexedGraph = RdfGraph(
+          triples: indexedGraph.triples,
+          enableIndexing: false,
+        );
+
+        // Test with subjects that exist
+        expect(indexedGraph.hasTriples(subjectIn: [john, jane]), isTrue);
+        expect(nonIndexedGraph.hasTriples(subjectIn: [john, jane]), isTrue);
+
+        // Test with subject that doesn't exist
+        expect(indexedGraph.hasTriples(subjectIn: [unknown]), isFalse);
+        expect(nonIndexedGraph.hasTriples(subjectIn: [unknown]), isFalse);
+
+        // Test with empty set
+        expect(indexedGraph.hasTriples(subjectIn: []), isFalse);
+        expect(nonIndexedGraph.hasTriples(subjectIn: []), isFalse);
+
+        // Test with mixed (existing and non-existing)
+        expect(indexedGraph.hasTriples(subjectIn: [john, unknown]), isTrue);
+        expect(nonIndexedGraph.hasTriples(subjectIn: [john, unknown]), isTrue);
+      });
+
+      test('should handle empty *In parameters correctly with indexing', () {
+        final john = const IriTerm('http://example.com/john');
+        final name = const IriTerm('http://xmlns.com/foaf/0.1/name');
+
+        final graph = RdfGraph(
+          triples: [
+            Triple(john, name, LiteralTerm.string('John Smith')),
+          ],
+          enableIndexing: true,
+        );
+
+        // Empty subjectIn should return no results
+        expect(graph.findTriples(subjectIn: []), isEmpty);
+        expect(graph.hasTriples(subjectIn: []), isFalse);
+
+        // Empty predicateIn should return no results
+        expect(graph.findTriples(predicateIn: []), isEmpty);
+        expect(graph.hasTriples(predicateIn: []), isFalse);
+
+        // Empty objectIn should return no results
+        expect(graph.findTriples(objectIn: []), isEmpty);
+        expect(graph.hasTriples(objectIn: []), isFalse);
+
+        // Combination of regular and empty *In parameters
+        expect(graph.findTriples(subject: john, predicateIn: []), isEmpty);
+        expect(graph.hasTriples(subject: john, predicateIn: []), isFalse);
+      });
+
+      test('should correctly handle large subjectIn sets with indexing', () {
+        final name = const IriTerm('http://xmlns.com/foaf/0.1/name');
+
+        // Create many subjects
+        final subjects = List.generate(
+          100,
+          (i) => IriTerm('http://example.com/person$i'),
+        );
+
+        // Create triples for each subject
+        final triples = subjects
+            .map((s) => Triple(s, name, LiteralTerm.string('Person $s')))
+            .toList();
+
+        final indexedGraph = RdfGraph(
+          triples: triples,
+          enableIndexing: true,
+        );
+
+        // Query for a subset of subjects
+        final subsetSubjects = subjects.take(10).toList();
+        final results = indexedGraph.findTriples(subjectIn: subsetSubjects);
+
+        expect(results.length, equals(10));
+        expect(
+          results.every((t) => subsetSubjects.contains(t.subject)),
+          isTrue,
+        );
+
+        // Verify hasTriples works correctly
+        expect(indexedGraph.hasTriples(subjectIn: subsetSubjects), isTrue);
+
+        // Query for non-existent subjects
+        final nonExistentSubjects = [
+          const IriTerm('http://example.com/person999'),
+          const IriTerm('http://example.com/person1000'),
+        ];
+        expect(
+            indexedGraph.hasTriples(subjectIn: nonExistentSubjects), isFalse);
       });
     });
   });

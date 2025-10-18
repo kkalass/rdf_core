@@ -42,8 +42,8 @@ void main() {
             'http://example.org/storage/solidtask/task/task456.ttl#vectorclock-user123');
         final compactedSubject = result.compactIri(targetIri, IriRole.subject);
 
-        print('Compaction result for subject: $compactedSubject');
-        print('Type: ${compactedSubject.runtimeType}');
+        //print('Compaction result for subject: $compactedSubject');
+        //print('Type: ${compactedSubject.runtimeType}');
 
         // Expected: should return RelativeIri('#vectorclock-user123') since only fragment differs
         expect(compactedSubject, isA<RelativeIri>());
@@ -74,8 +74,8 @@ void main() {
             'http://example.org/storage/solidtask/task/task456.ttl#vectorclock-user123');
         final compactedSubject = result.compactIri(targetIri, IriRole.subject);
 
-        print('Compaction result with prefix option: $compactedSubject');
-        print('Type: ${compactedSubject.runtimeType}');
+        //print('Compaction result with prefix option: $compactedSubject');
+        //print('Type: ${compactedSubject.runtimeType}');
 
         // The relative form '#vectorclock-user123' should be shorter than any prefix form
         expect(compactedSubject, isA<RelativeIri>());
@@ -99,8 +99,8 @@ void main() {
             'http://example.org/storage/solidtask/task/task456.ttl');
         final compactedSubject = result.compactIri(targetIri, IriRole.subject);
 
-        print('Compaction result for same-as-base: $compactedSubject');
-        print('Type: ${compactedSubject.runtimeType}');
+        //print('Compaction result for same-as-base: $compactedSubject');
+        //print('Type: ${compactedSubject.runtimeType}');
 
         // Should return empty relative IRI
         expect(compactedSubject, isA<RelativeIri>());

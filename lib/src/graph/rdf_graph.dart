@@ -487,50 +487,71 @@ final class RdfGraph {
   /// ```
   List<Triple> findTriples({
     RdfSubject? subject,
+    Iterable<RdfSubject>? subjectIn,
     RdfPredicate? predicate,
+    Iterable<RdfPredicate>? predicateIn,
     RdfObject? object,
+    Iterable<RdfObject>? objectIn,
   }) {
-    if (subject != null) {
-      switch (_effectiveIndex) {
-        case null:
-          break;
-        case final index:
-          final subjectMap = index[subject];
-          if (subjectMap == null) {
-            return const [];
-          }
-          if (predicate != null) {
-            final predicateList = subjectMap[predicate];
-            if (predicateList == null) {
-              return const [];
-            }
-            if (object != null) {
-              return List.unmodifiable(
-                  predicateList.where((triple) => triple.object == object));
-            } else {
-              return List.unmodifiable(predicateList);
-            }
-          } else {
-            final allTriples = subjectMap.values.expand((list) => list);
-            if (object != null) {
-              return List.unmodifiable(
-                  allTriples.where((triple) => triple.object == object));
-            } else {
-              return List.unmodifiable(allTriples);
-            }
-          }
+    final subjectSet = (subject != null || subjectIn != null)
+        ? {if (subject != null) subject, ...?subjectIn}
+        : null;
+
+    final predicateSet = (predicate != null || predicateIn != null)
+        ? {if (predicate != null) predicate, ...?predicateIn}
+        : null;
+
+    final objectSet = (object != null || objectIn != null)
+        ? {if (object != null) object, ...?objectIn}
+        : null;
+
+    if (subjectSet != null && _effectiveIndex != null) {
+      final index = _effectiveIndex!;
+      // If subjectSet is empty, the for loop simply won't run, correctly returning [].
+      final List<Triple> results = [];
+      for (final s in subjectSet) {
+        final subjectMap = index[s];
+        if (subjectMap == null) continue;
+
+        final Iterable<Triple> candidates;
+        if (predicateSet != null) {
+          // If predicateSet is empty, this correctly produces no candidates.
+          candidates = predicateSet
+              .map((p) => subjectMap[p])
+              .nonNulls
+              .expand((list) => list);
+        } else {
+          candidates = subjectMap.values.expand((list) => list);
+        }
+
+        if (objectSet != null) {
+          // If objectSet is empty, .where() will correctly filter everything out.
+          results.addAll(
+              candidates.where((triple) => objectSet.contains(triple.object)));
+        } else {
+          results.addAll(candidates);
+        }
       }
+      return List.unmodifiable(results);
     }
+
     return List.unmodifiable(
-      _triples.where((triple) => _matches(triple, subject, predicate, object)),
+      _triples.where(
+          (triple) => _matches(triple, subjectSet, predicateSet, objectSet)),
     );
   }
 
-  bool _matches(Triple triple, RdfSubject? subject, RdfPredicate? predicate,
-      RdfObject? object) {
-    if (subject != null && triple.subject != subject) return false;
-    if (predicate != null && triple.predicate != predicate) return false;
-    if (object != null && triple.object != object) return false;
+  bool _matches(Triple triple, Set<RdfSubject>? subjectIn,
+      Set<RdfPredicate>? predicateIn, Set<RdfObject>? objectIn) {
+    if (subjectIn != null && !subjectIn.contains(triple.subject)) {
+      return false;
+    }
+    if (predicateIn != null && !predicateIn.contains(triple.predicate)) {
+      return false;
+    }
+    if (objectIn != null && !objectIn.contains(triple.object)) {
+      return false;
+    }
     return true;
   }
 
@@ -578,40 +599,55 @@ final class RdfGraph {
   /// ```
   bool hasTriples({
     RdfSubject? subject,
+    Iterable<RdfSubject>? subjectIn,
     RdfPredicate? predicate,
+    Iterable<RdfPredicate>? predicateIn,
     RdfObject? object,
+    Iterable<RdfObject>? objectIn,
   }) {
-    if (subject != null) {
-      switch (_effectiveIndex) {
-        case null:
-          break;
-        case final index:
-          final subjectMap = index[subject];
-          if (subjectMap == null) {
-            return false;
-          }
-          if (predicate != null) {
-            final predicateList = subjectMap[predicate];
-            if (predicateList == null) {
-              return false;
-            }
-            if (object != null) {
-              return predicateList.any((triple) => triple.object == object);
-            } else {
-              return predicateList.isNotEmpty;
-            }
-          } else {
-            final allTriples = subjectMap.values.expand((list) => list);
-            if (object != null) {
-              return allTriples.any((triple) => triple.object == object);
-            } else {
-              return allTriples.isNotEmpty;
-            }
-          }
-      }
+    final subjectSet = (subject != null || subjectIn != null)
+        ? {if (subject != null) subject, ...?subjectIn}
+        : null;
+
+    final predicateSet = (predicate != null || predicateIn != null)
+        ? {if (predicate != null) predicate, ...?predicateIn}
+        : null;
+
+    final objectSet = (object != null || objectIn != null)
+        ? {if (object != null) object, ...?objectIn}
+        : null;
+    // 2. Optimized path using the index
+    if (subjectSet != null && _effectiveIndex != null) {
+      final index = _effectiveIndex!;
+      // If any subject in the set can be found with a matching triple, return true.
+      return subjectSet.any((s) {
+        final subjectMap = index[s];
+        if (subjectMap == null) return false; // No triples for this subject
+
+        final Iterable<Triple> candidates;
+        if (predicateSet != null) {
+          // If predicateSet is empty, this will result in an empty sequence,
+          // correctly finding no candidates.
+          candidates = predicateSet
+              .map((p) => subjectMap[p])
+              .where((list) => list != null)
+              .expand((list) => list!);
+        } else {
+          candidates = subjectMap.values.expand((list) => list);
+        }
+
+        // Check if any candidate matches the object filter.
+        if (objectSet != null) {
+          return candidates.any((triple) => objectSet.contains(triple.object));
+        } else {
+          // If there's no object filter, having any candidates is a match.
+          return candidates.isNotEmpty;
+        }
+      });
     }
+
     return _triples
-        .any((triple) => _matches(triple, subject, predicate, object));
+        .any((triple) => _matches(triple, subjectSet, predicateSet, objectSet));
   }
 
   /// Creates a new graph containing only triples that match the given pattern

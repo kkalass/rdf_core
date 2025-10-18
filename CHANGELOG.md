@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **RdfGraph**: Enhanced pattern matching with `*In` parameters for set-based queries
+  - Added `subjectIn`, `predicateIn`, and `objectIn` parameters to `findTriples()` method
+  - Added `subjectIn`, `predicateIn`, and `objectIn` parameters to `hasTriples()` method
+  - Allows efficient querying for triples matching any value in a set of subjects/predicates/objects
+  - Optimized implementation leverages existing index structure for improved performance
+  - Internal refactoring of `_matches()` method to use set-based matching logic
+
 ## [0.9.22] - 2025-10-16
 
 ### Changed

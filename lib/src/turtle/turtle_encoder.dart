@@ -759,7 +759,18 @@ class TurtleEncoder extends RdfGraphEncoder {
         if (b is IriTerm) {
           return 1; // IRIs should come before blank nodes
         }
-        // Blank nodes are sorted by their hash code
+        final la = a is BlankNodeTerm ? blankNodeLabels[a] : null;
+        final lb = b is BlankNodeTerm ? blankNodeLabels[b] : null;
+        if (la != null && lb != null) {
+          return la.compareTo(lb);
+        }
+        if (la != null) {
+          return -1; // Labeled blank nodes come before unlabeled
+        }
+        if (lb != null) {
+          return 1; // Labeled blank nodes come before unlabeled
+        }
+        // Last resort: compare by identity hash code to ensure consistent order
         return identityHashCode(a).compareTo(identityHashCode(b));
       });
     // Write each subject group

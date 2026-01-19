@@ -1,3 +1,13 @@
+> # ⚠️ DEPRECATED - This package has moved!
+> 
+> **This package is no longer maintained.** It has been integrated into the [locorda](https://github.com/locorda) project's monorepo and rebranded.
+> 
+> **Please migrate to:** [`locorda_rdf_core`](https://pub.dev/packages/locorda_rdf_core)
+> 
+> All future development and support will happen in the new package. This repository will be archived.
+> 
+> **Migration:** Simply replace `rdf_core` with `locorda_rdf_core` in your `pubspec.yaml` and update your imports.
+
 <div align="center">
   <img src="https://kkalass.github.io/rdf_core/logo.svg" alt="rdf_core logo" width="96" height="96"/>
 </div>
